@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TrueThat</string>
+    <string name="user_reaction">user reaction</string>
+    <string name="scene_image">scene image</string>
+    <string name="capture">Capture</string>
+    <string name="oh_puppy">Oh…puppy</string>
 </resources>
