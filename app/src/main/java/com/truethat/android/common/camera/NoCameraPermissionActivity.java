@@ -1,4 +1,4 @@
-package com.truethat.android.common;
+package com.truethat.android.common.camera;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

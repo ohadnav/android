@@ -16,7 +16,7 @@
         tools:layout_constraintLeft_creator="1"/>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/captureButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

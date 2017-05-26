@@ -27,6 +27,13 @@ android {
     }
     defaultConfig {
         buildConfigField "Integer", "PORT", "8080"
+        jackOptions {
+            enabled true
+        }
+    }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
     }
 }
 
@@ -53,4 +60,5 @@ dependencies {
         exclude module: 'okhttp'
     }
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+    androidTestCompile 'org.awaitility:awaitility:3.0.0'
 }

@@ -1,4 +1,4 @@
-package com.truethat.android.thatre;
+package com.truethat.android.theater;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

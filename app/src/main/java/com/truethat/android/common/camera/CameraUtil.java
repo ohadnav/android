@@ -1,4 +1,4 @@
-package com.truethat.android.common.util;
+package com.truethat.android.common.camera;
 
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -8,8 +8,8 @@ import android.hardware.camera2.CameraManager;
  * Proudly created by ohad on 01/05/2017 for TrueThat.
  */
 
-public class CameraUtil {
-    public static String getFrontFacingCameraId(CameraManager manager) {
+class CameraUtil {
+    static String getFrontFacingCameraId(CameraManager manager) {
         try {
             for (final String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);

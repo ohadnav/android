@@ -1,4 +1,4 @@
-package com.truethat.android.common;
+package com.truethat.android.common.camera;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +28,6 @@ import android.view.TextureView;
 
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.common.util.CameraUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -175,18 +174,15 @@ public class CameraActivity extends AppCompatActivity {
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-            ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
-                @Override
-                public void onImageAvailable(ImageReader reader) {
-                    Image image = null;
-                    try {
-                        image = reader.acquireLatestImage();
-                        mLastTakenImage = image;
-                        processImage(image);
-                    } finally {
-                        if (image != null) {
-                            image.close();
-                        }
+            ImageReader.OnImageAvailableListener readerListener = availableListener -> {
+                Image image = null;
+                try {
+                    image = availableListener.acquireLatestImage();
+                    mLastTakenImage = image;
+                    processImage(image);
+                } finally {
+                    if (image != null) {
+                        image.close();
                     }
                 }
             };

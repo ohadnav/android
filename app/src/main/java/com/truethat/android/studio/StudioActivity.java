@@ -8,15 +8,16 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.R;
-import com.truethat.android.common.CameraActivity;
+import com.truethat.android.common.camera.CameraActivity;
 import com.truethat.android.common.util.OnSwipeTouchListener;
 import com.truethat.android.identity.User;
-import com.truethat.android.thatre.TheaterActivity;
+import com.truethat.android.theater.TheaterActivity;
 
 import java.util.Date;
 
@@ -32,7 +33,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class StudioActivity extends CameraActivity {
 
     private static final String FILENAME = "studio-image";
-    Callback<Long> saveSceneCallback = new Callback<Long>() {
+
+    private Callback<Long> saveSceneCallback = new Callback<Long>() {
         @Override
         public void onResponse(@NonNull Call<Long> call, @NonNull Response<Long> response) {
             if (response.isSuccessful()) {
@@ -71,10 +73,17 @@ public class StudioActivity extends CameraActivity {
         initializeStudioAPI();
         // Sets the camera preview.
         mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
+        // Initializes capture button onClick listener.
+        Button captureButton = (Button) findViewById(R.id.captureButton);
+        captureButton.setOnClickListener(v -> {
+            Log.v(TAG, "Image captured with button click.");
+            takePicture();
+        });
     }
 
     @Override
     protected void processImage(Image image) {
+        Log.v(TAG, "Sending multipart request to: " + StudioAPI.BASE_URL);
         MultipartBody.Part imagePart = MultipartBody.Part
                 .createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME, RequestBody
                         .create(MediaType.parse("image/jpg"),
@@ -84,6 +93,7 @@ public class StudioActivity extends CameraActivity {
     }
 
     private void initializeStudioAPI() {
+        Log.v(TAG, "Initializing StudioAPI.");
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
                 .create();

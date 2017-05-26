@@ -1,4 +1,4 @@
-package com.truethat.android.thatre;
+package com.truethat.android.theater;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.truethat.android.R;
-import com.truethat.android.common.CameraActivity;
+import com.truethat.android.common.camera.CameraActivity;
 import com.truethat.android.common.util.OnSwipeTouchListener;
 import com.truethat.android.studio.StudioActivity;
 
