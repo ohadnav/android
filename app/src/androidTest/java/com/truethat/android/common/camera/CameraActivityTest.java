@@ -16,6 +16,7 @@ import com.truethat.android.theater.TheaterActivity;
 import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,14 +42,18 @@ public class CameraActivityTest {
     private MockPermissionsModule             mPermissionsModule       = new MockPermissionsModule(
             Permission.CAMERA);
 
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        // Sets up the mocked permissions module.
+        App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
+    }
+
     @Before
     public void setUp() throws Exception {
         // Initialize Awaitility
         Awaitility.reset();
         // Initialize Espresso intents
         Intents.init();
-        // Sets up the mocked permissions module.
-        App.setPermissionsModule(mPermissionsModule);
     }
 
     @After
@@ -79,22 +84,22 @@ public class CameraActivityTest {
     @MediumTest
     public void takePicture_noSurfaceTexture() throws Exception {
         mTheaterActivityTestRule.launchActivity(null);
-        assertNull(mTheaterActivityTestRule.getActivity().getLastTakenImage());
+        assertNull(mTheaterActivityTestRule.getActivity().supplyImage());
         mTheaterActivityTestRule.getActivity().takePicture();
         // Assert that an image was taken.
         await().untilAsserted(
-                () -> assertNotNull(mTheaterActivityTestRule.getActivity().getLastTakenImage()));
+                () -> assertNotNull(mTheaterActivityTestRule.getActivity().supplyImage()));
     }
 
     @Test(timeout = 3000)
     @MediumTest
     public void takePicture_withSurfaceTexture() throws Exception {
         mStudioActivityTestRule.launchActivity(null);
-        assertNull(mStudioActivityTestRule.getActivity().getLastTakenImage());
+        assertNull(mStudioActivityTestRule.getActivity().supplyImage());
         mStudioActivityTestRule.getActivity().takePicture();
         // Assert that an image was taken.
         await().untilAsserted(
-                () -> assertNotNull(mStudioActivityTestRule.getActivity().getLastTakenImage()));
+                () -> assertNotNull(mStudioActivityTestRule.getActivity().supplyImage()));
     }
 
     @Test(timeout = 3000)

@@ -38,9 +38,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.google.code.findbugs:jsr305:3.0.2'
+    compile 'com.google.guava:guava:22.0-android'
     compile 'com.squareup.okhttp3:okhttp:3.5.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile('com.squareup.retrofit2:retrofit:2.3.0') {
@@ -49,12 +51,15 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 
+    androidTestCompile 'org.mockito:mockito-android:2.8.9'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'junit', module: 'junit'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
     })
     androidTestCompile('com.android.support.test.espresso:espresso-intents:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
     })
     androidTestCompile('com.squareup.okhttp3:mockwebserver:3.5.0') {
         exclude module: 'okhttp'

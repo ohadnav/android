@@ -1,6 +1,6 @@
 package com.truethat.android.application.permissions;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -9,11 +9,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 25/05/2017 for TrueThat.
  */
+@SuppressWarnings("ConstantConditions")
 public class MockPermissionsModuleTest {
-    private static MockPermissionsModule mPermissionsModule;
+    private MockPermissionsModule mPermissionsModule;
 
-    @BeforeClass
-    public static void beforeEach() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         mPermissionsModule = new MockPermissionsModule();
         assertFalse(mPermissionsModule.isPermissionGranted(null, Permission.CAMERA));
         assertFalse(mPermissionsModule.isPermissionGranted(null, Permission.READ_CONTACTS));

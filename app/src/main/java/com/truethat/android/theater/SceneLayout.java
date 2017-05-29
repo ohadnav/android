@@ -14,7 +14,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.Emotion;
 import com.truethat.android.common.util.Number;
 
-import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -32,13 +32,14 @@ public class SceneLayout extends ConstraintLayout {
         ConstraintLayout layout = (ConstraintLayout) inflater
                 .inflate(R.layout.fragment_scene, this);
         // Replaces the displayed image.
-        ByteBuffer buffer = scene.getImage().getPlanes()[0].getBuffer();
-        byte[]     bytes  = new byte[buffer.capacity()];
-        buffer.get(bytes);
         final Bitmap bitmapImage = BitmapFactory
-                .decodeByteArray(bytes, 0, bytes.length, null);
+                .decodeByteArray(scene.getImageBytes(), 0, scene.getImageBytes().length);
         ImageView imageView = (ImageView) layout.findViewById(R.id.sceneImage);
         imageView.setImageBitmap(bitmapImage);
+
+        // Sets the view count.
+        TextView viewCountText = (TextView) layout.findViewById(R.id.viewCountText);
+        viewCountText.setText(String.format(Locale.ENGLISH, "%d", scene.getViewCount()));
 
         for (Map.Entry<Emotion, Long> emotionAndCounter : scene.getReactionCounters()
                                                                .entrySet()) {

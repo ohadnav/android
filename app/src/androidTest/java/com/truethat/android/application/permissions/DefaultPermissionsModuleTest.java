@@ -16,7 +16,6 @@ import com.truethat.android.common.TestActivity;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,16 +41,12 @@ public class DefaultPermissionsModuleTest {
     private              PermissionsModule              mPermissionsModule = new DefaultPermissionsModule();
     private UiDevice mDevice;
 
-    @BeforeClass
-    public static void beforeEach() throws Exception {
-        // Resets all permissions
-        PermissionsTestUtil.revokeAllPermissions();
-    }
-
     @Before
     public void setUp() throws Exception {
         // Initialize UiDevice instance
         mDevice = UiDevice.getInstance(getInstrumentation());
+        // Resets all permissions
+        PermissionsTestUtil.revokeAllPermissions();
     }
 
     @Test

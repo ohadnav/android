@@ -1,4 +1,4 @@
-package com.truethat.android.common.storage.internal;
+package com.truethat.android.application.storage.internal;
 
 import android.content.Context;
 
@@ -41,10 +41,16 @@ public class DefaultInternalStorage implements InternalStorage {
     }
 
     @Override
+    public boolean exists(Context context, String fileName) {
+        return new File(context.getFilesDir() + "/" + fileName).exists();
+    }
+
+    @Override
     public void delete(Context context, String fileName) throws IOException {
         File file = new File(context.getFilesDir() + "/" + fileName);
         if (!file.delete()) {
-            throw new IOException("File " + fileName + " deletion from internal storage failed.");
+            throw new IOException(
+                    "File " + fileName + " deletion from internal storage have failed.");
         }
     }
 }

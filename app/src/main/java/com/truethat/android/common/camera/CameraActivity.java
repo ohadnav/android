@@ -32,6 +32,7 @@ import com.truethat.android.application.permissions.Permission;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 
 /**
@@ -58,7 +59,33 @@ public class CameraActivity extends AppCompatActivity {
     // textureView should be assigned per Activity.
     protected TextureView mCameraPreview = null;
     private Image                  mLastTakenImage;
+    // Supplies images for {@link #processImage()}
+    protected Supplier<Image> mImageSupplier = new Supplier<Image>() {
+        @Override
+        public Image get() {
+            return mLastTakenImage;
+        }
+    };
     private Size                   mImageDimension;
+    private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+    };
     private ImageReader            mImageReader;
     private CameraDevice           mCameraDevice;
     private CameraCaptureSession   mCameraCaptureSessions;
@@ -83,35 +110,20 @@ public class CameraActivity extends AppCompatActivity {
             mCameraDevice = null;
         }
     };
-    private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-    };
     private HandlerThread mBackgroundThread;
 
-    @VisibleForTesting
-    public Image getLastTakenImage() {
-        return mLastTakenImage;
+    public Image supplyImage() {
+        return mImageSupplier.get();
     }
 
     @VisibleForTesting
     public CameraDevice getCameraDevice() {
         return mCameraDevice;
+    }
+
+    @VisibleForTesting
+    public void setImageSupplier(Supplier<Image> imageSupplier) {
+        mImageSupplier = imageSupplier;
     }
 
     @Override
@@ -160,16 +172,16 @@ public class CameraActivity extends AppCompatActivity {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
             }
-            ImageReader reader = ImageReader
+            mImageReader = ImageReader
                     .newInstance(width, height, ImageFormat.JPEG, 1);
             List<Surface> outputSurfaces = new ArrayList<>(2);
-            outputSurfaces.add(reader.getSurface());
+            outputSurfaces.add(mImageReader.getSurface());
             if (mCameraPreview != null) {
                 outputSurfaces.add(new Surface(mCameraPreview.getSurfaceTexture()));
             }
             final CaptureRequest.Builder captureBuilder = mCameraDevice
                     .createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-            captureBuilder.addTarget(reader.getSurface());
+            captureBuilder.addTarget(mImageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
@@ -179,14 +191,14 @@ public class CameraActivity extends AppCompatActivity {
                 try {
                     image = availableListener.acquireLatestImage();
                     mLastTakenImage = image;
-                    processImage(image);
+                    processImage();
                 } finally {
                     if (image != null) {
                         image.close();
                     }
                 }
             };
-            reader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
+            mImageReader.setOnImageAvailableListener(readerListener, mBackgroundHandler);
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
@@ -287,8 +299,12 @@ public class CameraActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @SuppressWarnings("UnusedParameters")
-    protected void processImage(Image image) {
+    /**
+     * Called automatically once an image is available from {@link #takePicture()}.
+     * <p>
+     * The image supplier should be used to obtain the last taken image.
+     */
+    protected void processImage() {
     }
 
     protected void onRequestPermissionsFailed() {

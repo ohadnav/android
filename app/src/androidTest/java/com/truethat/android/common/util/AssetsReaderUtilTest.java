@@ -34,4 +34,11 @@ public class AssetsReaderUtilTest {
         assertTrue(res.startsWith("Provisional Government of Israel"));
         assertTrue(res.endsWith("Moshe Shertok"));
     }
+
+    @Test
+    public void readAsBytes() throws Exception {
+        byte[] res = AssetsReaderUtil
+                .readAsBytes(mTestActivityTestRule.getActivity(), TINY_FILE_PATH);
+        assertEquals("My name is Inigo Montoya".getBytes(), res);
+    }
 }

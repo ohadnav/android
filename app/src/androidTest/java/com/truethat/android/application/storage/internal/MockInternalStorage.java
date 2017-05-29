@@ -1,4 +1,4 @@
-package com.truethat.android.common.storage.internal;
+package com.truethat.android.application.storage.internal;
 
 import android.content.Context;
 
@@ -35,7 +35,7 @@ public class MockInternalStorage implements InternalStorage {
     @Override
     public <T extends Serializable> T read(Context context,
                                            String fileName) throws IOException, ClassNotFoundException {
-        if (!exists(fileName)) {
+        if (!exists(context, fileName)) {
             throw new IOException("File " + fileName + " does not exist.");
         }
         InputStream                      inputStream = new ByteArrayInputStream(
@@ -49,13 +49,14 @@ public class MockInternalStorage implements InternalStorage {
 
     @Override
     public void delete(Context context, String fileName) throws IOException {
-        if (!exists(fileName)) {
+        if (!exists(context, fileName)) {
             throw new IOException("File " + fileName + " does not exist.");
         }
         mFileNameToBytes.remove(fileName);
     }
 
-    boolean exists(String fileName) {
+    @Override
+    public boolean exists(Context context, String fileName) {
         return mFileNameToBytes.containsKey(fileName);
     }
 }

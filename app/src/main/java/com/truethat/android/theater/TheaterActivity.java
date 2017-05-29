@@ -17,6 +17,9 @@ import com.truethat.android.studio.StudioActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Theater is where users interact with scenes.
+ */
 public class TheaterActivity extends CameraActivity {
 
     @SuppressWarnings("unused")

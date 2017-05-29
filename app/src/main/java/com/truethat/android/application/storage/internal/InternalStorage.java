@@ -1,4 +1,4 @@
-package com.truethat.android.common.storage.internal;
+package com.truethat.android.application.storage.internal;
 
 import android.content.Context;
 
@@ -30,6 +30,15 @@ public interface InternalStorage {
      */
     <T extends Serializable> T read(Context context,
                                     String fileName) throws IOException, ClassNotFoundException;
+
+    /**
+     * Asses whether fileName exists.
+     *
+     * @param context  for which to read from internal storage.
+     * @param fileName relative path, in relation to context.getFilesDir, to the designated file.
+     * @return the deserialized content of fileName.
+     */
+    boolean exists(Context context, String fileName);
 
     /**
      * Deletes fileName from the internal storage.
