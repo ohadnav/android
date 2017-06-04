@@ -13,6 +13,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Proudly created by ohad on 26/05/2017 for TrueThat.
@@ -22,6 +23,18 @@ import java.io.Serializable;
 public class DefaultInternalStorage implements InternalStorage {
     @Override
     public void write(Context context, String fileName, Serializable data) throws IOException {
+        String currentSubPath = "";
+        for (String subDirectoryPath : fileName.split("/")) {
+            currentSubPath += currentSubPath.isEmpty() ? subDirectoryPath : "/" + subDirectoryPath;
+            File subDirectory = new File(context.getFilesDir() + "/" + currentSubPath);
+            if (!subDirectory.exists()) {
+                boolean shouldMakeDirectory = !Objects.equals(currentSubPath, fileName);
+                if (shouldMakeDirectory && !subDirectory.mkdir()) {
+                    throw new IOException(
+                            "Failed to create " + currentSubPath + " directory in internal storage," + "in order to write into " + fileName);
+                }
+            }
+        }
         OutputStream file   = new FileOutputStream(context.getFilesDir() + "/" + fileName);
         ObjectOutput output = new ObjectOutputStream(file);
         output.writeObject(data);
@@ -47,8 +60,17 @@ public class DefaultInternalStorage implements InternalStorage {
 
     @Override
     public void delete(Context context, String fileName) throws IOException {
-        File file = new File(context.getFilesDir() + "/" + fileName);
-        if (!file.delete()) {
+        File fileOrDirectory = new File(context.getFilesDir() + "/" + fileName);
+        if (fileOrDirectory.isDirectory()) {
+            for (File child : fileOrDirectory.listFiles()) {
+                String relativePath = child.getPath();
+                if (relativePath.startsWith(context.getFilesDir().getPath())) {
+                    relativePath = relativePath.substring(context.getFilesDir().getPath().length());
+                }
+                delete(context, relativePath);
+            }
+        }
+        if (!fileOrDirectory.delete()) {
             throw new IOException(
                     "File " + fileName + " deletion from internal storage have failed.");
         }

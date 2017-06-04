@@ -15,9 +15,11 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -67,25 +69,6 @@ public class CameraActivity extends AppCompatActivity {
         }
     };
     private Size                   mImageDimension;
-    private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-    };
     private ImageReader            mImageReader;
     private CameraDevice           mCameraDevice;
     private CameraCaptureSession   mCameraCaptureSessions;
@@ -110,7 +93,33 @@ public class CameraActivity extends AppCompatActivity {
             mCameraDevice = null;
         }
     };
+    private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+    };
     private HandlerThread mBackgroundThread;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        TAG = this.getClass().getSimpleName();
+        super.onCreate(savedInstanceState);
+        Log.v(TAG, "Launching activity");
+    }
 
     public Image supplyImage() {
         return mImageSupplier.get();
@@ -155,7 +164,7 @@ public class CameraActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     protected void takePicture() {
         if (mCameraDevice == null) {
-            Log.e(TAG, "camera device is null.");
+            Log.e(TAG, "Camera device is null.");
             return;
         }
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -268,7 +277,7 @@ public class CameraActivity extends AppCompatActivity {
 
     protected void updatePreview() {
         if (mCameraDevice == null) {
-            Log.e(TAG, "camera device is null.");
+            Log.e(TAG, "Camera device is null.");
         }
         mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
         try {
@@ -282,7 +291,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.v(TAG, "resumed");
+        Log.v(TAG, "Camera resumed.");
         startBackgroundThread();
         if (mCameraPreview == null || mCameraPreview.isAvailable()) {
             openCamera();
@@ -293,7 +302,7 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        Log.e(TAG, "paused.");
+        Log.e(TAG, "Camera paused.");
         closeCamera();
         stopBackgroundThread();
         super.onPause();

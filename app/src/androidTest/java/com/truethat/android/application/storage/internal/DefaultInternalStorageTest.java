@@ -17,8 +17,11 @@ import static org.junit.Assert.assertFalse;
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
 public class DefaultInternalStorageTest {
-    private static final String FILE_NAME = "DefaultInternalStorageTest_" + new Date()
+    private static final String FILE_NAME   = "DefaultInternalStorageTest_" + new Date()
             .getTime() + ".txt";
+    private static final String ROOT_DIR    = "DefaultInternalStorageTest_nested_" + new Date()
+            .getTime();
+    private static final String NESTED_FILE = ROOT_DIR + "/asta/la/vista.baby";
 
     @Rule
     public  ActivityTestRule<TestActivity> mActivityTestRule =
@@ -37,5 +40,24 @@ public class DefaultInternalStorageTest {
         mInternalStorage.delete(mActivityTestRule.getActivity(), FILE_NAME);
         assertFalse(
                 new File(mActivityTestRule.getActivity().getFilesDir() + "/" + FILE_NAME).exists());
+    }
+
+    @Test
+    public void writeReadAndDelete_nestedFile() throws Exception {
+        String expected = "The Terminator";
+        // Writes to file
+        mInternalStorage.write(mActivityTestRule.getActivity(), NESTED_FILE, expected);
+        // Reads file
+        String actual = mInternalStorage.read(mActivityTestRule.getActivity(), NESTED_FILE);
+        assertEquals(expected, actual);
+        // Deletes file
+        mInternalStorage.delete(mActivityTestRule.getActivity(), NESTED_FILE);
+        assertFalse(
+                new File(mActivityTestRule.getActivity().getFilesDir() + "/" + NESTED_FILE)
+                        .exists());
+        // Delete root dir.
+        mInternalStorage.delete(mActivityTestRule.getActivity(), ROOT_DIR);
+        assertFalse(
+                new File(mActivityTestRule.getActivity().getFilesDir() + "/" + ROOT_DIR).exists());
     }
 }

@@ -10,8 +10,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.truethat.android.R;
 import com.truethat.android.common.Emotion;
+import com.truethat.android.common.Scene;
 import com.truethat.android.common.util.Number;
 
 import java.util.Locale;
@@ -31,19 +33,29 @@ public class SceneLayout extends ConstraintLayout {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         ConstraintLayout layout = (ConstraintLayout) inflater
                 .inflate(R.layout.fragment_scene, this);
-        // Replaces the displayed image.
-        final Bitmap bitmapImage = BitmapFactory
-                .decodeByteArray(scene.getImageBytes(), 0, scene.getImageBytes().length);
         ImageView imageView = (ImageView) layout.findViewById(R.id.sceneImage);
-        imageView.setImageBitmap(bitmapImage);
+        // Replaces the displayed image.
+        if (scene.getImageBytes() != null) {
+            final Bitmap bitmapImage = BitmapFactory
+                    .decodeByteArray(scene.getImageBytes(), 0, scene.getImageBytes().length);
+            imageView.setImageBitmap(bitmapImage);
+        } else {
+            Picasso.with(context)
+                   .load(scene.getImageSignedUrl())
+                   .placeholder(R.drawable.shower_dog)
+                   .error(R.drawable.sad_dog)
+                   .into(imageView);
+        }
 
         // Sets the view count.
         TextView viewCountText = (TextView) layout.findViewById(R.id.viewCountText);
         viewCountText.setText(String.format(Locale.ENGLISH, "%d", scene.getViewCount()));
 
-        for (Map.Entry<Emotion, Long> emotionAndCounter : scene.getReactionCounters()
-                                                               .entrySet()) {
-            addReactionCounterView(emotionAndCounter.getKey(), emotionAndCounter.getValue());
+        if (scene.getReactionCounters() != null) {
+            for (Map.Entry<Emotion, Long> emotionAndCounter : scene.getReactionCounters()
+                                                                   .entrySet()) {
+                addReactionCounterView(emotionAndCounter.getKey(), emotionAndCounter.getValue());
+            }
         }
     }
 

@@ -10,12 +10,11 @@ import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
+import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraTestUtil;
 import com.truethat.android.common.camera.CameraUtil;
 import com.truethat.android.common.util.AssetsReaderUtil;
 import com.truethat.android.identity.MockAuthModule;
-import com.truethat.android.test.BuildConfig;
-import com.truethat.android.theater.Scene;
 
 import org.awaitility.Awaitility;
 import org.junit.AfterClass;
@@ -44,6 +43,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class StudioActivityTest {
     private static final long                             SCENE_ID                = 123L;
+    private static final int                              PORT                    = 8080;
     private final        MockWebServer                    mMockWebServer          = new MockWebServer();
     @Rule
     public               ActivityTestRule<StudioActivity> mStudioActivityTestRule =
@@ -69,7 +69,7 @@ public class StudioActivityTest {
         // Initialize Awaitility
         Awaitility.reset();
         // Starts mock server
-        mMockWebServer.start(BuildConfig.PORT);
+        mMockWebServer.start(PORT);
         // Initializes the mocked image.
         mImageMock = CameraTestUtil.bitmapBytesToMockedImage(AssetsReaderUtil.readAsBytes(
                 mStudioActivityTestRule.getActivity(), CameraTestUtil.BITMAP_1x1_PATH), 0);
@@ -109,9 +109,9 @@ public class StudioActivityTest {
         // Asserts the saved image is the one captured by the camera (i.e. mImageMock)
         assertTrue(CameraUtil.compare(
                 CameraTestUtil.bitmapBytesToMockedImage(scene.getImageBytes(),
-                                                        scene.getTimestamp().getTime()),
+                                                        scene.getCreated().getTime()),
                 mImageMock));
         assertEquals(SCENE_ID, scene.getId());
-        assertEquals(App.getAuthModule().getCurrentUser().getId(), scene.getCreator().getId());
+        assertEquals(App.getAuthModule().getCurrentUser().getId(), scene.getDirector().getId());
     }
 }

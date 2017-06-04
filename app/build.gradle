@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "com.truethat.android"
-        minSdkVersion 23
+        minSdkVersion 25
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -13,11 +13,10 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField "String", "BACKEND_URL", '"http://localhost:8080/"'
-        }
-        emulator {
-            initWith debug
-            buildConfigField "String", "BACKEND_URL", '"http://10.0.0.2:8080/"'
+            // Using 10.0.2.2 (the desktop's localhost), as the app normally runs on an Emulator
+            // in debug mode.
+            buildConfigField "String", "BACKEND_URL", '"http://10.0.2.2:8080/"'
+            applicationIdSuffix ".debug"
         }
         release {
             minifyEnabled true
@@ -48,9 +47,8 @@ dependencies {
     compile('com.squareup.retrofit2:retrofit:2.3.0') {
         exclude group: 'com.squareup.okhttp3', module: 'okhttp'
     }
-
+    compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
-
     androidTestCompile 'org.mockito:mockito-android:2.8.9'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
