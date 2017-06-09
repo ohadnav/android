@@ -5,11 +5,11 @@ package com.truethat.android.identity;
  */
 
 public class MockAuthModule implements AuthModule {
-    private static final long USER_ID = 1010;
-    private final        User USER    = new User(USER_ID);
+  private static final long USER_ID = 1010;
+  private static final String USER_NAME = "theRealDonaldTrump";
+  private final User USER = new User(USER_ID, USER_NAME);
 
-    @Override
-    public User getCurrentUser() {
-        return USER;
-    }
+  @Override public User getCurrentUser() {
+    return USER;
+  }
 }

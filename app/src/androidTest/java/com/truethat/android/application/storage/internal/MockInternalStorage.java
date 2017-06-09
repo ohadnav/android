@@ -1,7 +1,6 @@
 package com.truethat.android.application.storage.internal;
 
 import android.content.Context;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,44 +18,39 @@ import java.util.Map;
  */
 
 public class MockInternalStorage implements InternalStorage {
-    // Objects are mapped to byte arrays to test serialization as well.
-    private Map<String, byte[]> mFileNameToBytes = new HashMap<>();
+  // Objects are mapped to byte arrays to test serialization as well.
+  private Map<String, byte[]> mFileNameToBytes = new HashMap<>();
 
-    @Override
-    public void write(Context context, String fileName, Serializable data) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ObjectOutput          objectOutput = new ObjectOutputStream(outputStream);
-        objectOutput.writeObject(data);
-        mFileNameToBytes.put(fileName, outputStream.toByteArray());
-        outputStream.close();
-        objectOutput.close();
-    }
+  @Override public void write(Context context, String fileName, Serializable data) throws IOException {
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    ObjectOutput objectOutput = new ObjectOutputStream(outputStream);
+    objectOutput.writeObject(data);
+    mFileNameToBytes.put(fileName, outputStream.toByteArray());
+    outputStream.close();
+    objectOutput.close();
+  }
 
-    @Override
-    public <T extends Serializable> T read(Context context,
-                                           String fileName) throws IOException, ClassNotFoundException {
-        if (!exists(context, fileName)) {
-            throw new IOException("File " + fileName + " does not exist.");
-        }
-        InputStream                      inputStream = new ByteArrayInputStream(
-                mFileNameToBytes.get(fileName));
-        ObjectInput                      objectInput = new ObjectInputStream(inputStream);
-        @SuppressWarnings("unchecked") T result      = (T) objectInput.readObject();
-        inputStream.close();
-        objectInput.close();
-        return result;
+  @Override public <T extends Serializable> T read(Context context, String fileName)
+      throws IOException, ClassNotFoundException {
+    if (!exists(context, fileName)) {
+      throw new IOException("File " + fileName + " does not exist.");
     }
+    InputStream inputStream = new ByteArrayInputStream(mFileNameToBytes.get(fileName));
+    ObjectInput objectInput = new ObjectInputStream(inputStream);
+    @SuppressWarnings("unchecked") T result = (T) objectInput.readObject();
+    inputStream.close();
+    objectInput.close();
+    return result;
+  }
 
-    @Override
-    public void delete(Context context, String fileName) throws IOException {
-        if (!exists(context, fileName)) {
-            throw new IOException("File " + fileName + " does not exist.");
-        }
-        mFileNameToBytes.remove(fileName);
+  @Override public void delete(Context context, String fileName) throws IOException {
+    if (!exists(context, fileName)) {
+      throw new IOException("File " + fileName + " does not exist.");
     }
+    mFileNameToBytes.remove(fileName);
+  }
 
-    @Override
-    public boolean exists(Context context, String fileName) {
-        return mFileNameToBytes.containsKey(fileName);
-    }
+  @Override public boolean exists(Context context, String fileName) {
+    return mFileNameToBytes.containsKey(fileName);
+  }
 }

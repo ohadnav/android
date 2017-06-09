@@ -4,150 +4,257 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-
 import com.truethat.android.R;
+import com.truethat.android.application.App;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraActivity;
-import com.truethat.android.common.util.NetworkUtil;
+import com.truethat.android.common.network.EventCode;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.OnSwipeTouchListener;
+import com.truethat.android.empathy.Emotion;
+import com.truethat.android.empathy.Reactable;
+import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.studio.StudioActivity;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.view.View.GONE;
 
 /**
  * Theater is where users interact with scenes.
  */
 public class TheaterActivity extends CameraActivity {
-    private int         mDisplayedSceneIndex = -1;
-    private List<Scene> mScenes              = new ArrayList<>();
-    private ViewGroup   mRootView;
-    private ProgressBar mProgressBar;
-
-    private TheaterAPI mTheaterAPI;
-    private Callback<List<Scene>> mGetScenesCallback = new Callback<List<Scene>>() {
-        @Override
-        public void onResponse(@NonNull Call<List<Scene>> call,
-                               @NonNull Response<List<Scene>> response) {
-            if (response.isSuccessful()) {
-                int         toDisplayIndex = mScenes.size();
-                List<Scene> newScenes      = response.body();
-                assert newScenes != null;
-                mScenes.addAll(newScenes);
-                if (!newScenes.isEmpty()) {
-                    displayScene(toDisplayIndex);
-                }
-            } else {
-                Log.e(TAG, "Failed to fetch scenes from " + call.request().url() + "\n" +
-                        response.code() + " " + response.message() + "\n" + response.headers());
-            }
-        }
-
-        @Override
-        public void onFailure(@NonNull Call<List<Scene>> call, @NonNull Throwable t) {
-            Log.e(TAG, "Fetch scenes request to " + call.request().url() + " had failed.", t);
-        }
-    };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_theater);
-        // Animation for screen transitions.
-        this.overridePendingTransition(R.animator.slide_in_left,
-                                       R.animator.slide_out_left);
-        // Initializes UI elements.
-        mProgressBar = (ProgressBar) this.findViewById(R.id.progressBar);
-        // Hooks for screen swipes
-        mRootView = (ViewGroup) this.findViewById(android.R.id.content);
-        final Context that = this;
-        mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
-            @Override
-            public void onSwipeRight() {
-                startActivity(new Intent(that, StudioActivity.class));
-            }
-
-            @Override
-            public void onSwipeDown() {
-                nextAct();
-            }
-
-            @Override
-            public void onSwipeUp() {
-                previousAct();
-            }
-        });
-        // Initializes the Theater API
-        initializeTheaterAPI();
-        // Checks whether a scene was previously displayed. Usually that means the user had already
-        // opened the app.
-        if (mDisplayedSceneIndex >= 0) displayScene(mDisplayedSceneIndex);
-        else {
-            fetchScenes();
-        }
+  private int mDisplayedReactableIndex = -1;
+  private List<Pair<Reactable, SceneLayout>> mReactablesAndLayouts = new ArrayList<>();
+  private ViewGroup mRootView;
+  private ProgressBar mProgressBar;
+  private TheaterAPI mTheaterAPI;
+  private Callback<ResponseBody> mPostEventCallback = new Callback<ResponseBody>() {
+    @Override public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+      if (!response.isSuccessful()) {
+        Log.e(TAG, "Failed to post event to "
+            + call.request().url()
+            + "\n"
+            + response.code()
+            + " "
+            + response.message()
+            + "\n"
+            + response.headers());
+      }
     }
 
-    private void previousAct() {
-        Log.v(TAG, "Previous act");
-        if (mDisplayedSceneIndex <= 0) return;
-        displayScene(mDisplayedSceneIndex - 1);
+    @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+      Log.e(TAG, "Post event request to " + call.request().url() + " had failed.", t);
+    }
+  };
+  private Callback<List<Scene>> mGetScenesCallback = new Callback<List<Scene>>() {
+    @Override public void onResponse(@NonNull Call<List<Scene>> call, @NonNull Response<List<Scene>> response) {
+      if (response.isSuccessful()) {
+        int toDisplayIndex = mReactablesAndLayouts.size();
+        List<Scene> newScenes = response.body();
+        assert newScenes != null;
+        for (Scene newScene : newScenes) {
+          mReactablesAndLayouts.add(new Pair<Reactable, SceneLayout>(newScene, new SceneLayout(newScene, mRootView)));
+        }
+        if (!newScenes.isEmpty()) {
+          displayScene(toDisplayIndex);
+        }
+      } else {
+        Log.e(TAG, "Failed to fetch scenes from "
+            + call.request().url()
+            + "\n"
+            + response.code()
+            + " "
+            + response.message()
+            + "\n"
+            + response.headers());
+      }
     }
 
-    private void nextAct() {
-        Log.v(TAG, "Next act");
-        if (mDisplayedSceneIndex >= mScenes.size() - 1) {
-            fetchScenes();
-            return;
-        }
-        displayScene(mDisplayedSceneIndex + 1);
+    @Override public void onFailure(@NonNull Call<List<Scene>> call, @NonNull Throwable t) {
+      Log.e(TAG, "Fetch scenes request to " + call.request().url() + " had failed.", t);
     }
+  };
 
-    private void displayScene(int displayIndex) {
-        if (displayIndex < 0 || displayIndex >= mScenes.size()) {
-            IndexOutOfBoundsException e = new IndexOutOfBoundsException();
-            Log.e(TAG, displayIndex + " is not a scene index.", e);
-            throw e;
-        }
-        Log.v(TAG, "Displaying scene " + displayIndex);
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_theater);
+    // Animation for screen transitions.
+    this.overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
+    // Initializes UI elements.
+    mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+    // Hooks for screen swipes
+    mRootView = (ViewGroup) findViewById(android.R.id.content);
+    final Context that = this;
+    mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
+      @Override public void onSwipeRight() {
+        startActivity(new Intent(that, StudioActivity.class));
+      }
+
+      @Override public void onSwipeDown() {
+        nextScene();
+      }
+
+      @Override public void onSwipeUp() {
+        previousScene();
+      }
+    });
+    // Initializes the Theater API
+    mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
+  }
+
+  @Override protected void onStart() {
+    super.onStart();
+    // TODO(ohad): load activity with previously displayed scenes.
+    fetchScenes();
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    App.getReactionDetectionModule().stop();
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+    startEmotionalReactionDetection();
+  }
+
+  @Override protected void processImage() {
+    // Pushes new input to the detection module.
+    App.getReactionDetectionModule().pushInput(supplyImage());
+  }
+
+  // TODO(ohad): Instagram like horizontal progress for scenes transition.
+  private void previousScene() {
+    Log.v(TAG, "Previous scene");
+    if (mDisplayedReactableIndex <= 0) return;
+    displayScene(mDisplayedReactableIndex - 1);
+  }
+
+  // TODO(ohad): automatically progress to next scene.
+  private void nextScene() {
+    Log.v(TAG, "Next scene");
+    if (mDisplayedReactableIndex >= mReactablesAndLayouts.size() - 1) {
+      fetchScenes();
+      return;
+    }
+    displayScene(mDisplayedReactableIndex + 1);
+  }
+
+  private void displayScene(int displayIndex) {
+    if (displayIndex < 0 || displayIndex >= mReactablesAndLayouts.size()) {
+      IndexOutOfBoundsException e = new IndexOutOfBoundsException();
+      Log.e(TAG, displayIndex + " is not a scene index.", e);
+      throw e;
+    }
+    Log.v(TAG, "Displaying scene " + displayIndex);
+    mDisplayedReactableIndex = displayIndex;
+    runOnUiThread(new Runnable() {
+      @Override public void run() {
         // Hides default image.
-        ImageView imageView = (ImageView) this.findViewById(R.id.defaultImage);
-        imageView.setVisibility(View.GONE);
-        // Stores the new displayed scene index.
-        mDisplayedSceneIndex = displayIndex;
-        // Displaying the new scene.
-        Scene       displayedScene = mScenes.get(displayIndex);
-        SceneLayout sceneLayout    = new SceneLayout(displayedScene, this);
-        mRootView.addView(sceneLayout);
+        ImageView imageView = (ImageView) mRootView.findViewById(R.id.defaultImage);
+        imageView.setVisibility(GONE);
         // Hides loading animation.
-        mProgressBar.setVisibility(View.GONE);
-    }
+        mProgressBar.setVisibility(GONE);
+        // Removes old scene, if it exists.
+        View currentLayout = mRootView.findViewById(R.id.sceneLayout);
+        if (currentLayout != null) {
+          mRootView.removeView(currentLayout);
+        }
+        // TODO(ohad): add transition animation.
+        // Adds the new scene.
+        mRootView.addView(mReactablesAndLayouts.get(mDisplayedReactableIndex).second.getLayout());
+        startEmotionalReactionDetection();
+      }
+    });
+    // Post event of scene view.
+    mTheaterAPI.postEvent(App.getAuthModule().getCurrentUser().getId(),
+        mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(), EventCode.SCENE_VIEW, null)
+        .enqueue(mPostEventCallback);
+  }
 
-    private void fetchScenes() {
-        Log.v(TAG, "Fetching scenes...");
+  @VisibleForTesting void startEmotionalReactionDetection() {
+    // Check if a reactable is displayed.
+    if (mDisplayedReactableIndex >= 0) {
+      Reactable displayedReactable = mReactablesAndLayouts.get(mDisplayedReactableIndex).first;
+      // Allow only the first reaction. Because like so many things... the first time feels most real ;)
+      if (displayedReactable.getUserReaction() == null) {
+        // Starts emotional reaction detection. Any previous detection is immediately stopped.
+        App.getReactionDetectionModule().detect(buildReactionDetectionPubSub(displayedReactable));
+      }
+    }
+  }
+
+  private void doReaction(final Reactable reactable) {
+    // Verify that the user had indeed reacted to the reactable.
+    if (reactable.getUserReaction() == null) {
+      Log.e(TAG, "Emotionless user! And careless programmer.");
+      throw new IllegalArgumentException(
+          "User had not yet reacted to this dramatic reactable (ID = " + reactable.getId() + ")");
+    }
+    // Checks reactable is currently displayed.
+    if (mReactablesAndLayouts.get(mDisplayedReactableIndex).first.equals(reactable)) {
+      // Applies emotional reaction onto the reactable layout.
+      runOnUiThread(new Runnable() {
+        @Override public void run() {
+          mReactablesAndLayouts.get(mDisplayedReactableIndex).second.doReaction(reactable.getUserReaction());
+        }
+      });
+    }
+  }
+
+  private void fetchScenes() {
+    Log.v(TAG, "Fetching scenes...");
+    runOnUiThread(new Runnable() {
+      @Override public void run() {
         mProgressBar.setVisibility(View.VISIBLE);
-        mTheaterAPI.getScenes().enqueue(mGetScenesCallback);
+      }
+    });
+    mTheaterAPI.getScenes().enqueue(mGetScenesCallback);
+  }
+
+  @VisibleForTesting TheaterReactionDetectionPubSub buildReactionDetectionPubSub(Reactable reactable) {
+    return new TheaterReactionDetectionPubSub(reactable);
+  }
+
+  private class TheaterReactionDetectionPubSub implements ReactionDetectionPubSub {
+    private Reactable mReactable;
+    /**
+     * Timestamp of the reaction itself. Since we cannot exactly determine when the reaction occurred, we use the
+     * timestamp of image of the reaction.
+     */
+    private Date mRealEventTime;
+
+    TheaterReactionDetectionPubSub(Reactable reactable) {
+      mReactable = reactable;
     }
 
-    private void initializeTheaterAPI() {
-        Log.v(TAG, "Initializing TheaterAPI.");
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TheaterAPI.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(NetworkUtil.GSON))
-                .build();
-
-        mTheaterAPI = retrofit.create(TheaterAPI.class);
+    @Override public void onReactionDetected(Emotion emotion) {
+      mReactable.doReaction(emotion);
+      // Post event of reactable reaction.
+      mTheaterAPI.postEvent(App.getAuthModule().getCurrentUser().getId(), mReactable.getId(), mRealEventTime,
+          EventCode.SCENE_REACTION, mReactable.getUserReaction()).enqueue(mPostEventCallback);
+      // Triggers the reaction visual outcome.
+      TheaterActivity.this.doReaction(mReactable);
     }
+
+    @Override public void requestInput() {
+      mRealEventTime = new Date();
+      takePicture();
+    }
+  }
 }
 
 

@@ -2,17 +2,23 @@ package com.truethat.android.common.camera;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.media.ImageReader;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.studio.StudioActivity;
 import com.truethat.android.theater.TheaterActivity;
-
+import java.util.Collections;
+import java.util.concurrent.Callable;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
@@ -24,93 +30,107 @@ import org.junit.runner.RunWith;
 import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static com.truethat.android.BuildConfig.PORT;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-@RunWith(AndroidJUnit4.class)
-public class CameraActivityTest {
-    @Rule
-    public  ActivityTestRule<StudioActivity>  mStudioActivityTestRule  =
-            new ActivityTestRule<>(StudioActivity.class, true, false);
-    @Rule
-    public  ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
-            new ActivityTestRule<>(TheaterActivity.class, true, false);
-    private MockPermissionsModule             mPermissionsModule       = new MockPermissionsModule(
-            Permission.CAMERA);
+@RunWith(AndroidJUnit4.class) public class CameraActivityTest {
+  private static MockPermissionsModule mPermissionsModule;
+  private final MockWebServer mMockWebServer = new MockWebServer();
+  @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
+      new ActivityTestRule<>(StudioActivity.class, true, false);
+  @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
+      new ActivityTestRule<>(TheaterActivity.class, true, false);
+  private boolean mImageTaken = false;
+  private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
+      new ImageReader.OnImageAvailableListener() {
+        @Override public void onImageAvailable(ImageReader reader) {
+          mImageTaken = true;
+        }
+      };
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        // Sets up the mocked permissions module.
-        App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
-    }
+  @BeforeClass public static void beforeClass() throws Exception {
+    // Sets up the mocked permissions module.
+    App.setPermissionsModule(mPermissionsModule = new MockPermissionsModule(Permission.CAMERA));
+    // Launching TheaterActivity fetches scenes from a remote backend, and so we are mocking it.
+    NetworkUtil.setBackendUrl("http://localhost");
+  }
 
-    @Before
-    public void setUp() throws Exception {
-        // Initialize Awaitility
-        Awaitility.reset();
-        // Initialize Espresso intents
-        Intents.init();
-    }
+  @Before public void setUp() throws Exception {
+    // Initialize Awaitility
+    Awaitility.reset();
+    // Initialize Espresso intents
+    Intents.init();
+    // Starts mock server
+    mMockWebServer.start(PORT);
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse().setResponseCode(200).setBody(NetworkUtil.GSON.toJson(Collections.EMPTY_LIST) + "\n");
+      }
+    });
+  }
 
-    @After
-    public void tearDown() throws Exception {
-        Intents.release();
-    }
+  @After public void tearDown() throws Exception {
+    Intents.release();
+    // Closes mock server
+    mMockWebServer.close();
+  }
 
-    @Test
-    public void onRequestPermissions_permissionGranted() throws Exception {
-        mStudioActivityTestRule.launchActivity(null);
-        // If we are still in CameraActivity, then permission was granted.
-        intended(hasComponent(new ComponentName(getTargetContext(), StudioActivity.class)));
-    }
+  @Test public void onRequestPermissions_permissionGranted() throws Exception {
+    mStudioActivityTestRule.launchActivity(null);
+    // If we are still in CameraActivity, then permission was granted.
+    intended(hasComponent(new ComponentName(getTargetContext(), StudioActivity.class)));
+  }
 
-    @Test
-    public void onRequestPermissionsFailed() throws Exception {
-        // Don't grant permission.
-        mPermissionsModule.revokeAndForbid(Permission.CAMERA);
-        mStudioActivityTestRule.launchActivity(null);
-        // Should navigate to NoCameraPermissionActivity.
-        intended(hasComponent(
-                new ComponentName(getTargetContext(), NoCameraPermissionActivity.class)));
-        // Grant permission
-        mPermissionsModule.grant(Permission.CAMERA);
-    }
+  @Test public void onRequestPermissionsFailed() throws Exception {
+    // Don't grant permission.
+    mPermissionsModule.revokeAndForbid(Permission.CAMERA);
+    mStudioActivityTestRule.launchActivity(null);
+    // Should have navigated to NoCameraPermissionActivity.
+    intended(hasComponent(new ComponentName(getTargetContext(), NoCameraPermissionActivity.class)));
+    // Grant permission
+    mPermissionsModule.grant(Permission.CAMERA);
+  }
 
-    @Test(timeout = 3000)
-    @MediumTest
-    public void takePicture_noSurfaceTexture() throws Exception {
-        mTheaterActivityTestRule.launchActivity(null);
-        assertNull(mTheaterActivityTestRule.getActivity().supplyImage());
-        mTheaterActivityTestRule.getActivity().takePicture();
-        // Assert that an image was taken.
-        await().untilAsserted(
-                () -> assertNotNull(mTheaterActivityTestRule.getActivity().supplyImage()));
-    }
+  @Test(timeout = 3000) @MediumTest public void takePicture_noSurfaceTexture() throws Exception {
+    mTheaterActivityTestRule.launchActivity(null);
+    mTheaterActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
+    assertFalse(mImageTaken);
+    mTheaterActivityTestRule.getActivity().takePicture();
+    // Assert that an image was taken.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mImageTaken;
+      }
+    });
+  }
 
-    @Test(timeout = 3000)
-    @MediumTest
-    public void takePicture_withSurfaceTexture() throws Exception {
-        mStudioActivityTestRule.launchActivity(null);
-        assertNull(mStudioActivityTestRule.getActivity().supplyImage());
-        mStudioActivityTestRule.getActivity().takePicture();
-        // Assert that an image was taken.
-        await().untilAsserted(
-                () -> assertNotNull(mStudioActivityTestRule.getActivity().supplyImage()));
-    }
+  @Test @MediumTest public void takePicture_withSurfaceTexture() throws Exception {
+    mStudioActivityTestRule.launchActivity(null);
+    mStudioActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
+    assertFalse(mImageTaken);
+    mStudioActivityTestRule.getActivity().takePicture();
+    // Assert that an image was taken.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mImageTaken;
+      }
+    });
+  }
 
-    @Test(timeout = 3000)
-    public void onPause() throws Exception {
-        mStudioActivityTestRule.launchActivity(null);
-        // Navigates to an activity without camera.
-        mStudioActivityTestRule.getActivity().startActivity(
-                new Intent(mStudioActivityTestRule.getActivity(),
-                           NoCameraPermissionActivity.class));
-        // Asserts the camera is closed.
-        await().untilAsserted(
-                () -> assertNull(mStudioActivityTestRule.getActivity().getCameraDevice()));
-    }
+  @Test(timeout = 3000) public void onPause() throws Exception {
+    mStudioActivityTestRule.launchActivity(null);
+    // Navigates to an activity without camera.
+    mStudioActivityTestRule.getActivity()
+        .startActivity(new Intent(mStudioActivityTestRule.getActivity(), NoCameraPermissionActivity.class));
+    // Asserts the camera is closed.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mStudioActivityTestRule.getActivity().getCameraDevice() == null;
+      }
+    });
+  }
 }

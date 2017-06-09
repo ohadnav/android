@@ -5,15 +5,14 @@ package com.truethat.android.identity;
  */
 
 public class DefaultAuthModule implements AuthModule {
-    private User mCurrentUser;
+  private User mCurrentUser;
 
-    public DefaultAuthModule() {
-        // User default constructor is able to retrieve previous sessions.
-        mCurrentUser = new User();
-    }
+  public DefaultAuthModule() {
+    // User default constructor is able to retrieve previous sessions.
+    mCurrentUser = new User();
+  }
 
-    @Override
-    public User getCurrentUser() {
-        return mCurrentUser;
-    }
+  @Override public User getCurrentUser() {
+    return mCurrentUser;
+  }
 }

@@ -5,5 +5,5 @@ package com.truethat.android.identity;
  */
 
 public interface AuthModule {
-    User getCurrentUser();
+  User getCurrentUser();
 }

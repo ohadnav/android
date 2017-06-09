@@ -1,73 +1,90 @@
 package com.truethat.android.theater;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
 import com.truethat.android.R;
-import com.truethat.android.common.Emotion;
 import com.truethat.android.common.Scene;
-import com.truethat.android.common.util.Number;
-
-import java.util.Locale;
-import java.util.Map;
+import com.truethat.android.common.util.DateUtil;
+import com.truethat.android.common.util.NumberUtil;
+import com.truethat.android.empathy.Emotion;
 
 /**
  * Proudly created by ohad on 03/05/2017 for TrueThat.
  */
 
-@SuppressLint("ViewConstructor")
-public class SceneLayout extends ConstraintLayout {
-    private Context mContext;
+class SceneLayout {
+  private Scene mScene;
+  private ConstraintLayout mLayout;
 
-    public SceneLayout(Scene scene, Context context) {
-        super(context);
-        mContext = context;
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        ConstraintLayout layout = (ConstraintLayout) inflater
-                .inflate(R.layout.fragment_scene, this);
-        ImageView imageView = (ImageView) layout.findViewById(R.id.sceneImage);
-        // Replaces the displayed image.
-        if (scene.getImageBytes() != null) {
-            final Bitmap bitmapImage = BitmapFactory
-                    .decodeByteArray(scene.getImageBytes(), 0, scene.getImageBytes().length);
-            imageView.setImageBitmap(bitmapImage);
-        } else {
-            Picasso.with(context)
-                   .load(scene.getImageSignedUrl())
-                   .placeholder(R.drawable.shower_dog)
-                   .error(R.drawable.sad_dog)
-                   .into(imageView);
-        }
+  SceneLayout(Scene scene, ViewGroup rootView) {
+    mLayout = new ConstraintLayout(rootView.getContext());
+    mScene = scene;
+    LayoutInflater inflater = LayoutInflater.from(rootView.getContext());
+    mLayout = (ConstraintLayout) inflater.inflate(R.layout.fragment_scene, rootView, false);
+    displayImage();
+    updateReactionCounters(scene.getUserReaction());
+    updateDirectorLayout();
+  }
 
-        // Sets the view count.
-        TextView viewCountText = (TextView) layout.findViewById(R.id.viewCountText);
-        viewCountText.setText(String.format(Locale.ENGLISH, "%d", scene.getViewCount()));
+  ConstraintLayout getLayout() {
+    return mLayout;
+  }
 
-        if (scene.getReactionCounters() != null) {
-            for (Map.Entry<Emotion, Long> emotionAndCounter : scene.getReactionCounters()
-                                                                   .entrySet()) {
-                addReactionCounterView(emotionAndCounter.getKey(), emotionAndCounter.getValue());
-            }
-        }
+  void doReaction(Emotion emotion) {
+    // TODO(ohad): more visual.
+    updateReactionCounters(emotion);
+  }
+
+  private void updateDirectorLayout() {
+    // Sets the view count.
+    TextView userNameText = (TextView) mLayout.findViewById(R.id.directorNameText);
+    userNameText.setText(mScene.getDirector().getName());
+    // Sets time ago
+    TextView timeAgoText = (TextView) mLayout.findViewById(R.id.sceneTimeAgoText);
+    timeAgoText.setText(DateUtil.formatTimeAgo(mScene.getCreated()));
+  }
+
+  private void displayImage() {
+    ImageView imageView = (ImageView) mLayout.findViewById(R.id.sceneImage);
+
+    if (mScene.getImageBytes() != null) {
+      final Bitmap bitmapImage =
+          BitmapFactory.decodeByteArray(mScene.getImageBytes(), 0, mScene.getImageBytes().length);
+      imageView.setImageBitmap(bitmapImage);
+    } else {
+      Picasso.with(mLayout.getContext())
+          .load(mScene.getImageSignedUrl())
+          .placeholder(R.drawable.shower_dog)
+          .error(R.drawable.sad_dog)
+          .fit()
+          .centerCrop()
+          .into(imageView);
     }
+  }
 
-    private void addReactionCounterView(Emotion emotion, long counter) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        LinearLayout layout = (LinearLayout) inflater
-                .inflate(R.layout.fragment_reaction_counter, this);
-        // Abbreviates the counter.
-        TextView textView = (TextView) layout.findViewById(R.id.reactionCountText);
-        textView.setText(Number.format(counter));
-        // Sets the proper emotion emoji.
-        ImageView imageView = (ImageView) layout.findViewById(R.id.emotionImage);
-        imageView.setImageResource(Emotion.drawableResource(emotion));
+  /**
+   * Updates reactionCounterLayout with a proper counter and image.
+   *
+   * @param emotion if provided, then its drawable is displayed
+   */
+  private void updateReactionCounters(@Nullable Emotion emotion) {
+    long sumCounts = 0;
+    for (Long counter : mScene.getReactionCounters().values()) {
+      sumCounts += counter;
     }
+    // Abbreviates the counter.
+    TextView reactionCountText = (TextView) mLayout.findViewById(R.id.reactionCountText);
+    reactionCountText.setText(NumberUtil.format(sumCounts));
+    // Sets the proper emotion emoji.
+    ImageView imageView = (ImageView) mLayout.findViewById(R.id.reactionImage);
+    imageView.setImageResource(emotion != null ? emotion.getDrawableResource()
+        : mScene.getReactionCounters().lastEntry().getKey().getDrawableResource());
+  }
 }

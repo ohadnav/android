@@ -8,22 +8,21 @@ import android.Manifest;
 
 // Next available - 200
 public enum Permission {
-    CAMERA(Manifest.permission.CAMERA, 100),
-    READ_CONTACTS(Manifest.permission.READ_CONTACTS, 200);
+  CAMERA(Manifest.permission.CAMERA, 100), READ_CONTACTS(Manifest.permission.READ_CONTACTS, 200);
 
-    private String mManifest;
-    private int    mRequestCode;
+  private String mManifest;
+  private int mRequestCode;
 
-    Permission(String manifest, int requestCode) {
-        mManifest = manifest;
-        mRequestCode = requestCode;
-    }
+  Permission(String manifest, int requestCode) {
+    mManifest = manifest;
+    mRequestCode = requestCode;
+  }
 
-    public String getManifest() {
-        return mManifest;
-    }
+  public String getManifest() {
+    return mManifest;
+  }
 
-    public int getRequestCode() {
-        return mRequestCode;
-    }
+  public int getRequestCode() {
+    return mRequestCode;
+  }
 }

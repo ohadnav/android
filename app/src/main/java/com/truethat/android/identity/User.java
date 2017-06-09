@@ -1,7 +1,7 @@
 package com.truethat.android.identity;
 
 import android.support.annotation.VisibleForTesting;
-
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /**
@@ -9,21 +9,30 @@ import java.io.Serializable;
  */
 
 public class User implements Serializable {
-    /**
-     * User ID as stored in our backend.
-     */
-    private long mId;
+  /**
+   * User ID as stored in our backend.
+   */
+  @SerializedName("id") private long mId;
 
-    @VisibleForTesting
-    User(long id) {
-        mId = id;
-    }
+  /**
+   * User name as stored in our backend.
+   */
+  @SerializedName("name") private String mName;
 
-    // TODO(ohad): retrieve logged in user from internal storage.
-    User() {
-    }
+  @VisibleForTesting public User(long id, String name) {
+    mId = id;
+    mName = name;
+  }
 
-    public long getId() {
-        return mId;
-    }
+  // TODO(ohad): retrieve logged in user from internal storage.
+  User() {
+  }
+
+  public long getId() {
+    return mId;
+  }
+
+  public String getName() {
+    return mName;
+  }
 }
