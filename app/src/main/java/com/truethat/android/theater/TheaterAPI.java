@@ -22,7 +22,7 @@ interface TheaterAPI {
   String SCENE_ID_FIELD = "scene_id";
   String TIMESTAMP_FIELD = "timestamp";
   String EVENT_CODE_FIELD = "event_code";
-  String EMOTION_FIELD = "emotion";
+  String REACTION_FIELD = "reaction";
 
   /**
    * Get scenes from out beloved backend to add some drama to our users life.
@@ -40,5 +40,5 @@ interface TheaterAPI {
    */
   @FormUrlEncoded @POST("/theater") Call<ResponseBody> postEvent(@Field(USER_ID_FIELD) Long userId,
       @Field(SCENE_ID_FIELD) Long sceneId, @Field(TIMESTAMP_FIELD) Date timestamp,
-      @Field(EVENT_CODE_FIELD) EventCode eventCode, @Field(EMOTION_FIELD) @Nullable Emotion reaction);
+      @Field(EVENT_CODE_FIELD) EventCode eventCode, @Field(REACTION_FIELD) @Nullable Emotion reaction);
 }

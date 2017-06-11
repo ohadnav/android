@@ -5,17 +5,19 @@ package com.truethat.android.common.network;
  *
  * EventCodes of our deal users and magical application. Each event code has an integer code, which should be aligned
  * with our backend.
+ *
+ * @backend <a>https://goo.gl/IBiMDz</a>
  */
 public enum EventCode {
   /**
-   * Reflects that a scene was displayed to the user.
+   * User viewed a reactable.
    */
-  SCENE_VIEW(100),
+  REACTABLE_VIEW(100),
 
   /**
-   * Reflects a user emotional reaction to a scene.
+   * User reacted to a reactable.
    */
-  SCENE_REACTION(101);
+  REACTABLE_REACTION(101);
 
   private int mCode;
 

@@ -1,6 +1,7 @@
 package com.truethat.android.empathy;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.truethat.android.R;
 
 /**
@@ -8,12 +9,17 @@ import com.truethat.android.R;
  */
 
 public enum Emotion {
-  HAPPY(R.drawable.emoji_happy), SAD(R.drawable.emoji_sad);
+  HAPPY(R.drawable.emoji_happy, 1), SAD(R.drawable.emoji_sad, 2);
 
   @Expose(serialize = false, deserialize = false) private int mDrawableResource;
+  /**
+   * Numeric code, to sync with backend.
+   */
+  @SuppressWarnings("FieldCanBeLocal") @SerializedName("code") private int mCode;
 
-  Emotion(int drawableResource) {
+  Emotion(int drawableResource, int code) {
     mDrawableResource = drawableResource;
+    mCode = code;
   }
 
   public int getDrawableResource() {
