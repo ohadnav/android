@@ -33,12 +33,12 @@ interface TheaterAPI {
    * Informs our backend of the the current user interaction with scenes.
    *
    * @param userId viewer's ID
-   * @param sceneId of displayed scene
+   * @param sceneId of the displayed scene
    * @param timestamp of time of event
    * @param eventCode so that the event is recognized by our backend
-   * @param emotion of the reaction to the scene, if applicable (a scene view should fill this as null).
+   * @param reaction to the scene. Note that for reactable views this should be null.
    */
   @FormUrlEncoded @POST("/theater") Call<ResponseBody> postEvent(@Field(USER_ID_FIELD) Long userId,
       @Field(SCENE_ID_FIELD) Long sceneId, @Field(TIMESTAMP_FIELD) Date timestamp,
-      @Field(EVENT_CODE_FIELD) EventCode eventCode, @Field(EMOTION_FIELD) @Nullable Emotion emotion);
+      @Field(EVENT_CODE_FIELD) EventCode eventCode, @Field(EMOTION_FIELD) @Nullable Emotion reaction);
 }
