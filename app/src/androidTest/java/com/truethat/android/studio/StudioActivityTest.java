@@ -93,7 +93,7 @@ public class StudioActivityTest {
   }
 
   // -------------------------- StudioAPI tests --------------------------------
-  @Test(timeout = 3000) public void studioAPI_imageSent() throws Exception {
+  @Test public void studioAPI_imageSent() throws Exception {
     final Dispatcher dispatcher = new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         // TODO(ohad): test request content

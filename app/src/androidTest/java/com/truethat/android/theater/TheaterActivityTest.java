@@ -19,7 +19,7 @@ import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
 import com.truethat.android.empathy.Emotion;
-import com.truethat.android.empathy.EmotionDetectionAlgorithm;
+import com.truethat.android.empathy.EmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionModule;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.identity.MockAuthModule;
@@ -83,7 +83,7 @@ public class TheaterActivityTest {
       mDetectionPubSub = detectionPubSub;
     }
 
-    @Override public void pushInput(Image image) {
+    @Override public void attempt(Image image) {
     }
 
     @Override public void stop() {
@@ -200,11 +200,6 @@ public class TheaterActivityTest {
         assertEquals(2, mPostEventCount);
       }
     });
-    // Triggers navigation to next scene.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeDown());
-    // Makes sure scene is unchanged
-    onView(allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY)))).check(
-        matches(isDisplayed()));
   }
 
   @Test public void previousScene() throws Exception {
@@ -303,10 +298,10 @@ public class TheaterActivityTest {
 
   @Test @MediumTest public void realEmotionalReaction() throws Exception {
     Scene scene = new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null);
-    App.setReactionDetectionModule(new DefaultReactionDetectionModule(new EmotionDetectionAlgorithm() {
+    App.setReactionDetectionModule(new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
       boolean isFirst = true;
 
-      @Nullable @Override public Emotion detect(Image image) {
+      @Nullable @Override public Emotion classify(Image image) {
         Emotion reaction = Emotion.HAPPY;
         if (isFirst) {
           isFirst = false;
@@ -319,12 +314,6 @@ public class TheaterActivityTest {
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
-    // Asserts that a view event was posted.
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
-      }
-    });
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

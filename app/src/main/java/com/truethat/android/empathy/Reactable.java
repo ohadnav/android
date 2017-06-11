@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 import com.truethat.android.application.App;
 import com.truethat.android.identity.User;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.TreeMap;
 
@@ -13,7 +14,7 @@ import java.util.TreeMap;
  *
  * An item that the user can have an emotional reaction to, such as scenes and acts.
  */
-public abstract class Reactable {
+public abstract class Reactable implements Serializable {
   /**
    * Scene ID, as stored in our backend.
    */
@@ -48,6 +49,10 @@ public abstract class Reactable {
     mCreated = created;
   }
 
+  // A default constructor is provided for serialization and de-serialization.
+  @SuppressWarnings("unused") protected Reactable() {
+  }
+
   public Date getCreated() {
     return mCreated;
   }
@@ -64,13 +69,18 @@ public abstract class Reactable {
     return mDirector;
   }
 
-  public void doReaction(@NonNull Emotion emotion) {
-    increaseReactionCounter(emotion);
+  /**
+   * Applies {@code reaction} on the reactable, by updating {@code mReactionCounters} and {@code mUserReaction}.
+   *
+   * @param reaction of the user reaction.
+   */
+  public void doReaction(@NonNull Emotion reaction) {
+    increaseReactionCounter(reaction);
     // Check if the user had already reacted this reactable.
     if (mUserReaction != null) {
-      decreaseReactionCounter(emotion);
+      decreaseReactionCounter(reaction);
     }
-    mUserReaction = emotion;
+    mUserReaction = reaction;
   }
 
   public TreeMap<Emotion, Long> getReactionCounters() {
@@ -81,6 +91,11 @@ public abstract class Reactable {
     return mUserReaction;
   }
 
+  /**
+   * Increases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Creates new map key if needed.
+   *
+   * @param emotion to increase its counter.
+   */
   private void increaseReactionCounter(@NonNull Emotion emotion) {
     if (!mReactionCounters.containsKey(emotion)) {
       mReactionCounters.put(emotion, 0L);
@@ -88,6 +103,12 @@ public abstract class Reactable {
     mReactionCounters.put(emotion, mReactionCounters.get(emotion) + 1);
   }
 
+  /**
+   * Decreases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Deletes the map entry, if the
+   * counter reaches 0.
+   *
+   * @param emotion to decrease its counter.
+   */
   private void decreaseReactionCounter(@NonNull Emotion emotion) {
     if (!mReactionCounters.containsKey(emotion)) {
       throw new IllegalArgumentException(

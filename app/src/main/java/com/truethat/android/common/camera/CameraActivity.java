@@ -85,7 +85,41 @@ public abstract class CameraActivity extends AppCompatActivity {
       return mLastTakenImage;
     }
   };
+  /**
+   * Whether a picture should be taken as soon as the camera is opened. Useful for cases where {@link #takePicture()} is
+   * invoked before the camera could be opened.
+   */
+  private boolean mTakePictureOnOpened = false;
   private Size mImageDimension;
+  private ImageReader mImageReader;
+  private CameraDevice mCameraDevice;
+  private CameraCaptureSession mCameraCaptureSessions;
+  private CaptureRequest.Builder mCaptureRequestBuilder;
+  private Handler mBackgroundHandler;
+  private HandlerThread mBackgroundThread;
+  private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
+    @Override public void onOpened(@NonNull CameraDevice camera) {
+      Log.v(TAG, "Camera opened.");
+      mCameraDevice = camera;
+      createCameraPreview();
+      // A handler is used since pictures cannot be taken immediately.
+      if (mBackgroundHandler == null) startBackgroundThread();
+      mBackgroundHandler.postDelayed(new Runnable() {
+        @Override public void run() {
+          if (mTakePictureOnOpened) takePicture();
+        }
+      }, 100);
+    }
+
+    @Override public void onDisconnected(@NonNull CameraDevice camera) {
+      mCameraDevice.close();
+    }
+
+    @Override public void onError(@NonNull CameraDevice camera, int error) {
+      mCameraDevice.close();
+      mCameraDevice = null;
+    }
+  };
   private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
     @Override public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
       openCamera();
@@ -101,28 +135,6 @@ public abstract class CameraActivity extends AppCompatActivity {
     @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
     }
   };
-  private ImageReader mImageReader;
-  private CameraDevice mCameraDevice;
-  private CameraCaptureSession mCameraCaptureSessions;
-  private CaptureRequest.Builder mCaptureRequestBuilder;
-  private Handler mBackgroundHandler;
-  private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
-    @Override public void onOpened(@NonNull CameraDevice camera) {
-      Log.v(TAG, "Camera opened.");
-      mCameraDevice = camera;
-      createCameraPreview();
-    }
-
-    @Override public void onDisconnected(@NonNull CameraDevice camera) {
-      mCameraDevice.close();
-    }
-
-    @Override public void onError(@NonNull CameraDevice camera, int error) {
-      mCameraDevice.close();
-      mCameraDevice = null;
-    }
-  };
-  private HandlerThread mBackgroundThread;
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     TAG = this.getClass().getSimpleName();
@@ -155,31 +167,19 @@ public abstract class CameraActivity extends AppCompatActivity {
     }
   }
 
-  protected void startBackgroundThread() {
-    mBackgroundThread = new HandlerThread("Camera Background");
-    mBackgroundThread.start();
-    mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-  }
-
-  protected void stopBackgroundThread() {
-    mBackgroundThread.quitSafely();
-    try {
-      mBackgroundThread.join();
-      mBackgroundThread = null;
-      mBackgroundHandler = null;
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
   /**
    * Takes a picture. Once the image is available, it is taken care of by {@code mImageAvailableListener}.
    */
   @SuppressWarnings("unused") protected void takePicture() {
+    // Resets onOpen take picture trigger.
+    mTakePictureOnOpened = false;
     if (mCameraDevice == null) {
-      Log.e(TAG, "Camera device is null.");
+      Log.w(TAG,
+          "Could not take a picture, since camera device was not opened yet. Will try to take one as soon as camera is opened.");
+      mTakePictureOnOpened = true;
       return;
     }
+    Log.v(TAG, "Taking picture.");
     CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
       CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
@@ -229,7 +229,7 @@ public abstract class CameraActivity extends AppCompatActivity {
     }
   }
 
-  protected void createCameraPreview() {
+  private void createCameraPreview() {
     try {
       SurfaceTexture texture = mCameraPreview == null ? new SurfaceTexture(10) : mCameraPreview.getSurfaceTexture();
       assert texture != null;
@@ -254,18 +254,6 @@ public abstract class CameraActivity extends AppCompatActivity {
       }, null);
     } catch (CameraAccessException e) {
       Log.e(TAG, "No camera access.");
-      e.printStackTrace();
-    }
-  }
-
-  protected void updatePreview() {
-    if (mCameraDevice == null) {
-      Log.e(TAG, "Camera device is null.");
-    }
-    mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-    try {
-      mCameraCaptureSessions.setRepeatingRequest(mCaptureRequestBuilder.build(), null, mBackgroundHandler);
-    } catch (CameraAccessException e) {
       e.printStackTrace();
     }
   }
@@ -295,7 +283,19 @@ public abstract class CameraActivity extends AppCompatActivity {
    */
   protected abstract void processImage();
 
-  protected void onRequestPermissionsFailed() {
+  private void updatePreview() {
+    if (mCameraDevice == null) {
+      Log.e(TAG, "Camera device is null when updating preview.");
+    }
+    mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+    try {
+      mCameraCaptureSessions.setRepeatingRequest(mCaptureRequestBuilder.build(), null, mBackgroundHandler);
+    } catch (CameraAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void onRequestPermissionsFailed() {
     startActivity(new Intent(this, NoCameraPermissionActivity.class));
   }
 
@@ -307,6 +307,25 @@ public abstract class CameraActivity extends AppCompatActivity {
     if (mImageReader != null) {
       mImageReader.close();
       mImageReader = null;
+    }
+  }
+
+  private void startBackgroundThread() {
+    if (mBackgroundThread == null) {
+      mBackgroundThread = new HandlerThread("Camera Background");
+      mBackgroundThread.start();
+      mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+  }
+
+  private void stopBackgroundThread() {
+    mBackgroundThread.quitSafely();
+    try {
+      mBackgroundThread.join();
+      mBackgroundThread = null;
+      mBackgroundHandler = null;
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
   }
 
@@ -324,6 +343,7 @@ public abstract class CameraActivity extends AppCompatActivity {
       if (!App.getPermissionsModule().isPermissionGranted(this, Permission.CAMERA)) {
         return;
       }
+      Log.v(TAG, "Front camera opened.");
       manager.openCamera(cameraId, mStateCallback, null);
     } catch (CameraAccessException e) {
       Log.e(TAG, "Could not open front camera.");
@@ -332,6 +352,5 @@ public abstract class CameraActivity extends AppCompatActivity {
       Log.e(TAG, "Camera permissions not granted, somebody has something to hide...");
       e.printStackTrace();
     }
-    Log.v(TAG, "Front camera opened.");
   }
 }

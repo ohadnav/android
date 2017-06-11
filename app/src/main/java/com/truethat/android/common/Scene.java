@@ -16,6 +16,7 @@ import java.util.TreeMap;
  */
 
 public class Scene extends Reactable implements Serializable {
+
   /**
    * Internal storage directory that contains serialized scenes.
    */
@@ -40,6 +41,10 @@ public class Scene extends Reactable implements Serializable {
       Date created, @Nullable Emotion userReaction) {
     super(id, director, reactionCounters, created, userReaction);
     mImageSignedUrl = imageSignedUrl;
+  }
+
+  // A default constructor is provided for serialization and de-serialization.
+  @SuppressWarnings("unused") private Scene() {
   }
 
   public static String internalStoragePath(long id) {

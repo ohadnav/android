@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNull;
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  */
 public class DefaultReactionDetectionModuleTest {
-  private static long MAX_DETECTION_TIME_MILLIS = 100;
+  private static long DETECTION_TIMEOUT_MILLIS = 100;
   @Rule public ActivityTestRule<TestActivity> mTestActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
   private Emotion mDetectedReaction;
@@ -28,7 +28,7 @@ public class DefaultReactionDetectionModuleTest {
   private ReactionDetectionPubSub mDetectionPubSub;
 
   @BeforeClass public static void beforeClass() throws Exception {
-    DefaultReactionDetectionModule.setMaxDetectionTimeMillis(MAX_DETECTION_TIME_MILLIS);
+    DefaultReactionDetectionModule.setDetectionTimeoutMillis(DETECTION_TIMEOUT_MILLIS);
   }
 
   @Before public void setUp() throws Exception {
@@ -37,21 +37,21 @@ public class DefaultReactionDetectionModuleTest {
     // Initialize Awaitility
     Awaitility.reset();
     mDetectionPubSub = new ReactionDetectionPubSub() {
-      @Override public void onReactionDetected(Emotion emotion) {
-        mDetectedReaction = emotion;
+      @Override public void onReactionDetected(Emotion reaction) {
+        mDetectedReaction = reaction;
       }
 
       @Override public void requestInput() {
         //noinspection ConstantConditions
-        mDetectionModule.pushInput(null);
+        mDetectionModule.attempt(null);
       }
     };
   }
 
   @Test public void emotionDetected() throws Exception {
     final Emotion expected = Emotion.HAPPY;
-    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionAlgorithm() {
-      @Nullable @Override public Emotion detect(Image image) {
+    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
+      @Nullable @Override public Emotion classify(Image image) {
         return expected;
       }
     });
@@ -65,10 +65,10 @@ public class DefaultReactionDetectionModuleTest {
 
   @Test public void emotionDetected_onSecondAttempt() throws Exception {
     final Emotion expected = Emotion.HAPPY;
-    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionAlgorithm() {
+    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
       boolean isFirst = true;
 
-      @Nullable @Override public Emotion detect(Image image) {
+      @Nullable @Override public Emotion classify(Image image) {
         Emotion reaction = null;
         if (!isFirst) reaction = expected;
         isFirst = false;
@@ -84,26 +84,26 @@ public class DefaultReactionDetectionModuleTest {
   }
 
   @Test public void emotionNotDetected() throws Exception {
-    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionAlgorithm() {
-      @Nullable @Override public Emotion detect(Image image) {
+    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
+      @Nullable @Override public Emotion classify(Image image) {
         return null;
       }
     });
     mDetectionModule.detect(mDetectionPubSub);
-    Thread.sleep(MAX_DETECTION_TIME_MILLIS * 2);
+    Thread.sleep(DETECTION_TIMEOUT_MILLIS * 2);
     assertNull(mDetectedReaction);
   }
 
   @Test public void stop() throws Exception {
     final Date now = new Date();
-    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionAlgorithm() {
-      @Nullable @Override public Emotion detect(Image image) {
-        return new Date().getTime() - now.getTime() > MAX_DETECTION_TIME_MILLIS / 2 ? Emotion.HAPPY : null;
+    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
+      @Nullable @Override public Emotion classify(Image image) {
+        return new Date().getTime() - now.getTime() > DETECTION_TIMEOUT_MILLIS / 2 ? Emotion.HAPPY : null;
       }
     });
     mDetectionModule.detect(mDetectionPubSub);
     mDetectionModule.stop();
-    Thread.sleep(MAX_DETECTION_TIME_MILLIS * 2);
+    Thread.sleep(DETECTION_TIMEOUT_MILLIS * 2);
     assertNull(mDetectedReaction);
   }
 }

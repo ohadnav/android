@@ -23,6 +23,7 @@ import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,8 @@ import static org.junit.Assert.assertFalse;
       new ActivityTestRule<>(StudioActivity.class, true, false);
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
+  @Rule public ActivityTestRule<NoCameraPermissionActivity> mNoPermissionActivityTestRule =
+      new ActivityTestRule<>(NoCameraPermissionActivity.class, true, false);
   private boolean mImageTaken = false;
   private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
       new ImageReader.OnImageAvailableListener() {
@@ -95,7 +98,7 @@ import static org.junit.Assert.assertFalse;
     mPermissionsModule.grant(Permission.CAMERA);
   }
 
-  @Test(timeout = 3000) @MediumTest public void takePicture_noSurfaceTexture() throws Exception {
+  @Test @MediumTest public void takePicture_noSurfaceTexture() throws Exception {
     mTheaterActivityTestRule.launchActivity(null);
     mTheaterActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
     assertFalse(mImageTaken);
@@ -121,7 +124,33 @@ import static org.junit.Assert.assertFalse;
     });
   }
 
-  @Test(timeout = 3000) public void onPause() throws Exception {
+  // Test is ignored, as more than a single instance of mTheaterActivityTestRule is created.
+  @Test @MediumTest @Ignore public void takePicture_cameraNotOpenedYet() throws Exception {
+    mTheaterActivityTestRule.launchActivity(null);
+    mTheaterActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
+    assertFalse(mImageTaken);
+    // Launching a non-camera activity to close the camera.
+    mNoPermissionActivityTestRule.launchActivity(null);
+    // Asserts the camera is closed.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mTheaterActivityTestRule.getActivity().getCameraDevice() == null;
+      }
+    });
+    // Trying to take a picture while the camera is closed.
+    mTheaterActivityTestRule.getActivity().takePicture();
+    // Launches the camera activity again.
+    mNoPermissionActivityTestRule.getActivity()
+        .startActivity(new Intent(mNoPermissionActivityTestRule.getActivity(), TheaterActivity.class));
+    // Assert that an image was taken.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mImageTaken;
+      }
+    });
+  }
+
+  @Test public void onPause() throws Exception {
     mStudioActivityTestRule.launchActivity(null);
     // Navigates to an activity without camera.
     mStudioActivityTestRule.getActivity()

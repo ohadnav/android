@@ -24,6 +24,9 @@ interface TheaterAPI {
   String EVENT_CODE_FIELD = "event_code";
   String EMOTION_FIELD = "emotion";
 
+  /**
+   * Get scenes from out beloved backend to add some drama to our users life.
+   */
   @GET("/theater") Call<List<Scene>> getScenes();
 
   /**
