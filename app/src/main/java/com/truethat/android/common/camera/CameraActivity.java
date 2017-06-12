@@ -91,6 +91,24 @@ public abstract class CameraActivity extends AppCompatActivity {
    */
   private boolean mTakePictureOnOpened = false;
   private Size mImageDimension;
+  private final TextureView.SurfaceTextureListener mTextureListener =
+      new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+          return false;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+      };
   private ImageReader mImageReader;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mCameraCaptureSessions;
@@ -101,14 +119,16 @@ public abstract class CameraActivity extends AppCompatActivity {
     @Override public void onOpened(@NonNull CameraDevice camera) {
       Log.v(TAG, "Camera opened.");
       mCameraDevice = camera;
-      createCameraPreview();
+      if (mCameraPreview != null) createCameraPreview();
       // A handler is used since pictures cannot be taken immediately.
-      if (mBackgroundHandler == null) startBackgroundThread();
-      mBackgroundHandler.postDelayed(new Runnable() {
-        @Override public void run() {
-          if (mTakePictureOnOpened) takePicture();
-        }
-      }, 100);
+      if (mTakePictureOnOpened) {
+        if (mBackgroundHandler == null) startBackgroundThread();
+        mBackgroundHandler.postDelayed(new Runnable() {
+          @Override public void run() {
+            if (mTakePictureOnOpened) takePicture();
+          }
+        }, 100);
+      }
     }
 
     @Override public void onDisconnected(@NonNull CameraDevice camera) {
@@ -120,26 +140,10 @@ public abstract class CameraActivity extends AppCompatActivity {
       mCameraDevice = null;
     }
   };
-  private final TextureView.SurfaceTextureListener mTextureListener = new TextureView.SurfaceTextureListener() {
-    @Override public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-      openCamera();
-    }
-
-    @Override public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-    }
-
-    @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-      return false;
-    }
-
-    @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-    }
-  };
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     TAG = this.getClass().getSimpleName();
     super.onCreate(savedInstanceState);
-    Log.v(TAG, "Launching activity");
   }
 
   public Image supplyImage() {
@@ -194,9 +198,6 @@ public abstract class CameraActivity extends AppCompatActivity {
       mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
       List<Surface> outputSurfaces = new ArrayList<>(2);
       outputSurfaces.add(mImageReader.getSurface());
-      if (mCameraPreview != null) {
-        outputSurfaces.add(new Surface(mCameraPreview.getSurfaceTexture()));
-      }
       final CaptureRequest.Builder captureBuilder =
           mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
       captureBuilder.addTarget(mImageReader.getSurface());
@@ -209,7 +210,7 @@ public abstract class CameraActivity extends AppCompatActivity {
         @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
             @NonNull TotalCaptureResult result) {
           super.onCaptureCompleted(session, request, result);
-          createCameraPreview();
+          if (mCameraPreview != null) createCameraPreview();
         }
       };
       mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
@@ -231,8 +232,7 @@ public abstract class CameraActivity extends AppCompatActivity {
 
   private void createCameraPreview() {
     try {
-      SurfaceTexture texture = mCameraPreview == null ? new SurfaceTexture(10) : mCameraPreview.getSurfaceTexture();
-      assert texture != null;
+      SurfaceTexture texture = mCameraPreview.getSurfaceTexture();
       texture.setDefaultBufferSize(mImageDimension.getWidth(), mImageDimension.getHeight());
       Surface surface = new Surface(texture);
       mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
@@ -241,11 +241,12 @@ public abstract class CameraActivity extends AppCompatActivity {
         @Override public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
           //The camera is already closed
           if (null == mCameraDevice) {
-            return;
+            Log.w(TAG, "Did not update capture session, since camera is already closed.");
+          } else {
+            // When the session is ready, we init displaying the preview.
+            mCameraCaptureSessions = cameraCaptureSession;
+            updatePreview();
           }
-          // When the session is ready, we init displaying the preview.
-          mCameraCaptureSessions = cameraCaptureSession;
-          updatePreview();
         }
 
         @Override public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {

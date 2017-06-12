@@ -30,11 +30,11 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
    * If the much time has passed since an input request and an input was not received, then a new input will be
    * requested.
    */
-  private static final long REQUEST_INPUT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(1);
+  @VisibleForTesting static long REQUEST_INPUT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(1);
   /**
    * Maximum duration in millis to start a new detection attempt, measured with relation to {@code mDetectionStartTime}.
    */
-  private static long DETECTION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(10);
+  @VisibleForTesting static long DETECTION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private EmotionDetectionClassifier mDetectionClassifier;
   private ReactionDetectionPubSub mDetectionPubSub;
   private DetectionTask mDetectionTask;
@@ -55,6 +55,10 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
 
   @VisibleForTesting static void setDetectionTimeoutMillis(long detectionTimeoutMillis) {
     DETECTION_TIMEOUT_MILLIS = detectionTimeoutMillis;
+  }
+
+  @VisibleForTesting static void setRequestInputTimeoutMillis(long requestInputTimeoutMillis) {
+    REQUEST_INPUT_TIMEOUT_MILLIS = requestInputTimeoutMillis;
   }
 
   @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
@@ -86,18 +90,30 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
   }
 
   /**
+   * @return whether the current detection task should be stopped (for example, in the case of a timeout).
+   */
+  private boolean shouldStop() {
+    return new Date().getTime() - mDetectionStartTime.getTime() >= DETECTION_TIMEOUT_MILLIS;
+  }
+
+  /**
    * Starts a new detection attempt. See the class documentation for a more thorough documentation.
    */
   private void next() {
-    Log.v(TAG, "Requesting input.");
-    // If remains false, then in REQUEST_INPUT_TIMEOUT_MILLIS we'll request input again.
-    mInputReceived = false;
-    mDetectionPubSub.requestInput();
-    mInputRequestHandler.postDelayed(new Runnable() {
-      @Override public void run() {
-        if (!mInputReceived) next();
-      }
-    }, REQUEST_INPUT_TIMEOUT_MILLIS);
+    if (shouldStop()) {
+      Log.v(TAG, "Detection timed out.");
+      stop();
+    } else {
+      Log.v(TAG, "Requesting input.");
+      // If remains false, then in REQUEST_INPUT_TIMEOUT_MILLIS we'll request input again.
+      mInputReceived = false;
+      mDetectionPubSub.requestInput();
+      mInputRequestHandler.postDelayed(new Runnable() {
+        @Override public void run() {
+          if (!mInputReceived) next();
+        }
+      }, REQUEST_INPUT_TIMEOUT_MILLIS);
+    }
   }
 
   private void startInputRequestThread() {
@@ -138,14 +154,8 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
         mDetectionPubSub.onReactionDetected(reaction);
         stop();
       } else {
-        // Stop condition if reaction detection is taking too long.
-        if (new Date().getTime() - mDetectionStartTime.getTime() < DETECTION_TIMEOUT_MILLIS) {
-          // Request input is expected to trigger attempt.
-          next();
-        } else {
-          Log.v(TAG, "Detection timed out.");
-          stop();
-        }
+        // Go for next iteration.
+        next();
       }
     }
   }

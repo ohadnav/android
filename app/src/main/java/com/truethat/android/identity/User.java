@@ -1,7 +1,6 @@
 package com.truethat.android.identity;
 
 import android.support.annotation.VisibleForTesting;
-import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /**
@@ -12,12 +11,12 @@ public class User implements Serializable {
   /**
    * User ID as stored in our backend.
    */
-  @SerializedName("id") private long mId;
+  private long mId;
 
   /**
    * User name as stored in our backend.
    */
-  @SerializedName("name") private String mName;
+  private String mName;
 
   @VisibleForTesting public User(long id, String name) {
     mId = id;

@@ -1,6 +1,5 @@
 package com.truethat.android.studio;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -61,10 +60,9 @@ public class StudioActivity extends CameraActivity {
     this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
     // Defines the navigation to the Theater.
     final ViewGroup rootView = (ViewGroup) this.findViewById(android.R.id.content);
-    final Context that = this;
     rootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeLeft() {
-        startActivity(new Intent(that, TheaterActivity.class));
+        startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
     // Initializes the Theater API

@@ -3,7 +3,6 @@ package com.truethat.android.common;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.Reactable;
 import com.truethat.android.identity.User;
@@ -35,7 +34,7 @@ public class Scene extends Reactable implements Serializable {
   /**
    * Signed URL to the scene's image on our storage.
    */
-  @SerializedName("image_signed_url") private String mImageSignedUrl;
+  private String mImageSignedUrl;
 
   public Scene(long id, String imageSignedUrl, User director, @NonNull TreeMap<Emotion, Long> reactionCounters,
       Date created, @Nullable Emotion userReaction) {

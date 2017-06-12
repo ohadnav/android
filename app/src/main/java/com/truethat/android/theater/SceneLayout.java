@@ -3,6 +3,7 @@ package com.truethat.android.theater;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.constraint.ConstraintLayout;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -20,6 +21,10 @@ import com.truethat.android.empathy.Emotion;
  */
 
 class SceneLayout {
+  /**
+   * Default for reaction counter's image view.
+   */
+  @VisibleForTesting static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
   private Scene mScene;
   private ConstraintLayout mLayout;
 
@@ -83,8 +88,13 @@ class SceneLayout {
     TextView reactionCountText = (TextView) mLayout.findViewById(R.id.reactionCountText);
     reactionCountText.setText(NumberUtil.format(sumCounts));
     // Sets the proper emotion emoji.
+    Emotion toDisplay = DEFAULT_REACTION_COUNTER;
+    if (emotion != null) {
+      toDisplay = emotion;
+    } else if (!mScene.getReactionCounters().isEmpty()) {
+      toDisplay = mScene.getReactionCounters().lastKey();
+    }
     ImageView imageView = (ImageView) mLayout.findViewById(R.id.reactionImage);
-    imageView.setImageResource(emotion != null ? emotion.getDrawableResource()
-        : mScene.getReactionCounters().lastEntry().getKey().getDrawableResource());
+    imageView.setImageResource(toDisplay.getDrawableResource());
   }
 }

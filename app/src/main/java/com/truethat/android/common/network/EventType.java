@@ -8,20 +8,14 @@ package com.truethat.android.common.network;
  *
  * @backend <a>https://goo.gl/IBiMDz</a>
  */
-public enum EventCode {
+public enum EventType {
   /**
    * User viewed a reactable.
    */
-  REACTABLE_VIEW(100),
+  REACTABLE_VIEW,
 
   /**
    * User reacted to a reactable.
    */
-  REACTABLE_REACTION(101);
-
-  private int mCode;
-
-  EventCode(int code) {
-    mCode = code;
-  }
+  REACTABLE_REACTION
 }

@@ -176,6 +176,20 @@ public class TheaterActivityTest {
     });
   }
 
+  @Test public void displayScene_noReaction() throws Exception {
+    mRespondedScenes = Collections.singletonList(
+        new Scene(ID_1, IMAGE_URL, DIRECTOR, new TreeMap<Emotion, Long>(), HOUR_AGO, null));
+    mTheaterActivityTestRule.launchActivity(null);
+    // Wait until the scene is displayed.
+    onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
+    // Asserting the reaction image is displayed and represents the default reaction.
+    ImageView imageView =
+        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
+    assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
+        ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
+            SceneLayout.DEFAULT_REACTION_COUNTER.getDrawableResource())));
+  }
+
   @Test public void nextScene() throws Exception {
     mRespondedScenes = Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
         new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));

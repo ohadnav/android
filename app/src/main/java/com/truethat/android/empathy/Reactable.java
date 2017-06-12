@@ -2,7 +2,6 @@ package com.truethat.android.empathy;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.gson.annotations.SerializedName;
 import com.truethat.android.application.App;
 import com.truethat.android.identity.User;
 import java.io.Serializable;
@@ -18,27 +17,27 @@ public abstract class Reactable implements Serializable {
   /**
    * Scene ID, as stored in our backend.
    */
-  @SerializedName("id") private long mId;
+  private long mId;
 
   /**
    * Whether the user had already reacted to the reactable
    */
-  @SerializedName("user_reaction") private Emotion mUserReaction;
+  private Emotion mUserReaction;
 
   /**
    * Creator of the reactable. By default, the current user is assigned.
    */
-  @SerializedName("director") private User mDirector = App.getAuthModule().getCurrentUser();
+  private User mDirector = App.getAuthModule().getCurrentUser();
 
   /**
    * Counters of emotional reactions to the reactable, per each emotion.
    */
-  @SerializedName("reaction_counters") private TreeMap<Emotion, Long> mReactionCounters = new TreeMap<>();
+  private TreeMap<Emotion, Long> mReactionCounters = new TreeMap<>();
 
   /**
    * Date of creation.
    */
-  @SerializedName("created") private Date mCreated = new Date();
+  private Date mCreated = new Date();
 
   public Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction) {

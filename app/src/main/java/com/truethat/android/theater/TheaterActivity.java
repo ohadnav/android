@@ -1,6 +1,5 @@
 package com.truethat.android.theater;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +14,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraActivity;
-import com.truethat.android.common.network.EventCode;
+import com.truethat.android.common.network.EventType;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.OnSwipeTouchListener;
 import com.truethat.android.empathy.Emotion;
@@ -106,11 +105,10 @@ public class TheaterActivity extends CameraActivity {
     // Initializes UI elements.
     mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
     // Hooks for screen swipes
-    mRootView = (ViewGroup) findViewById(android.R.id.content);
-    final Context that = this;
+    mRootView = (ViewGroup) findViewById(R.id.theaterActivity);
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeRight() {
-        startActivity(new Intent(that, StudioActivity.class));
+        startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
       }
 
       @Override public void onSwipeDown() {
@@ -185,12 +183,12 @@ public class TheaterActivity extends CameraActivity {
     runOnUiThread(new Runnable() {
       @Override public void run() {
         // Hides default image.
-        ImageView imageView = (ImageView) mRootView.findViewById(R.id.defaultImage);
+        ImageView imageView = (ImageView) TheaterActivity.this.findViewById(R.id.defaultImage);
         imageView.setVisibility(GONE);
         // Hides loading animation.
         mProgressBar.setVisibility(GONE);
         // Removes old scene, if it exists.
-        View currentLayout = mRootView.findViewById(R.id.sceneLayout);
+        View currentLayout = TheaterActivity.this.findViewById(R.id.sceneLayout);
         if (currentLayout != null) {
           mRootView.removeView(currentLayout);
         }
@@ -201,8 +199,9 @@ public class TheaterActivity extends CameraActivity {
       }
     });
     // Post event of scene view.
-    mTheaterAPI.postEvent(App.getAuthModule().getCurrentUser().getId(),
-        mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(), EventCode.REACTABLE_VIEW, null)
+    mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getCurrentUser().getId(),
+        mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(),
+        EventType.REACTABLE_VIEW, null))
         .enqueue(mPostEventCallback);
   }
 
@@ -278,8 +277,10 @@ public class TheaterActivity extends CameraActivity {
         Log.v(TAG, "Reaction detected: " + reaction.name());
         mReactable.doReaction(reaction);
         // Post event of reactable reaction.
-        mTheaterAPI.postEvent(App.getAuthModule().getCurrentUser().getId(), mReactable.getId(), mRealEventTime,
-            EventCode.REACTABLE_REACTION, mReactable.getUserReaction()).enqueue(mPostEventCallback);
+        mTheaterAPI.postEvent(
+            new ReactableEvent(App.getAuthModule().getCurrentUser().getId(), mReactable.getId(),
+                mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()))
+            .enqueue(mPostEventCallback);
         // Triggers the reaction visual outcome.
         TheaterActivity.this.doReaction(mReactable);
       } else {
@@ -288,7 +289,6 @@ public class TheaterActivity extends CameraActivity {
     }
 
     @Override public void requestInput() {
-      Log.v(TAG, "Input requested for emotional reaction detection.");
       mRealEventTime = new Date();
       takePicture();
     }

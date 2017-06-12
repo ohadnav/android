@@ -6,7 +6,7 @@ import com.truethat.android.application.permissions.PermissionsModule;
 import com.truethat.android.application.storage.internal.DefaultInternalStorage;
 import com.truethat.android.application.storage.internal.InternalStorage;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
-import com.truethat.android.empathy.NullEmotionDetectionClassifier;
+import com.truethat.android.empathy.RandomEmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionModule;
 import com.truethat.android.identity.AuthModule;
 import com.truethat.android.identity.DefaultAuthModule;
@@ -20,7 +20,7 @@ public class App {
   private static InternalStorage sInternalStorage = new DefaultInternalStorage();
   private static AuthModule sAuthModule = new DefaultAuthModule();
   private static ReactionDetectionModule sReactionDetectionModule =
-      new DefaultReactionDetectionModule(new NullEmotionDetectionClassifier());
+      new DefaultReactionDetectionModule(new RandomEmotionDetectionClassifier());
 
   public static PermissionsModule getPermissionsModule() {
     return sPermissionsModule;

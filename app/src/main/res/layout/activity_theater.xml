@@ -23,6 +23,14 @@
       app:srcCompat="@drawable/superman_dog"
       />
 
+  <TextureView
+      android:id="@+id/cameraPreview"
+      android:layout_width="10dp"
+      android:layout_height="10dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      />
+
   <ProgressBar
       android:id="@+id/progressBar"
       android:layout_width="wrap_content"
