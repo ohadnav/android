@@ -6,7 +6,7 @@ package com.truethat.android.common.network;
  * EventCodes of our deal users and magical application. Each event code has an integer code, which should be aligned
  * with our backend.
  *
- * @backend <a>https://goo.gl/IBiMDz</a>
+ * @backend <a>https://goo.gl/5HOYDY</a>
  */
 public enum EventType {
   /**

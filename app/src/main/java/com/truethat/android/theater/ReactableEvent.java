@@ -10,6 +10,8 @@ import java.util.Date;
  * Proudly created by ohad on 12/06/2017 for TrueThat.
  *
  * Encapsulates event of user interaction with a reactable.
+ *
+ * @backend <a>https://goo.gl/s9o2rt</a>
  */
 
 @SuppressWarnings({ "unused", "FieldCanBeLocal" }) class ReactableEvent {
