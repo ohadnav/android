@@ -23,25 +23,28 @@ public class CameraUtilTest {
 
   @Test public void toByteArray() throws Exception {
     // Asserts that an exception is not thrown, as the actual image cannot be expected.
-    byte[] expected =
-        AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(), CameraTestUtil.BITMAP_1x1_PATH);
+    byte[] expected = AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(),
+        CameraTestUtil.BITMAP_1x1_PATH);
     byte[] actual = CameraUtil.toByteArray(CameraTestUtil.bitmapBytesToMockedImage(expected, 0));
     assertArrayEquals(expected, actual);
   }
 
   @Test public void compareEquals() throws Exception {
     Image image = CameraTestUtil.bitmapBytesToMockedImage(
-        AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(), CameraTestUtil.BITMAP_1x1_PATH), 0);
+        AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(),
+            CameraTestUtil.BITMAP_1x1_PATH), 0);
     assertTrue(CameraUtil.compare(image, image));
   }
 
   @Test public void compareNotEquals() throws Exception {
-    byte[] source =
-        AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(), CameraTestUtil.BITMAP_1x1_PATH);
-    Bitmap bitmap = BitmapFactory.decodeByteArray(source, 0, source.length).copy(Bitmap.Config.ARGB_8888, true);
+    byte[] source = AssetsReaderUtil.readAsBytes(mTheaterActivityTestRule.getActivity(),
+        CameraTestUtil.BITMAP_1x1_PATH);
+    Bitmap bitmap =
+        BitmapFactory.decodeByteArray(source, 0, source.length).copy(Bitmap.Config.ARGB_8888, true);
     bitmap.setPixel(0, 0, bitmap.getPixel(0, 0) + 100000);
     Image image1 = CameraTestUtil.bitmapBytesToMockedImage(source, 0);
-    Image image2 = CameraTestUtil.bitmapBytesToMockedImage(CameraTestUtil.bitmapToByteArray(bitmap), 0);
+    Image image2 =
+        CameraTestUtil.bitmapBytesToMockedImage(CameraTestUtil.bitmapToByteArray(bitmap), 0);
     assertFalse(CameraUtil.compare(image1, image2));
   }
 }

@@ -21,7 +21,8 @@ public class MockInternalStorage implements InternalStorage {
   // Objects are mapped to byte arrays to test serialization as well.
   private Map<String, byte[]> mFileNameToBytes = new HashMap<>();
 
-  @Override public void write(Context context, String fileName, Serializable data) throws IOException {
+  @Override public void write(Context context, String fileName, Serializable data)
+      throws IOException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     ObjectOutput objectOutput = new ObjectOutputStream(outputStream);
     objectOutput.writeObject(data);

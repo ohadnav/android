@@ -28,7 +28,8 @@ public class CameraTestUtil {
    * @param timestamp of the mocked image.
    * @return mocked Image that is derived from the asset.
    */
-  public static Image bitmapBytesToMockedImage(byte[] bitmapBytes, long timestamp) throws Exception {
+  public static Image bitmapBytesToMockedImage(byte[] bitmapBytes, long timestamp)
+      throws Exception {
     Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
     // Mocking the single image plane.
     Image.Plane mockedPlane = mock(Image.Plane.class);
@@ -41,7 +42,8 @@ public class CameraTestUtil {
     when(mockedImage.getWidth()).thenReturn(bitmap.getWidth());
     when(mockedImage.getFormat()).thenReturn(ImageFormat.FLEX_RGB_888);
     when(mockedImage.getTimestamp()).thenReturn(timestamp);
-    when(mockedImage.getCropRect()).thenReturn(new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
+    when(mockedImage.getCropRect()).thenReturn(
+        new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()));
     when(mockedImage.getPlanes()).thenReturn(new Image.Plane[] { mockedPlane });
     return mockedImage;
   }

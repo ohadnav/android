@@ -62,8 +62,9 @@ public class NetworkUtil {
     @Override public Response intercept(@NonNull Chain chain) throws IOException {
       Request request = chain.request();
       Log.v(TAG, "Sending " + request.method() + " request to " + request.url());
-      Request newRequest =
-          request.newBuilder().addHeader(HeadersContract.BUILD_NUMBER.getName(), BuildConfig.VERSION_NAME).build();
+      Request newRequest = request.newBuilder()
+          .addHeader(HeadersContract.BUILD_NUMBER.getName(), BuildConfig.VERSION_NAME)
+          .build();
       return chain.proceed(newRequest);
     }
   }).build();

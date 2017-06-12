@@ -18,27 +18,32 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
   static final BySelector ALLOW_SELECTOR =
       By.res(ApplicationTestUtil.INSTALLER_PACKAGE_NAME, "permission_allow_button");
   static final SearchCondition<UiObject2> ALLOW_SEARCH_CONDITION = Until.findObject(ALLOW_SELECTOR);
-  static final SearchCondition<UiObject2> DENY_SEARCH_CONDITION =
-      Until.findObject(By.res(ApplicationTestUtil.INSTALLER_PACKAGE_NAME, "permission_deny_button"));
+  static final SearchCondition<UiObject2> DENY_SEARCH_CONDITION = Until.findObject(
+      By.res(ApplicationTestUtil.INSTALLER_PACKAGE_NAME, "permission_deny_button"));
 
   public static void revokeAllPermissions() throws Exception {
-    ParcelFileDescriptor res = getInstrumentation().getUiAutomation().executeShellCommand("pm reset-permissions");
+    ParcelFileDescriptor res =
+        getInstrumentation().getUiAutomation().executeShellCommand("pm reset-permissions");
     res.close();
     Thread.sleep(100);
   }
 
   public static void revokePermission(Permission permission) throws Exception {
     ParcelFileDescriptor res = getInstrumentation().getUiAutomation()
-        .executeShellCommand(
-            "pm revokeAndForbid " + ApplicationTestUtil.APPLICATION_PACKAGE_NAME + " " + permission.getManifest());
+        .executeShellCommand("pm revokeAndForbid "
+            + ApplicationTestUtil.APPLICATION_PACKAGE_NAME
+            + " "
+            + permission.getManifest());
     res.close();
     Thread.sleep(100);
   }
 
   public static void grantPermission(Permission permission) throws Exception {
     ParcelFileDescriptor res = getInstrumentation().getUiAutomation()
-        .executeShellCommand(
-            "pm grant " + ApplicationTestUtil.APPLICATION_PACKAGE_NAME + " " + permission.getManifest());
+        .executeShellCommand("pm grant "
+            + ApplicationTestUtil.APPLICATION_PACKAGE_NAME
+            + " "
+            + permission.getManifest());
     res.close();
     Thread.sleep(100);
   }

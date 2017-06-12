@@ -12,7 +12,8 @@ import java.util.Map;
  */
 
 @SuppressWarnings("WeakerAccess") public class MockPermissionsModule implements PermissionsModule {
-  private static final DefaultPermissionsModule DEFAULT_PERMISSIONS_MODULE = new DefaultPermissionsModule();
+  private static final DefaultPermissionsModule DEFAULT_PERMISSIONS_MODULE =
+      new DefaultPermissionsModule();
   // Indicates whether rationale should be shown if not explicitly set otherwise.
   private static final boolean DEFAULT_RATIONALE_BEHAVIOUR = false;
   // Maps permission types to booleans indicating whether the permission was granted.
@@ -50,7 +51,8 @@ import java.util.Map;
       grant(permission);
       // Grants it for real, if needed.
       try {
-        if (activity != null && !DEFAULT_PERMISSIONS_MODULE.isPermissionGranted(activity, permission)) {
+        if (activity != null && !DEFAULT_PERMISSIONS_MODULE.isPermissionGranted(activity,
+            permission)) {
           PermissionsTestUtil.grantPermission(Permission.CAMERA);
         }
       } catch (Exception ignored) {
@@ -58,8 +60,8 @@ import java.util.Map;
     }
     // Invoke permission request callback.
     if (activity != null) {
-      activity.onRequestPermissionsResult(permission.getRequestCode(), new String[] { permission.getManifest() },
-          new int[] {
+      activity.onRequestPermissionsResult(permission.getRequestCode(),
+          new String[] { permission.getManifest() }, new int[] {
               isPermissionGranted(activity, permission) ? PackageManager.PERMISSION_GRANTED
                   : PackageManager.PERMISSION_DENIED
           });

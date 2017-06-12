@@ -29,7 +29,11 @@ public class ApplicationTestUtil {
       }
 
       @Override public String getDescription() {
-        return "waited for to for a specific view with matcher <" + viewMatcher + "> during " + millis + " millis.";
+        return "waited for to for a specific view with matcher <"
+            + viewMatcher
+            + "> during "
+            + millis
+            + " millis.";
       }
 
       @Override public void perform(final UiController uiController, final View view) {
@@ -68,7 +72,8 @@ public class ApplicationTestUtil {
         view.getWindowVisibleDisplayFrame(windowRect);
         int windowHeight = windowRect.bottom - windowRect.top;
         int windiwWidth = windowRect.right - windowRect.left;
-        return isDisplayed().matches(view) && windiwWidth == view.getWidth() && windowHeight == view.getHeight();
+        return isDisplayed().matches(view) && windiwWidth == view.getWidth() && windowHeight == view
+            .getHeight();
       }
     };
   }

@@ -73,7 +73,8 @@ public class StudioActivityTest {
     mMockWebServer.start(PORT);
     // Initializes the mocked image.
     mImageMock = CameraTestUtil.bitmapBytesToMockedImage(
-        AssetsReaderUtil.readAsBytes(mStudioActivityTestRule.getActivity(), CameraTestUtil.BITMAP_1x1_PATH), 0);
+        AssetsReaderUtil.readAsBytes(mStudioActivityTestRule.getActivity(),
+            CameraTestUtil.BITMAP_1x1_PATH), 0);
     // Sets up new mocked internal storage.
     App.setInternalStorage(new MockInternalStorage());
   }
@@ -97,9 +98,8 @@ public class StudioActivityTest {
     final Dispatcher dispatcher = new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         // TODO(ohad): test request content
-        Scene respondedScene =
-            new Scene(SCENE_ID, "", App.getAuthModule().getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
-                null);
+        Scene respondedScene = new Scene(SCENE_ID, "", App.getAuthModule().getCurrentUser(),
+            new TreeMap<Emotion, Long>(), new Date(), null);
         // "\n" is needed at the end to imply response EOF.
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)
             .setBody(NetworkUtil.GSON.toJson(respondedScene) + "\n");
@@ -120,8 +120,8 @@ public class StudioActivityTest {
             .exists(mStudioActivityTestRule.getActivity(), Scene.internalStoragePath(SCENE_ID));
       }
     });
-    Scene scene =
-        App.getInternalStorage().read(mStudioActivityTestRule.getActivity(), Scene.internalStoragePath(SCENE_ID));
+    Scene scene = App.getInternalStorage()
+        .read(mStudioActivityTestRule.getActivity(), Scene.internalStoragePath(SCENE_ID));
     assertEquals(SCENE_ID, scene.getId());
   }
 }

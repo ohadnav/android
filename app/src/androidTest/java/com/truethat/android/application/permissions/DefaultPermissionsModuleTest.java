@@ -28,10 +28,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-@RunWith(AndroidJUnit4.class) @MediumTest @Ignore // Test fails since shell commands take time to take effect.
+@RunWith(AndroidJUnit4.class) @MediumTest @Ignore
+// Test fails since shell commands take time to take effect.
 public class DefaultPermissionsModuleTest {
   private static final Permission PERMISSION = Permission.CAMERA;
-  @Rule public ActivityTestRule<TestActivity> activityTestRule = new ActivityTestRule<>(TestActivity.class, true, true);
+  @Rule public ActivityTestRule<TestActivity> activityTestRule =
+      new ActivityTestRule<>(TestActivity.class, true, true);
   private PermissionsModule mPermissionsModule = new DefaultPermissionsModule();
   private UiDevice mDevice;
 
@@ -66,10 +68,12 @@ public class DefaultPermissionsModuleTest {
     // Deny permission
     denyButton.click();
     // Wait for the click to register
-    mDevice.wait(Until.hasObject(By.pkg(ApplicationTestUtil.APPLICATION_PACKAGE_NAME).depth(0)), 100);
+    mDevice.wait(Until.hasObject(By.pkg(ApplicationTestUtil.APPLICATION_PACKAGE_NAME).depth(0)),
+        100);
     // Assert that permissions wasn't granted
     assertNotEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(), PERMISSION.getManifest()));
+        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(),
+            PERMISSION.getManifest()));
   }
 
   @Test public void requestIfNeeded_alreadyHadPermission() throws Exception {
@@ -80,7 +84,8 @@ public class DefaultPermissionsModuleTest {
     assertFalse(mDevice.hasObject(PermissionsTestUtil.ALLOW_SELECTOR));
     // Assert that permissions was granted
     assertEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(), PERMISSION.getManifest()));
+        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(),
+            PERMISSION.getManifest()));
   }
 
   @Test public void shouldShowRationale() throws Exception {
@@ -94,7 +99,8 @@ public class DefaultPermissionsModuleTest {
     // Deny permission
     denyButton.click();
     // Wait for the clicks to register
-    mDevice.wait(Until.hasObject(By.pkg(ApplicationTestUtil.APPLICATION_PACKAGE_NAME).depth(0)), 100);
+    mDevice.wait(Until.hasObject(By.pkg(ApplicationTestUtil.APPLICATION_PACKAGE_NAME).depth(0)),
+        100);
     // Assert that show rationale should be shown.
     assertTrue(mPermissionsModule.shouldShowRationale(activityTestRule.getActivity(), PERMISSION));
   }

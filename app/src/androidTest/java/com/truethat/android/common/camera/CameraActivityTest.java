@@ -71,7 +71,8 @@ import static org.junit.Assert.assertFalse;
     mMockWebServer.start(PORT);
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        return new MockResponse().setResponseCode(200).setBody(NetworkUtil.GSON.toJson(Collections.EMPTY_LIST) + "\n");
+        return new MockResponse().setResponseCode(200)
+            .setBody(NetworkUtil.GSON.toJson(Collections.EMPTY_LIST) + "\n");
       }
     });
   }
@@ -141,7 +142,8 @@ import static org.junit.Assert.assertFalse;
     mTheaterActivityTestRule.getActivity().takePicture();
     // Launches the camera activity again.
     mNoPermissionActivityTestRule.getActivity()
-        .startActivity(new Intent(mNoPermissionActivityTestRule.getActivity(), TheaterActivity.class));
+        .startActivity(
+            new Intent(mNoPermissionActivityTestRule.getActivity(), TheaterActivity.class));
     // Assert that an image was taken.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
@@ -154,7 +156,8 @@ import static org.junit.Assert.assertFalse;
     mStudioActivityTestRule.launchActivity(null);
     // Navigates to an activity without camera.
     mStudioActivityTestRule.getActivity()
-        .startActivity(new Intent(mStudioActivityTestRule.getActivity(), NoCameraPermissionActivity.class));
+        .startActivity(
+            new Intent(mStudioActivityTestRule.getActivity(), NoCameraPermissionActivity.class));
     // Asserts the camera is closed.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

@@ -147,18 +147,20 @@ public class TheaterActivityTest {
   }
 
   @Test public void displayScene() throws Exception {
-    mRespondedScenes =
-        Collections.singletonList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+    mRespondedScenes = Collections.singletonList(
+        new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
     // Asserting the layout is displayed fullscreen.
     onView(withId(R.id.sceneLayout)).check(matches(isFullScreen()));
     // Asserting the reactions count is abbreviated.
-    onView(withId(R.id.reactionCountText)).check(matches(withText(NumberUtil.format(HAPPY_COUNT + SAD_COUNT))));
+    onView(withId(R.id.reactionCountText)).check(
+        matches(withText(NumberUtil.format(HAPPY_COUNT + SAD_COUNT))));
     // Asserting the reaction image is displayed and represents the most common reaction.
     onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
-    ImageView imageView = (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
+    ImageView imageView =
+        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
     assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
         ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
             EMOTIONAL_REACTIONS.lastKey().getDrawableResource())));
@@ -167,7 +169,8 @@ public class TheaterActivityTest {
     // Asserting the displayed name is of the scene director
     onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getName())));
     // Asserting the displayed time is represents the scene creation.
-    onView(withId(R.id.sceneTimeAgoText)).check(matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
+    onView(withId(R.id.sceneTimeAgoText)).check(
+        matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -191,8 +194,9 @@ public class TheaterActivityTest {
   }
 
   @Test public void nextScene() throws Exception {
-    mRespondedScenes = Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
-        new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    mRespondedScenes =
+        Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
+            new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
@@ -205,9 +209,9 @@ public class TheaterActivityTest {
     // Triggers navigation to next scene.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeDown());
     // Wait until the next scene is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-            TimeUnit.SECONDS.toMillis(3)));
+    onView(isRoot()).perform(waitMatcher(
+        allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
+        TimeUnit.SECONDS.toMillis(3)));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -217,45 +221,45 @@ public class TheaterActivityTest {
   }
 
   @Test public void previousScene() throws Exception {
-    mRespondedScenes = Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
-        new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    mRespondedScenes =
+        Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
+            new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
     // Triggers navigation to next scene.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeDown());
     // Wait until the next scene is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-            TimeUnit.SECONDS.toMillis(3)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.sceneTimeAgoText),
+        withText(DateUtil.formatTimeAgo(YESTERDAY))), TimeUnit.SECONDS.toMillis(3)));
     // Triggers navigation to previous scene.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeUp());
     // Wait until the next scene is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO))),
-            TimeUnit.SECONDS.toMillis(3)));
+    onView(isRoot()).perform(waitMatcher(
+        allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO))),
+        TimeUnit.SECONDS.toMillis(3)));
     // Triggers navigation to previous scene.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeUp());
     // Makes sure scene is unchanged
-    onView(allOf(isDisplayed(), withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO)))).check(
-        matches(isDisplayed()));
+    onView(allOf(isDisplayed(), withId(R.id.sceneTimeAgoText),
+        withText(DateUtil.formatTimeAgo(HOUR_AGO)))).check(matches(isDisplayed()));
   }
 
   @Test public void nextSceneFetchesNewScenes() throws Exception {
-    mRespondedScenes =
-        Collections.singletonList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+    mRespondedScenes = Collections.singletonList(
+        new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
     // Updates responded scenes.
-    mRespondedScenes =
-        Collections.singletonList(new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    mRespondedScenes = Collections.singletonList(
+        new Scene(ID_2, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     // Triggers navigation to next scene.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeDown());
     // Wait until the next scene is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-            TimeUnit.SECONDS.toMillis(3)));
+    onView(isRoot()).perform(waitMatcher(
+        allOf(withId(R.id.sceneTimeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
+        TimeUnit.SECONDS.toMillis(3)));
   }
 
   @Test public void emotionalReaction() throws Exception {
@@ -272,7 +276,8 @@ public class TheaterActivityTest {
     });
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
     // ReactionDetectionPubSub reflects the first responded scene.
-    mDetectionPubSub = mTheaterActivityTestRule.getActivity().buildReactionDetectionPubSub(mRespondedScenes.get(0));
+    mDetectionPubSub = mTheaterActivityTestRule.getActivity()
+        .buildReactionDetectionPubSub(mRespondedScenes.get(0));
     mDetectionPubSub.onReactionDetected(lessCommon);
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
@@ -281,7 +286,8 @@ public class TheaterActivityTest {
       }
     });
     // Asserting the reaction image is changed to reflect the user reaction.
-    ImageView imageView = (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
+    ImageView imageView =
+        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
     assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
         ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
             lessCommon.getDrawableResource())));
@@ -296,7 +302,8 @@ public class TheaterActivityTest {
     onView(isRoot()).perform(waitMatcher(withId(R.id.sceneLayout), TimeUnit.SECONDS.toMillis(3)));
     // Asserting the reaction image is displayed and represents the user reaction.
     onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
-    ImageView imageView = (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
+    ImageView imageView =
+        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
     assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
         ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
             lessCommon.getDrawableResource())));
@@ -307,23 +314,25 @@ public class TheaterActivityTest {
       }
     });
     // ReactionDetectionPubSub reflects the first responded scene.
-    mDetectionPubSub = mTheaterActivityTestRule.getActivity().buildReactionDetectionPubSub(mRespondedScenes.get(0));
+    mDetectionPubSub = mTheaterActivityTestRule.getActivity()
+        .buildReactionDetectionPubSub(mRespondedScenes.get(0));
   }
 
   @Test @MediumTest public void realEmotionalReaction() throws Exception {
     Scene scene = new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null);
-    App.setReactionDetectionModule(new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
-      boolean isFirst = true;
+    App.setReactionDetectionModule(
+        new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
+          boolean isFirst = true;
 
-      @Nullable @Override public Emotion classify(Image image) {
-        Emotion reaction = Emotion.HAPPY;
-        if (isFirst) {
-          isFirst = false;
-          reaction = null;
-        }
-        return reaction;
-      }
-    }));
+          @Nullable @Override public Emotion classify(Image image) {
+            Emotion reaction = Emotion.HAPPY;
+            if (isFirst) {
+              isFirst = false;
+              reaction = null;
+            }
+            return reaction;
+          }
+        }));
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the scene is displayed.
