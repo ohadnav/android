@@ -50,7 +50,7 @@ public class NetworkUtil {
   /**
    * Logging tag.
    */
-  private static final String TAG = "NetworkUtil";
+  private static final String TAG = NetworkUtil.class.getSimpleName();
   /**
    * Backend URL to use. Can be changed during tests. Use {@link #getBackendUrl()} to retrieve it.
    */

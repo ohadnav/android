@@ -10,12 +10,12 @@ import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
+import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraTestUtil;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.AssetsReaderUtil;
 import com.truethat.android.empathy.Emotion;
-import com.truethat.android.identity.MockAuthModule;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.TreeMap;
@@ -98,7 +98,8 @@ public class StudioActivityTest {
     final Dispatcher dispatcher = new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         // TODO(ohad): test request content
-        Scene respondedScene = new Scene(SCENE_ID, "", App.getAuthModule().getCurrentUser(),
+        Scene respondedScene = new Scene(SCENE_ID, "",
+            App.getAuthModule().getUser(mStudioActivityTestRule.getActivity()),
             new TreeMap<Emotion, Long>(), new Date(), null);
         // "\n" is needed at the end to imply response EOF.
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)

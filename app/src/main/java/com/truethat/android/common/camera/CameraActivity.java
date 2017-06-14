@@ -1,7 +1,6 @@
 package com.truethat.android.common.camera;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -21,7 +20,6 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -30,6 +28,7 @@ import android.view.TextureView;
 import com.google.common.base.Supplier;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.common.BaseActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +39,7 @@ import java.util.List;
  * Big thanks to https://inducesmile.com/android/android-camera2-api-example-tutorial/
  */
 
-public abstract class CameraActivity extends AppCompatActivity {
+public abstract class CameraActivity extends BaseActivity {
 
   // Device possible orientations, so that pictures taken are rotated appropriately.
   private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -53,8 +52,6 @@ public abstract class CameraActivity extends AppCompatActivity {
     ORIENTATIONS.append(Surface.ROTATION_270, 180);
   }
 
-  // TAG should be updated per implementation.
-  protected String TAG = "CameraActivity";
   // textureView should be assigned per Activity.
   protected TextureView mCameraPreview = null;
   private Image mLastTakenImage;
@@ -91,24 +88,6 @@ public abstract class CameraActivity extends AppCompatActivity {
    */
   private boolean mTakePictureOnOpened = false;
   private Size mImageDimension;
-  private final TextureView.SurfaceTextureListener mTextureListener =
-      new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-          return false;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-      };
   private ImageReader mImageReader;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mCameraCaptureSessions;
@@ -140,9 +119,26 @@ public abstract class CameraActivity extends AppCompatActivity {
       mCameraDevice = null;
     }
   };
+  private final TextureView.SurfaceTextureListener mTextureListener =
+      new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+          return false;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+      };
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
-    TAG = this.getClass().getSimpleName();
     super.onCreate(savedInstanceState);
   }
 
@@ -161,14 +157,6 @@ public abstract class CameraActivity extends AppCompatActivity {
   @VisibleForTesting
   public void setImageAvailableListener(ImageReader.OnImageAvailableListener imageAvailableListener) {
     mImageAvailableListener = imageAvailableListener;
-  }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-    if (!App.getPermissionsModule().isPermissionGranted(this, Permission.CAMERA)) {
-      Log.w(TAG, "Camera permissions not granted.");
-      onRequestPermissionsFailed();
-    }
   }
 
   /**
@@ -294,10 +282,6 @@ public abstract class CameraActivity extends AppCompatActivity {
     } catch (CameraAccessException e) {
       e.printStackTrace();
     }
-  }
-
-  private void onRequestPermissionsFailed() {
-    startActivity(new Intent(this, NoCameraPermissionActivity.class));
   }
 
   private void closeCamera() {

@@ -1,7 +1,7 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
-import com.truethat.android.identity.User;
+import com.truethat.android.auth.User;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.

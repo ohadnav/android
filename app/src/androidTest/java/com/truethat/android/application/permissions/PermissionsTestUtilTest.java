@@ -11,7 +11,7 @@ import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.Until;
 import android.support.v4.app.ActivityCompat;
 import com.truethat.android.application.ApplicationTestUtil;
-import com.truethat.android.common.TestActivity;
+import com.truethat.android.common.util.TestActivity;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;

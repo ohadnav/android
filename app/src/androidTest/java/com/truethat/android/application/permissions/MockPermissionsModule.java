@@ -14,12 +14,18 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess") public class MockPermissionsModule implements PermissionsModule {
   private static final DefaultPermissionsModule DEFAULT_PERMISSIONS_MODULE =
       new DefaultPermissionsModule();
-  // Indicates whether rationale should be shown if not explicitly set otherwise.
+  /**
+   * Indicates whether rationale should be shown if not explicitly set otherwise.
+   */
   private static final boolean DEFAULT_RATIONALE_BEHAVIOUR = false;
-  // Maps permission types to booleans indicating whether the permission was granted.
-  private Map<Permission, Boolean> mPermissionToIsGranted = new HashMap<>();
-  // Maps permission types to booleans indicating whether rationale should be shown. By default
-  // the behaviour should match DEFAULT_RATIONALE_BEHAVIOUR.
+  /**
+   * Maps permission types to booleans indicating whether the permission was granted.
+   */
+  private Map<Permission, PermissionState> mPermissionToState = new HashMap<>();
+  /**
+   * Maps permission types to booleans indicating whether rationale should be shown. By default
+   * the behaviour should match DEFAULT_RATIONALE_BEHAVIOUR.
+   */
   private Map<Permission, Boolean> mPermissionToShouldShowRationale = new HashMap<>();
 
   public MockPermissionsModule(Permission... grantedPermissions) {
@@ -29,7 +35,8 @@ import java.util.Map;
   }
 
   @Override public boolean isPermissionGranted(@Nullable Context context, Permission permission) {
-    return mPermissionToIsGranted.containsKey(permission) && mPermissionToIsGranted.get(permission);
+    return mPermissionToState.containsKey(permission)
+        && mPermissionToState.get(permission) == PermissionState.GRANTED;
   }
 
   @Override public boolean shouldShowRationale(Activity activity, Permission permission) {
@@ -42,18 +49,23 @@ import java.util.Map;
     return DEFAULT_RATIONALE_BEHAVIOUR;
   }
 
+  /**
+   * When permissions are not forbid they are always granted, this is useful to mock the flow in
+   * which a user allows a permission.
+   */
   @Override public void requestIfNeeded(@Nullable Activity activity, Permission permission) {
     // If permission was already granted, return.
     if (isPermissionGranted(activity, permission)) return;
     // If permission was not already set, then grant it.
-    if (!mPermissionToIsGranted.containsKey(permission)) {
+    if (!mPermissionToState.containsKey(permission)
+        || mPermissionToState.get(permission) != PermissionState.FORBID) {
       // Grant permission.
       grant(permission);
       // Grants it for real, if needed.
       try {
         if (activity != null && !DEFAULT_PERMISSIONS_MODULE.isPermissionGranted(activity,
             permission)) {
-          PermissionsTestUtil.grantPermission(Permission.CAMERA);
+          PermissionsTestUtil.grantPermission(permission);
         }
       } catch (Exception ignored) {
       }
@@ -68,15 +80,29 @@ import java.util.Map;
     }
   }
 
-  public void revokeAndForbid(Permission permission) {
-    mPermissionToIsGranted.put(permission, false);
+  public void forbid(Permission permission) {
+    mPermissionToState.put(permission, PermissionState.FORBID);
   }
 
   public void grant(Permission permission) {
-    mPermissionToIsGranted.put(permission, true);
+    mPermissionToState.put(permission, PermissionState.GRANTED);
+  }
+
+  /**
+   * Resets {@link PermissionState} for {@code permission}. Usually, in order to prepare for a
+   * natural flow of permission request.
+   *
+   * @param permission to prepare for {@link #requestIfNeeded(Activity, Permission)}
+   */
+  public void reset(Permission permission) {
+    mPermissionToState.remove(permission);
   }
 
   public void setExplicitRationaleBehaviour(Permission permission, boolean rationaleBehaviour) {
     mPermissionToShouldShowRationale.put(permission, rationaleBehaviour);
+  }
+
+  private enum PermissionState {
+    GRANTED, FORBID
   }
 }

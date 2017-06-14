@@ -5,11 +5,11 @@ import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.PermissionsModule;
 import com.truethat.android.application.storage.internal.DefaultInternalStorage;
 import com.truethat.android.application.storage.internal.InternalStorage;
+import com.truethat.android.auth.AuthModule;
+import com.truethat.android.auth.DefaultAuthModule;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
 import com.truethat.android.empathy.RandomEmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionModule;
-import com.truethat.android.identity.AuthModule;
-import com.truethat.android.identity.DefaultAuthModule;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.

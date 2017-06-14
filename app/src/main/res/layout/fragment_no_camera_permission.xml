@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rationaleFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+  <ImageView
+      android:id="@+id/noCameraPermissionImage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:contentDescription="@string/no_camera_permission_photo_description"
+      android:scaleType="centerCrop"
+      android:tint="#66666699"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/flower_dog"
+      />
+
+  <TextView
+      android:id="@+id/noCameraPermissionTopRationale"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingEnd="50dp"
+      android:paddingStart="50dp"
+      android:shadowColor="#000000"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="4"
+      android:text="@string/no_camera_permission_top"
+      android:textAlignment="center"
+      android:textColor="@android:color/white"
+      android:textSize="20sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0"
+      />
+
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingEnd="50dp"
+      android:paddingStart="50dp"
+      android:shadowColor="#000000"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="4"
+      android:text="@string/no_camera_permission_bottom"
+      android:textAlignment="center"
+      android:textColor="@android:color/white"
+      android:textSize="20sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.7"
+      />
+</android.support.constraint.ConstraintLayout>

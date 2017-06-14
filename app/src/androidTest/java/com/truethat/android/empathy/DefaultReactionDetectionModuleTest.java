@@ -3,7 +3,7 @@ package com.truethat.android.empathy;
 import android.media.Image;
 import android.support.annotation.Nullable;
 import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.common.TestActivity;
+import com.truethat.android.common.util.TestActivity;
 import java.util.Date;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;

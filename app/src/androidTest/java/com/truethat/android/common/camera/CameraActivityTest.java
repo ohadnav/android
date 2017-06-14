@@ -1,13 +1,15 @@
 package com.truethat.android.common.camera;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.media.ImageReader;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.App;
+import com.truethat.android.application.permissions.AskForPermissionActivity;
+import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.network.NetworkUtil;
@@ -21,6 +23,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -28,9 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
-import static android.support.test.espresso.intent.Intents.intended;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static com.truethat.android.BuildConfig.PORT;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
@@ -39,14 +39,13 @@ import static org.junit.Assert.assertFalse;
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
 @RunWith(AndroidJUnit4.class) public class CameraActivityTest {
-  private static MockPermissionsModule mPermissionsModule;
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
-  @Rule public ActivityTestRule<NoCameraPermissionActivity> mNoPermissionActivityTestRule =
-      new ActivityTestRule<>(NoCameraPermissionActivity.class, true, false);
+  @Rule public ActivityTestRule<AskForPermissionActivity> mNoPermissionActivityTestRule =
+      new ActivityTestRule<>(AskForPermissionActivity.class, true, false);
   private boolean mImageTaken = false;
   private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
       new ImageReader.OnImageAvailableListener() {
@@ -57,9 +56,15 @@ import static org.junit.Assert.assertFalse;
 
   @BeforeClass public static void beforeClass() throws Exception {
     // Sets up the mocked permissions module.
-    App.setPermissionsModule(mPermissionsModule = new MockPermissionsModule(Permission.CAMERA));
+    App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
     // Launching TheaterActivity fetches scenes from a remote backend, and so we are mocking it.
     NetworkUtil.setBackendUrl("http://localhost");
+  }
+
+  @AfterClass public static void afterClass() throws Exception {
+    // Sets up the mocked permissions module.
+    App.setPermissionsModule(new DefaultPermissionsModule());
+    NetworkUtil.setBackendUrl(BuildConfig.BACKEND_URL);
   }
 
   @Before public void setUp() throws Exception {
@@ -76,27 +81,10 @@ import static org.junit.Assert.assertFalse;
       }
     });
   }
-
   @After public void tearDown() throws Exception {
     Intents.release();
     // Closes mock server
     mMockWebServer.close();
-  }
-
-  @Test public void onRequestPermissions_permissionGranted() throws Exception {
-    mStudioActivityTestRule.launchActivity(null);
-    // If we are still in CameraActivity, then permission was granted.
-    intended(hasComponent(new ComponentName(getTargetContext(), StudioActivity.class)));
-  }
-
-  @Test public void onRequestPermissionsFailed() throws Exception {
-    // Don't grant permission.
-    mPermissionsModule.revokeAndForbid(Permission.CAMERA);
-    mStudioActivityTestRule.launchActivity(null);
-    // Should have navigated to NoCameraPermissionActivity.
-    intended(hasComponent(new ComponentName(getTargetContext(), NoCameraPermissionActivity.class)));
-    // Grant permission
-    mPermissionsModule.grant(Permission.CAMERA);
   }
 
   @Test @MediumTest public void takePicture_noSurfaceTexture() throws Exception {
@@ -157,7 +145,7 @@ import static org.junit.Assert.assertFalse;
     // Navigates to an activity without camera.
     mStudioActivityTestRule.getActivity()
         .startActivity(
-            new Intent(mStudioActivityTestRule.getActivity(), NoCameraPermissionActivity.class));
+            new Intent(mStudioActivityTestRule.getActivity(), AskForPermissionActivity.class));
     // Asserts the camera is closed.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

@@ -2,8 +2,7 @@ package com.truethat.android.empathy;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.truethat.android.application.App;
-import com.truethat.android.identity.User;
+import com.truethat.android.auth.User;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.TreeMap;
@@ -27,17 +26,17 @@ public abstract class Reactable implements Serializable {
   /**
    * Creator of the reactable. By default, the current user is assigned.
    */
-  private User mDirector = App.getAuthModule().getCurrentUser();
+  private User mDirector;
 
   /**
    * Counters of emotional reactions to the reactable, per each emotion.
    */
-  private TreeMap<Emotion, Long> mReactionCounters = new TreeMap<>();
+  private TreeMap<Emotion, Long> mReactionCounters;
 
   /**
    * Date of creation.
    */
-  private Date mCreated = new Date();
+  private Date mCreated;
 
   public Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction) {
@@ -74,6 +73,7 @@ public abstract class Reactable implements Serializable {
    * @param reaction of the user reaction.
    */
   public void doReaction(@NonNull Emotion reaction) {
+    if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     increaseReactionCounter(reaction);
     // Check if the user had already reacted this reactable.
     if (mUserReaction != null) {

@@ -199,7 +199,7 @@ public class TheaterActivity extends CameraActivity {
       }
     });
     // Post event of scene view.
-    mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getCurrentUser().getId(),
+    mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser(this).getId(),
         mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(),
         EventType.REACTABLE_VIEW, null))
         .enqueue(mPostEventCallback);
@@ -278,7 +278,8 @@ public class TheaterActivity extends CameraActivity {
         mReactable.doReaction(reaction);
         // Post event of reactable reaction.
         mTheaterAPI.postEvent(
-            new ReactableEvent(App.getAuthModule().getCurrentUser().getId(), mReactable.getId(),
+            new ReactableEvent(App.getAuthModule().getUser(TheaterActivity.this).getId(),
+                mReactable.getId(),
                 mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()))
             .enqueue(mPostEventCallback);
         // Triggers the reaction visual outcome.

@@ -12,6 +12,8 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.auth.MockAuthModule;
+import com.truethat.android.auth.User;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraTestUtil;
 import com.truethat.android.common.network.NetworkUtil;
@@ -22,8 +24,6 @@ import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.EmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionModule;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
-import com.truethat.android.identity.MockAuthModule;
-import com.truethat.android.identity.User;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class TheaterActivityTest {
   private static final String IMAGE_URL = "https://www.snapchat.com/global/social-lg.jpg";
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final Date YESTERDAY = new Date(new Date().getTime() - TimeUnit.DAYS.toMillis(1));
-  private static final User DIRECTOR = new User(99, "James Cameron");
+  private static final User DIRECTOR = new User(99, "James Cameron", "avatar", "+1000000000");
   private static final long HAPPY_COUNT = 3000;
   private static final long SAD_COUNT = 10000;
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{

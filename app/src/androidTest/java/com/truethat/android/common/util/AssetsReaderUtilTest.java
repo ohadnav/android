@@ -1,7 +1,6 @@
 package com.truethat.android.common.util;
 
 import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.common.TestActivity;
 import org.junit.Rule;
 import org.junit.Test;
 

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.Scene;
@@ -59,7 +58,7 @@ public class StudioActivity extends CameraActivity {
     // Initialize activity transitions.
     this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
     // Defines the navigation to the Theater.
-    final ViewGroup rootView = (ViewGroup) this.findViewById(android.R.id.content);
+    final ViewGroup rootView = (ViewGroup) this.findViewById(R.id.studioActivity);
     rootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeLeft() {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
@@ -69,14 +68,10 @@ public class StudioActivity extends CameraActivity {
     mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
     // Sets the camera preview.
     mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
-    // Initializes capture button onClick listener.
-    Button captureButton = (Button) findViewById(R.id.captureButton);
-    captureButton.setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        Log.v(TAG, "Image captured with button click.");
-        takePicture();
-      }
-    });
+  }
+
+  public void takePicture(View view) {
+    takePicture();
   }
 
   protected void processImage() {
@@ -84,7 +79,7 @@ public class StudioActivity extends CameraActivity {
     MultipartBody.Part imagePart = MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
         RequestBody.create(MediaType.parse("image/jpg"), CameraUtil.toByteArray(supplyImage())));
     MultipartBody.Part creatorPart = MultipartBody.Part.createFormData(StudioAPI.DIRECTOR_PART,
-        Long.toString(App.getAuthModule().getCurrentUser().getId()));
+        Long.toString(App.getAuthModule().getUser(this).getId()));
     MultipartBody.Part timestampPart =
         MultipartBody.Part.createFormData(StudioAPI.CREATED_PART, Long.toString(new Date().getTime()));
     mStudioAPI.saveScene(imagePart, creatorPart, timestampPart).enqueue(mSaveSceneCallback);

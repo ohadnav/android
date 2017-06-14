@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">תכלס</string>
+  <string name="ask_permission_button">סבבה, הבנתי</string>
+  <string name="capture">שוט</string>
+  <string name="no_camera_permission_bottom">ככה אנחנו רואים איך אתם מרגישים</string>
+  <string name="no_camera_permission_top">תנו לנו לראות את הפנים היפות שלכם</string>
+  <string name="no_phone_permission_rationale">אנחנו משתמשים במספר טלפון לזיהוי, ולא חושפים אותו בלי לבקש ממך אישור</string>
+</resources>

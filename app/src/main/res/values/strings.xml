@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">TrueThat</string>
   <string name="user_reaction">user reaction</string>
   <string name="scene_image">scene image</string>
@@ -6,4 +6,10 @@
   <string name="oh_puppy">Oh…puppy</string>
   <string name="view_count_icon">View count icon</string>
   <string name="anonymous">Anonymous</string>
+  <string name="ask_permission_button">Okay, got it!</string>
+  <string name="no_camera_permission_photo_description">Pretty face dog</string>
+  <string name="no_camera_permission_top" tools:ignore="Typos">we wanna see the pretty face of yours</string>
+  <string name="no_camera_permission_bottom">that\'s how we see how you\'re feeling</string>
+  <string name="no_phone_permission_rationale">We use your phone number for identification, and we keep it to ourselves.</string>
+  <string name="test">TEST</string>
 </resources>

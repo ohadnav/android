@@ -1,7 +1,7 @@
 package com.truethat.android.application.storage.internal;
 
 import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.common.TestActivity;
+import com.truethat.android.common.util.TestActivity;
 import java.io.File;
 import java.util.Date;
 import org.junit.Rule;
