@@ -6,6 +6,8 @@ import retrofit2.http.POST;
 
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
+ *
+ * @backend https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/servlet/AuthServlet.java
  */
 
 interface AuthAPI {

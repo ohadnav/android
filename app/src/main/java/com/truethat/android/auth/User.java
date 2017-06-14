@@ -11,6 +11,8 @@ import java.io.Serializable;
 
 /**
  * Proudly created by ohad on 22/05/2017 for TrueThat.
+ *
+ * @backend https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/User.java
  */
 
 public class User implements Serializable {
