@@ -8,6 +8,8 @@ import com.truethat.android.common.BaseActivity;
 @VisibleForTesting public class TestActivity extends BaseActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
+    // Should not authenticate on tests.
+    mSkipAuth = true;
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_test);
   }

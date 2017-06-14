@@ -13,6 +13,7 @@ import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.util.TestActivity;
 import com.truethat.android.studio.StudioActivity;
 import com.truethat.android.theater.TheaterActivity;
 import java.util.Collections;
@@ -144,8 +145,7 @@ import static org.junit.Assert.assertFalse;
     mStudioActivityTestRule.launchActivity(null);
     // Navigates to an activity without camera.
     mStudioActivityTestRule.getActivity()
-        .startActivity(
-            new Intent(mStudioActivityTestRule.getActivity(), AskForPermissionActivity.class));
+        .startActivity(new Intent(mStudioActivityTestRule.getActivity(), TestActivity.class));
     // Asserts the camera is closed.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

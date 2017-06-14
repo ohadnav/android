@@ -16,7 +16,10 @@ public class MockAuthModule implements AuthModule {
    */
   private final User USER = new User(USER_ID, USER_NAME, DEVICE_ID, PHONE_NUMBER);
 
-  public User getUser(Activity activity) {
+  public User getUser() {
     return USER;
+  }
+
+  @Override public void auth(Activity activity) {
   }
 }

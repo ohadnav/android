@@ -1,7 +1,5 @@
 package com.truethat.android.theater;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.constraint.ConstraintLayout;
@@ -59,11 +57,6 @@ class SceneLayout {
   private void displayImage() {
     ImageView imageView = (ImageView) mLayout.findViewById(R.id.sceneImage);
 
-    if (mScene.getImageBytes() != null) {
-      final Bitmap bitmapImage =
-          BitmapFactory.decodeByteArray(mScene.getImageBytes(), 0, mScene.getImageBytes().length);
-      imageView.setImageBitmap(bitmapImage);
-    } else {
       Picasso.with(mLayout.getContext())
           .load(mScene.getImageSignedUrl())
           .placeholder(R.drawable.shower_dog)
@@ -71,7 +64,6 @@ class SceneLayout {
           .fit()
           .centerCrop()
           .into(imageView);
-    }
   }
 
   /**

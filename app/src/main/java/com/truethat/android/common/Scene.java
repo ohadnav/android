@@ -2,7 +2,6 @@ package com.truethat.android.common;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.gson.annotations.Expose;
 import com.truethat.android.auth.User;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.Reactable;
@@ -26,12 +25,6 @@ public class Scene extends Reactable implements Serializable {
   private static final String SCENE_SUFFIX = ".scene";
 
   /**
-   * Byte array that can be converted to the scene's image. Image instance is not used, as it is
-   * not serializable, nor can it be used for UI purposes.
-   */
-  @Expose(serialize = false, deserialize = false) private byte[] mImageBytes;
-
-  /**
    * Signed URL to the scene's image on our storage.
    */
   private String mImageSignedUrl;
@@ -48,10 +41,6 @@ public class Scene extends Reactable implements Serializable {
 
   public static String internalStoragePath(long id) {
     return CREATED_SCENES_PATH + id + SCENE_SUFFIX;
-  }
-
-  public byte[] getImageBytes() {
-    return mImageBytes;
   }
 
   public String getImageSignedUrl() {

@@ -98,8 +98,7 @@ public class StudioActivityTest {
     final Dispatcher dispatcher = new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         // TODO(ohad): test request content
-        Scene respondedScene = new Scene(SCENE_ID, "",
-            App.getAuthModule().getUser(mStudioActivityTestRule.getActivity()),
+        Scene respondedScene = new Scene(SCENE_ID, "", App.getAuthModule().getUser(),
             new TreeMap<Emotion, Long>(), new Date(), null);
         // "\n" is needed at the end to imply response EOF.
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)

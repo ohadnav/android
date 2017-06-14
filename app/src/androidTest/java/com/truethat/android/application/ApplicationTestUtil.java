@@ -19,7 +19,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
 public class ApplicationTestUtil {
-  public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android";
+  public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android.debug";
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
 
   public static ViewAction waitMatcher(final Matcher viewMatcher, final long millis) {

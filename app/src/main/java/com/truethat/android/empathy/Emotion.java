@@ -1,6 +1,5 @@
 package com.truethat.android.empathy;
 
-import com.google.gson.annotations.Expose;
 import com.truethat.android.R;
 
 /**
@@ -12,7 +11,7 @@ import com.truethat.android.R;
 public enum Emotion {
   HAPPY(R.drawable.emoji_happy), SAD(R.drawable.emoji_sad);
 
-  @Expose(serialize = false, deserialize = false) private int mDrawableResource;
+  private int mDrawableResource;
 
   Emotion(int drawableResource) {
     mDrawableResource = drawableResource;

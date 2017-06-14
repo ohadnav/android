@@ -18,12 +18,12 @@ interface TheaterAPI {
   /**
    * Get scenes from out beloved backend to add some drama to our users life.
    */
-  @GET("/theater") Call<List<Scene>> getScenes();
+  @GET("theater") Call<List<Scene>> getScenes();
 
   /**
    * Informs our backend of the the current user interaction with scenes.
    *
    * @param reactableEvent the encapsulates all the event information.
    */
-  @POST("/theater") Call<ResponseBody> postEvent(@Body ReactableEvent reactableEvent);
+  @POST("theater") Call<ResponseBody> postEvent(@Body ReactableEvent reactableEvent);
 }

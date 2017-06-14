@@ -1,13 +1,11 @@
 package com.truethat.android.application.permissions;
 
-import android.support.test.espresso.intent.Intents;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.util.TestActivity;
 import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,17 +42,10 @@ public class AskForPermissionActivityTest {
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
     Awaitility.reset();
-    // Initialize Espresso intents
-    Intents.init();
     // Revoke permission on launch.
     sMockPermissionsModule.forbid(PERMISSION);
-    // Initialize UiDevice instance
     // Launches activity
     mActivityTestRule.launchActivity(null);
-  }
-
-  @After public void tearDown() throws Exception {
-    Intents.release();
   }
 
   @Test public void onRequestPermissionsFailed() throws Exception {
@@ -62,7 +53,7 @@ public class AskForPermissionActivityTest {
     // Wait until we navigate to ask for permission activity.
     onView(isRoot()).perform(
         waitMatcher(allOf(isDisplayed(), withId(R.id.askForPermissionActivity)),
-            TimeUnit.SECONDS.toMillis(3)));
+            TimeUnit.SECONDS.toMillis(1)));
     // Assert that no camera permission fragment is displayed.
     onView(withId(R.id.noCameraPermissionImage)).check(matches(isDisplayed()));
     onView(withId(R.id.noCameraPermissionTopRationale)).check(matches(isDisplayed()));

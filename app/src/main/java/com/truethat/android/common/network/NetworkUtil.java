@@ -86,7 +86,7 @@ public class NetworkUtil {
 
   public static String getBackendUrl() {
     try {
-      return sBackendUrl + ":" + BuildConfig.PORT;
+      return sBackendUrl + ":" + BuildConfig.PORT + "/";
     } catch (Exception ignored) {
       // PORT does not necessarily exists.
       return sBackendUrl;

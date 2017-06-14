@@ -54,11 +54,11 @@ import java.util.Map;
    * which a user allows a permission.
    */
   @Override public void requestIfNeeded(@Nullable Activity activity, Permission permission) {
-    // If permission was already granted, return.
-    if (isPermissionGranted(activity, permission)) return;
-    // If permission was not already set, then grant it.
-    if (!mPermissionToState.containsKey(permission)
-        || mPermissionToState.get(permission) != PermissionState.FORBID) {
+    // Permission request callback should not be invoked when permission was already granted.
+    boolean shouldInvokeRequestCallback =
+        activity != null && mPermissionToState.get(permission) != PermissionState.GRANTED;
+    // If permission was not forbidden, then grant it.
+    if (mPermissionToState.get(permission) != PermissionState.FORBID) {
       // Grant permission.
       grant(permission);
       // Grants it for real, if needed.
@@ -71,7 +71,7 @@ import java.util.Map;
       }
     }
     // Invoke permission request callback.
-    if (activity != null) {
+    if (shouldInvokeRequestCallback) {
       activity.onRequestPermissionsResult(permission.getRequestCode(),
           new String[] { permission.getManifest() }, new int[] {
               isPermissionGranted(activity, permission) ? PackageManager.PERMISSION_GRANTED

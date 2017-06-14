@@ -73,7 +73,9 @@ public class TheaterActivity extends CameraActivity {
       if (response.isSuccessful()) {
         int toDisplayIndex = mReactablesAndLayouts.size();
         List<Scene> newScenes = response.body();
-        assert newScenes != null;
+        if (newScenes == null) {
+          throw new AssertionError("I just cant believe it! The new scenes are null.");
+        }
         for (Scene newScene : newScenes) {
           mReactablesAndLayouts.add(new Pair<Reactable, SceneLayout>(newScene, new SceneLayout(newScene, mRootView)));
         }
@@ -199,7 +201,7 @@ public class TheaterActivity extends CameraActivity {
       }
     });
     // Post event of scene view.
-    mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser(this).getId(),
+    mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser().getId(),
         mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(),
         EventType.REACTABLE_VIEW, null))
         .enqueue(mPostEventCallback);
@@ -277,8 +279,7 @@ public class TheaterActivity extends CameraActivity {
         Log.v(TAG, "Reaction detected: " + reaction.name());
         mReactable.doReaction(reaction);
         // Post event of reactable reaction.
-        mTheaterAPI.postEvent(
-            new ReactableEvent(App.getAuthModule().getUser(TheaterActivity.this).getId(),
+        mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser().getId(),
                 mReactable.getId(),
                 mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()))
             .enqueue(mPostEventCallback);

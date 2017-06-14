@@ -26,16 +26,22 @@ import retrofit2.Response;
 
 public class StudioActivity extends CameraActivity {
 
-  // Filename for the HTTP image part.
+  /**
+   * File name for HTTP post request for saving scenes.
+   */
   private static final String FILENAME = "studio-image";
-
-  private StudioAPI mStudioAPI;
+  /**
+   * Retrofit API interface for saving scenes.
+   */
+  private StudioAPI mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
   private Callback<Scene> mSaveSceneCallback = new Callback<Scene>() {
     @Override public void onResponse(@NonNull Call<Scene> call, @NonNull Response<Scene> response) {
       if (response.isSuccessful()) {
         try {
           Scene respondedScene = response.body();
-          assert respondedScene != null;
+          if (respondedScene == null) {
+            throw new AssertionError("Responded scene no tiene nada!");
+          }
           App.getInternalStorage().write(StudioActivity.this, respondedScene.internalStoragePath(), respondedScene);
         } catch (IOException e) {
           Log.e(TAG, "Failed to save scene to internal storage.", e);
@@ -64,8 +70,6 @@ public class StudioActivity extends CameraActivity {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
-    // Initializes the Theater API
-    mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
     // Sets the camera preview.
     mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
   }
@@ -79,7 +83,7 @@ public class StudioActivity extends CameraActivity {
     MultipartBody.Part imagePart = MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
         RequestBody.create(MediaType.parse("image/jpg"), CameraUtil.toByteArray(supplyImage())));
     MultipartBody.Part creatorPart = MultipartBody.Part.createFormData(StudioAPI.DIRECTOR_PART,
-        Long.toString(App.getAuthModule().getUser(this).getId()));
+        Long.toString(App.getAuthModule().getUser().getId()));
     MultipartBody.Part timestampPart =
         MultipartBody.Part.createFormData(StudioAPI.CREATED_PART, Long.toString(new Date().getTime()));
     mStudioAPI.saveScene(imagePart, creatorPart, timestampPart).enqueue(mSaveSceneCallback);

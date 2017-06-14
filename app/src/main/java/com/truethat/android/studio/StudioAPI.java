@@ -18,6 +18,7 @@ interface StudioAPI {
   String DIRECTOR_PART = "director_id";
   String CREATED_PART = "created";
 
-  @Multipart @POST("/studio") Call<Scene> saveScene(@Part MultipartBody.Part image, @Part MultipartBody.Part directorId,
+  @Multipart @POST("studio") Call<Scene> saveScene(@Part MultipartBody.Part image,
+      @Part MultipartBody.Part directorId,
       @Part MultipartBody.Part created);
 }

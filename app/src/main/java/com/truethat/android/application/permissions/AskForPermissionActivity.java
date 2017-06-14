@@ -20,6 +20,8 @@ public class AskForPermissionActivity extends BaseActivity {
   private Button mAskPermissionButton;
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    // Should not authenticate when asking for device permissions.
+    mSkipAuth = true;
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_ask_for_permission);
     mAskPermissionButton = (Button) this.findViewById(R.id.askPermissionButton);

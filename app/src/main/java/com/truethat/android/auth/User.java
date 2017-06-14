@@ -1,13 +1,12 @@
 package com.truethat.android.auth;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.VisibleForTesting;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import com.truethat.android.application.App;
-import com.truethat.android.application.permissions.Permission;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -18,7 +17,7 @@ public class User implements Serializable {
   /**
    * User session path, within the app internal storage.
    */
-  private static final String USER_PATH = "users/last.user";
+  @VisibleForTesting static final String LAST_USER_PATH = "users/last.user";
   /**
    * Logging tag.
    */
@@ -26,22 +25,23 @@ public class User implements Serializable {
   /**
    * User ID, as stored in our backend.
    */
-  private long mId;
-
+  private Long mId;
   /**
    * Displayed name.
    */
   private String mName;
-
   /**
    * Android ID.
    */
   private String mDeviceId;
-
   /**
    * Current phone number.
    */
   private String mPhoneNumber;
+  /**
+   * Context to access internal storage and {@link TelephonyManager}.
+   */
+  private transient Context mContext;
 
   @VisibleForTesting public User(long id, String name, String deviceId, String phoneNumber) {
     mId = id;
@@ -51,33 +51,49 @@ public class User implements Serializable {
   }
 
   /**
-   * @param activity application context.
+   * @param context application context.
    */
-  @SuppressLint("HardwareIds") User(Activity activity) {
-    // Trying to retrieve from internal storage.
-    if (App.getInternalStorage().exists(activity, USER_PATH)) {
-      populateFromInternalStorage(activity);
+  @SuppressLint("HardwareIds") User(Context context) {
+    mContext = context;
+    // Trying to retrieve previous session from internal storage.
+    if (App.getInternalStorage().exists(mContext, LAST_USER_PATH)) {
+      populateFromInternalStorage();
     }
-    App.getPermissionsModule().requestIfNeeded(activity, Permission.PHONE);
-    if (App.getPermissionsModule().isPermissionGranted(activity, Permission.PHONE)) {
-      TelephonyManager telephonyManager =
-          (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
-      mDeviceId = telephonyManager.getDeviceId();
-      mPhoneNumber = telephonyManager.getLine1Number();
-    }
+    TelephonyManager telephonyManager =
+        (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+    mDeviceId = telephonyManager.getDeviceId();
+    mPhoneNumber = telephonyManager.getLine1Number();
   }
 
   public long getId() {
+    if (mId == null) {
+      throw new IllegalStateException("User ID had not been initialized.");
+    }
     return mId;
+  }
+
+  public void setId(Long id) {
+    mId = id;
   }
 
   public String getName() {
     return mName;
   }
 
-  private void populateFromInternalStorage(Context context) {
+  boolean hasId() {
+    return mId != null;
+  }
+
+  /**
+   * Saves this user to internal storage, for faster application bootstrap in future sessions.
+   */
+  void save() throws IOException {
+    App.getInternalStorage().write(mContext, LAST_USER_PATH, this);
+  }
+
+  private void populateFromInternalStorage() {
     try {
-      User lastUser = App.getInternalStorage().read(context, USER_PATH);
+      User lastUser = App.getInternalStorage().read(mContext, LAST_USER_PATH);
       mId = lastUser.mId;
       mName = lastUser.mName;
       mDeviceId = lastUser.mDeviceId;

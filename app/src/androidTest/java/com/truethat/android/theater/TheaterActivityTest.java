@@ -70,7 +70,6 @@ public class TheaterActivityTest {
   private static final String IMAGE_URL = "https://www.snapchat.com/global/social-lg.jpg";
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final Date YESTERDAY = new Date(new Date().getTime() - TimeUnit.DAYS.toMillis(1));
-  private static final User DIRECTOR = new User(99, "James Cameron", "avatar", "+1000000000");
   private static final long HAPPY_COUNT = 3000;
   private static final long SAD_COUNT = 10000;
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
@@ -89,6 +88,7 @@ public class TheaterActivityTest {
     @Override public void stop() {
     }
   };
+  private final User DIRECTOR = new User(99, "James Cameron", "avatar", "+1000000000");
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);

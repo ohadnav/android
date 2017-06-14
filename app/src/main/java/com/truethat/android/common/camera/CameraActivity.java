@@ -88,6 +88,24 @@ public abstract class CameraActivity extends BaseActivity {
    */
   private boolean mTakePictureOnOpened = false;
   private Size mImageDimension;
+  private final TextureView.SurfaceTextureListener mTextureListener =
+      new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+          return false;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+      };
   private ImageReader mImageReader;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mCameraCaptureSessions;
@@ -119,24 +137,6 @@ public abstract class CameraActivity extends BaseActivity {
       mCameraDevice = null;
     }
   };
-  private final TextureView.SurfaceTextureListener mTextureListener =
-      new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-          return false;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-      };
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -318,11 +318,16 @@ public abstract class CameraActivity extends BaseActivity {
     CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
       final String cameraId = CameraUtil.getFrontFacingCameraId(manager);
-      assert cameraId != null;
+      if (cameraId == null) {
+        throw new AssertionError("No you didn't! cameraId is null.. How dare you?!");
+      }
       CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-      StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-      assert map != null;
-      mImageDimension = map.getOutputSizes(SurfaceTexture.class)[0];
+      StreamConfigurationMap configurationMap =
+          characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+      if (configurationMap == null) {
+        throw new AssertionError("I am lost... configuration map is null.");
+      }
+      mImageDimension = configurationMap.getOutputSizes(SurfaceTexture.class)[0];
       App.getPermissionsModule().requestIfNeeded(this, Permission.CAMERA);
       // Does not open camera if no permission is granted
       if (!App.getPermissionsModule().isPermissionGranted(this, Permission.CAMERA)) {

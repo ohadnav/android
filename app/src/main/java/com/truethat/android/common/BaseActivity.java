@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.AskForPermissionActivity;
 import com.truethat.android.application.permissions.Permission;
 
@@ -21,10 +21,21 @@ public class BaseActivity extends AppCompatActivity {
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
   protected String TAG;
+  /**
+   * Whether to skip authentication.
+   */
+  protected boolean mSkipAuth = false;
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     TAG = this.getClass().getSimpleName();
     super.onCreate(savedInstanceState);
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+    if (!mSkipAuth) {
+      App.getAuthModule().auth(this);
+    }
   }
 
   @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -38,7 +49,7 @@ public class BaseActivity extends AppCompatActivity {
     }
   }
 
-  @VisibleForTesting public void onRequestPermissionsFailed(Permission permission) {
+  public void onRequestPermissionsFailed(Permission permission) {
     Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
     askForPermission.putExtra(AskForPermissionActivity.PERMISSION_EXTRA, permission);
     startActivityForResult(askForPermission, permission.getRequestCode());
