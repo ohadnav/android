@@ -174,6 +174,16 @@ public class DefaultAuthModuleTest {
     assertEquals(2, mAuthRequestCount);
   }
 
+  @Test public void dontAuthWhenUserAlreadyAuthenticated() throws Exception {
+    mRespondedUser.save();
+    // Authenticate user
+    App.getAuthModule().auth(mActivityTestRule.getActivity());
+    // User should be immediately available.
+    assertEquals(mRespondedUser.getId(), App.getAuthModule().getUser().getId());
+    // Assert there wasn't an auth request.
+    assertEquals(0, mAuthRequestCount);
+  }
+
   private void waitUntilAuth() {
     // Wait until user is stored to internal storage.
     await().until(new Callable<Boolean>() {

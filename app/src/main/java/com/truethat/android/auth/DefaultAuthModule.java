@@ -52,17 +52,21 @@ public class DefaultAuthModule implements AuthModule {
       }
       mUser = new User(activity);
     }
-    // Get user ID from server, if needed.
-    mAuthCall = mAuthAPI.postAuth(mUser);
-    mAuthCall.enqueue(new Callback<User>() {
-      @Override public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-        handleResponse(call, response);
-      }
+    // If the user has an ID, don't post an auth request.
+    if (!mUser.hasId()) {
+      // Get user ID from server, if needed.
+      mAuthCall = mAuthAPI.postAuth(mUser);
+      mAuthCall.enqueue(new Callback<User>() {
+        @Override
+        public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+          handleResponse(call, response);
+        }
 
-      @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-        Log.e(TAG, "Asynchronous authentication to " + call.request().url() + " had failed.", t);
-      }
-    });
+        @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+          Log.e(TAG, "Asynchronous authentication to " + call.request().url() + " had failed.", t);
+        }
+      });
+    }
   }
 
   /**

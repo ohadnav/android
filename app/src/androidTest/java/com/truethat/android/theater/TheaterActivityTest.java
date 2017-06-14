@@ -193,6 +193,7 @@ public class TheaterActivityTest {
             SceneLayout.DEFAULT_REACTION_COUNTER.getDrawableResource())));
   }
 
+  // Test is unstable, run individually if needed.
   @Test public void nextScene() throws Exception {
     mRespondedScenes =
         Arrays.asList(new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
