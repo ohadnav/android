@@ -3,11 +3,9 @@ package com.truethat.android.auth;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.permissions.DefaultPermissionsModule;
-import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.application.storage.internal.DefaultInternalStorage;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.TestActivity;
 import java.net.HttpURLConnection;
@@ -19,9 +17,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,7 +26,6 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.truethat.android.BuildConfig.BACKEND_URL;
 import static com.truethat.android.BuildConfig.PORT;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.hamcrest.Matchers.allOf;
@@ -41,28 +36,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 14/06/2017 for TrueThat.
  */
-public class DefaultAuthModuleTest {
-  private static MockPermissionsModule sMockPermissionsModule = new MockPermissionsModule();
+public class DefaultAuthModuleApplicationTest extends BaseApplicationTest {
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
   private User mRespondedUser;
   private int mAuthRequestCount;
-
-  @BeforeClass public static void beforeClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(sMockPermissionsModule);
-    // Sets the backend URL, for MockWebServer.
-    NetworkUtil.setBackendUrl("http://localhost");
-  }
-
-  @AfterClass public static void afterClass() throws Exception {
-    App.setPermissionsModule(new DefaultPermissionsModule());
-    // Restores default predefined backend url.
-    NetworkUtil.setBackendUrl(BACKEND_URL);
-    // Restores default internal storage.
-    App.setInternalStorage(new DefaultInternalStorage());
-  }
 
   @Before public void setUp() throws Exception {
     // Reset auth module.

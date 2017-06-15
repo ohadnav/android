@@ -2,13 +2,11 @@ package com.truethat.android.application.permissions;
 
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.util.TestActivity;
 import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -24,20 +22,10 @@ import static org.hamcrest.Matchers.allOf;
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
-public class AskForPermissionActivityTest {
+public class AskForPermissionActivityApplicationTest extends BaseApplicationTest {
   private static final Permission PERMISSION = Permission.CAMERA;
-  private static MockPermissionsModule sMockPermissionsModule = new MockPermissionsModule();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
-
-  @BeforeClass public static void beforeClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(sMockPermissionsModule);
-  }
-
-  @AfterClass public static void afterClass() throws Exception {
-    App.setPermissionsModule(new DefaultPermissionsModule());
-  }
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility

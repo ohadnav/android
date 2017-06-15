@@ -9,11 +9,8 @@ import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.permissions.DefaultPermissionsModule;
-import com.truethat.android.application.permissions.MockPermissionsModule;
-import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.auth.User;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraTestUtil;
 import com.truethat.android.common.network.NetworkUtil;
@@ -39,7 +36,6 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -51,7 +47,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.truethat.android.BuildConfig.BACKEND_URL;
 import static com.truethat.android.BuildConfig.PORT;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
@@ -63,7 +58,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 05/06/2017 for TrueThat.
  */
-public class TheaterActivityTest {
+public class TheaterActivityApplicationTest extends BaseApplicationTest {
   private static final long ID_1 = 11;
   private static final long ID_2 = 22;
   // Dear lord fail this test when this image becomes unavailable ;)
@@ -77,17 +72,6 @@ public class TheaterActivityTest {
     put(Emotion.SAD, SAD_COUNT);
   }};
   private static ReactionDetectionPubSub mDetectionPubSub;
-  private static ReactionDetectionModule sMockDetectionModule = new ReactionDetectionModule() {
-    @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
-      mDetectionPubSub = detectionPubSub;
-    }
-
-    @Override public void attempt(Image image) {
-    }
-
-    @Override public void stop() {
-    }
-  };
   private final User DIRECTOR = new User(99, "James", "Cameron", "avatar", "+1000000000");
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
@@ -96,21 +80,19 @@ public class TheaterActivityTest {
   private int mPostEventCount;
 
   @BeforeClass public static void beforeClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
-    // Sets up the mocked auth module.
-    App.setAuthModule(new MockAuthModule());
+    BaseApplicationTest.beforeClass();
     // Sets up a mocked emotional reaction detection module.
-    App.setReactionDetectionModule(sMockDetectionModule);
-    // Sets the backend URL, for MockWebServer.
-    NetworkUtil.setBackendUrl("http://localhost");
-  }
+    App.setReactionDetectionModule(sReactionDetectionModule = new ReactionDetectionModule() {
+      @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
+        mDetectionPubSub = detectionPubSub;
+      }
 
-  @AfterClass public static void afterClass() throws Exception {
-    // Resets to default permissions module.
-    App.setPermissionsModule(new DefaultPermissionsModule());
-    // Restores default predefined backend url.
-    NetworkUtil.setBackendUrl(BACKEND_URL);
+      @Override public void attempt(Image image) {
+      }
+
+      @Override public void stop() {
+      }
+    });
   }
 
   @Before public void setUp() throws Exception {
@@ -344,6 +326,6 @@ public class TheaterActivityTest {
         assertEquals(2, mPostEventCount);
       }
     });
-    App.setReactionDetectionModule(sMockDetectionModule);
+    App.setReactionDetectionModule(sReactionDetectionModule);
   }
 }

@@ -2,15 +2,13 @@ package com.truethat.android.empathy;
 
 import android.media.Image;
 import android.support.annotation.Nullable;
-import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.common.util.TestActivity;
+import com.truethat.android.common.BaseApplicationTest;
 import java.util.Date;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.awaitility.Awaitility.await;
@@ -20,14 +18,12 @@ import static org.junit.Assert.assertNull;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  */
-public class DefaultReactionDetectionModuleTest {
+public class DefaultReactionDetectionModuleApplicationTest extends BaseApplicationTest {
   private static final long REQUEST_INPUT_TIMEOUT_MILLIS =
       DefaultReactionDetectionModule.REQUEST_INPUT_TIMEOUT_MILLIS;
   private static final long DETECTION_TIMEOUT_MILLIS =
       DefaultReactionDetectionModule.DETECTION_TIMEOUT_MILLIS;
   private static final long TEST_TIMEOUT_MILLIS = 100;
-  @Rule public ActivityTestRule<TestActivity> mTestActivityTestRule =
-      new ActivityTestRule<>(TestActivity.class, true, false);
   private Emotion mDetectedReaction;
   private ReactionDetectionModule mDetectionModule;
   private ReactionDetectionPubSub mDetectionPubSub;

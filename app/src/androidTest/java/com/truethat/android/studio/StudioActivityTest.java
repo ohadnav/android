@@ -6,11 +6,8 @@ import android.support.test.rule.ActivityTestRule;
 import com.google.common.base.Supplier;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.permissions.DefaultPermissionsModule;
-import com.truethat.android.application.permissions.MockPermissionsModule;
-import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
-import com.truethat.android.auth.MockAuthModule;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraTestUtil;
 import com.truethat.android.common.network.NetworkUtil;
@@ -26,16 +23,13 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.truethat.android.BuildConfig.BACKEND_URL;
 import static com.truethat.android.BuildConfig.PORT;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
@@ -43,28 +37,12 @@ import static org.junit.Assert.assertEquals;
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-public class StudioActivityTest {
+public class StudioActivityTest extends BaseApplicationTest {
   private static final long SCENE_ID = 123L;
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, true);
   private Image mImageMock;
-
-  @BeforeClass public static void beforeClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
-    // Sets up the mocked auth module.
-    App.setAuthModule(new MockAuthModule());
-    // Sets the backend URL, for MockWebServer.
-    NetworkUtil.setBackendUrl("http://localhost");
-  }
-
-  @AfterClass public static void afterClass() throws Exception {
-    // Resets to default permissions module.
-    App.setPermissionsModule(new DefaultPermissionsModule());
-    // Restores default predefined backend url.
-    NetworkUtil.setBackendUrl(BACKEND_URL);
-  }
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility

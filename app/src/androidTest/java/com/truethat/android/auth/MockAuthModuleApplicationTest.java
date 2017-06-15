@@ -3,9 +3,9 @@ package com.truethat.android.auth;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.util.TestActivity;
 import java.util.concurrent.TimeUnit;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,27 +22,18 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
  */
-public class MockAuthModuleTest {
+public class MockAuthModuleApplicationTest extends BaseApplicationTest {
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
-  private MockAuthModule mMockAuthModule;
-
-  @AfterClass public static void afterClass() throws Exception {
-    // Restores default auth module.
-    App.setAuthModule(new DefaultAuthModule());
-  }
 
   @Before public void setUp() throws Exception {
-    // Resets mock auth module.
-    mMockAuthModule = new MockAuthModule();
-    // Sets mock auth module.
-    App.setAuthModule(mMockAuthModule);
+    sMockAuthModule.setAllowAuth(true);
     // Launches activity
     mActivityTestRule.launchActivity(null);
   }
 
   @Test public void getUser() throws Exception {
-    assertNotNull(mMockAuthModule.getUser());
+    assertNotNull(sMockAuthModule.getUser());
   }
 
   @Test public void auth() throws Exception {
@@ -52,7 +43,7 @@ public class MockAuthModuleTest {
   }
 
   @Test public void authNotAllowed() throws Exception {
-    mMockAuthModule.setAllowAuth(false);
+    sMockAuthModule.setAllowAuth(false);
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertFailedAuth();

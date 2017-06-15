@@ -6,12 +6,8 @@ import android.support.test.espresso.intent.Intents;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import com.truethat.android.BuildConfig;
-import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.AskForPermissionActivity;
-import com.truethat.android.application.permissions.DefaultPermissionsModule;
-import com.truethat.android.application.permissions.MockPermissionsModule;
-import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.TestActivity;
 import com.truethat.android.studio.StudioActivity;
@@ -24,9 +20,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +33,8 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-@RunWith(AndroidJUnit4.class) public class CameraActivityTest {
+@RunWith(AndroidJUnit4.class) public class CameraActivityApplicationTest
+    extends BaseApplicationTest {
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
@@ -54,19 +49,6 @@ import static org.junit.Assert.assertFalse;
           mImageTaken = true;
         }
       };
-
-  @BeforeClass public static void beforeClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(new MockPermissionsModule(Permission.CAMERA));
-    // Launching TheaterActivity fetches scenes from a remote backend, and so we are mocking it.
-    NetworkUtil.setBackendUrl("http://localhost");
-  }
-
-  @AfterClass public static void afterClass() throws Exception {
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(new DefaultPermissionsModule());
-    NetworkUtil.setBackendUrl(BuildConfig.BACKEND_URL);
-  }
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility

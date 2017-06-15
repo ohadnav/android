@@ -9,7 +9,9 @@ import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.Until;
 import android.support.v4.app.ActivityCompat;
+import com.truethat.android.application.App;
 import com.truethat.android.application.ApplicationTestUtil;
+import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.util.TestActivity;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
@@ -30,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class) @MediumTest @Ignore
 // Test fails since shell commands take time to take effect.
-public class DefaultPermissionsModuleTest {
+public class DefaultPermissionsModuleApplicationTest extends BaseApplicationTest {
   private static final Permission PERMISSION = Permission.CAMERA;
   @Rule public ActivityTestRule<TestActivity> activityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, true);
@@ -41,7 +43,8 @@ public class DefaultPermissionsModuleTest {
     // Initialize UiDevice instance
     mDevice = UiDevice.getInstance(getInstrumentation());
     // Resets all permissions
-    PermissionsTestUtil.revokeAllPermissions();
+    PermissionsTestUtil.revokeAllPermissions();// Set up real device permission module.
+    App.setPermissionsModule(mPermissionsModule);
   }
 
   @Test public void isPermissionGranted_shouldBeGranted() throws Exception {
