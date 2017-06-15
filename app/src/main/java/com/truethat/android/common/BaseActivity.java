@@ -9,6 +9,7 @@ import android.util.Log;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.AskForPermissionActivity;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.welcome.WelcomeActivity;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -53,5 +54,9 @@ public class BaseActivity extends AppCompatActivity {
     Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
     askForPermission.putExtra(AskForPermissionActivity.PERMISSION_EXTRA, permission);
     startActivityForResult(askForPermission, permission.getRequestCode());
+  }
+
+  public void onAuthFailed() {
+    startActivity(new Intent(this, WelcomeActivity.class));
   }
 }

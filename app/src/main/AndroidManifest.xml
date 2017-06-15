@@ -32,8 +32,11 @@
     <activity android:name=".application.permissions.AskForPermissionActivity">
       <intent-filter>
         <action android:name="android.intent.action.ATTACH_DATA"/>
+
         <data android:mimeType="application/octet-stream"/>
       </intent-filter>
+    </activity>
+    <activity android:name=".welcome.WelcomeActivity">
     </activity>
   </application>
 

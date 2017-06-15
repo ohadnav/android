@@ -88,7 +88,7 @@ public class TheaterActivityTest {
     @Override public void stop() {
     }
   };
-  private final User DIRECTOR = new User(99, "James Cameron", "avatar", "+1000000000");
+  private final User DIRECTOR = new User(99, "James", "Cameron", "avatar", "+1000000000");
   private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
@@ -167,7 +167,7 @@ public class TheaterActivityTest {
     // Asserting the scene image is displayed fullscreen.
     onView(withId(R.id.sceneImage)).check(matches(isFullScreen()));
     // Asserting the displayed name is of the scene director
-    onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getName())));
+    onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getDisplayName())));
     // Asserting the displayed time is represents the scene creation.
     onView(withId(R.id.sceneTimeAgoText)).check(
         matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));

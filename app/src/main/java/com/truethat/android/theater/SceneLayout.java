@@ -48,7 +48,7 @@ class SceneLayout {
   private void updateDirectorLayout() {
     // Sets the view count.
     TextView userNameText = (TextView) mLayout.findViewById(R.id.directorNameText);
-    userNameText.setText(mScene.getDirector().getName());
+    userNameText.setText(mScene.getDirector().getDisplayName());
     // Sets time ago
     TextView timeAgoText = (TextView) mLayout.findViewById(R.id.sceneTimeAgoText);
     timeAgoText.setText(DateUtil.formatTimeAgo(mScene.getCreated()));

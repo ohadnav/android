@@ -12,7 +12,6 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.TestActivity;
 import java.net.HttpURLConnection;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -34,7 +33,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.BuildConfig.BACKEND_URL;
 import static com.truethat.android.BuildConfig.PORT;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,7 +48,6 @@ public class DefaultAuthModuleTest {
       new ActivityTestRule<>(TestActivity.class, true, false);
   private User mRespondedUser;
   private int mAuthRequestCount;
-  private boolean mFirstAuthRequest;
 
   @BeforeClass public static void beforeClass() throws Exception {
     // Sets up the mocked permissions module.
@@ -104,8 +101,8 @@ public class DefaultAuthModuleTest {
   @Test public void auth() throws Exception {
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    waitUntilAuth();
-    // Assert there was only a single call to auth API, i.e. that a call to #authSync was not made.
+    assertSuccessfulAuth();
+    // Assert a single call to auth API.
     assertEquals(1, mAuthRequestCount);
   }
 
@@ -114,10 +111,7 @@ public class DefaultAuthModuleTest {
     mRespondedUser = null;
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    // Assert the user was not saved onto internal storage.
-    Thread.sleep(200);
-    assertFalse(
-        App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
+    assertFailedAuth();
   }
 
   @Test public void authWithNoPermission() throws Exception {
@@ -138,21 +132,17 @@ public class DefaultAuthModuleTest {
         waitMatcher(allOf(isDisplayed(), withId(R.id.testActivity)), TimeUnit.SECONDS.toMillis(1)));
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    waitUntilAuth();
+    assertSuccessfulAuth();
     // Assert there was only a single call to auth API, since when no permission is granted a request should not be sent.
     assertEquals(1, mAuthRequestCount);
   }
 
+  // Asserts auth is synchronous.
   @Test public void authSync() throws Exception {
-    mFirstAuthRequest = true;
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         if (Objects.equals(request.getMethod(), "POST") && request.getPath().endsWith("auth")) {
           mAuthRequestCount++;
-        }
-        if (mFirstAuthRequest) {
-          mFirstAuthRequest = false;
-          return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
         // Sleep to ensure synchronous behaviour.
         Thread.sleep(100);
@@ -160,39 +150,42 @@ public class DefaultAuthModuleTest {
             .setBody(NetworkUtil.GSON.toJson(mRespondedUser) + "\n");
       }
     });
-    // Authenticate user, should fail as per mFirstAuthRequest = true.
+    // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    // Let the request be properly handled.
-    Thread.sleep(50);
-    // Get user immediately
-    User actual = App.getAuthModule().getUser();
-    // Since it is a sync auth, the following should immediately apply.
-    assertTrue(
-        App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
-    assertEquals(mRespondedUser.getId(), actual.getId());
-    // Assert async auth was requested.
-    assertEquals(2, mAuthRequestCount);
+    // User should be immediately available, as authentication is executed synchronously.
+    assertSuccessfulAuth();
   }
 
   @Test public void dontAuthWhenUserAlreadyAuthenticated() throws Exception {
-    mRespondedUser.save();
+    mRespondedUser.save(mActivityTestRule.getActivity());
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    // User should be immediately available.
-    assertEquals(mRespondedUser.getId(), App.getAuthModule().getUser().getId());
-    // Assert there wasn't an auth request.
+    assertSuccessfulAuth();
+    // Assert there wasn't any auth request.
     assertEquals(0, mAuthRequestCount);
   }
 
-  private void waitUntilAuth() {
-    // Wait until user is stored to internal storage.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return App.getInternalStorage()
-            .exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH);
-      }
-    });
+  private void assertSuccessfulAuth() {
+    // Assert the user was not saved onto internal storage.
+    assertTrue(
+        App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
+    // Should navigate back to Test activity.
+    onView(isRoot()).perform(
+        waitMatcher(allOf(isDisplayed(), withId(R.id.testActivity)), TimeUnit.SECONDS.toMillis(1)));
     // Assert the current user now has an ID.
     assertEquals(mRespondedUser.getId(), App.getAuthModule().getUser().getId());
+  }
+
+  private void assertFailedAuth() {
+    // Assert the user was not saved onto internal storage.
+    assertFalse(
+        App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
+    // Should navigate to Welcome activity.
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.welcomeActivity)),
+        TimeUnit.SECONDS.toMillis(1)));
+    // Assert the current user has no ID or is null.
+    if (App.getAuthModule().getUser() != null) {
+      assertFalse(App.getAuthModule().getUser().hasId());
+    }
   }
 }
