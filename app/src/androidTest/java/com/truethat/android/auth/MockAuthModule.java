@@ -20,13 +20,13 @@ public class MockAuthModule implements AuthModule {
   /**
    * Whether auth reuqets should be allowed.
    */
-  private boolean mAllowAuth = false;
+  private boolean mAllowAuth = true;
 
   public User getUser() {
     return USER;
   }
 
-  public void setAllowAuth(boolean allowAuth) {
+  void setAllowAuth(boolean allowAuth) {
     mAllowAuth = allowAuth;
   }
 
