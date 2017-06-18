@@ -2,11 +2,10 @@ package com.truethat.android.empathy;
 
 import android.media.Image;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import com.truethat.android.common.util.BackgroundHandler;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -46,8 +45,8 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
   /**
    * Used to initiate a delayed input request.
    */
-  private Handler mInputRequestHandler;
-  private HandlerThread mInputRequestThread;
+  private BackgroundHandler mInputRequestHandler =
+      new BackgroundHandler(this.getClass().getSimpleName());
 
   public DefaultReactionDetectionModule(EmotionDetectionClassifier detectionClassifier) {
     mDetectionClassifier = detectionClassifier;
@@ -66,7 +65,7 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
     // Initializes start time and detection task.
     mDetectionStartTime = new Date();
     // Initiates the detection attempts.
-    startInputRequestThread();
+    mInputRequestHandler.start();
     next();
   }
 
@@ -86,7 +85,7 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
     Log.v(TAG, "Stopping detection.");
     // Stops the detection task.
     if (mDetectionTask != null) mDetectionTask.cancel(true);
-    stopInputRequestThread();
+    mInputRequestHandler.stop();
   }
 
   /**
@@ -108,30 +107,11 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
       // If remains false, then in REQUEST_INPUT_TIMEOUT_MILLIS we'll request input again.
       mInputReceived = false;
       mDetectionPubSub.requestInput();
-      mInputRequestHandler.postDelayed(new Runnable() {
+      mInputRequestHandler.getHandler().postDelayed(new Runnable() {
         @Override public void run() {
           if (!mInputReceived) next();
         }
       }, REQUEST_INPUT_TIMEOUT_MILLIS);
-    }
-  }
-
-  private void startInputRequestThread() {
-    mInputRequestThread = new HandlerThread("DefaultReactionDetectionModule input request");
-    mInputRequestThread.start();
-    mInputRequestHandler = new Handler(mInputRequestThread.getLooper());
-  }
-
-  private void stopInputRequestThread() {
-    if (mInputRequestThread != null) {
-      mInputRequestThread.quitSafely();
-      try {
-        mInputRequestThread.join();
-        mInputRequestThread = null;
-        mInputRequestHandler = null;
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
     }
   }
 

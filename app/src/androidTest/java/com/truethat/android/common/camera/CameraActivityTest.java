@@ -2,7 +2,6 @@ package com.truethat.android.common.camera;
 
 import android.content.Intent;
 import android.media.ImageReader;
-import android.support.test.espresso.intent.Intents;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -16,31 +15,26 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.awaitility.Awaitility;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.truethat.android.BuildConfig.PORT;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-@RunWith(AndroidJUnit4.class) public class CameraActivityApplicationTest
+@RunWith(AndroidJUnit4.class) public class CameraActivityTest
     extends BaseApplicationTest {
-  private final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
-  @Rule public ActivityTestRule<AskForPermissionActivity> mNoPermissionActivityTestRule =
+  @Rule public ActivityTestRule<AskForPermissionActivity> mAskForPermissionActivityTestRule =
       new ActivityTestRule<>(AskForPermissionActivity.class, true, false);
   private boolean mImageTaken = false;
   private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
@@ -51,23 +45,13 @@ import static org.junit.Assert.assertFalse;
       };
 
   @Before public void setUp() throws Exception {
-    // Initialize Awaitility
-    Awaitility.reset();
-    // Initialize Espresso intents
-    Intents.init();
-    // Starts mock server
-    mMockWebServer.start(PORT);
+    super.setUp();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         return new MockResponse().setResponseCode(200)
             .setBody(NetworkUtil.GSON.toJson(Collections.EMPTY_LIST) + "\n");
       }
     });
-  }
-  @After public void tearDown() throws Exception {
-    Intents.release();
-    // Closes mock server
-    mMockWebServer.close();
   }
 
   @Test @MediumTest public void takePicture_noSurfaceTexture() throws Exception {
@@ -102,7 +86,7 @@ import static org.junit.Assert.assertFalse;
     mTheaterActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
     assertFalse(mImageTaken);
     // Launching a non-camera activity to close the camera.
-    mNoPermissionActivityTestRule.launchActivity(null);
+    mAskForPermissionActivityTestRule.launchActivity(null);
     // Asserts the camera is closed.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
@@ -112,9 +96,9 @@ import static org.junit.Assert.assertFalse;
     // Trying to take a picture while the camera is closed.
     mTheaterActivityTestRule.getActivity().takePicture();
     // Launches the camera activity again.
-    mNoPermissionActivityTestRule.getActivity()
+    mAskForPermissionActivityTestRule.getActivity()
         .startActivity(
-            new Intent(mNoPermissionActivityTestRule.getActivity(), TheaterActivity.class));
+            new Intent(mAskForPermissionActivityTestRule.getActivity(), TheaterActivity.class));
     // Assert that an image was taken.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

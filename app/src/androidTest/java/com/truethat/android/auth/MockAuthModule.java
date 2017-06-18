@@ -15,22 +15,76 @@ public class MockAuthModule implements AuthModule {
   /**
    * Mocked user for testing.
    */
-  private final User USER = new User(USER_ID, FIRST_NAME, LAST_NAME, DEVICE_ID, PHONE_NUMBER);
-
+  static final User USER = new User(USER_ID, FIRST_NAME, LAST_NAME, DEVICE_ID, PHONE_NUMBER);
   /**
-   * Whether auth reuqets should be allowed.
+   * Whether auth requests should be authorized.
    */
   private boolean mAllowAuth = true;
+  /**
+   * Whether the user had already been through on-boarding, i.e. had he or she created an account.
+   */
+  private boolean mOnBoarded = true;
+  /**
+   * Currently logged in user.
+   */
+  private User mUser;
 
   public User getUser() {
-    return USER;
+    return mUser;
   }
 
-  void setAllowAuth(boolean allowAuth) {
+  public void setAllowAuth(boolean allowAuth) {
+    if (!allowAuth) {
+      signOut();
+    }
     mAllowAuth = allowAuth;
   }
 
-  @Override public void auth(BaseActivity activity) {
-    if (!mAllowAuth) activity.onAuthFailed();
+  public void setOnBoarded(boolean onBoarded) {
+    if (!onBoarded) {
+      signOut();
+    }
+    mOnBoarded = onBoarded;
+  }
+
+  @Override public void auth(final BaseActivity activity) {
+    if (!mOnBoarded) {
+      activity.runOnUiThread(new Runnable() {
+        @Override public void run() {
+          mUser = new User(null, null, null, DEVICE_ID, PHONE_NUMBER);
+          activity.onBoarding();
+          mOnBoarded = true;
+        }
+      });
+    } else if (mAllowAuth) {
+      activity.runOnUiThread(new Runnable() {
+        @Override public void run() {
+          if (mUser == null) {
+            mUser = USER;
+          } else {
+            mUser.setId(USER_ID);
+          }
+          activity.onAuthOk();
+        }
+      });
+    } else {
+      activity.runOnUiThread(new Runnable() {
+        @Override public void run() {
+          signOut();
+          activity.onAuthFailed();
+        }
+      });
+    }
+  }
+
+  @Override public boolean isAuthOk() {
+    return mUser != null && mUser.isAuthOk();
+  }
+
+  /**
+   * Deletes current user session.
+   */
+  private void signOut() {
+    mUser = null;
   }
 }

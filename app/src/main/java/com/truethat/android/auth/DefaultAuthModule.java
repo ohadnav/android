@@ -6,6 +6,7 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseActivity;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.util.BackgroundHandler;
 import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -23,6 +24,11 @@ public class DefaultAuthModule implements AuthModule {
    * Auth API interface.
    */
   private AuthAPI mAuthAPI = NetworkUtil.createAPI(AuthAPI.class);
+  /**
+   * Used for network requests.
+   */
+  private BackgroundHandler mNetworkHandler =
+      new BackgroundHandler(this.getClass().getSimpleName());
 
   public DefaultAuthModule() {
   }
@@ -41,33 +47,96 @@ public class DefaultAuthModule implements AuthModule {
    * @param activity for which to auth.
    */
   @Override public void auth(final BaseActivity activity) {
-    boolean authSuccessful = true;
+    // Create a new user instance, if needed.
     if (mUser == null) {
       App.getPermissionsModule().requestIfNeeded(activity, Permission.PHONE);
       if (!App.getPermissionsModule().isPermissionGranted(activity, Permission.PHONE)) {
+        Log.i(TAG, "No phone permission, stopping auth.");
+        // No phone permission, stop here, to let ask for permission activity gain control.
         return;
       }
       try {
         mUser = new User(activity);
       } catch (IOException | ClassNotFoundException e) {
-        authSuccessful = false;
         Log.e(TAG, "Could not create user. Sad story.. but it's true.", e);
+        activity.runOnUiThread(new Runnable() {
+          @Override public void run() {
+            activity.onAuthFailed();
+          }
+        });
       }
     }
-    // If the user has an ID, don't post an auth request.
-    if (mUser != null && !mUser.hasId()) {
-      // Sends auth request to the server.
-      Call<User> authCall = mAuthAPI.postAuth(mUser);
-      try {
-        authSuccessful = authSuccessful && handleResponse(authCall, authCall.execute(), activity);
-      } catch (IOException e) {
-        authSuccessful = false;
-        Log.e(TAG, "Authentication request had failed, inconceivable!", e);
+    if (mUser != null) {
+      if (!mUser.onBoarded()) {
+        // User not on-boarded yet.
+        activity.runOnUiThread(new Runnable() {
+          @Override public void run() {
+            activity.onBoarding();
+          }
+        });
+      } else if (!mUser.hasId()) {
+        // ID is missing, get one from server.
+        backendAuth(activity);
+      } else if (isAuthOk()) {
+        // Already authenticated
+        activity.runOnUiThread(new Runnable() {
+          @Override public void run() {
+            activity.onAuthOk();
+          }
+        });
+      } else {
+        Log.e(TAG, "Unknown auth error.");
+        activity.runOnUiThread(new Runnable() {
+          @Override public void run() {
+            activity.onAuthFailed();
+          }
+        });
       }
     }
-    if (!authSuccessful) {
-      activity.onAuthFailed();
+  }
+
+  @Override public boolean isAuthOk() {
+    return mUser != null && mUser.isAuthOk();
+  }
+
+  /**
+   * Authenticates user against our lovely backend
+   *
+   * @param activity to use for auth callbacks
+   */
+  private void backendAuth(final BaseActivity activity) {
+    mNetworkHandler.start();
+    final Call<User> authCall = mAuthAPI.postAuth(mUser);
+    if (!mNetworkHandler.getHandler().post(new Runnable() {
+      @Override public void run() {
+        try {
+          if (handleResponse(authCall, authCall.execute(), activity)) {
+            activity.runOnUiThread(new Runnable() {
+              @Override public void run() {
+                activity.onAuthOk();
+              }
+            });
+          }
+        } catch (IOException | AssertionError e) {
+          // Auth had failed
+          Log.e(TAG, "Authentication request had failed, inconceivable!", e);
+          activity.runOnUiThread(new Runnable() {
+            @Override public void run() {
+              activity.onAuthFailed();
+            }
+          });
+        }
+      }
+    })) {
+      // Auth had failed
+      Log.e(TAG, "Network thread handler failure.");
+      activity.runOnUiThread(new Runnable() {
+        @Override public void run() {
+          activity.onAuthFailed();
+        }
+      });
     }
+    mNetworkHandler.stop();
   }
 
   /**
@@ -82,7 +151,7 @@ public class DefaultAuthModule implements AuthModule {
   private boolean handleResponse(Call<User> call, Response<User> response, Context context)
       throws AssertionError, IOException {
     boolean responseSuccessful = true;
-    if (response.isSuccessful() && response.body() != null) {
+    if (response.isSuccessful()) {
       User respondedUser = response.body();
       if (respondedUser == null) {
         throw new AssertionError("Responded user is a ghost... scary.");

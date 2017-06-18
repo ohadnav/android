@@ -15,7 +15,7 @@
       android:layout_height="wrap_content"
       android:contentDescription="@string/oh_puppy"
       android:scaleType="centerCrop"
-      android:tint="#66666699"
+      android:tint="@color/tint"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -23,19 +23,11 @@
       app:srcCompat="@drawable/superman_dog"
       />
 
-  <TextureView
-      android:id="@+id/cameraPreview"
-      android:layout_width="10dp"
-      android:layout_height="10dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      />
-
   <ProgressBar
       android:id="@+id/progressBar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:indeterminateTint="@color/colorPrimary"
+      android:indeterminateTint="@color/primary"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"

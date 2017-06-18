@@ -19,9 +19,6 @@ import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.EmotionDetectionClassifier;
-import com.truethat.android.empathy.ReactionDetectionModule;
-import com.truethat.android.empathy.ReactionDetectionPubSub;
-import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -31,13 +28,9 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -47,18 +40,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static com.truethat.android.BuildConfig.PORT;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 05/06/2017 for TrueThat.
  */
-public class TheaterActivityApplicationTest extends BaseApplicationTest {
+public class TheaterActivityTest extends BaseApplicationTest {
   private static final long ID_1 = 11;
   private static final long ID_2 = 22;
   // Dear lord fail this test when this image becomes unavailable ;)
@@ -71,53 +64,27 @@ public class TheaterActivityApplicationTest extends BaseApplicationTest {
     put(Emotion.HAPPY, HAPPY_COUNT);
     put(Emotion.SAD, SAD_COUNT);
   }};
-  private static ReactionDetectionPubSub mDetectionPubSub;
-  private final User DIRECTOR = new User(99, "James", "Cameron", "avatar", "+1000000000");
-  private final MockWebServer mMockWebServer = new MockWebServer();
+  private final User DIRECTOR = new User(99L, "James", "Cameron", "avatar", "+1000000000");
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Scene> mRespondedScenes;
   private int mPostEventCount;
 
-  @BeforeClass public static void beforeClass() throws Exception {
-    BaseApplicationTest.beforeClass();
-    // Sets up a mocked emotional reaction detection module.
-    App.setReactionDetectionModule(sReactionDetectionModule = new ReactionDetectionModule() {
-      @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
-        mDetectionPubSub = detectionPubSub;
-      }
-
-      @Override public void attempt(Image image) {
-      }
-
-      @Override public void stop() {
-      }
-    });
-  }
-
   @Before public void setUp() throws Exception {
-    // Initialize Awaitility
-    Awaitility.reset();
+    super.setUp();
     // Resets the post event counter.
     mPostEventCount = 0;
-    // Starts mock server
-    mMockWebServer.start(PORT);
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         if (Objects.equals(request.getMethod(), "POST") && request.getPath().contains("theater")) {
           mPostEventCount++;
         }
-        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_OK)
+        return new MockResponse()
             .setBody(NetworkUtil.GSON.toJson(mRespondedScenes) + "\n");
       }
     });
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
-  }
-
-  @After public void tearDown() throws Exception {
-    // Closes mock server
-    mMockWebServer.close();
   }
 
   @Test public void loadingScenes() throws Exception {
@@ -258,10 +225,8 @@ public class TheaterActivityApplicationTest extends BaseApplicationTest {
       }
     });
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
-    // ReactionDetectionPubSub reflects the first responded scene.
-    mDetectionPubSub = mTheaterActivityTestRule.getActivity()
-        .buildReactionDetectionPubSub(mRespondedScenes.get(0));
-    mDetectionPubSub.onReactionDetected(lessCommon);
+    // Do the detection
+    mMockReactionDetectionModule.doDetection(lessCommon);
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -296,12 +261,11 @@ public class TheaterActivityApplicationTest extends BaseApplicationTest {
         assertEquals(1, mPostEventCount);
       }
     });
-    // ReactionDetectionPubSub reflects the first responded scene.
-    mDetectionPubSub = mTheaterActivityTestRule.getActivity()
-        .buildReactionDetectionPubSub(mRespondedScenes.get(0));
+    // Already detected reaction, and so reaction detection should be stopped.
+    assertFalse(mMockReactionDetectionModule.isDetecting());
   }
 
-  @Test @MediumTest public void realEmotionalReaction() throws Exception {
+  @Test @MediumTest public void cameraInputRequestsForDetection() throws Exception {
     Scene scene = new Scene(ID_1, IMAGE_URL, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null);
     App.setReactionDetectionModule(
         new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
@@ -326,6 +290,5 @@ public class TheaterActivityApplicationTest extends BaseApplicationTest {
         assertEquals(2, mPostEventCount);
       }
     });
-    App.setReactionDetectionModule(sReactionDetectionModule);
   }
 }

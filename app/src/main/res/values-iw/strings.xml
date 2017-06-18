@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">תכלס</string>
+  <string name="app_name">על אמת</string>
   <string name="ask_permission_button">סבבה, הבנתי</string>
   <string name="capture">שוט</string>
-  <string name="no_camera_permission_bottom">ככה אנחנו רואים איך אתם מרגישים</string>
-  <string name="no_camera_permission_top">תנו לנו לראות את הפנים היפות שלכם</string>
-  <string name="no_phone_permission_rationale">אנחנו משתמשים במספר טלפון לזיהוי, ולא חושפים אותו בלי לבקש ממך אישור</string>
+  <string name="no_camera_permission_bottom">ככה אנחנו רואים מה אתם מרגישים</string>
+  <string name="no_camera_permission_top">אנחנו צריכים גישה למצלמה כדי לראות את הפנים היפות שלכם</string>
+  <string name="no_phone_permission_rationale">אנחנו משתמשים במספר טלפון לזיהוי.</string>
+  <string name="something_went_wrong">אנחנו כל כך כל כך מצטערים, משהו לא סבבה קורה פה</string>
+  <string name="sign_in">כבר יש לי חשבון</string>
+  <string name="test_text">בדיקה</string>
+  <string name="welcome_text">תצטרף אל</string>
+  <string name="whats_your_name">שמך בישראל?</string>
+  <string name="john_doe">ג׳סטין ביבר</string>
+  <string name="hey">שלום</string>
+  <string name="anonymous">פלוני</string>
+  <string name="smile_to_continue">תחייך כדי להמשיך</string>
+  <string name="real_life_smile">כאילו בחיים האמיתיים</string>
+  <string name="create_your_account">צור חשבון חדש</string>
 </resources>

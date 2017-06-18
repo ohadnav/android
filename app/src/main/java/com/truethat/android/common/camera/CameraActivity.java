@@ -15,8 +15,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -29,6 +27,7 @@ import com.google.common.base.Supplier;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseActivity;
+import com.truethat.android.common.util.BackgroundHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,8 +109,8 @@ public abstract class CameraActivity extends BaseActivity {
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mCameraCaptureSessions;
   private CaptureRequest.Builder mCaptureRequestBuilder;
-  private Handler mBackgroundHandler;
-  private HandlerThread mBackgroundThread;
+  private BackgroundHandler mBackgroundHandler =
+      new BackgroundHandler(this.getClass().getSimpleName());
   private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
     @Override public void onOpened(@NonNull CameraDevice camera) {
       Log.v(TAG, "Camera opened.");
@@ -119,8 +118,8 @@ public abstract class CameraActivity extends BaseActivity {
       if (mCameraPreview != null) createCameraPreview();
       // A handler is used since pictures cannot be taken immediately.
       if (mTakePictureOnOpened) {
-        if (mBackgroundHandler == null) startBackgroundThread();
-        mBackgroundHandler.postDelayed(new Runnable() {
+        mBackgroundHandler.start();
+        mBackgroundHandler.getHandler().postDelayed(new Runnable() {
           @Override public void run() {
             if (mTakePictureOnOpened) takePicture();
           }
@@ -193,7 +192,8 @@ public abstract class CameraActivity extends BaseActivity {
       // Orientation
       int rotation = getWindowManager().getDefaultDisplay().getRotation();
       captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-      mImageReader.setOnImageAvailableListener(mImageAvailableListener, mBackgroundHandler);
+      mImageReader.setOnImageAvailableListener(mImageAvailableListener,
+          mBackgroundHandler.getHandler());
       final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
         @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
             @NonNull TotalCaptureResult result) {
@@ -204,7 +204,8 @@ public abstract class CameraActivity extends BaseActivity {
       mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
         @Override public void onConfigured(@NonNull CameraCaptureSession session) {
           try {
-            session.capture(captureBuilder.build(), captureListener, mBackgroundHandler);
+            session.capture(captureBuilder.build(), captureListener,
+                mBackgroundHandler.getHandler());
           } catch (CameraAccessException e) {
             e.printStackTrace();
           }
@@ -212,7 +213,7 @@ public abstract class CameraActivity extends BaseActivity {
 
         @Override public void onConfigureFailed(@NonNull CameraCaptureSession session) {
         }
-      }, mBackgroundHandler);
+      }, mBackgroundHandler.getHandler());
     } catch (NullPointerException | CameraAccessException e) {
       e.printStackTrace();
     }
@@ -250,7 +251,7 @@ public abstract class CameraActivity extends BaseActivity {
   @Override protected void onResume() {
     super.onResume();
     Log.v(TAG, "Camera resumed.");
-    startBackgroundThread();
+    mBackgroundHandler.start();
     if (mCameraPreview == null || mCameraPreview.isAvailable()) {
       openCamera();
     } else {
@@ -261,7 +262,7 @@ public abstract class CameraActivity extends BaseActivity {
   @Override protected void onPause() {
     Log.e(TAG, "Camera paused.");
     closeCamera();
-    stopBackgroundThread();
+    mBackgroundHandler.stop();
     super.onPause();
   }
 
@@ -278,7 +279,8 @@ public abstract class CameraActivity extends BaseActivity {
     }
     mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
     try {
-      mCameraCaptureSessions.setRepeatingRequest(mCaptureRequestBuilder.build(), null, mBackgroundHandler);
+      mCameraCaptureSessions.setRepeatingRequest(mCaptureRequestBuilder.build(), null,
+          mBackgroundHandler.getHandler());
     } catch (CameraAccessException e) {
       e.printStackTrace();
     }
@@ -292,25 +294,6 @@ public abstract class CameraActivity extends BaseActivity {
     if (mImageReader != null) {
       mImageReader.close();
       mImageReader = null;
-    }
-  }
-
-  private void startBackgroundThread() {
-    if (mBackgroundThread == null) {
-      mBackgroundThread = new HandlerThread("Camera Background");
-      mBackgroundThread.start();
-      mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-    }
-  }
-
-  private void stopBackgroundThread() {
-    mBackgroundThread.quitSafely();
-    try {
-      mBackgroundThread.join();
-      mBackgroundThread = null;
-      mBackgroundHandler = null;
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
   }
 

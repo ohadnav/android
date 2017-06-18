@@ -45,6 +45,9 @@ class SceneLayout {
     updateReactionCounters(emotion);
   }
 
+  /**
+   * Updates director name and scene creation time.
+   */
   private void updateDirectorLayout() {
     // Sets the view count.
     TextView userNameText = (TextView) mLayout.findViewById(R.id.directorNameText);
@@ -54,16 +57,18 @@ class SceneLayout {
     timeAgoText.setText(DateUtil.formatTimeAgo(mScene.getCreated()));
   }
 
+  /**
+   * Displays the image from {@link Scene#getImageSignedUrl()} in the layouts {@link ImageView}.
+   */
   private void displayImage() {
     ImageView imageView = (ImageView) mLayout.findViewById(R.id.sceneImage);
-
-      Picasso.with(mLayout.getContext())
-          .load(mScene.getImageSignedUrl())
-          .placeholder(R.drawable.shower_dog)
-          .error(R.drawable.sad_dog)
-          .fit()
-          .centerCrop()
-          .into(imageView);
+    Picasso.with(mLayout.getContext())
+        .load(mScene.getImageSignedUrl())
+        .placeholder(R.drawable.shower_dog)
+        .error(R.drawable.sad_dog)
+        .fit()
+        .centerCrop()
+        .into(imageView);
   }
 
   /**

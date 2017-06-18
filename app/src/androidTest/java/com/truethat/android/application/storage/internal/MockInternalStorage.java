@@ -18,11 +18,19 @@ import java.util.Map;
  */
 
 public class MockInternalStorage implements InternalStorage {
-  // Objects are mapped to byte arrays to test serialization as well.
+  /**
+   * Objects are mapped to byte arrays to test serialization as well.
+   */
   private Map<String, byte[]> mFileNameToBytes = new HashMap<>();
+  /**
+   * Whether the next operation should throw an error.
+   */
+  private boolean mShouldFail = false;
 
   @Override public void write(Context context, String fileName, Serializable data)
       throws IOException {
+
+    if (mShouldFail) fail();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     ObjectOutput objectOutput = new ObjectOutputStream(outputStream);
     objectOutput.writeObject(data);
@@ -33,6 +41,7 @@ public class MockInternalStorage implements InternalStorage {
 
   @Override public <T extends Serializable> T read(Context context, String fileName)
       throws IOException, ClassNotFoundException {
+    if (mShouldFail) fail();
     if (!exists(context, fileName)) {
       throw new IOException("File " + fileName + " does not exist.");
     }
@@ -45,6 +54,7 @@ public class MockInternalStorage implements InternalStorage {
   }
 
   @Override public void delete(Context context, String fileName) throws IOException {
+    if (mShouldFail) fail();
     if (!exists(context, fileName)) {
       throw new IOException("File " + fileName + " does not exist.");
     }
@@ -53,5 +63,14 @@ public class MockInternalStorage implements InternalStorage {
 
   @Override public boolean exists(Context context, String fileName) {
     return mFileNameToBytes.containsKey(fileName);
+  }
+
+  public void setShouldFail(boolean shouldFail) {
+    mShouldFail = shouldFail;
+  }
+
+  private void fail() throws IOException {
+    mShouldFail = false;
+    throw new IOException("Fake error");
   }
 }

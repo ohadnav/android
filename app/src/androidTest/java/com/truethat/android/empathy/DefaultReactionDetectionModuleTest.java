@@ -4,7 +4,6 @@ import android.media.Image;
 import android.support.annotation.Nullable;
 import com.truethat.android.common.BaseApplicationTest;
 import java.util.Date;
-import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -18,7 +17,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  */
-public class DefaultReactionDetectionModuleApplicationTest extends BaseApplicationTest {
+public class DefaultReactionDetectionModuleTest extends BaseApplicationTest {
   private static final long REQUEST_INPUT_TIMEOUT_MILLIS =
       DefaultReactionDetectionModule.REQUEST_INPUT_TIMEOUT_MILLIS;
   private static final long DETECTION_TIMEOUT_MILLIS =
@@ -40,10 +39,9 @@ public class DefaultReactionDetectionModuleApplicationTest extends BaseApplicati
   }
 
   @Before public void setUp() throws Exception {
+    super.setUp();
     // Resets the mDetectedReaction emotion.
     mDetectedReaction = null;
-    // Initialize Awaitility
-    Awaitility.reset();
     mDetectionPubSub = new ReactionDetectionPubSub() {
       @Override public void onReactionDetected(Emotion reaction) {
         mDetectedReaction = reaction;

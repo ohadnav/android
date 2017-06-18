@@ -1,13 +1,9 @@
 package com.truethat.android.application.permissions;
 
-import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTest;
-import com.truethat.android.common.util.TestActivity;
 import java.util.concurrent.TimeUnit;
-import org.awaitility.Awaitility;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -22,18 +18,13 @@ import static org.hamcrest.Matchers.allOf;
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
-public class AskForPermissionActivityApplicationTest extends BaseApplicationTest {
+public class AskForPermissionActivityTest extends BaseApplicationTest {
   private static final Permission PERMISSION = Permission.CAMERA;
-  @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
-      new ActivityTestRule<>(TestActivity.class, true, false);
 
   @Before public void setUp() throws Exception {
-    // Initialize Awaitility
-    Awaitility.reset();
+    super.setUp();
     // Revoke permission on launch.
-    sMockPermissionsModule.forbid(PERMISSION);
-    // Launches activity
-    mActivityTestRule.launchActivity(null);
+    mMockPermissionsModule.forbid(PERMISSION);
   }
 
   @Test public void onRequestPermissionsFailed() throws Exception {
@@ -48,7 +39,7 @@ public class AskForPermissionActivityApplicationTest extends BaseApplicationTest
   }
 
   @Test public void finishIfPermissionIsAlreadyGranted() throws Exception {
-    sMockPermissionsModule.grant(PERMISSION);
+    mMockPermissionsModule.grant(PERMISSION);
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
     Thread.sleep(100);
@@ -62,7 +53,7 @@ public class AskForPermissionActivityApplicationTest extends BaseApplicationTest
         waitMatcher(allOf(isDisplayed(), withId(R.id.askForPermissionActivity)),
             TimeUnit.SECONDS.toMillis(3)));
     // Grant permission, to mock the scenario where the user allowed the permission.
-    sMockPermissionsModule.reset(PERMISSION);
+    mMockPermissionsModule.reset(PERMISSION);
     // Ask for permission again.
     onView(withId(R.id.askPermissionButton)).perform(click());
     // Wait until we return to test activity.

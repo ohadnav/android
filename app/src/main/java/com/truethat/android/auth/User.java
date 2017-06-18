@@ -2,6 +2,7 @@ package com.truethat.android.auth;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.telephony.TelephonyManager;
 import com.truethat.android.application.App;
@@ -19,11 +20,7 @@ public class User implements Serializable {
   /**
    * User session path, within the app internal storage.
    */
-  @VisibleForTesting static final String LAST_USER_PATH = "users/last.user";
-  /**
-   * Logging tag.
-   */
-  private static final String TAG = User.class.getSimpleName();
+  @VisibleForTesting public static final String LAST_USER_PATH = "users/last.user";
   /**
    * User ID, as stored in our backend.
    */
@@ -46,7 +43,8 @@ public class User implements Serializable {
   private String mPhoneNumber;
 
   @VisibleForTesting
-  public User(long id, String firstName, String lastName, String deviceId, String phoneNumber) {
+  public User(@Nullable Long id, @Nullable String firstName, @Nullable String lastName,
+      @Nullable String deviceId, @Nullable String phoneNumber) {
     mId = id;
     mFirstName = firstName;
     mLastName = lastName;
@@ -68,11 +66,56 @@ public class User implements Serializable {
     mPhoneNumber = telephonyManager.getLine1Number();
   }
 
+  /**
+   * Valid names satisfy the following conditions:
+   * <ul>
+   * <li>They only contain english letters and spaces.</li>
+   * <li>They have both first and last name.</li>
+   * <li>Both first and last are at least 2 letters long.</li>
+   * </ul>
+   *
+   * @return whether the given name can formulate first and last names for the user.
+   */
+  public static boolean isValidName(String name) {
+    name = name.toLowerCase().trim();
+    boolean isAlphabetic = name.matches("[a-z\\s]*");
+    String firstName = extractFirstName(name);
+    String lastName = extractLastName(name);
+    // One letter names are invalid.
+    boolean isFirstNameValid = firstName.length() > 1;
+    boolean isLastNameValid = lastName.length() > 1;
+    return isAlphabetic && isFirstNameValid && isLastNameValid;
+  }
+
+  @VisibleForTesting static String extractFirstName(String name) {
+    return name.split(" ")[0].trim().toLowerCase();
+  }
+
+  @VisibleForTesting static String extractLastName(String name) {
+    String lastName = "";
+    if (name.contains(" ")) {
+      lastName = name.substring(name.indexOf(" ")).trim();
+    }
+    return lastName.toLowerCase();
+  }
+
   public long getId() {
     if (mId == null) {
       throw new IllegalStateException("User ID had not been initialized.");
     }
     return mId;
+  }
+
+  public void setId(Long id) {
+    mId = id;
+  }
+
+  String getFirstName() {
+    return mFirstName;
+  }
+
+  String getLastName() {
+    return mLastName;
   }
 
   public String getDisplayName() {
@@ -83,7 +126,34 @@ public class User implements Serializable {
   }
 
   /**
+   * Whether this User is seemingly have been through authentication.
+   * @return whether ID, first and last names are all non-null.
+   */
+  public boolean isAuthOk() {
+    return hasId() && onBoarded();
+  }
 
+  /**
+   * Updates this User {@code mFirstName} and {@code mLastName}, and then saves the entire instance
+   * to internal storage.
+   *
+   * @param name full name
+   * @param context for internal storage.
+   */
+  public void updateNames(String name, Context context) throws IOException {
+    name = name.toLowerCase().trim().replaceAll(" +", " ");
+    if (isValidName(name)) {
+      mFirstName = extractFirstName(name);
+      mLastName = extractLastName(name);
+      if (isAuthOk()) save(context);
+    }
+  }
+
+  boolean hasId() {
+    return mId != null;
+  }
+
+  /**
    * Updates this user instance using another one. Only updates {@code mId} and {@code mName}.
    *
    * @param user to copy fields from.
@@ -117,8 +187,11 @@ public class User implements Serializable {
     App.getInternalStorage().write(context, LAST_USER_PATH, this);
   }
 
-  boolean hasId() {
-    return mId != null;
+  /**
+   * @return whether the user had been through on boarding.
+   */
+  boolean onBoarded() {
+    return mFirstName != null && mLastName != null;
   }
 
   private void populateFromInternalStorage(Context context)

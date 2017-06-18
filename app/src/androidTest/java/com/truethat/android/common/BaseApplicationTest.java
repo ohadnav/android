@@ -1,15 +1,23 @@
 package com.truethat.android.common;
 
-import android.media.Image;
+import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
 import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.empathy.Emotion;
-import com.truethat.android.empathy.ReactionDetectionModule;
-import com.truethat.android.empathy.ReactionDetectionPubSub;
-import org.junit.BeforeClass;
+import com.truethat.android.common.util.TestActivity;
+import com.truethat.android.empathy.MockReactionDetectionModule;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.Awaitility;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+
+import static com.truethat.android.BuildConfig.PORT;
 
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
@@ -18,34 +26,41 @@ import org.junit.BeforeClass;
  */
 
 @SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseApplicationTest {
-  protected static final Emotion DEFAULT_DETECTED_EMOTION = Emotion.HAPPY;
-  protected static MockPermissionsModule sMockPermissionsModule;
-  protected static MockAuthModule sMockAuthModule;
-  protected static MockInternalStorage sMockInternalStorage;
-  protected static ReactionDetectionModule sReactionDetectionModule;
+  protected final MockWebServer mMockWebServer = new MockWebServer();
+  @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
+      new ActivityTestRule<>(TestActivity.class, true, false);
+  protected MockPermissionsModule mMockPermissionsModule;
+  protected MockAuthModule mMockAuthModule;
+  protected MockInternalStorage mMockInternalStorage;
+  protected MockReactionDetectionModule mMockReactionDetectionModule;
 
-  @BeforeClass public static void beforeClass() throws Exception {
+  @Before public void setUp() throws Exception {
+    // Initialize Awaitility
+    Awaitility.reset();
     // Sets up the mocked permissions module.
-    App.setPermissionsModule(sMockPermissionsModule = new MockPermissionsModule());
+    App.setPermissionsModule(mMockPermissionsModule = new MockPermissionsModule());
     // Sets up the mocked auth module.
-    App.setAuthModule(sMockAuthModule = new MockAuthModule());
+    App.setAuthModule(mMockAuthModule = new MockAuthModule());
     // Sets up the mocked in-mem internal storage.
-    App.setInternalStorage(sMockInternalStorage = new MockInternalStorage());
+    App.setInternalStorage(mMockInternalStorage = new MockInternalStorage());
     // Sets up a mocked emotional reaction detection module.
-    App.setReactionDetectionModule(sReactionDetectionModule = new ReactionDetectionModule() {
-      @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
-        detectionPubSub.onReactionDetected(DEFAULT_DETECTED_EMOTION);
-      }
-
-      @Override public void attempt(Image image) {
-
-      }
-
-      @Override public void stop() {
-
-      }
-    });
+    App.setReactionDetectionModule(
+        mMockReactionDetectionModule = new MockReactionDetectionModule());
     // Sets the backend URL, for MockWebServer.
     NetworkUtil.setBackendUrl("http://localhost");
+    // Starts mock server
+    mMockWebServer.start(PORT);
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse();
+      }
+    });
+    // Launches activity
+    mActivityTestRule.launchActivity(null);
+  }
+
+  @After public void tearDown() throws Exception {
+    // Closes mock server
+    mMockWebServer.close();
   }
 }

@@ -3,10 +3,12 @@ package com.truethat.android.studio;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.Scene;
@@ -26,6 +28,7 @@ import retrofit2.Response;
 
 public class StudioActivity extends CameraActivity {
 
+  @VisibleForTesting static final String UNAUTHORIZED_TOAST = "Signing in...";
   /**
    * File name for HTTP post request for saving scenes.
    */
@@ -74,8 +77,15 @@ public class StudioActivity extends CameraActivity {
     mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
   }
 
+  /**
+   * UI initiated picture taking.
+   */
   public void takePicture(View view) {
-    takePicture();
+    if (App.getAuthModule().isAuthOk()) {
+      takePicture();
+    } else {
+      Toast.makeText(this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
+    }
   }
 
   protected void processImage() {

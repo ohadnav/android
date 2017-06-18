@@ -3,19 +3,26 @@ package com.truethat.android.application.permissions;
 import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import com.truethat.android.R;
+import com.truethat.android.common.util.RequestCodes;
 import java.util.Objects;
+
+import static com.truethat.android.common.util.RequestCodes.PERMISSION_CAMERA;
+import static com.truethat.android.common.util.RequestCodes.PERMISSION_PHONE;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  *
  * Android permissions.
+ *
+ * To add a new {@link Permission}, add a request code in {@link RequestCodes}.
  */
 
 // Next available request code - 3
 public enum Permission {
-  CAMERA(Manifest.permission.CAMERA, 1,
+  CAMERA(Manifest.permission.CAMERA, PERMISSION_CAMERA,
       R.layout.fragment_no_camera_permission), // For phone number and device ID.
-  PHONE(Manifest.permission.READ_PHONE_STATE, 2, R.layout.fragment_no_phone_state_permission);
+  PHONE(Manifest.permission.READ_PHONE_STATE, PERMISSION_PHONE,
+      R.layout.fragment_no_phone_state_permission);
 
   /**
    * An Android internal string to describe the permission. Taken from {@link Manifest.permission}.

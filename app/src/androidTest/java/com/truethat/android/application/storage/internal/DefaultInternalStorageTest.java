@@ -1,10 +1,8 @@
 package com.truethat.android.application.storage.internal;
 
-import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.common.util.TestActivity;
+import com.truethat.android.common.BaseApplicationTest;
 import java.io.File;
 import java.util.Date;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -13,15 +11,13 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
-public class DefaultInternalStorageTest {
+public class DefaultInternalStorageTest extends BaseApplicationTest {
   private static final String FILE_NAME =
       "DefaultInternalStorageTest_" + new Date().getTime() + ".txt";
   private static final String ROOT_DIR =
       "DefaultInternalStorageTest_nested_" + new Date().getTime();
   private static final String NESTED_FILE = ROOT_DIR + "/asta/la/vista.baby";
 
-  @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
-      new ActivityTestRule<>(TestActivity.class, true, true);
   private InternalStorage mInternalStorage = new DefaultInternalStorage();
 
   @Test public void writeReadAndDelete() throws Exception {

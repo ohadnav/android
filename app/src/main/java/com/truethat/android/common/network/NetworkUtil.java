@@ -75,7 +75,6 @@ public class NetworkUtil {
    * @return the provided API interface, inflated by Retrofit.
    */
   public static <T> T createAPI(final Class<T> service) {
-    Log.v(TAG, "Initializing API: " + service.getSimpleName());
     Retrofit retrofit = new Retrofit.Builder().baseUrl(getBackendUrl())
         .addConverterFactory(GsonConverterFactory.create(GSON))
         .client(CLIENT)

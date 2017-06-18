@@ -19,4 +19,9 @@ public interface AuthModule {
    * TelephonyManager}.
    */
   void auth(BaseActivity activity);
+
+  /**
+   * @return Whether the user in {@link #getUser()} is authorized.
+   */
+  boolean isAuthOk();
 }

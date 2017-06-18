@@ -2,6 +2,7 @@ package com.truethat.android.theater;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -38,9 +39,10 @@ public class TheaterActivity extends CameraActivity {
   /**
    * The displayed reactable index in {@code mReactablesAndLayouts}.
    */
-  private int mDisplayedReactableIndex = -1;
+  private int mDisplayedIndex = -1;
   /**
-   * A list of reactables and their respective UI layouts. Layouts are inflated as soon as the reactables are get from
+   * A list of reactables and their respective UI layouts. Layouts are inflated as soon as the
+   * reactables are get from
    * the server to create a smoother experience.
    */
   private List<Pair<Reactable, SceneLayout>> mReactablesAndLayouts = new ArrayList<>();
@@ -51,7 +53,8 @@ public class TheaterActivity extends CameraActivity {
   private ProgressBar mProgressBar;
   private TheaterAPI mTheaterAPI;
   private Callback<ResponseBody> mPostEventCallback = new Callback<ResponseBody>() {
-    @Override public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+    @Override public void onResponse(@NonNull Call<ResponseBody> call,
+        @NonNull Response<ResponseBody> response) {
       if (!response.isSuccessful()) {
         Log.e(TAG, "Failed to post event to "
             + call.request().url()
@@ -69,18 +72,24 @@ public class TheaterActivity extends CameraActivity {
     }
   };
   private Callback<List<Scene>> mGetScenesCallback = new Callback<List<Scene>>() {
-    @Override public void onResponse(@NonNull Call<List<Scene>> call, @NonNull Response<List<Scene>> response) {
+    @Override public void onResponse(@NonNull Call<List<Scene>> call,
+        @NonNull Response<List<Scene>> response) {
       if (response.isSuccessful()) {
-        int toDisplayIndex = mReactablesAndLayouts.size();
+        final int toDisplayIndex = mReactablesAndLayouts.size();
         List<Scene> newScenes = response.body();
         if (newScenes == null) {
           throw new AssertionError("I just cant believe it! The new scenes are null.");
         }
         for (Scene newScene : newScenes) {
-          mReactablesAndLayouts.add(new Pair<Reactable, SceneLayout>(newScene, new SceneLayout(newScene, mRootView)));
+          mReactablesAndLayouts.add(
+              new Pair<Reactable, SceneLayout>(newScene, new SceneLayout(newScene, mRootView)));
         }
         if (!newScenes.isEmpty()) {
-          displayScene(toDisplayIndex);
+          TheaterActivity.this.runOnUiThread(new Runnable() {
+            @Override public void run() {
+              displayScene(toDisplayIndex);
+            }
+          });
         }
       } else {
         Log.e(TAG, "Failed to get scenes from "
@@ -125,12 +134,6 @@ public class TheaterActivity extends CameraActivity {
     mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
   }
 
-  @Override protected void onStart() {
-    super.onStart();
-    // TODO(ohad): load activity with previously displayed scenes.
-    getScenes();
-  }
-
   @Override protected void onPause() {
     super.onPause();
     App.getReactionDetectionModule().stop();
@@ -146,72 +149,73 @@ public class TheaterActivity extends CameraActivity {
     App.getReactionDetectionModule().attempt(supplyImage());
   }
 
+  @Override public void onAuthOk() {
+    getScenes();
+  }
+
   /**
    * Navigates to previous scene in {@code mReactablesAndLayouts}.
    */
   // TODO(ohad): Instagram like horizontal progress for scenes transition.
-  private void previousScene() {
+  @MainThread private void previousScene() {
     Log.v(TAG, "Previous scene");
-    if (mDisplayedReactableIndex <= 0) return;
-    displayScene(mDisplayedReactableIndex - 1);
+    if (mDisplayedIndex <= 0) return;
+    displayScene(mDisplayedIndex - 1);
   }
 
   /**
    * Navigates to next scene in {@code mReactablesAndLayouts}.
    */
   // TODO(ohad): automatically progress to next scene.
-  private void nextScene() {
+  @MainThread private void nextScene() {
     Log.v(TAG, "Next scene");
-    if (mDisplayedReactableIndex >= mReactablesAndLayouts.size() - 1) {
+    if (mDisplayedIndex >= mReactablesAndLayouts.size() - 1) {
       // If all scenes had already been viewed, then get new ones.
       getScenes();
     } else {
-      displayScene(mDisplayedReactableIndex + 1);
+      displayScene(mDisplayedIndex + 1);
     }
   }
 
   /**
-   * Adds the UI layout of the matching scene to the root view, starts a detection task and posts a view event.
+   * Adds the UI layout of the matching scene to the root view, starts a detection task and posts a
+   * view event.
+   *
    * @param displayIndex in {@code mReactablesAndLayouts}.
    */
-  private void displayScene(int displayIndex) {
+  @MainThread private void displayScene(int displayIndex) {
     if (displayIndex < 0 || displayIndex >= mReactablesAndLayouts.size()) {
       IndexOutOfBoundsException e = new IndexOutOfBoundsException();
       Log.e(TAG, displayIndex + " is not a scene index.", e);
       throw e;
     }
     Log.v(TAG, "Displaying scene " + displayIndex);
-    mDisplayedReactableIndex = displayIndex;
-    runOnUiThread(new Runnable() {
-      @Override public void run() {
-        // Hides default image.
-        ImageView imageView = (ImageView) TheaterActivity.this.findViewById(R.id.defaultImage);
-        imageView.setVisibility(GONE);
-        // Hides loading animation.
-        mProgressBar.setVisibility(GONE);
-        // Removes old scene, if it exists.
-        View currentLayout = TheaterActivity.this.findViewById(R.id.sceneLayout);
-        if (currentLayout != null) {
-          mRootView.removeView(currentLayout);
-        }
-        // TODO(ohad): add transition animation.
-        // Adds the new scene.
-        mRootView.addView(mReactablesAndLayouts.get(mDisplayedReactableIndex).second.getLayout());
-        startEmotionalReactionDetection();
-      }
-    });
+    mDisplayedIndex = displayIndex;
+    // Hides default image.
+    ImageView imageView = (ImageView) TheaterActivity.this.findViewById(R.id.defaultImage);
+    imageView.setVisibility(GONE);
+    // Hides loading animation.
+    mProgressBar.setVisibility(GONE);
+    // Removes old scene, if it exists.
+    View currentLayout = TheaterActivity.this.findViewById(R.id.sceneLayout);
+    if (currentLayout != null) {
+      mRootView.removeView(currentLayout);
+    }
+    // TODO(ohad): add transition animation.
+    // Adds the new scene.
+    mRootView.addView(mReactablesAndLayouts.get(mDisplayedIndex).second.getLayout());
+    startEmotionalReactionDetection();
     // Post event of scene view.
     mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser().getId(),
-        mReactablesAndLayouts.get(mDisplayedReactableIndex).first.getId(), new Date(),
-        EventType.REACTABLE_VIEW, null))
-        .enqueue(mPostEventCallback);
+        mReactablesAndLayouts.get(mDisplayedIndex).first.getId(), new Date(),
+        EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
   }
 
   @VisibleForTesting void startEmotionalReactionDetection() {
     Log.v(TAG, "Starting emotional reaction detection.");
     // Check if a reactable is displayed.
-    if (mDisplayedReactableIndex >= 0) {
-      Reactable displayedReactable = mReactablesAndLayouts.get(mDisplayedReactableIndex).first;
+    if (mDisplayedIndex >= 0) {
+      Reactable displayedReactable = mReactablesAndLayouts.get(mDisplayedIndex).first;
       // Allow only the first reaction. Because like so many things... the first time feels most real ;)
       if (displayedReactable.getUserReaction() == null) {
         // Starts emotional reaction detection. Any previous detection is immediately stopped.
@@ -222,9 +226,10 @@ public class TheaterActivity extends CameraActivity {
 
   /**
    * Applies the reactable reaction (i.e. {@link Reactable#getUserReaction()}) to the UI.
+   *
    * @param reactable to which the user had reacted.
    */
-  private void doReaction(final Reactable reactable) {
+  @MainThread private void doReaction(final Reactable reactable) {
     // Verify that the user had indeed reacted to the reactable.
     if (reactable.getUserReaction() == null) {
       Log.e(TAG, "Emotionless user! And careless programmer.");
@@ -232,13 +237,9 @@ public class TheaterActivity extends CameraActivity {
           "User had not yet reacted to this dramatic reactable (ID = " + reactable.getId() + ")");
     }
     // Checks reactable is currently displayed.
-    if (mReactablesAndLayouts.get(mDisplayedReactableIndex).first.equals(reactable)) {
+    if (mReactablesAndLayouts.get(mDisplayedIndex).first.equals(reactable)) {
       // Applies emotional reaction onto the reactable layout.
-      runOnUiThread(new Runnable() {
-        @Override public void run() {
-          mReactablesAndLayouts.get(mDisplayedReactableIndex).second.doReaction(reactable.getUserReaction());
-        }
-      });
+      mReactablesAndLayouts.get(mDisplayedIndex).second.doReaction(reactable.getUserReaction());
     }
   }
 
@@ -256,7 +257,8 @@ public class TheaterActivity extends CameraActivity {
   }
 
   // A method is used since a new instance of an inner class cannot be created in tests.
-  @VisibleForTesting TheaterReactionDetectionPubSub buildReactionDetectionPubSub(Reactable reactable) {
+  @VisibleForTesting TheaterReactionDetectionPubSub buildReactionDetectionPubSub(
+      Reactable reactable) {
     return new TheaterReactionDetectionPubSub(reactable);
   }
 
@@ -264,7 +266,8 @@ public class TheaterActivity extends CameraActivity {
     // For which is the reaction should be detected.
     private Reactable mReactable;
     /**
-     * Timestamp of the reaction itself. Since we cannot exactly determine when the reaction occurred, we use the
+     * Timestamp of the reaction itself. Since we cannot exactly determine when the reaction
+     * occurred, we use the
      * timestamp of image of the reaction.
      */
     private Date mRealEventTime;
@@ -279,12 +282,16 @@ public class TheaterActivity extends CameraActivity {
         Log.v(TAG, "Reaction detected: " + reaction.name());
         mReactable.doReaction(reaction);
         // Post event of reactable reaction.
-        mTheaterAPI.postEvent(new ReactableEvent(App.getAuthModule().getUser().getId(),
-                mReactable.getId(),
+        mTheaterAPI.postEvent(
+            new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(),
                 mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()))
             .enqueue(mPostEventCallback);
         // Triggers the reaction visual outcome.
-        TheaterActivity.this.doReaction(mReactable);
+        TheaterActivity.this.runOnUiThread(new Runnable() {
+          @Override public void run() {
+            TheaterActivity.this.doReaction(mReactable);
+          }
+        });
       } else {
         Log.v(TAG, "Second time reaction " + reaction.name() + " is ignored.");
       }

@@ -4,9 +4,12 @@ import android.graphics.Rect;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.intent.Checks;
+import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.espresso.util.HumanReadables;
 import android.support.test.espresso.util.TreeIterables;
 import android.view.View;
+import android.widget.EditText;
 import java.util.concurrent.TimeoutException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -22,7 +25,13 @@ public class ApplicationTestUtil {
   public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android.debug";
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
 
-  public static ViewAction waitMatcher(final Matcher viewMatcher, final long millis) {
+  /**
+   * @param viewMatcher for find a specific view.
+   * @param timeoutMillis to wait
+   * @return Matcher that attempts to find the {@link View} described by {@code viewMatcher} for at
+   * most {@code timeoutMillis} millis
+   */
+  public static ViewAction waitMatcher(final Matcher viewMatcher, final long timeoutMillis) {
     return new ViewAction() {
       @Override public Matcher<View> getConstraints() {
         return isRoot();
@@ -30,16 +39,14 @@ public class ApplicationTestUtil {
 
       @Override public String getDescription() {
         return "waited for to for a specific view with matcher <"
-            + viewMatcher
-            + "> during "
-            + millis
+            + viewMatcher + "> during " + timeoutMillis
             + " millis.";
       }
 
       @Override public void perform(final UiController uiController, final View view) {
         uiController.loopMainThreadUntilIdle();
         final long startTime = System.currentTimeMillis();
-        final long endTime = startTime + millis;
+        final long endTime = startTime + timeoutMillis;
 
         do {
           for (View child : TreeIterables.breadthFirstViewTraversal(view)) {
@@ -61,6 +68,9 @@ public class ApplicationTestUtil {
     };
   }
 
+  /**
+   * @return Matcher to assert whether a view is displayed full screen.
+   */
   public static Matcher<View> isFullScreen() {
     return new TypeSafeMatcher<View>() {
       @Override public void describeTo(Description description) {
@@ -74,6 +84,24 @@ public class ApplicationTestUtil {
         int windiwWidth = windowRect.right - windowRect.left;
         return isDisplayed().matches(view) && windiwWidth == view.getWidth() && windowHeight == view
             .getHeight();
+      }
+    };
+  }
+
+  /**
+   * @param color of background
+   * @return Matcher to assert whether a {@link EditText} has a certain background color.
+   */
+  public static Matcher<View> withBackgroundColor(final int color) {
+    Checks.checkNotNull(color);
+    return new BoundedMatcher<View, EditText>(EditText.class) {
+      @Override public boolean matchesSafely(EditText matcher) {
+        return matcher.getBackgroundTintList() != null && color == matcher.getBackgroundTintList()
+            .getDefaultColor();
+      }
+
+      @Override public void describeTo(Description description) {
+        description.appendText("with background color: ");
       }
     };
   }

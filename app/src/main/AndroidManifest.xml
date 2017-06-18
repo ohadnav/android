@@ -38,6 +38,8 @@
     </activity>
     <activity android:name=".welcome.WelcomeActivity">
     </activity>
+    <activity android:name=".welcome.OnBoardingActivity">
+    </activity>
   </application>
 
 </manifest>

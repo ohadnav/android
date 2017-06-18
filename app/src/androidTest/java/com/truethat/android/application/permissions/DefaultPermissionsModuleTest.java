@@ -2,7 +2,6 @@ package com.truethat.android.application.permissions;
 
 import android.content.pm.PackageManager;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.UiDevice;
@@ -12,12 +11,10 @@ import android.support.v4.app.ActivityCompat;
 import com.truethat.android.application.App;
 import com.truethat.android.application.ApplicationTestUtil;
 import com.truethat.android.common.BaseApplicationTest;
-import com.truethat.android.common.util.TestActivity;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,39 +29,39 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class) @MediumTest @Ignore
 // Test fails since shell commands take time to take effect.
-public class DefaultPermissionsModuleApplicationTest extends BaseApplicationTest {
+public class DefaultPermissionsModuleTest extends BaseApplicationTest {
   private static final Permission PERMISSION = Permission.CAMERA;
-  @Rule public ActivityTestRule<TestActivity> activityTestRule =
-      new ActivityTestRule<>(TestActivity.class, true, true);
-  private PermissionsModule mPermissionsModule = new DefaultPermissionsModule();
+  private PermissionsModule mPermissionsModule;
   private UiDevice mDevice;
 
   @Before public void setUp() throws Exception {
+    super.setUp();
     // Initialize UiDevice instance
     mDevice = UiDevice.getInstance(getInstrumentation());
     // Resets all permissions
     PermissionsTestUtil.revokeAllPermissions();// Set up real device permission module.
-    App.setPermissionsModule(mPermissionsModule);
+    App.setPermissionsModule(mPermissionsModule = new DefaultPermissionsModule());
   }
 
   @Test public void isPermissionGranted_shouldBeGranted() throws Exception {
     // Grant permission via shell
     PermissionsTestUtil.grantPermission(PERMISSION);
     // Assert permission check is correct
-    assertTrue(mPermissionsModule.isPermissionGranted(activityTestRule.getActivity(), PERMISSION));
+    assertTrue(mPermissionsModule.isPermissionGranted(mActivityTestRule.getActivity(), PERMISSION));
   }
 
   @Test public void isPermissionGranted_shouldNotBeGranted() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.revokePermission(PERMISSION);
     // Assert permission check is correct
-    assertFalse(mPermissionsModule.isPermissionGranted(activityTestRule.getActivity(), PERMISSION));
+    assertFalse(
+        mPermissionsModule.isPermissionGranted(mActivityTestRule.getActivity(), PERMISSION));
   }
 
   @Test public void requestIfNeeded_shouldRequest() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.revokePermission(PERMISSION);
-    mPermissionsModule.requestIfNeeded(activityTestRule.getActivity(), PERMISSION);
+    mPermissionsModule.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
     // Assert permission dialogue is prompted
     UiObject2 denyButton = mDevice.wait(PermissionsTestUtil.DENY_SEARCH_CONDITION, 100);
     MatcherAssert.assertThat(denyButton.isEnabled(), Is.is(true));
@@ -75,26 +72,26 @@ public class DefaultPermissionsModuleApplicationTest extends BaseApplicationTest
         100);
     // Assert that permissions wasn't granted
     assertNotEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(),
+        ActivityCompat.checkSelfPermission(mActivityTestRule.getActivity(),
             PERMISSION.getManifest()));
   }
 
   @Test public void requestIfNeeded_alreadyHadPermission() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.grantPermission(PERMISSION);
-    mPermissionsModule.requestIfNeeded(activityTestRule.getActivity(), PERMISSION);
+    mPermissionsModule.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
     // Assert permission dialogue is not prompted
     assertFalse(mDevice.hasObject(PermissionsTestUtil.ALLOW_SELECTOR));
     // Assert that permissions was granted
     assertEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(activityTestRule.getActivity(),
+        ActivityCompat.checkSelfPermission(mActivityTestRule.getActivity(),
             PERMISSION.getManifest()));
   }
 
   @Test public void shouldShowRationale() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.revokePermission(PERMISSION);
-    mPermissionsModule.requestIfNeeded(activityTestRule.getActivity(), PERMISSION);
+    mPermissionsModule.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
     // Assert permission dialogue is prompted
     UiObject2 denyButton = mDevice.wait(PermissionsTestUtil.DENY_SEARCH_CONDITION, 100);
     MatcherAssert.assertThat(denyButton.isEnabled(), Is.is(true));
@@ -105,6 +102,6 @@ public class DefaultPermissionsModuleApplicationTest extends BaseApplicationTest
     mDevice.wait(Until.hasObject(By.pkg(ApplicationTestUtil.APPLICATION_PACKAGE_NAME).depth(0)),
         100);
     // Assert that show rationale should be shown.
-    assertTrue(mPermissionsModule.shouldShowRationale(activityTestRule.getActivity(), PERMISSION));
+    assertTrue(mPermissionsModule.shouldShowRationale(mActivityTestRule.getActivity(), PERMISSION));
   }
 }

@@ -1,11 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/welcomeActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.truethat.android.welcome.WelcomeActivity"
     >
+
+  <ImageView
+      android:id="@+id/welcomeImage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:contentDescription="@string/photo_description"
+      android:scaleType="centerCrop"
+      android:tint="@color/tint"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/kangooroo_hi"
+      />
+
+  <android.support.constraint.ConstraintLayout
+      android:id="@+id/joinLayout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:clickable="true"
+      android:onClick="onBoarding"
+      app:layout_constraintBottom_toTopOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.6"
+      >
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:shadowColor="@color/lightShadow"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="4"
+        android:text="@string/welcome_text"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:contentDescription="@string/photo_description"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/welcomeText"
+        app:layout_constraintStart_toEndOf="@id/welcomeText"
+        app:layout_constraintTop_toTopOf="@id/welcomeText"
+        app:srcCompat="@drawable/logo"
+        />
+  </android.support.constraint.ConstraintLayout>
+
+  <TextView
+      android:id="@+id/signInText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:clickable="true"
+      android:onClick="userInitiatedAuth"
+      android:paddingEnd="50dp"
+      android:paddingStart="50dp"
+      android:shadowColor="@color/shadow"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="4"
+      android:text="@string/sign_in"
+      android:textAlignment="center"
+      android:textColor="@color/light"
+      android:textSize="20sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/joinLayout"
+      app:layout_constraintVertical_bias="0.5"
+      />
+
+  <TextView
+      android:id="@+id/errorText"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:paddingEnd="50dp"
+      android:paddingStart="50dp"
+      android:shadowColor="@color/shadow"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="4"
+      android:text="@string/something_went_wrong"
+      android:textAlignment="center"
+      android:textColor="@color/error"
+      android:textSize="12sp"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/signInText"
+      app:layout_constraintVertical_bias="0.5"
+      />
 
 </android.support.constraint.ConstraintLayout>
