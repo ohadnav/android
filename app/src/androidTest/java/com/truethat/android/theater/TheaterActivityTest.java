@@ -124,8 +124,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
     // Asserting the displayed name is of the reactable director
     onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getDisplayName())));
     // Asserting the displayed time is represents the reactable creation.
-    onView(withId(R.id.timeAgoText)).check(
-        matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
+    onView(withId(R.id.timeAgoText)).check(matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -167,9 +166,9 @@ public class TheaterActivityTest extends BaseApplicationTest {
     // Triggers navigation to next reactable.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(waitMatcher(
-        allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-        TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(
+        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
+            TimeUnit.SECONDS.toMillis(1)));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -218,9 +217,9 @@ public class TheaterActivityTest extends BaseApplicationTest {
     // Triggers navigation to next reactable.
     onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(waitMatcher(
-        allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-        TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(
+        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
+            TimeUnit.SECONDS.toMillis(1)));
   }
 
   @Test public void emotionalReaction() throws Exception {

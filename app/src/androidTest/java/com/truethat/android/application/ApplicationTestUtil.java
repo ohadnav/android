@@ -39,7 +39,9 @@ public class ApplicationTestUtil {
 
       @Override public String getDescription() {
         return "waited for to for a specific view with matcher <"
-            + viewMatcher + "> during " + timeoutMillis
+            + viewMatcher
+            + "> during "
+            + timeoutMillis
             + " millis.";
       }
 

@@ -28,8 +28,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-@RunWith(AndroidJUnit4.class) public class CameraActivityTest
-    extends BaseApplicationTest {
+@RunWith(AndroidJUnit4.class) public class CameraActivityTest extends BaseApplicationTest {
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
