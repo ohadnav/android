@@ -57,24 +57,25 @@ public abstract class CameraActivity extends BaseActivity {
   /**
    * The listener is activated after an image is ready from {@link #takePicture()}.
    */
-  private ImageReader.OnImageAvailableListener mImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-    @Override public void onImageAvailable(ImageReader reader) {
-      Log.v(TAG, "Image available.");
-      Image image = null;
-      try {
-        image = reader.acquireLatestImage();
-        mLastTakenImage = image;
-        processImage();
-      } finally {
-        if (image != null) {
-          image.close();
+  private ImageReader.OnImageAvailableListener mImageAvailableListener =
+      new ImageReader.OnImageAvailableListener() {
+        @Override public void onImageAvailable(ImageReader reader) {
+          Log.v(TAG, "Image available.");
+          Image image = null;
+          try {
+            image = reader.acquireLatestImage();
+            mLastTakenImage = image;
+            processImage();
+          } finally {
+            if (image != null) {
+              image.close();
+            }
+          }
         }
-      }
-    }
-  };
+      };
   /**
-   * Supplies images for {@link #processImage()}. We use a supplier to gain outside control of the taken images for
-   * testing purposes.
+   * Supplies images for {@link #processImage()}. We use a supplier to gain outside control of the
+   * taken images for testing purposes.
    */
   private Supplier<Image> mImageSupplier = new Supplier<Image>() {
     @Override public Image get() {
@@ -82,7 +83,8 @@ public abstract class CameraActivity extends BaseActivity {
     }
   };
   /**
-   * Whether a picture should be taken as soon as the camera is opened. Useful for cases where {@link #takePicture()} is
+   * Whether a picture should be taken as soon as the camera is opened. Useful for cases where
+   * {@link #takePicture()} is
    * invoked before the camera could be opened.
    */
   private boolean mTakePictureOnOpened = false;
@@ -141,6 +143,9 @@ public abstract class CameraActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
   }
 
+  /**
+   * @return supplies last taken {@link Image}. Can be used to return mocked image for testing.
+   */
   public Image supplyImage() {
     return mImageSupplier.get();
   }
@@ -153,13 +158,14 @@ public abstract class CameraActivity extends BaseActivity {
     mImageSupplier = imageSupplier;
   }
 
-  @VisibleForTesting
-  public void setImageAvailableListener(ImageReader.OnImageAvailableListener imageAvailableListener) {
+  @VisibleForTesting public void setImageAvailableListener(
+      ImageReader.OnImageAvailableListener imageAvailableListener) {
     mImageAvailableListener = imageAvailableListener;
   }
 
   /**
-   * Takes a picture. Once the image is available, it is taken care of by {@code mImageAvailableListener}.
+   * Takes a picture. Once the image is available, it is taken care of by {@code
+   * mImageAvailableListener}.
    */
   @SuppressWarnings("unused") protected void takePicture() {
     // Resets onOpen take picture trigger.
@@ -173,9 +179,11 @@ public abstract class CameraActivity extends BaseActivity {
     Log.v(TAG, "Taking picture.");
     CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {
-      CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
+      CameraCharacteristics characteristics =
+          manager.getCameraCharacteristics(mCameraDevice.getId());
       @SuppressWarnings("ConstantConditions") Size[] jpegSizes =
-          characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
+          characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+              .getOutputSizes(ImageFormat.JPEG);
       int width = 640;
       int height = 480;
       if (jpegSizes != null && 0 < jpegSizes.length) {
@@ -194,13 +202,14 @@ public abstract class CameraActivity extends BaseActivity {
       captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
       mImageReader.setOnImageAvailableListener(mImageAvailableListener,
           mBackgroundHandler.getHandler());
-      final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
-        @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
-            @NonNull TotalCaptureResult result) {
-          super.onCaptureCompleted(session, request, result);
-          if (mCameraPreview != null) createCameraPreview();
-        }
-      };
+      final CameraCaptureSession.CaptureCallback captureListener =
+          new CameraCaptureSession.CaptureCallback() {
+            @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+              super.onCaptureCompleted(session, request, result);
+              if (mCameraPreview != null) createCameraPreview();
+            }
+          };
       mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
         @Override public void onConfigured(@NonNull CameraCaptureSession session) {
           try {
@@ -219,6 +228,10 @@ public abstract class CameraActivity extends BaseActivity {
     }
   }
 
+  /**
+   * Creates the camera preview in which the user can see what photo he is about to take. Thanks to
+   * lovely Google this needs to be done with a {@link CameraCaptureSession}
+   */
   private void createCameraPreview() {
     try {
       SurfaceTexture texture = mCameraPreview.getSurfaceTexture();
@@ -226,22 +239,24 @@ public abstract class CameraActivity extends BaseActivity {
       Surface surface = new Surface(texture);
       mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
       mCaptureRequestBuilder.addTarget(surface);
-      mCameraDevice.createCaptureSession(Collections.singletonList(surface), new CameraCaptureSession.StateCallback() {
-        @Override public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-          //The camera is already closed
-          if (null == mCameraDevice) {
-            Log.w(TAG, "Did not update capture session, since camera is already closed.");
-          } else {
-            // When the session is ready, we init displaying the preview.
-            mCameraCaptureSessions = cameraCaptureSession;
-            updatePreview();
-          }
-        }
+      mCameraDevice.createCaptureSession(Collections.singletonList(surface),
+          new CameraCaptureSession.StateCallback() {
+            @Override public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+              //The camera is already closed
+              if (null == mCameraDevice) {
+                Log.w(TAG, "Did not update capture session, since camera is already closed.");
+              } else {
+                // When the session is ready, we init displaying the preview.
+                mCameraCaptureSessions = cameraCaptureSession;
+                updatePreview();
+              }
+            }
 
-        @Override public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-          Log.e(TAG, "Configuration failed.");
-        }
-      }, null);
+            @Override
+            public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+              Log.e(TAG, "Configuration failed.");
+            }
+          }, null);
     } catch (CameraAccessException e) {
       Log.e(TAG, "No camera access.");
       e.printStackTrace();
@@ -273,6 +288,9 @@ public abstract class CameraActivity extends BaseActivity {
    */
   protected abstract void processImage();
 
+  /**
+   * Updates the camera preview, to assist manual photo taking.
+   */
   private void updatePreview() {
     if (mCameraDevice == null) {
       Log.e(TAG, "Camera device is null when updating preview.");
@@ -286,6 +304,9 @@ public abstract class CameraActivity extends BaseActivity {
     }
   }
 
+  /**
+   * Closes the hardware camera and {@link #mImageReader} gracefully.
+   */
   private void closeCamera() {
     if (mCameraDevice != null) {
       mCameraDevice.close();
@@ -297,6 +318,9 @@ public abstract class CameraActivity extends BaseActivity {
     }
   }
 
+  /**
+   * Opens the front camera.
+   */
   private void openCamera() {
     CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
     try {

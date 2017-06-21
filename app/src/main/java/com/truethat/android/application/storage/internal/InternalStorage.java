@@ -27,7 +27,8 @@ public interface InternalStorage {
    * @param <T> of the deserialized object.
    * @return the deserialized content of fileName.
    */
-  <T extends Serializable> T read(Context context, String fileName) throws IOException, ClassNotFoundException;
+  <T extends Serializable> T read(Context context, String fileName)
+      throws IOException, ClassNotFoundException;
 
   /**
    * Asses whether fileName exists.

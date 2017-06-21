@@ -1,13 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">TrueThat</string>
-  <string name="user_reaction" translatable="false">user reaction</string>
-  <string name="scene_image" translatable="false">scene image</string>
   <string name="capture">Capture</string>
-  <string name="oh_puppy" translatable="false">Oh…puppy</string>
-  <string name="view_count_icon" translatable="false">View count icon</string>
   <string name="anonymous">Anonymous</string>
   <string name="ask_permission_button">Okay, got it!</string>
-  <string name="photo_description" translatable="false">photo</string>
+  <string name="image_content_description" translatable="false">photo</string>
   <string name="no_camera_permission_top" tools:ignore="Typos">we need camera access to see that pretty face of yours</string>
   <string name="no_camera_permission_bottom">that\'s how we see what you\'re feeling</string>
   <string name="no_phone_permission_rationale">We use your phone number for identification.</string>

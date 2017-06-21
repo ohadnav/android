@@ -10,7 +10,8 @@ import android.view.View;
  *
  * Detects swipes across a view.
  */
-@SuppressWarnings("WeakerAccess") public class OnSwipeTouchListener implements View.OnTouchListener {
+@SuppressWarnings("WeakerAccess") public class OnSwipeTouchListener
+    implements View.OnTouchListener {
 
   private final GestureDetector gestureDetector;
 
@@ -43,7 +44,8 @@ import android.view.View;
       return true;
     }
 
-    @Override public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
       float distanceX = e2.getX() - e1.getX();
       float distanceY = e2.getY() - e1.getY();
       if (Math.abs(distanceX) > Math.abs(distanceY)

@@ -127,6 +127,7 @@ public class User implements Serializable {
 
   /**
    * Whether this User is seemingly have been through authentication.
+   *
    * @return whether ID, first and last names are all non-null.
    */
   public boolean isAuthOk() {
@@ -194,6 +195,11 @@ public class User implements Serializable {
     return mFirstName != null && mLastName != null;
   }
 
+  /**
+   * Populates this User fields based on ones found in {@link #LAST_USER_PATH}.
+   *
+   * @param context to access internal storage
+   */
   private void populateFromInternalStorage(Context context)
       throws IOException, ClassNotFoundException {
     User lastUser = App.getInternalStorage().read(context, LAST_USER_PATH);

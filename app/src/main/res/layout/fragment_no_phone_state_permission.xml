@@ -2,16 +2,17 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rationaleFragment"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context="com.truethat.android.application.permissions.PermissionFragment"
     >
 
   <ImageView
       android:id="@+id/imageView"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:contentDescription="@string/photo_description"
+      android:contentDescription="@string/image_content_description"
       android:scaleType="centerCrop"
       android:tint="@color/tint"
       app:layout_constraintBottom_toBottomOf="parent"

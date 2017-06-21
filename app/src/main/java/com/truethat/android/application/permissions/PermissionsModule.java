@@ -18,7 +18,8 @@ public interface PermissionsModule {
   /**
    * @param activity to provide context
    * @param permission for which to enquire
-   * @return whether an explanatory dialogue should be shown to the use prior to asking for permission.
+   * @return whether an explanatory dialogue should be shown to the use prior to asking for
+   * permission.
    */
   @SuppressWarnings("unused") boolean shouldShowRationale(Activity activity, Permission permission);
 

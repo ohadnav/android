@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  *
- * Executes {@link DetectionTask}s in a sequential manner. The detection is executed in iterations, each started by
+ * Executes {@link DetectionTask}s in a sequential manner. The detection is executed in iterations,
+ * each started by
  * {@link #next()}, and each has the following stages:
  * 1) an input is requested by {@link ReactionDetectionPubSub#requestInput()}.
  * 2) Once the input received, an {@link AsyncTask} is created.
@@ -26,12 +27,14 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
    */
   private static final String TAG = "DefaultDetectionModule";
   /**
-   * If the much time has passed since an input request and an input was not received, then a new input will be
+   * If the much time has passed since an input request and an input was not received, then a new
+   * input will be
    * requested.
    */
   @VisibleForTesting static long REQUEST_INPUT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(1);
   /**
-   * Maximum duration in millis to start a new detection attempt, measured with relation to {@code mDetectionStartTime}.
+   * Maximum duration in millis to start a new detection attempt, measured with relation to {@code
+   * mDetectionStartTime}.
    */
   @VisibleForTesting static long DETECTION_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private EmotionDetectionClassifier mDetectionClassifier;
@@ -61,6 +64,8 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
   }
 
   @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
+    // Stop ongoing detection in favor of new one.
+    stop();
     mDetectionPubSub = detectionPubSub;
     // Initializes start time and detection task.
     mDetectionStartTime = new Date();
@@ -73,7 +78,8 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
     // Input is received.
     mInputReceived = true;
     if (mDetectionPubSub == null) {
-      throw new RuntimeException("Attempting to push input without calling ReactionDetectionModule#classify first.");
+      throw new RuntimeException(
+          "Attempting to push input without calling ReactionDetectionModule#classify first.");
     }
     Log.v(TAG, "Starting a new detection attempt.");
     // Concurrent detections are allowed.
@@ -89,7 +95,8 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
   }
 
   /**
-   * @return whether the current detection task should be stopped (for example, in the case of a timeout).
+   * @return whether the current detection task should be stopped (for example, in the case of a
+   * timeout).
    */
   private boolean shouldStop() {
     return new Date().getTime() - mDetectionStartTime.getTime() >= DETECTION_TIMEOUT_MILLIS;
@@ -116,8 +123,10 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
   }
 
   /**
-   * Classifies images asynchronously. If the classification yielded an {@link Emotion}, then {@link
-   * ReactionDetectionPubSub#onReactionDetected(Emotion)} is called, and otherwise, and new iteration is begun in {@link
+   * Classifies images asynchronously. If the classification yielded an {@link Emotion}, then
+   * {@link
+   * ReactionDetectionPubSub#onReactionDetected(Emotion)} is called, and otherwise, and new
+   * iteration is begun in {@link
    * #next()}.
    */
   private class DetectionTask extends AsyncTask<Image, Void, Emotion> {

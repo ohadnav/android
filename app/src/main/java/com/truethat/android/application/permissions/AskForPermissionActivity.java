@@ -1,12 +1,12 @@
 package com.truethat.android.application.permissions;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
@@ -24,7 +24,7 @@ public class AskForPermissionActivity extends BaseActivity {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_ask_for_permission);
-    mAskPermissionButton = (Button) this.findViewById(R.id.askPermissionButton);
+    mAskPermissionButton = (Button) findViewById(R.id.askPermissionButton);
   }
 
   /**
@@ -66,14 +66,10 @@ public class AskForPermissionActivity extends BaseActivity {
    * Displaying permission specific rationale.
    */
   private void displayRationale() {
-    final ViewGroup rootView = (ViewGroup) findViewById(R.id.askForPermissionActivity);
-    // Remove preexisting rationale.
-    if (findViewById(R.id.rationaleFragment) != null) {
-      rootView.removeView(findViewById(R.id.rationaleFragment));
-    }
-    // Add relevant rationale.
-    LayoutInflater.from(rootView.getContext())
-        .inflate(mPermission.getRationaleFragment(), rootView, true);
+    Fragment fragment = PermissionFragment.newInstance(mPermission);
+    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+    fragmentTransaction.replace(R.id.rationaleLayout, fragment);
+    fragmentTransaction.commit();
   }
 }
 

@@ -1,9 +1,9 @@
 package com.truethat.android.theater;
 
 import android.support.annotation.Nullable;
+import com.truethat.android.common.media.Reactable;
 import com.truethat.android.common.network.EventType;
 import com.truethat.android.empathy.Emotion;
-import com.truethat.android.empathy.Reactable;
 import java.util.Date;
 
 /**
@@ -14,7 +14,7 @@ import java.util.Date;
  * @backend <a>https://goo.gl/s9o2rt</a>
  */
 
-@SuppressWarnings({ "unused", "FieldCanBeLocal" }) class ReactableEvent {
+@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class ReactableEvent {
   /**
    * Client UTC timestamp
    */
@@ -42,7 +42,7 @@ import java.util.Date;
    */
   private long mSceneId;
 
-  ReactableEvent(long userId, long sceneId, Date timestamp, EventType eventType,
+  public ReactableEvent(long userId, long sceneId, Date timestamp, EventType eventType,
       @Nullable Emotion reaction) {
     mTimestamp = timestamp;
     mUserId = userId;

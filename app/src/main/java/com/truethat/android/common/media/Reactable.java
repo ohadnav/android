@@ -1,8 +1,10 @@
-package com.truethat.android.empathy;
+package com.truethat.android.common.media;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.truethat.android.auth.User;
+import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.empathy.Emotion;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.TreeMap;
@@ -10,7 +12,9 @@ import java.util.TreeMap;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  *
- * An item that the user can have an emotional reaction to, such as scenes and acts.
+ * A media item that the user can have an emotional reaction to, such as {@link Scene}.
+ *
+ * Each implementation should register at {@link NetworkUtil#GSON}.
  */
 public abstract class Reactable implements Serializable {
   /**
@@ -38,7 +42,12 @@ public abstract class Reactable implements Serializable {
    */
   private Date mCreated;
 
-  public Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+  /**
+   * Whether the reactable was viewed by the user.
+   */
+  private boolean mViewed;
+
+  Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction) {
     mId = id;
     mUserReaction = userReaction;
@@ -48,7 +57,7 @@ public abstract class Reactable implements Serializable {
   }
 
   // A default constructor is provided for serialization and de-serialization.
-  @SuppressWarnings("unused") protected Reactable() {
+  @SuppressWarnings("unused") Reactable() {
   }
 
   public Date getCreated() {
@@ -63,16 +72,28 @@ public abstract class Reactable implements Serializable {
     mId = id;
   }
 
-  public User getDirector() {
+  boolean isViewed() {
+    return mViewed;
+  }
+
+  /**
+   * Marks this Reactable as viewed by the user.
+   */
+  void doView() {
+    mViewed = true;
+  }
+
+  User getDirector() {
     return mDirector;
   }
 
   /**
-   * Applies {@code reaction} on the reactable, by updating {@code mReactionCounters} and {@code mUserReaction}.
+   * Applies {@code reaction} on the reactable, by updating {@code mReactionCounters} and {@code
+   * mUserReaction}.
    *
    * @param reaction of the user reaction.
    */
-  public void doReaction(@NonNull Emotion reaction) {
+  void doReaction(@NonNull Emotion reaction) {
     if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     increaseReactionCounter(reaction);
     // Check if the user had already reacted this reactable.
@@ -82,16 +103,19 @@ public abstract class Reactable implements Serializable {
     mUserReaction = reaction;
   }
 
-  public TreeMap<Emotion, Long> getReactionCounters() {
+  TreeMap<Emotion, Long> getReactionCounters() {
     return mReactionCounters;
   }
 
-  public Emotion getUserReaction() {
+  Emotion getUserReaction() {
     return mUserReaction;
   }
 
+  public abstract ReactableFragment createFragment();
+
   /**
-   * Increases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Creates new map key if needed.
+   * Increases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Creates new map
+   * key if needed.
    *
    * @param emotion to increase its counter.
    */
@@ -103,7 +127,8 @@ public abstract class Reactable implements Serializable {
   }
 
   /**
-   * Decreases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Deletes the map entry, if the
+   * Decreases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Deletes the map
+   * entry, if the
    * counter reaches 0.
    *
    * @param emotion to decrease its counter.

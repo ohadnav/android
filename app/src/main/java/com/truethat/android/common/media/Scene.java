@@ -1,10 +1,10 @@
-package com.truethat.android.common;
+package com.truethat.android.common.media;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import com.truethat.android.auth.User;
 import com.truethat.android.empathy.Emotion;
-import com.truethat.android.empathy.Reactable;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.TreeMap;
@@ -29,8 +29,9 @@ public class Scene extends Reactable implements Serializable {
    */
   private String mImageSignedUrl;
 
-  public Scene(long id, String imageSignedUrl, User director, @NonNull TreeMap<Emotion, Long> reactionCounters,
-      Date created, @Nullable Emotion userReaction) {
+  @VisibleForTesting public Scene(long id, String imageSignedUrl, User director,
+      @NonNull TreeMap<Emotion, Long> reactionCounters, Date created,
+      @Nullable Emotion userReaction) {
     super(id, director, reactionCounters, created, userReaction);
     mImageSignedUrl = imageSignedUrl;
   }
@@ -43,7 +44,7 @@ public class Scene extends Reactable implements Serializable {
     return CREATED_SCENES_PATH + id + SCENE_SUFFIX;
   }
 
-  public String getImageSignedUrl() {
+  String getImageSignedUrl() {
     return mImageSignedUrl;
   }
 
@@ -52,5 +53,9 @@ public class Scene extends Reactable implements Serializable {
    */
   public String internalStoragePath() {
     return internalStoragePath(getId());
+  }
+
+  @Override public ReactableFragment createFragment() {
+    return SceneFragment.newInstance(this);
   }
 }

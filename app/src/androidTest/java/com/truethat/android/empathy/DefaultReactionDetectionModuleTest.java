@@ -142,4 +142,33 @@ public class DefaultReactionDetectionModuleTest extends BaseApplicationTest {
     Thread.sleep(TEST_TIMEOUT_MILLIS * 2);
     assertNull(mDetectedReaction);
   }
+
+  // Should stop ongoing detection in favor of new one.
+  @Test public void concurrentDetections() throws Exception {
+    mFirstInputRequest = true;
+    final Emotion expected = Emotion.HAPPY;
+    final Emotion unexpected = Emotion.SAD;
+    mDetectionModule = new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
+      @Nullable @Override public Emotion classify(Image image) {
+        Emotion reaction = unexpected;
+        if (mFirstInputRequest) {
+          mFirstInputRequest = false;
+          try {
+            Thread.sleep(TEST_TIMEOUT_MILLIS / 2);
+          } catch (Exception ignored) {
+          }
+        } else {
+          reaction = expected;
+        }
+        return reaction;
+      }
+    });
+    mDetectionModule.detect(mDetectionPubSub);
+    Thread.sleep(TEST_TIMEOUT_MILLIS / 10);
+    // Start a new detection
+    mDetectionModule.detect(mDetectionPubSub);
+    // Let the first detection apparently finish.
+    Thread.sleep(TEST_TIMEOUT_MILLIS / 2);
+    assertEquals(expected, mDetectedReaction);
+  }
 }

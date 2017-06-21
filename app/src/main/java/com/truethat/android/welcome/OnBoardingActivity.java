@@ -49,7 +49,7 @@ public class OnBoardingActivity extends CameraActivity {
       boolean handled = false;
       if (actionId == EditorInfo.IME_ACTION_DONE) {
         detectSmile();
-        UiUtil.hideKeyboard(OnBoardingActivity.this);
+        UiUtil.hideSoftKeyboard(OnBoardingActivity.this);
         handled = true;
       }
       return handled;

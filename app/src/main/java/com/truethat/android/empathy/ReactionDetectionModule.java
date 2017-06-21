@@ -8,12 +8,12 @@ import com.truethat.android.auth.User;
  */
 public interface ReactionDetectionModule {
   /**
-   * Initiates an emotional reaction detection task. The keyword here is <b>reaction</b>. As the reaction timing
-   * varies, we have to capture images continuously until {@link EmotionDetectionClassifier} can determine the most
-   * probable {@link Emotion} reaction.
+   * Initiates an emotional reaction detection task. The keyword here is <b>reaction</b>. As the
+   * reaction timing varies, we have to capture images continuously until {@link
+   * EmotionDetectionClassifier} can determine the most probable {@link Emotion} reaction.
    *
-   * @param detectionPubSub communication interface through which the detection module publishes its classification and
-   * subscribes to requests input.
+   * @param detectionPubSub communication interface through which the detection module publishes its
+   * classification and subscribes to requests input.
    */
   void detect(ReactionDetectionPubSub detectionPubSub);
 

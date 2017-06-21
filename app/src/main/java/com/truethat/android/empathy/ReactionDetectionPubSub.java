@@ -6,8 +6,8 @@ import com.truethat.android.common.camera.CameraActivity;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  *
- * Communication interface through which {@link ReactionDetectionModule} publishes its classification and
- * subscribes to requests input.
+ * Communication interface through which {@link ReactionDetectionModule} publishes its
+ * classification and subscribes to requests input.
  */
 
 public interface ReactionDetectionPubSub {

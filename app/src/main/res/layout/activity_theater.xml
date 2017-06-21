@@ -10,29 +10,25 @@
     >
 
   <ImageView
-      android:id="@+id/defaultImage"
+      android:id="@+id/loadingImage"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:contentDescription="@string/oh_puppy"
-      android:scaleType="centerCrop"
-      android:tint="@color/tint"
+      android:contentDescription="@string/image_content_description"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/superman_dog"
+      tools:src="@drawable/loading_elephant"
       />
 
-  <ProgressBar
-      android:id="@+id/progressBar"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:indeterminateTint="@color/primary"
+  <android.support.v4.view.ViewPager
+      android:id="@+id/reactablesPager"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      style="?android:attr/progressBarStyle"
       />
 
 </android.support.constraint.ConstraintLayout>

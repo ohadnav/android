@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.Scene;
 import com.truethat.android.common.camera.CameraActivity;
 import com.truethat.android.common.camera.CameraUtil;
+import com.truethat.android.common.media.Scene;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.OnSwipeTouchListener;
 import com.truethat.android.theater.TheaterActivity;
@@ -45,14 +45,17 @@ public class StudioActivity extends CameraActivity {
           if (respondedScene == null) {
             throw new AssertionError("Responded scene no tiene nada!");
           }
-          App.getInternalStorage().write(StudioActivity.this, respondedScene.internalStoragePath(), respondedScene);
+          App.getInternalStorage()
+              .write(StudioActivity.this, respondedScene.internalStoragePath(), respondedScene);
         } catch (IOException e) {
           Log.e(TAG, "Failed to save scene to internal storage.", e);
         } catch (NullPointerException e) {
           Log.e(TAG, "saveScene response is null.");
         }
       } else {
-        Log.e(TAG, "Failed to save scene.\n" + response.code() + " " + response.message() + "\n" + response.headers());
+        Log.e(TAG,
+            "Failed to save scene.\n" + response.code() + " " + response.message() + "\n" + response
+                .headers());
       }
     }
 
@@ -69,7 +72,7 @@ public class StudioActivity extends CameraActivity {
     // Defines the navigation to the Theater.
     final ViewGroup rootView = (ViewGroup) this.findViewById(R.id.studioActivity);
     rootView.setOnTouchListener(new OnSwipeTouchListener(this) {
-      @Override public void onSwipeLeft() {
+      @Override public void onSwipeDown() {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
@@ -90,12 +93,14 @@ public class StudioActivity extends CameraActivity {
 
   protected void processImage() {
     Log.v(TAG, "Sending multipart request to: " + NetworkUtil.getBackendUrl());
-    MultipartBody.Part imagePart = MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
-        RequestBody.create(MediaType.parse("image/jpg"), CameraUtil.toByteArray(supplyImage())));
+    MultipartBody.Part imagePart =
+        MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
+            RequestBody.create(MediaType.parse("image/jpg"),
+                CameraUtil.toByteArray(supplyImage())));
     MultipartBody.Part creatorPart = MultipartBody.Part.createFormData(StudioAPI.DIRECTOR_PART,
         Long.toString(App.getAuthModule().getUser().getId()));
-    MultipartBody.Part timestampPart =
-        MultipartBody.Part.createFormData(StudioAPI.CREATED_PART, Long.toString(new Date().getTime()));
+    MultipartBody.Part timestampPart = MultipartBody.Part.createFormData(StudioAPI.CREATED_PART,
+        Long.toString(new Date().getTime()));
     mStudioAPI.saveScene(imagePart, creatorPart, timestampPart).enqueue(mSaveSceneCallback);
   }
 }

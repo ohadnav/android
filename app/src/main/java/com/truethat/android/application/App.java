@@ -50,7 +50,8 @@ public class App {
     return sReactionDetectionModule;
   }
 
-  @VisibleForTesting public static void setReactionDetectionModule(ReactionDetectionModule reactionDetectionModule) {
+  @VisibleForTesting
+  public static void setReactionDetectionModule(ReactionDetectionModule reactionDetectionModule) {
     sReactionDetectionModule = reactionDetectionModule;
   }
 }

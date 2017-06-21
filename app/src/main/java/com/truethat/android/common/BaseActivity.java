@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import com.truethat.android.application.App;
@@ -26,16 +25,11 @@ public class BaseActivity extends AppCompatActivity {
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
-  protected String TAG;
+  protected String TAG = this.getClass().getSimpleName();
   /**
    * Whether to skip authentication.
    */
   protected boolean mSkipAuth = false;
-
-  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
-    TAG = this.getClass().getSimpleName();
-    super.onCreate(savedInstanceState);
-  }
 
   @Override protected void onResume() {
     super.onResume();
@@ -92,8 +86,7 @@ public class BaseActivity extends AppCompatActivity {
    *
    * @param permission the rejected permission.
    */
-  @MainThread
-  public void onRequestPermissionsFailed(Permission permission) {
+  @MainThread public void onRequestPermissionsFailed(Permission permission) {
     Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
     askForPermission.putExtra(AskForPermissionActivity.PERMISSION_EXTRA, permission);
     startActivityForResult(askForPermission, permission.getRequestCode());
@@ -109,8 +102,7 @@ public class BaseActivity extends AppCompatActivity {
   /**
    * Authentication failure callback.
    */
-  @MainThread
-  public void onAuthFailed() {
+  @MainThread public void onAuthFailed() {
     Log.v(TAG, "Auth failed. Something smells bad...");
     Intent authFailed = new Intent(this, WelcomeActivity.class);
     authFailed.putExtra(WelcomeActivity.AUTH_FAILED, true);

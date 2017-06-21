@@ -1,6 +1,6 @@
 package com.truethat.android.studio;
 
-import com.truethat.android.common.Scene;
+import com.truethat.android.common.media.Scene;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Multipart;
@@ -19,6 +19,5 @@ interface StudioAPI {
   String CREATED_PART = "created";
 
   @Multipart @POST("studio") Call<Scene> saveScene(@Part MultipartBody.Part image,
-      @Part MultipartBody.Part directorId,
-      @Part MultipartBody.Part created);
+      @Part MultipartBody.Part directorId, @Part MultipartBody.Part created);
 }

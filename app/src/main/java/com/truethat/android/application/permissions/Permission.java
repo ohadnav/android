@@ -67,4 +67,5 @@ public enum Permission {
 
   public int getRationaleFragment() {
     return mRationaleFragment;
-  }}
+  }
+}

@@ -13,7 +13,7 @@ public class UiUtil {
    *
    * @param activity in which to hide the keyboard.
    */
-  public static void hideKeyboard(Activity activity) {
+  public static void hideSoftKeyboard(Activity activity) {
     InputMethodManager inputMethodManager =
         (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
     if (activity.getCurrentFocus() != null) {

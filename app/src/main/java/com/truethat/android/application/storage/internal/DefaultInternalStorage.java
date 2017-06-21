@@ -19,7 +19,8 @@ import java.util.Objects;
  */
 
 @SuppressWarnings("unchecked") public class DefaultInternalStorage implements InternalStorage {
-  @Override public void write(Context context, String fileName, Serializable data) throws IOException {
+  @Override public void write(Context context, String fileName, Serializable data)
+      throws IOException {
     String currentSubPath = "";
     for (String subDirectoryPath : fileName.split("/")) {
       currentSubPath += currentSubPath.isEmpty() ? subDirectoryPath : "/" + subDirectoryPath;

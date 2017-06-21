@@ -7,6 +7,10 @@ import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
+import com.truethat.android.common.media.Reactable;
+import com.truethat.android.common.media.ReactableFragment;
+import com.truethat.android.common.media.Scene;
+import com.truethat.android.external.RuntimeTypeAdapterFactory;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
@@ -42,10 +46,19 @@ public class NetworkUtil {
     }
   };
   /**
-   * Json converter.
+   * Json converter for network requests.
+   *
+   * The following modifications has been made:
+   * <ul>
+   *   <li>Android naming strategy, so that serialized json match regular Java notations.</li>
+   *   <li>Date format, to sync with our backend.</li>
+   *   <li>{@link Reactable} serialization, so that {@link ReactableFragment} can be created more freely.</li>
+   * </ul>
    */
   public static final Gson GSON = new GsonBuilder().setFieldNamingStrategy(NAMING_STRATEGY)
       .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+      .registerTypeAdapterFactory(
+          RuntimeTypeAdapterFactory.of(Reactable.class).registerSubtype(Scene.class))
       .create();
   /**
    * Logging tag.
