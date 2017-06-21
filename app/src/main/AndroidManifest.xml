@@ -41,6 +41,8 @@
     </activity>
     <activity android:name=".welcome.OnBoardingActivity">
     </activity>
+    <activity android:name=".studio.RepertoireActivity">
+    </activity>
   </application>
 
 </manifest>
