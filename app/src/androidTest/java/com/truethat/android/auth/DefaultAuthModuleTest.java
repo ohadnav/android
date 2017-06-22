@@ -5,6 +5,7 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseApplicationTest;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.model.User;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;

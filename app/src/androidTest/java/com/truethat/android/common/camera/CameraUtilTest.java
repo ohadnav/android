@@ -5,7 +5,8 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.common.util.AssetsReaderUtil;
-import com.truethat.android.theater.TheaterActivity;
+import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.ui.theater.TheaterActivity;
 import org.junit.Rule;
 import org.junit.Test;
 

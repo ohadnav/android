@@ -5,7 +5,7 @@
     android:id="@+id/reactableFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.truethat.android.common.media.ReactableFragment"
+    tools:context=".ui.common.media.ReactableFragment"
     >
 
   <android.support.constraint.ConstraintLayout
