@@ -10,6 +10,7 @@
   <string name="test_text">TEST</string>
   <string name="something_went_wrong" tools:ignore="Typos">We are so so sorry, something went wrong.</string>
   <string name="sign_in">Already one of us?</string>
+  <string name="signing_in">Singing in…</string>
   <string name="welcome_text">Join</string>
   <string name="whats_your_name">What\'s your name?</string>
   <string name="john_doe">John Doe</string>

@@ -5,7 +5,7 @@
     android:id="@+id/sceneFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.truethat.android.common.media.SceneFragment"
+    tools:context=".ui.common.media.SceneFragment"
     >
 
   <ImageView

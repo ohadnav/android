@@ -19,27 +19,27 @@
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
       tools:ignore="GoogleAppIndexingWarning">
-    <activity android:name=".theater.TheaterActivity">
+    <activity android:name=".ui.theater.TheaterActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
-    <activity android:name=".studio.StudioActivity">
+    <activity android:name=".ui.studio.StudioActivity">
     </activity>
-    <activity android:name=".common.util.TestActivity">
+    <activity android:name=".ui.common.TestActivity">
     </activity>
-    <activity android:name=".application.permissions.AskForPermissionActivity">
+    <activity android:name=".ui.common.AskForPermissionActivity">
       <intent-filter>
         <action android:name="android.intent.action.ATTACH_DATA"/>
 
         <data android:mimeType="application/octet-stream"/>
       </intent-filter>
     </activity>
-    <activity android:name=".welcome.WelcomeActivity">
+    <activity android:name=".ui.welcome.WelcomeActivity">
     </activity>
-    <activity android:name=".welcome.OnBoardingActivity">
+    <activity android:name=".ui.welcome.OnBoardingActivity">
     </activity>
     <activity android:name=".studio.RepertoireActivity">
     </activity>
