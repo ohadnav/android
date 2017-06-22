@@ -1,4 +1,4 @@
-package com.truethat.android.ui.common;
+package com.truethat.android.ui.common.camera;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -28,6 +28,7 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.ui.common.BaseActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -148,6 +149,10 @@ public abstract class CameraActivity extends BaseActivity {
    */
   public Image supplyImage() {
     return mImageSupplier.get();
+  }
+
+  @VisibleForTesting public TextureView getCameraPreview() {
+    return mCameraPreview;
   }
 
   @VisibleForTesting public CameraDevice getCameraDevice() {

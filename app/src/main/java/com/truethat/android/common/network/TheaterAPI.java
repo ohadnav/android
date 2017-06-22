@@ -1,4 +1,4 @@
-package com.truethat.android.ui.theater;
+package com.truethat.android.common.network;
 
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.ReactableEvent;

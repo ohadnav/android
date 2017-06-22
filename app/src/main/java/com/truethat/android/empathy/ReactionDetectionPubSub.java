@@ -1,7 +1,7 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
-import com.truethat.android.ui.common.CameraActivity;
+import com.truethat.android.ui.common.camera.CameraActivity;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.

@@ -17,7 +17,7 @@ import com.truethat.android.application.App;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.CameraActivity;
+import com.truethat.android.ui.common.camera.CameraActivity;
 import com.truethat.android.ui.common.util.UiUtil;
 
 public class OnBoardingActivity extends CameraActivity {

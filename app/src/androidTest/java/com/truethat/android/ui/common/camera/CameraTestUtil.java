@@ -1,4 +1,4 @@
-package com.truethat.android.common.camera;
+package com.truethat.android.ui.common.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

@@ -1,4 +1,4 @@
-package com.truethat.android.ui.studio;
+package com.truethat.android.common.network;
 
 import com.truethat.android.model.Scene;
 import okhttp3.MultipartBody;
