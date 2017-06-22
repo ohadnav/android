@@ -4,8 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.AskForPermissionActivity;
 import com.truethat.android.application.permissions.Permission;
@@ -15,13 +20,13 @@ import com.truethat.android.welcome.WelcomeActivity;
 import java.io.IOException;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.truethat.android.welcome.OnBoardingActivity.USER_NAME;
+import static com.truethat.android.welcome.OnBoardingActivity.USER_NAME_INTENT;
 
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
@@ -30,6 +35,18 @@ public class BaseActivity extends AppCompatActivity {
    * Whether to skip authentication.
    */
   protected boolean mSkipAuth = false;
+  @BindView(R.id.activityRootView) protected View mRootView;
+
+  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(getLayoutResId());
+    ButterKnife.bind(this);
+  }
+
+  /**
+   * @return The activity layout resource ID, as found in {@link R.layout}.
+   */
+  protected abstract int getLayoutResId();
 
   @Override protected void onResume() {
     super.onResume();
@@ -53,7 +70,7 @@ public class BaseActivity extends AppCompatActivity {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == RequestCodes.ON_BOARDING) {
       boolean authFailed = false;
-      String newUserName = data.getExtras().getString(USER_NAME);
+      String newUserName = data.getExtras().getString(USER_NAME_INTENT);
       if (resultCode == RESULT_OK) {
         if (newUserName != null) {
           try {

@@ -2,6 +2,7 @@ package com.truethat.android.welcome;
 
 import android.os.Bundle;
 import android.view.View;
+import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseActivity;
@@ -12,7 +13,10 @@ public class WelcomeActivity extends BaseActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_welcome);
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_welcome;
   }
 
   @Override protected void onResume() {
@@ -44,7 +48,7 @@ public class WelcomeActivity extends BaseActivity {
     App.getAuthModule().auth(this);
   }
 
-  public void onBoarding(View view) {
-    onBoarding();
+  @OnClick(R.id.joinLayout) public void doOnBoarding() {
+    super.onBoarding();
   }
 }

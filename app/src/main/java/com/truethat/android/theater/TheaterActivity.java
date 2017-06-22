@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.widget.ImageView;
+import butterknife.BindView;
 import com.bumptech.glide.Glide;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
@@ -27,19 +28,18 @@ import static android.view.View.GONE;
  */
 public class TheaterActivity extends CameraActivity
     implements ReactableFragment.OnReactableInteractionListener {
+  @BindView(R.id.reactablesPager) ViewPager mPager;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
-  private ViewPager mPager;
   private TheaterAPI mTheaterAPI;
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_theater);
     // Animation for screen transitions.
     this.overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
     // Navigation to other activities
-    findViewById(R.id.theaterActivity).setOnTouchListener(new OnSwipeTouchListener(this) {
+    mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeUp() {
         startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
       }
@@ -52,7 +52,6 @@ public class TheaterActivity extends CameraActivity
         .into((ImageView) findViewById(R.id.loadingImage));
     // Initialize views
     mReactableFragmentAdapter = new ReactableFragmentAdapter(getSupportFragmentManager());
-    mPager = (ViewPager) findViewById(R.id.reactablesPager);
     mPager.setAdapter(mReactableFragmentAdapter);
     mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
       @Override public void onPageScrollStateChanged(int state) {
@@ -65,6 +64,10 @@ public class TheaterActivity extends CameraActivity
     // Initializes the Theater API
     mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
     mFetchReactablesCallback = buildFetchReactablesCallback();
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_theater;
   }
 
   @Override protected void processImage() {

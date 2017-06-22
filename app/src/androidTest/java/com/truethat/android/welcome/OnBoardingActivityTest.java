@@ -37,7 +37,7 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
     // Authentication should navigate user to on boarding. We start from test activity,
     // so that we can assert successful on boarding.
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.onBoardingActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
   }
 
@@ -70,8 +70,8 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
     mActivityTestRule.getActivity()
         .startActivity(new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
     // Should navigate back to test activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.testActivity)), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
+        TimeUnit.SECONDS.toMillis(1)));
   }
 
   @Test public void slowDetection() throws Exception {
@@ -135,8 +135,8 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
 
   private void assertOnBoardingSuccessful() {
     // Should navigate back to Test activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.testActivity)), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
+        TimeUnit.SECONDS.toMillis(1)));
     // Assert the current user now the proper name.
     assertEquals(NAME, App.getAuthModule().getUser().getDisplayName());
     // Assert the Auth OK status is correct.

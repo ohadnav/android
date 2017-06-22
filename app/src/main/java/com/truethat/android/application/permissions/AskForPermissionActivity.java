@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseActivity;
@@ -23,8 +23,11 @@ public class AskForPermissionActivity extends BaseActivity {
     // Should not authenticate when asking for device permissions.
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_ask_for_permission);
     mAskPermissionButton = (Button) findViewById(R.id.askPermissionButton);
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_ask_for_permission;
   }
 
   /**
@@ -57,7 +60,7 @@ public class AskForPermissionActivity extends BaseActivity {
   /**
    * Asks for permission again.
    */
-  public void askForPermission(View view) {
+  @OnClick(R.id.askPermissionButton) public void askForPermission() {
     Log.v(TAG, "Asking for " + mPermission.name() + " again.");
     App.getPermissionsModule().requestIfNeeded(AskForPermissionActivity.this, mPermission);
   }

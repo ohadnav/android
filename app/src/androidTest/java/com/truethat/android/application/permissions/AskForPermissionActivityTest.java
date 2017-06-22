@@ -30,8 +30,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTest {
   @Test public void onRequestPermissionsFailed() throws Exception {
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.askForPermissionActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
             TimeUnit.SECONDS.toMillis(1)));
     // Assert that no camera permission fragment is displayed.
     onView(withId(R.id.noCameraPermissionImage)).check(matches(isDisplayed()));
@@ -43,34 +42,32 @@ public class AskForPermissionActivityTest extends BaseApplicationTest {
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
     Thread.sleep(100);
-    onView(withId(R.id.testActivity)).check(matches(isDisplayed()));
+    onView(withId(R.id.activityRootView)).check(matches(isDisplayed()));
   }
 
   @Test public void finishAfterPermissionGranted() throws Exception {
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.askForPermissionActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
             TimeUnit.SECONDS.toMillis(3)));
     // Grant permission, to mock the scenario where the user allowed the permission.
     mMockPermissionsModule.reset(PERMISSION);
     // Ask for permission again.
     onView(withId(R.id.askPermissionButton)).perform(click());
     // Wait until we return to test activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.testActivity)), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
+        TimeUnit.SECONDS.toMillis(1)));
   }
 
   @Test public void askAgainAndDenyDoesNotFinish() throws Exception {
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.askForPermissionActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
             TimeUnit.SECONDS.toMillis(3)));
     // Ask for permission again.
     onView(withId(R.id.askPermissionButton)).perform(click());
     // Wait for possible navigation back to test activity, and assert no navigation was performed.
     Thread.sleep(100);
-    onView(withId(R.id.askForPermissionActivity)).check(matches(isDisplayed()));
+    onView(withId(R.id.activityRootView)).check(matches(isDisplayed()));
   }
 }

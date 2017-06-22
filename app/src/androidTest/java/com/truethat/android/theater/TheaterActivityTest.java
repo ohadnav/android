@@ -165,7 +165,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
       }
     });
     // Triggers navigation to next reactable.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeLeft());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(waitMatcher(
         allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
@@ -187,19 +187,19 @@ public class TheaterActivityTest extends BaseApplicationTest {
     onView(isRoot()).perform(
         waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
     // Triggers navigation to next reactable.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeLeft());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(waitMatcher(
         allOf(isDisplayed(), withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
         TimeUnit.SECONDS.toMillis(1)));
     // Triggers navigation to previous reactable.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeRight());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(
         waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO))),
             TimeUnit.SECONDS.toMillis(1)));
     // Triggers navigation to previous reactable.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeRight());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // Makes sure reactable is unchanged
     onView(allOf(isDisplayed(), withId(R.id.timeAgoText),
         withText(DateUtil.formatTimeAgo(HOUR_AGO)))).check(matches(isDisplayed()));
@@ -216,7 +216,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     // Triggers navigation to next reactable.
-    onView(withId(R.id.theaterActivity)).perform(ViewActions.swipeLeft());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(waitMatcher(
         allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),

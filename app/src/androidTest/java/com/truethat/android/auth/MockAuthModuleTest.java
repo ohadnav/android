@@ -66,7 +66,7 @@ public class MockAuthModuleTest extends BaseApplicationTest {
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     // Should navigate to OnBoarding activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.onBoardingActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
     // Assert auth status is not OK
     assertFalse(App.getAuthModule().isAuthOk());
@@ -74,7 +74,7 @@ public class MockAuthModuleTest extends BaseApplicationTest {
 
   private void assertSuccessfulAuth() {
     // Should navigate back to Test activity.
-    onView(withId(R.id.testActivity)).check(matches(isDisplayed()));
+    onView(withId(R.id.activityRootView)).check(matches(isDisplayed()));
     // Assert auth status is OK
     assertTrue(App.getAuthModule().isAuthOk());
     // User exists
@@ -83,7 +83,7 @@ public class MockAuthModuleTest extends BaseApplicationTest {
 
   private void assertFailedAuth() {
     // Should navigate to Welcome activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.welcomeActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
     // Assert auth status is not OK
     assertFalse(App.getAuthModule().isAuthOk());

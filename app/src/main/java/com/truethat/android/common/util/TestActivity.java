@@ -11,6 +11,9 @@ import com.truethat.android.common.BaseActivity;
     // Should not authenticate on tests.
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_test);
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_test;
   }
 }

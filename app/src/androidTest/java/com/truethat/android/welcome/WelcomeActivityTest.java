@@ -26,7 +26,7 @@ public class WelcomeActivityTest extends BaseApplicationTest {
     // Should navigate to welcome activity
     mMockAuthModule.setAllowAuth(false);
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.welcomeActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
     // Error text is visible
     onView(withId(R.id.errorText)).check(matches(isDisplayed()));
@@ -39,7 +39,7 @@ public class WelcomeActivityTest extends BaseApplicationTest {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.onBoardingActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
   }
 
@@ -47,7 +47,7 @@ public class WelcomeActivityTest extends BaseApplicationTest {
     // Should navigate to welcome activity
     mMockAuthModule.setAllowAuth(false);
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.welcomeActivity)),
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
         TimeUnit.SECONDS.toMillis(1)));
     // Allow auth now.
     mMockAuthModule.setAllowAuth(true);

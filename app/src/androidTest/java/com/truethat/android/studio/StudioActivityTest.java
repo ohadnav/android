@@ -68,7 +68,7 @@ public class StudioActivityTest extends BaseApplicationTest {
     mMockAuthModule.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
     // Ensuring signing in Toast is shown.
-    onView(withText(StudioActivity.UNAUTHORIZED_TOAST)).inRoot(
+    onView(withText(mStudioActivityTestRule.getActivity().UNAUTHORIZED_TOAST)).inRoot(
         withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
   }

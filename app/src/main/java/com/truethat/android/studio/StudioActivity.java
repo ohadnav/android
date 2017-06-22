@@ -6,9 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.view.TextureView;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
+import butterknife.BindString;
+import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.camera.CameraActivity;
@@ -28,11 +28,11 @@ import retrofit2.Response;
 
 public class StudioActivity extends CameraActivity {
 
-  @VisibleForTesting static final String UNAUTHORIZED_TOAST = "Signing in...";
   /**
    * File name for HTTP post request for saving scenes.
    */
   private static final String FILENAME = "studio-image";
+  @VisibleForTesting @BindString(R.string.signing_in) String UNAUTHORIZED_TOAST = "Signing in...";
   /**
    * Retrofit API interface for saving scenes.
    */
@@ -66,12 +66,10 @@ public class StudioActivity extends CameraActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_studio);
     // Initialize activity transitions.
     this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
     // Defines the navigation to the Theater.
-    final ViewGroup rootView = (ViewGroup) this.findViewById(R.id.studioActivity);
-    rootView.setOnTouchListener(new OnSwipeTouchListener(this) {
+    mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeDown() {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
@@ -80,10 +78,14 @@ public class StudioActivity extends CameraActivity {
     mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
   }
 
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_studio;
+  }
+
   /**
    * UI initiated picture taking.
    */
-  public void takePicture(View view) {
+  @OnClick(R.id.captureButton) public void captureImage() {
     if (App.getAuthModule().isAuthOk()) {
       takePicture();
     } else {
