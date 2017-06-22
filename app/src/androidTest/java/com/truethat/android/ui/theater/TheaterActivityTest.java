@@ -92,12 +92,6 @@ public class TheaterActivityTest extends BaseApplicationTest {
     mRespondedScenes = Collections.emptyList();
   }
 
-  @Test public void loadingScenes() throws Exception {
-    mTheaterActivityTestRule.launchActivity(null);
-    // Interim image is displayed.
-    onView(withId(R.id.loadingImage)).check(matches(isDisplayed()));
-  }
-
   @Test public void displayScene() throws Exception {
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));

@@ -25,6 +25,7 @@ import com.truethat.android.model.EventType;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.ReactableEvent;
 import com.truethat.android.model.Scene;
+import com.truethat.android.ui.common.BaseFragment;
 import com.truethat.android.ui.theater.TheaterAPI;
 import java.util.Date;
 import okhttp3.ResponseBody;
@@ -36,21 +37,12 @@ import retrofit2.Response;
  * A generic container for {@link Reactable}. Handles touch gestures for navigation between {@link
  * ReactableFragment}, and emotional reaction detection.
  */
-public abstract class ReactableFragment<T extends Reactable> extends Fragment {
+public abstract class ReactableFragment<T extends Reactable> extends BaseFragment {
   /**
    * Default for reaction counter's image view.
    */
   @VisibleForTesting public static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
   private static final String ARG_REACTABLE = "reactable";
-  /**
-   * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
-   */
-  protected String TAG = this.getClass().getSimpleName();
-
-  /**
-   * The fragment root view, i.e. {@link R.id#reactableFragment}.
-   */
-  protected View mRootView;
 
   protected T mReactable;
 
@@ -105,7 +97,6 @@ public abstract class ReactableFragment<T extends Reactable> extends Fragment {
     mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
     mPostEventCallback = buildPostEventCallback();
     mDetectionPubSub = buildDetectionPubSub();
-    Log.v(TAG, "onCreate " + mReactable.getId());
   }
 
   /**
@@ -114,16 +105,18 @@ public abstract class ReactableFragment<T extends Reactable> extends Fragment {
    */
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
-    Log.v(TAG, "onCreateView " + mReactable.getId());
-    mRootView = inflater.inflate(R.layout.fragment_reactable, container, false);
+    super.onCreateView(inflater, container, savedInstanceState);
     updateDirectorLayout();
     updateReactionCounters();
     createMedia(inflater, savedInstanceState);
     return mRootView;
   }
 
+  @Override protected int getLayoutResId() {
+    return R.layout.fragment_reactable;
+  }
+
   @Override public void onAttach(Context context) {
-    Log.v(TAG, "onAttach");
     super.onAttach(context);
     if (context instanceof ReactableFragment.OnReactableInteractionListener) {
       mListener = (OnReactableInteractionListener) context;
@@ -134,58 +127,19 @@ public abstract class ReactableFragment<T extends Reactable> extends Fragment {
   }
 
   @Override public void onDetach() {
-    Log.v(TAG, "onDetach " + mReactable.getId());
     super.onDetach();
     mListener = null;
     if (mPostEventCall != null) mPostEventCall.cancel();
   }
 
-  /**
-   * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
-   * and {@link #onHidden()} here as well.
-   */
-  @Override public void onResume() {
-    Log.v(TAG, "onResume " + mReactable.getId());
-    super.onResume();
-    if (getUserVisibleHint()) onVisible();
-  }
-
-  @Override public void onPause() {
-    Log.v(TAG, "onPause " + mReactable.getId());
-    super.onPause();
-    // Only invoke if the reactable had been viewed.
-    if (mReactable.isViewed()) {
-      onHidden();
-    }
-  }
-
-  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
-    if (isResumed()) {
-      if (isVisibleToUser) {
-        onVisible();
-      } else {
-        onHidden();
-      }
-    }
-  }
-
-  /**
-   * Should be invoked once this fragment is visible. Use with caution.
-   */
-  private void onVisible() {
-    Log.v(TAG, "onVisible " + mReactable.getId());
+  @Override protected void onVisible() {
     doView();
     if (mReactable.getUserReaction() == null) {
       App.getReactionDetectionModule().detect(mDetectionPubSub);
     }
   }
 
-  /**
-   * Should be invoked once this fragment is hidden. Use with caution.
-   */
-  private void onHidden() {
-    Log.v(TAG, "onHidden " + mReactable.getId());
+  @Override protected void onHidden() {
     App.getReactionDetectionModule().stop();
   }
 

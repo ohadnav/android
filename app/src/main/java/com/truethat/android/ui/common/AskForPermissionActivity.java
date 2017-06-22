@@ -1,10 +1,10 @@
 package com.truethat.android.ui.common;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Button;
 import butterknife.OnClick;
@@ -71,7 +71,7 @@ public class AskForPermissionActivity extends BaseActivity {
    */
   private void displayRationale() {
     Fragment fragment = PermissionFragment.newInstance(mPermission);
-    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(R.id.rationaleLayout, fragment);
     fragmentTransaction.commit();
   }
