@@ -1,6 +1,7 @@
 package com.truethat.android.common.camera;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.ImageReader;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
@@ -17,13 +18,13 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
@@ -79,34 +80,39 @@ import static org.junit.Assert.assertFalse;
     });
   }
 
-  // Test is ignored, as more than a single instance of mTheaterActivityTestRule is created.
-  @Test @MediumTest @Ignore public void takePicture_cameraNotOpenedYet() throws Exception {
-    mTheaterActivityTestRule.launchActivity(null);
-    mTheaterActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
+  @Test @MediumTest public void cameraPreviewIsFrozenAfterTakingPicture() throws Exception {
+    mStudioActivityTestRule.launchActivity(null);
+    mStudioActivityTestRule.getActivity().setImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
     assertFalse(mImageTaken);
-    // Launching a non-camera activity to close the camera.
-    mAskForPermissionActivityTestRule.launchActivity(null);
-    // Asserts the camera is closed.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mTheaterActivityTestRule.getActivity().getCameraDevice() == null;
-      }
-    });
-    // Trying to take a picture while the camera is closed.
-    mTheaterActivityTestRule.getActivity().takePicture();
-    // Launches the camera activity again.
-    mAskForPermissionActivityTestRule.getActivity()
-        .startActivity(
-            new Intent(mAskForPermissionActivityTestRule.getActivity(), TheaterActivity.class));
+    mStudioActivityTestRule.getActivity().takePicture();
     // Assert that an image was taken.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
         return mImageTaken;
       }
     });
+    // Save current preview.
+    Bitmap than = mStudioActivityTestRule.getActivity().getCameraPreview().getBitmap();
+    // Wait for the preview to change, this is unstable, but at least something.
+    Thread.sleep(500);
+    Bitmap now = mStudioActivityTestRule.getActivity().getCameraPreview().getBitmap();
+    assertTrue(than.sameAs(now));
   }
 
-  @Test public void onPause() throws Exception {
+  @Test public void takingMultipleImages() throws Exception {
+    mStudioActivityTestRule.launchActivity(null);
+    // Navigates to an activity without camera.
+    mStudioActivityTestRule.getActivity()
+        .startActivity(new Intent(mStudioActivityTestRule.getActivity(), TestActivity.class));
+    // Asserts the camera is closed.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mStudioActivityTestRule.getActivity().getCameraDevice() == null;
+      }
+    });
+  }
+
+  @Test public void cameraClosedOnPause() throws Exception {
     mStudioActivityTestRule.launchActivity(null);
     // Navigates to an activity without camera.
     mStudioActivityTestRule.getActivity()

@@ -17,7 +17,6 @@ import com.truethat.android.common.media.Scene;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.OnSwipeTouchListener;
 import com.truethat.android.theater.TheaterActivity;
-import java.io.IOException;
 import java.util.Date;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -39,22 +38,13 @@ public class StudioActivity extends CameraActivity {
   private StudioAPI mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
   private Callback<Scene> mSaveSceneCallback = new Callback<Scene>() {
     @Override public void onResponse(@NonNull Call<Scene> call, @NonNull Response<Scene> response) {
-      if (response.isSuccessful()) {
-        try {
-          Scene respondedScene = response.body();
-          if (respondedScene == null) {
-            throw new AssertionError("Responded scene no tiene nada!");
-          }
-          App.getInternalStorage()
-              .write(StudioActivity.this, respondedScene.internalStoragePath(), respondedScene);
-        } catch (IOException e) {
-          Log.e(TAG, "Failed to save scene to internal storage.", e);
-        } catch (NullPointerException e) {
-          Log.e(TAG, "saveScene response is null.");
-        }
-      } else {
-        Log.e(TAG,
-            "Failed to save scene.\n" + response.code() + " " + response.message() + "\n" + response
+      if (!response.isSuccessful()) {
+        Log.e(TAG, "Bad response for saving scene.\n"
+            + response.code()
+            + " "
+            + response.message()
+            + "\n"
+            + response
                 .headers());
       }
     }
@@ -92,7 +82,14 @@ public class StudioActivity extends CameraActivity {
   }
 
   protected void processImage() {
-    Log.v(TAG, "Sending multipart request to: " + NetworkUtil.getBackendUrl());
+    if (App.getAuthModule().isAuthOk()) {
+      sendImage();
+    } else {
+      Toast.makeText(this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  private void sendImage() {
     MultipartBody.Part imagePart =
         MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"),

@@ -10,7 +10,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -28,6 +27,7 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseActivity;
 import com.truethat.android.common.util.BackgroundHandler;
+import com.truethat.android.studio.StudioActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Proudly created by ohad on 01/05/2017 for TrueThat.
  * <p>
- * Big thanks to https://inducesmile.com/android/android-camera2-api-example-tutorial/
+ * Big thanks to <a>https://inducesmile.com/android/android-camera2-api-example-tutorial/</a>
  */
 
 public abstract class CameraActivity extends BaseActivity {
@@ -51,7 +51,12 @@ public abstract class CameraActivity extends BaseActivity {
     ORIENTATIONS.append(Surface.ROTATION_270, 180);
   }
 
-  // textureView should be assigned per Activity.
+  /**
+   * Camera display preview, so that users can see what they are taking photos of. Should be
+   * initialized per implementation, and can be remained null.
+   *
+   * @see StudioActivity#onCreate(Bundle).
+   */
   protected TextureView mCameraPreview = null;
   private Image mLastTakenImage;
   /**
@@ -89,24 +94,6 @@ public abstract class CameraActivity extends BaseActivity {
    */
   private boolean mTakePictureOnOpened = false;
   private Size mImageDimension;
-  private final TextureView.SurfaceTextureListener mTextureListener =
-      new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-          return false;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-      };
   private ImageReader mImageReader;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mCameraCaptureSessions;
@@ -138,6 +125,24 @@ public abstract class CameraActivity extends BaseActivity {
       mCameraDevice = null;
     }
   };
+  private final TextureView.SurfaceTextureListener mTextureListener =
+      new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+          return false;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+      };
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -148,6 +153,10 @@ public abstract class CameraActivity extends BaseActivity {
    */
   public Image supplyImage() {
     return mImageSupplier.get();
+  }
+
+  @VisibleForTesting public TextureView getCameraPreview() {
+    return mCameraPreview;
   }
 
   @VisibleForTesting public CameraDevice getCameraDevice() {
@@ -191,7 +200,7 @@ public abstract class CameraActivity extends BaseActivity {
         height = jpegSizes[0].getHeight();
       }
       mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-      List<Surface> outputSurfaces = new ArrayList<>(2);
+      List<Surface> outputSurfaces = new ArrayList<>();
       outputSurfaces.add(mImageReader.getSurface());
       final CaptureRequest.Builder captureBuilder =
           mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -200,20 +209,14 @@ public abstract class CameraActivity extends BaseActivity {
       // Orientation
       int rotation = getWindowManager().getDefaultDisplay().getRotation();
       captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+      // Setting {@code mImageAvailableListener} to process the taken image, once it is available.
       mImageReader.setOnImageAvailableListener(mImageAvailableListener,
           mBackgroundHandler.getHandler());
-      final CameraCaptureSession.CaptureCallback captureListener =
-          new CameraCaptureSession.CaptureCallback() {
-            @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-              super.onCaptureCompleted(session, request, result);
-              if (mCameraPreview != null) createCameraPreview();
-            }
-          };
+      // Actually capturing an image.
       mCameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
         @Override public void onConfigured(@NonNull CameraCaptureSession session) {
           try {
-            session.capture(captureBuilder.build(), captureListener,
+            session.capture(captureBuilder.build(), null,
                 mBackgroundHandler.getHandler());
           } catch (CameraAccessException e) {
             e.printStackTrace();
