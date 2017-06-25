@@ -1,27 +1,30 @@
 package com.truethat.android.ui.common.camera;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.TextureView;
+import com.truethat.android.common.util.AppUtil;
 
 /**
- * A {@link TextureView} that can be adjusted to a specified aspect ratio.
+ * A fullscreen {@link TextureView} that can be adjusted to a specified aspect ratio, while center
+ * cropping its content.
  */
-public class AutoFitTextureView extends TextureView {
+public class FullscreenTextureView extends TextureView {
 
   private int mRatioWidth = 0;
   private int mRatioHeight = 0;
 
-  public AutoFitTextureView(Context context) {
+  public FullscreenTextureView(Context context) {
     this(context, null);
   }
 
-  public AutoFitTextureView(Context context, @Nullable AttributeSet attrs) {
+  public FullscreenTextureView(Context context, @Nullable AttributeSet attrs) {
     this(context, attrs, 0);
   }
 
-  public AutoFitTextureView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+  public FullscreenTextureView(Context context, @Nullable AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
   }
 
@@ -46,14 +49,18 @@ public class AutoFitTextureView extends TextureView {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     int width = MeasureSpec.getSize(widthMeasureSpec);
     int height = MeasureSpec.getSize(heightMeasureSpec);
-    if (0 == mRatioWidth || 0 == mRatioHeight) {
-      setMeasuredDimension(width, height);
-    } else {
+    int newWidth = width;
+    int newHeight = height;
+    Point realDisplaySize = AppUtil.realDisplaySize(getContext());
+    if (0 < mRatioWidth && 0 < mRatioHeight) {
       if (width < height * mRatioWidth / mRatioHeight) {
-        setMeasuredDimension(width, width * mRatioHeight / mRatioWidth);
+        newHeight = realDisplaySize.y;
+        newWidth = width * realDisplaySize.y / (width * mRatioHeight / mRatioWidth);
       } else {
-        setMeasuredDimension(height * mRatioWidth / mRatioHeight, height);
+        newWidth = realDisplaySize.x;
+        newHeight = height * realDisplaySize.x / (height * mRatioWidth / mRatioHeight);
       }
     }
+    setMeasuredDimension(newWidth, newHeight);
   }
 }

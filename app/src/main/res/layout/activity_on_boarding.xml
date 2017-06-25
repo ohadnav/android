@@ -11,6 +11,15 @@
     tools:context=".ui.welcome.OnBoardingActivity"
     >
 
+  <fragment
+      android:id="@+id/cameraFragment"
+      android:name="com.truethat.android.ui.common.camera.CameraFragment"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:show_preview="false"
+      tools:layout="@layout/fragment_camera"
+      />
+
   <ImageView
       android:id="@+id/onBoardingImage"
       android:layout_width="wrap_content"

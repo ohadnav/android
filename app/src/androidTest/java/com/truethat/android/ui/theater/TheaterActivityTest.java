@@ -3,14 +3,15 @@ package com.truethat.android.ui.theater;
 import android.media.Image;
 import android.support.annotation.Nullable;
 import android.support.test.espresso.action.ViewActions;
-import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 import android.widget.ImageView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
@@ -18,7 +19,7 @@ import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.EmotionDetectionClassifier;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.camera.CameraTestUtil;
+import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,10 +27,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +56,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 05/06/2017 for TrueThat.
  */
-public class TheaterActivityTest extends BaseApplicationTest {
+public class TheaterActivityTest extends BaseApplicationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
   private static final String IMAGE_URL_1 =
@@ -96,9 +99,19 @@ public class TheaterActivityTest extends BaseApplicationTest {
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
+    // Camera preview should be hidden
+    final CameraFragment cameraFragment = (CameraFragment) mTheaterActivityTestRule.getActivity()
+        .getSupportFragmentManager()
+        .findFragmentById(R.id.cameraFragment);
+    // Wait until camera is open, so that preview can be potentially shown.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return cameraFragment.isCameraOpen();
+      }
+    });
+    assertEquals(View.GONE, cameraFragment.getCameraPreview().getVisibility());
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserting the layout is displayed fullscreen.
     onView(withId(R.id.reactableFragment)).check(matches(isFullScreen()));
     // Loading image should be hidden.
@@ -132,8 +145,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, new TreeMap<Emotion, Long>(), HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserting the reaction image is displayed and represents the default reaction.
     ImageView imageView =
         (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
@@ -149,8 +161,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
             new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -161,8 +172,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-            TimeUnit.SECONDS.toMillis(1)));
+        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY)))));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -177,20 +187,17 @@ public class TheaterActivityTest extends BaseApplicationTest {
             new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(waitMatcher(
-        allOf(isDisplayed(), withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-        TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.timeAgoText),
+        withText(DateUtil.formatTimeAgo(YESTERDAY)))));
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO))),
-            TimeUnit.SECONDS.toMillis(1)));
+        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO)))));
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // Makes sure reactable is unchanged
@@ -203,8 +210,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Updates responded scenes.
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
@@ -212,8 +218,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Wait until the next reactable is displayed, or throw otherwise.
     onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY))),
-            TimeUnit.SECONDS.toMillis(1)));
+        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY)))));
   }
 
   @Test public void emotionalReaction() throws Exception {
@@ -221,8 +226,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -252,8 +256,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, lessCommon));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserting the reaction image is displayed and represents the user reaction.
     onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
     ImageView imageView =
@@ -271,7 +274,7 @@ public class TheaterActivityTest extends BaseApplicationTest {
     assertFalse(mMockReactionDetectionModule.isDetecting());
   }
 
-  @Test @MediumTest public void cameraInputRequestsForDetection() throws Exception {
+  @Test public void cameraInputRequestsForDetection() throws Exception {
     App.setReactionDetectionModule(
         new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
           boolean isFirst = true;
@@ -289,10 +292,9 @@ public class TheaterActivityTest extends BaseApplicationTest {
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(
-        waitMatcher(withId(R.id.reactableFragment), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a reaction event was posted.
-    await().untilAsserted(new ThrowingRunnable() {
+    await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(2, mPostEventCount);
       }

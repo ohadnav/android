@@ -3,11 +3,14 @@ package com.truethat.android.auth;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
+import com.truethat.android.ui.common.AskForPermissionActivity;
+import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.welcome.OnBoardingActivity;
+import com.truethat.android.ui.welcome.WelcomeActivity;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -18,10 +21,8 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
-import static org.hamcrest.Matchers.allOf;
+import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 14/06/2017 for TrueThat.
  */
-public class DefaultAuthModuleTest extends BaseApplicationTest {
+public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
   private User mRespondedUser;
   private int mAuthRequestCount;
 
@@ -96,18 +97,18 @@ public class DefaultAuthModuleTest extends BaseApplicationTest {
   @Test public void authWithNoPermission() throws Exception {
     // Revoke phone permission.
     mMockPermissionsModule.forbid(Permission.PHONE);
+    // Ensures navigation to ask for permission activity.
+    mMockPermissionsModule.setInvokeRequestCallback(true);
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     // Should navigate to ask for permission activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-            TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(AskForPermissionActivity.class);
     // Reset permission, to mock the scenario where the user allowed the permission.
     mMockPermissionsModule.reset(Permission.PHONE);
     // Ask for permission again.
     onView(withId(R.id.askPermissionButton)).check(matches(isDisplayed())).perform(click());
     // Should return to Test activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(TestActivity.class);
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
@@ -148,16 +149,14 @@ public class DefaultAuthModuleTest extends BaseApplicationTest {
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     // Should navigate to OnBoarding activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(OnBoardingActivity.class);
     // Assert there wasn't any auth request.
     assertEquals(0, mAuthRequestCount);
   }
 
   private void assertAuthOk() {
     // Should navigate back to Test activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(TestActivity.class);
     // Assert the user was is saved onto internal storage.
     assertTrue(
         App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
@@ -169,8 +168,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTest {
 
   private void assertAuthFailed() {
     // Should navigate to Welcome activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(WelcomeActivity.class);
     // Should display the error text
     onView(withId(R.id.errorText)).check(matches(isDisplayed()));
     // Assert the current user has no ID or is null.

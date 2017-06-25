@@ -2,6 +2,7 @@ package com.truethat.android.common;
 
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.application.App;
+import com.truethat.android.application.ApplicationTestUtil;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
 import com.truethat.android.auth.MockAuthModule;
@@ -13,6 +14,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,10 +24,15 @@ import static com.truethat.android.BuildConfig.PORT;
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
  *
- * BaseApplicationTest suite. Initializes mock application modules, and more.
+ * BaseApplicationTestSuite suite. Initializes mock application modules, and more.
  */
 
-@SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseApplicationTest {
+@SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseApplicationTestSuite {
+  /**
+   * Default duration to wait for. When waiting for activities to change for example.
+   */
+  protected static final Duration DEFAULT_TIMEOUT =
+      ApplicationTestUtil.isDebugging() ? Duration.ONE_MINUTE : Duration.ONE_SECOND;
   protected final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
@@ -37,6 +44,7 @@ import static com.truethat.android.BuildConfig.PORT;
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
     Awaitility.reset();
+    Awaitility.setDefaultTimeout(DEFAULT_TIMEOUT);
     // Sets up the mocked permissions module.
     App.setPermissionsModule(mMockPermissionsModule = new MockPermissionsModule());
     // Sets up the mocked auth module.

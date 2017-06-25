@@ -10,7 +10,7 @@ import android.support.test.uiautomator.Until;
 import android.support.v4.app.ActivityCompat;
 import com.truethat.android.application.App;
 import com.truethat.android.application.ApplicationTestUtil;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class) @MediumTest @Ignore
 // Test fails since shell commands take time to take effect.
-public class DefaultPermissionsModuleTest extends BaseApplicationTest {
+public class DefaultPermissionsModuleTest extends BaseApplicationTestSuite {
   private static final Permission PERMISSION = Permission.CAMERA;
   private PermissionsModule mPermissionsModule;
   private UiDevice mDevice;

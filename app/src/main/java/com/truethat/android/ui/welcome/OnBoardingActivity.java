@@ -2,6 +2,7 @@ package com.truethat.android.ui.welcome;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.VisibleForTesting;
@@ -17,19 +18,25 @@ import com.truethat.android.application.App;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.camera.CameraActivity;
+import com.truethat.android.ui.common.BaseActivity;
+import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.UiUtil;
 
-public class OnBoardingActivity extends CameraActivity {
+public class OnBoardingActivity extends BaseActivity
+    implements CameraFragment.OnPictureTakenListener {
   public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   public static final String USER_NAME_INTENT = "userName";
   @VisibleForTesting static final int ERROR_COLOR = R.color.error;
   @VisibleForTesting static final int VALID_NAME_COLOR = R.color.success;
   @BindView(R.id.nameEditText) EditText mNameInput;
+  private CameraFragment mCameraFragment;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
+    // Hooks the camera fragment
+    mCameraFragment =
+        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
   }
 
   @Override protected int getLayoutResId() {
@@ -45,6 +52,8 @@ public class OnBoardingActivity extends CameraActivity {
     // Check if input is already valid.
     if (User.isValidName(mNameInput.getText().toString())) {
       detectSmile();
+    } else {
+      mNameInput.requestFocus();
     }
   }
 
@@ -53,9 +62,9 @@ public class OnBoardingActivity extends CameraActivity {
     stopDetection();
   }
 
-  @Override protected void processImage() {
+  @Override public void processImage(Image image) {
     // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(supplyImage());
+    App.getReactionDetectionModule().attempt(image);
   }
 
   /**
@@ -152,7 +161,7 @@ public class OnBoardingActivity extends CameraActivity {
         });
       }
       mFirstInput = false;
-      takePicture();
+      mCameraFragment.takePicture();
     }
   }
 }

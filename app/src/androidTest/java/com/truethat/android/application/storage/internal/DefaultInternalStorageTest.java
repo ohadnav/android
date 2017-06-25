@@ -1,6 +1,6 @@
 package com.truethat.android.application.storage.internal;
 
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import java.io.File;
 import java.util.Date;
 import org.junit.Test;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
-public class DefaultInternalStorageTest extends BaseApplicationTest {
+public class DefaultInternalStorageTest extends BaseApplicationTestSuite {
   private static final String FILE_NAME =
       "DefaultInternalStorageTest_" + new Date().getTime() + ".txt";
   private static final String ROOT_DIR =

@@ -27,6 +27,10 @@ import java.util.Map;
    * the behaviour should match DEFAULT_RATIONALE_BEHAVIOUR.
    */
   private Map<Permission, Boolean> mPermissionToShouldShowRationale = new HashMap<>();
+  /**
+   * Whether to invoke request callback when requests are not already granted.
+   */
+  private boolean mInvokeRequestCallback = false;
 
   public MockPermissionsModule(Permission... grantedPermissions) {
     for (Permission permission : grantedPermissions) {
@@ -52,11 +56,22 @@ import java.util.Map;
   /**
    * When permissions are not forbid they are always granted, this is useful to mock the flow in
    * which a user allows a permission.
+   * <p>
+   * Request callback is invoked in the following conditions:
+   * <ul>
+   * <li>{@code activity} is not null.</li>
+   * <li>{@code permission} is not already granted.</li>
+   * <li>{@code permission} is forbidden or {@code mInvokeRequestCallback} is true.</li>
+   * </ul>
    */
   @Override public void requestIfNeeded(@Nullable Activity activity, Permission permission) {
-    // Permission request callback should not be invoked when permission was already granted.
+    boolean activityNotNull = activity != null;
+    boolean permissionNotAlreadyGranted =
+        mPermissionToState.get(permission) != PermissionState.GRANTED;
+    boolean permissionForbiddenOrFlagIsTrue =
+        mInvokeRequestCallback || mPermissionToState.get(permission) != PermissionState.FORBID;
     boolean shouldInvokeRequestCallback =
-        activity != null && mPermissionToState.get(permission) != PermissionState.GRANTED;
+        activityNotNull && permissionNotAlreadyGranted && permissionForbiddenOrFlagIsTrue;
     // If permission was not forbidden, then grant it.
     if (mPermissionToState.get(permission) != PermissionState.FORBID) {
       // Grant permission.
@@ -67,7 +82,8 @@ import java.util.Map;
             permission)) {
           PermissionsTestUtil.grantPermission(permission);
         }
-      } catch (Exception ignored) {
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
     // Invoke permission request callback.
@@ -100,6 +116,10 @@ import java.util.Map;
 
   public void setExplicitRationaleBehaviour(Permission permission, boolean rationaleBehaviour) {
     mPermissionToShouldShowRationale.put(permission, rationaleBehaviour);
+  }
+
+  public void setInvokeRequestCallback(boolean invokeRequestCallback) {
+    mInvokeRequestCallback = invokeRequestCallback;
   }
 
   private enum PermissionState {

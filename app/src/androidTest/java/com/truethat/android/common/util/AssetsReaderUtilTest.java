@@ -1,6 +1,6 @@
 package com.truethat.android.common.util;
 
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Proudly created by ohad on 25/05/2017 for TrueThat.
  */
-public class AssetsReaderUtilTest extends BaseApplicationTest {
+public class AssetsReaderUtilTest extends BaseApplicationTestSuite {
   private static final String TINY_FILE_PATH = "common/util/tiny_file.txt";
 
   @Test public void readAsBytes() throws Exception {

@@ -1,7 +1,7 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
-import com.truethat.android.ui.common.camera.CameraActivity;
+import com.truethat.android.ui.common.camera.CameraFragment;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
@@ -20,7 +20,7 @@ public interface ReactionDetectionPubSub {
 
   /**
    * Request additional input (i.e. takes a photo with the device's camera, or calls {@link
-   * CameraActivity#takePicture()}), in order to invoke {@link ReactionDetectionModule#attempt(Image)}
+   * CameraFragment#takePicture()}), in order to invoke {@link ReactionDetectionModule#attempt(Image)}
    */
   void requestInput();
 }

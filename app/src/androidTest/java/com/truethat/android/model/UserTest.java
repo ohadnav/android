@@ -1,7 +1,7 @@
 package com.truethat.android.model;
 
 import com.truethat.android.application.App;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 16/06/2017 for TrueThat.
  */
-public class UserTest extends BaseApplicationTest {
+public class UserTest extends BaseApplicationTestSuite {
 
   @Test public void isValidName() throws Exception {
     List<String> validNames = Arrays.asList("ohad navon", "oHAd Navon", "oh ad");

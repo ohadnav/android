@@ -3,9 +3,11 @@ package com.truethat.android.ui.welcome;
 import android.content.Intent;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.common.camera.CameraFragment;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,9 +15,12 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
+import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.application.ApplicationTestUtil.withBackgroundColor;
 import static org.awaitility.Awaitility.await;
@@ -28,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 16/06/2017 for TrueThat.
  */
-public class OnBoardingActivityTest extends BaseApplicationTest {
+public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   private static final String NAME = "donald duck";
 
   @Before public void setUp() throws Exception {
@@ -37,11 +42,13 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
     // Authentication should navigate user to on boarding. We start from test activity,
     // so that we can assert successful on boarding.
     App.getAuthModule().auth(mActivityTestRule.getActivity());
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(OnBoardingActivity.class);
   }
 
   @Test public void successfulOnBoarding() throws Exception {
+    // EditText should be auto focused.
+    onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
+    // Type user name and hit done.
     onView(withId(R.id.nameEditText)).perform(typeText(NAME)).perform(pressImeActionButton());
     // Wait until detection had started.
     await().until(new Callable<Boolean>() {
@@ -55,7 +62,7 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
   }
 
   @Test public void alreadyAuthOk() throws Exception {
-    // Do on boarding.
+    // Type user name and hit done.
     onView(withId(R.id.nameEditText)).perform(typeText(NAME)).perform(pressImeActionButton());
     // Wait until detection had started.
     await().until(new Callable<Boolean>() {
@@ -70,19 +77,30 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
     mActivityTestRule.getActivity()
         .startActivity(new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
     // Should navigate back to test activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(TestActivity.class);
   }
 
   @Test public void slowDetection() throws Exception {
-    onView(withId(R.id.nameEditText)).perform(typeText(NAME)).perform(pressImeActionButton());
+    // Type user name.
+    onView(withId(R.id.nameEditText)).perform(typeText(NAME));
+    // Wait for camera to open
+    final CameraFragment cameraFragment =
+        (CameraFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.cameraFragment);
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return cameraFragment.isCameraOpen();
+      }
+    });
+    // Hit done.
+    onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
     // Request first input.
     mMockReactionDetectionModule.next();
     // Request second input.
     mMockReactionDetectionModule.next();
     // Slow detection... should show encouragement text
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.realLifeText)), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.realLifeText))));
+    // Compete on boarding
     mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
   }
@@ -109,8 +127,7 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
 
   private void assertReadyForSmile() {
     // Wait until smile text is shown
-    onView(isRoot()).perform(
-        waitMatcher(allOf(isDisplayed(), withId(R.id.smileText)), TimeUnit.SECONDS.toMillis(1)));
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.smileText))));
     // Assert detection is ongoing.
     assertTrue(mMockReactionDetectionModule.isDetecting());
   }
@@ -135,11 +152,14 @@ public class OnBoardingActivityTest extends BaseApplicationTest {
 
   private void assertOnBoardingSuccessful() {
     // Should navigate back to Test activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(TestActivity.class);
+    // Wait until Auth OK.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(App.getAuthModule().isAuthOk());
+      }
+    });
     // Assert the current user now the proper name.
     assertEquals(NAME, App.getAuthModule().getUser().getDisplayName());
-    // Assert the Auth OK status is correct.
-    assertTrue(App.getAuthModule().isAuthOk());
   }
 }

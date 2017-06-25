@@ -1,18 +1,17 @@
 package com.truethat.android.ui.studio;
 
 import android.media.Image;
+import android.media.ImageReader;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
-import com.google.common.base.Supplier;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.storage.internal.MockInternalStorage;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.AssetsReaderUtil;
+import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.model.Scene;
-import com.truethat.android.ui.common.camera.CameraTestUtil;
 import java.util.Date;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -37,11 +36,18 @@ import static org.junit.Assert.assertEquals;
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
-public class StudioActivityTest extends BaseApplicationTest {
+public class StudioActivityTest extends BaseApplicationTestSuite {
   private static final long SCENE_ID = 123L;
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
   private Image mImageMock;
+  private boolean mImageTaken = false;
+  private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
+      new ImageReader.OnImageAvailableListener() {
+        @Override public void onImageAvailable(ImageReader reader) {
+          mImageTaken = true;
+        }
+      };
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -51,15 +57,23 @@ public class StudioActivityTest extends BaseApplicationTest {
     mImageMock = CameraTestUtil.bitmapBytesToMockedImage(
         AssetsReaderUtil.readAsBytes(mStudioActivityTestRule.getActivity(),
             CameraTestUtil.BITMAP_1x1_PATH), 0);
-    // Sets up new mocked internal storage.
-    App.setInternalStorage(new MockInternalStorage());
+    mStudioActivityTestRule.getActivity()
+        .getCameraFragment()
+        .setOnImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
   }
 
   @Test @MediumTest public void takePictureWithButton() throws Exception {
     onView(withId(R.id.captureButton)).perform(click());
+    // Wait until camera is opened
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
-        return mStudioActivityTestRule.getActivity().supplyImage() != null;
+        return mStudioActivityTestRule.getActivity().getCameraFragment().isCameraOpen();
+      }
+    });
+    // Wait until an image is taken
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mImageTaken;
       }
     });
   }
@@ -85,14 +99,9 @@ public class StudioActivityTest extends BaseApplicationTest {
         return new MockResponse().setBody(NetworkUtil.GSON.toJson(respondedScene) + "\n");
       }
     };
-    // Ensures the image taken is {@code mImageMock}.
-    mStudioActivityTestRule.getActivity().setImageSupplier(new Supplier<Image>() {
-      @Override public Image get() {
-        return mImageMock;
-      }
-    });
     mMockWebServer.setDispatcher(dispatcher);
-    mStudioActivityTestRule.getActivity().processImage();
+    //noinspection ConstantConditions
+    mStudioActivityTestRule.getActivity().processImage(mImageMock);
     // Wait until scene is saved to internal memory.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

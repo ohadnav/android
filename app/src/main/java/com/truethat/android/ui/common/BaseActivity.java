@@ -77,6 +77,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             App.getAuthModule().auth(this);
           } catch (IOException e) {
             Log.e(TAG, "Failed to update names.", e);
+            e.printStackTrace();
             authFailed = true;
           }
         } else {

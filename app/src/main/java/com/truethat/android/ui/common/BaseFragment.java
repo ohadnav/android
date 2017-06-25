@@ -1,8 +1,11 @@
 package com.truethat.android.ui.common;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,7 @@ public abstract class BaseFragment extends Fragment {
    */
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
+    Log.v(TAG, "onCreateView");
     mRootView = inflater.inflate(getLayoutResId(), container, false);
     mUnbinder = ButterKnife.bind(this, mRootView);
     return mRootView;
@@ -45,6 +49,7 @@ public abstract class BaseFragment extends Fragment {
   protected abstract int getLayoutResId();
 
   @Override public void onDestroyView() {
+    Log.v(TAG, "onDestroyView");
     super.onDestroyView();
     mUnbinder.unbind();
   }
@@ -54,11 +59,13 @@ public abstract class BaseFragment extends Fragment {
    * and {@link #onHidden()} here as well.
    */
   @Override public void onResume() {
+    Log.v(TAG, "onResume");
     super.onResume();
     if (getUserVisibleHint()) onVisible();
   }
 
   @Override public void onPause() {
+    Log.v(TAG, "onPause");
     super.onPause();
     onHidden();
   }
@@ -77,12 +84,59 @@ public abstract class BaseFragment extends Fragment {
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
-  protected void onVisible() {
+  public void onVisible() {
+    Log.v(TAG, "onVisible");
   }
 
   /**
    * Should be invoked once this fragment is hidden. Use with caution.
    */
-  protected void onHidden() {
+  public void onHidden() {
+    Log.v(TAG, "onHidden");
+  }
+
+  @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    Log.v(TAG, "onCreate");
+    super.onCreate(savedInstanceState);
+  }
+
+  @Override public void onDestroy() {
+    Log.v(TAG, "onDestroy");
+    super.onDestroy();
+  }
+
+  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    Log.v(TAG, "onInflate");
+    super.onInflate(context, attrs, savedInstanceState);
+  }
+
+  @Override public void onAttach(Context context) {
+    Log.v(TAG, "onAttach");
+    super.onAttach(context);
+  }
+
+  @Override public void onDetach() {
+    Log.v(TAG, "onDetach");
+    super.onDetach();
+  }
+
+  @Override public void onStart() {
+    Log.v(TAG, "onStart");
+    super.onStart();
+  }
+
+  @Override public void onStop() {
+    Log.v(TAG, "onStop");
+    super.onStop();
+  }
+
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Log.v(TAG, "onSaveInstanceState");
+  }
+
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    Log.v(TAG, "onViewStateRestored");
   }
 }

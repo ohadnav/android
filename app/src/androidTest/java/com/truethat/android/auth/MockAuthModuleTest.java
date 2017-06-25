@@ -1,19 +1,16 @@
 package com.truethat.android.auth;
 
-import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.BaseApplicationTest;
-import java.util.concurrent.TimeUnit;
+import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.welcome.OnBoardingActivity;
+import com.truethat.android.ui.welcome.WelcomeActivity;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
-import static org.hamcrest.Matchers.allOf;
+import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
  */
-public class MockAuthModuleTest extends BaseApplicationTest {
+public class MockAuthModuleTest extends BaseApplicationTestSuite {
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -66,26 +63,32 @@ public class MockAuthModuleTest extends BaseApplicationTest {
     // Authenticate user
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     // Should navigate to OnBoarding activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(OnBoardingActivity.class);
     // Assert auth status is not OK
     assertFalse(App.getAuthModule().isAuthOk());
   }
 
   private void assertSuccessfulAuth() {
     // Should navigate back to Test activity.
-    onView(withId(R.id.activityRootView)).check(matches(isDisplayed()));
+    waitForActivity(TestActivity.class);
     // Assert auth status is OK
-    assertTrue(App.getAuthModule().isAuthOk());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(App.getAuthModule().isAuthOk());
+      }
+    });
     // User exists
     assertNotNull(mMockAuthModule.getUser());
   }
 
   private void assertFailedAuth() {
     // Should navigate to Welcome activity.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.activityRootView)),
-        TimeUnit.SECONDS.toMillis(1)));
+    waitForActivity(WelcomeActivity.class);
     // Assert auth status is not OK
-    assertFalse(App.getAuthModule().isAuthOk());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(App.getAuthModule().isAuthOk());
+      }
+    });
   }
 }

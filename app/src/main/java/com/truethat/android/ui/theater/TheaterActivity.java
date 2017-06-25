@@ -1,6 +1,7 @@
 package com.truethat.android.ui.theater;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -13,7 +14,8 @@ import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.TheaterAPI;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.ui.common.camera.CameraActivity;
+import com.truethat.android.ui.common.BaseActivity;
+import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
 import com.truethat.android.ui.studio.StudioActivity;
@@ -27,13 +29,15 @@ import static android.view.View.GONE;
 /**
  * Theater is where users interact with scenes.
  */
-public class TheaterActivity extends CameraActivity
-    implements ReactableFragment.OnReactableInteractionListener {
+public class TheaterActivity extends BaseActivity
+    implements ReactableFragment.OnReactableInteractionListener,
+    CameraFragment.OnPictureTakenListener {
   @BindView(R.id.reactablesPager) ViewPager mPager;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
   private TheaterAPI mTheaterAPI;
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
+  private CameraFragment mCameraFragment;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -62,6 +66,9 @@ public class TheaterActivity extends CameraActivity
         }
       }
     });
+    // Hooks the camera fragment
+    mCameraFragment =
+        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
     // Initializes the Theater API
     mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
     mFetchReactablesCallback = buildFetchReactablesCallback();
@@ -71,9 +78,9 @@ public class TheaterActivity extends CameraActivity
     return R.layout.activity_theater;
   }
 
-  @Override protected void processImage() {
+  @Override public void processImage(Image image) {
     // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(supplyImage());
+    App.getReactionDetectionModule().attempt(image);
   }
 
   @Override public void onAuthOk() {
@@ -81,7 +88,7 @@ public class TheaterActivity extends CameraActivity
   }
 
   @Override public void requestDetectionInput() {
-    takePicture();
+    mCameraFragment.takePicture();
   }
 
   @Override protected void onPause() {

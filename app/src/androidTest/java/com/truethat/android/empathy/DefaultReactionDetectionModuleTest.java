@@ -2,7 +2,7 @@ package com.truethat.android.empathy;
 
 import android.media.Image;
 import android.support.annotation.Nullable;
-import com.truethat.android.common.BaseApplicationTest;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import java.util.Date;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.AfterClass;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  */
-public class DefaultReactionDetectionModuleTest extends BaseApplicationTest {
+public class DefaultReactionDetectionModuleTest extends BaseApplicationTestSuite {
   private static final long REQUEST_INPUT_TIMEOUT_MILLIS =
       DefaultReactionDetectionModule.REQUEST_INPUT_TIMEOUT_MILLIS;
   private static final long DETECTION_TIMEOUT_MILLIS =
@@ -155,7 +155,8 @@ public class DefaultReactionDetectionModuleTest extends BaseApplicationTest {
           mFirstInputRequest = false;
           try {
             Thread.sleep(TEST_TIMEOUT_MILLIS / 2);
-          } catch (Exception ignored) {
+          } catch (Exception e) {
+            e.printStackTrace();
           }
         } else {
           reaction = expected;

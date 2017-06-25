@@ -1,10 +1,13 @@
 package com.truethat.android.ui.common;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.R;
+import com.truethat.android.ui.common.camera.CameraFragment;
 
-@VisibleForTesting public class TestActivity extends BaseActivity {
+@VisibleForTesting public class TestActivity extends BaseActivity
+    implements CameraFragment.OnPictureTakenListener {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     // Should not authenticate on tests.
@@ -14,5 +17,8 @@ import com.truethat.android.R;
 
   @Override protected int getLayoutResId() {
     return R.layout.activity_test;
+  }
+
+  @Override public void processImage(Image image) {
   }
 }

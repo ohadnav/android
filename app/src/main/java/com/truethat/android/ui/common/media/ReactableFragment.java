@@ -118,11 +118,12 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
 
   @Override public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof ReactableFragment.OnReactableInteractionListener) {
+    if (context instanceof OnReactableInteractionListener) {
       mListener = (OnReactableInteractionListener) context;
     } else {
-      throw new RuntimeException(
-          context.toString() + " must implement OnReactableInteractionListener");
+      throw new RuntimeException(context.toString()
+          + " must implement "
+          + OnReactableInteractionListener.class.getSimpleName());
     }
   }
 
@@ -132,14 +133,14 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     if (mPostEventCall != null) mPostEventCall.cancel();
   }
 
-  @Override protected void onVisible() {
+  @Override public void onVisible() {
     doView();
     if (mReactable.getUserReaction() == null) {
       App.getReactionDetectionModule().detect(mDetectionPubSub);
     }
   }
 
-  @Override protected void onHidden() {
+  @Override public void onHidden() {
     App.getReactionDetectionModule().stop();
   }
 

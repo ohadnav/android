@@ -1,11 +1,11 @@
 package com.truethat.android.ui.studio;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import android.view.TextureView;
 import android.widget.Toast;
 import butterknife.BindString;
 import butterknife.OnClick;
@@ -15,7 +15,8 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Scene;
-import com.truethat.android.ui.common.camera.CameraActivity;
+import com.truethat.android.ui.common.BaseActivity;
+import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
 import com.truethat.android.ui.theater.TheaterActivity;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class StudioActivity extends CameraActivity {
+public class StudioActivity extends BaseActivity implements CameraFragment.OnPictureTakenListener {
 
   /**
    * File name for HTTP post request for saving scenes.
@@ -64,6 +65,7 @@ public class StudioActivity extends CameraActivity {
       Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
     }
   };
+  private CameraFragment mCameraFragment;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -75,12 +77,17 @@ public class StudioActivity extends CameraActivity {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
-    // Sets the camera preview.
-    mCameraPreview = (TextureView) this.findViewById(R.id.cameraPreview);
+    // Hooks the camera fragment
+    mCameraFragment =
+        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
   }
 
   @Override protected int getLayoutResId() {
     return R.layout.activity_studio;
+  }
+
+  @VisibleForTesting public CameraFragment getCameraFragment() {
+    return mCameraFragment;
   }
 
   /**
@@ -88,18 +95,17 @@ public class StudioActivity extends CameraActivity {
    */
   @OnClick(R.id.captureButton) public void captureImage() {
     if (App.getAuthModule().isAuthOk()) {
-      takePicture();
+      mCameraFragment.takePicture();
     } else {
       Toast.makeText(this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
     }
   }
 
-  protected void processImage() {
+  @Override public void processImage(Image image) {
     Log.v(TAG, "Sending multipart request to: " + NetworkUtil.getBackendUrl());
     MultipartBody.Part imagePart =
         MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
-            RequestBody.create(MediaType.parse("image/jpg"),
-                CameraUtil.toByteArray(supplyImage())));
+            RequestBody.create(MediaType.parse("image/jpg"), CameraUtil.toByteArray(image)));
     MultipartBody.Part creatorPart = MultipartBody.Part.createFormData(StudioAPI.DIRECTOR_PART,
         Long.toString(App.getAuthModule().getUser().getId()));
     MultipartBody.Part timestampPart = MultipartBody.Part.createFormData(StudioAPI.CREATED_PART,
