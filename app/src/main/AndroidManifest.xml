@@ -41,7 +41,7 @@
     </activity>
     <activity android:name=".ui.welcome.OnBoardingActivity">
     </activity>
-    <activity android:name=".studio.RepertoireActivity">
+    <activity android:name=".ui.studio.RepertoireActivity">
     </activity>
   </application>
 

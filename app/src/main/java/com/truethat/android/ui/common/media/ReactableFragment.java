@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
@@ -45,28 +46,25 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   private static final String ARG_REACTABLE = "reactable";
 
   protected T mReactable;
-
+  @BindView(R.id.directorNameText) TextView mDirectorNameText;
+  @BindView(R.id.timeAgoText) TextView mTimeAgoText;
   /**
    * Communication interface with parent activity.
    */
   private OnReactableInteractionListener mListener;
-
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * ReactableEvent}.
    */
   private TheaterAPI mTheaterAPI;
-
   /**
    * HTTP POST call of {@link #mTheaterAPI}.
    */
   private Call<ResponseBody> mPostEventCall;
-
   /**
    * Callback for {@link #mTheaterAPI}.
    */
   private Callback<ResponseBody> mPostEventCallback;
-
   /**
    * Communication interface with {@link ReactionDetectionModule}.
    */
@@ -135,7 +133,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
 
   @Override public void onVisible() {
     doView();
-    if (mReactable.getUserReaction() == null) {
+    if (mReactable.canReactTo()) {
       App.getReactionDetectionModule().detect(mDetectionPubSub);
     }
   }
@@ -145,7 +143,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   }
 
   /**
-   * Create
+   * Create the media layout of the fragment, such as the {@link Scene} image.
    */
   @MainThread protected abstract void createMedia(LayoutInflater inflater,
       Bundle savedInstanceState);
@@ -158,7 +156,8 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    * Marks {@link #mReactable} as viewed by the user, and informs our backend about it.
    */
   private void doView() {
-    if (!mReactable.isViewed()) {
+    // Don't record view of the user's own reactables.
+    if (!mReactable.isViewed() && !mReactable.getDirector().equals(App.getAuthModule().getUser())) {
       mReactable.doView();
       mTheaterAPI.postEvent(
           new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(), new Date(),
@@ -170,12 +169,14 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    * Updates the director layout with data from {@link #mReactable}.
    */
   @MainThread private void updateDirectorLayout() {
-    // Sets the view count.
-    TextView userNameText = (TextView) mRootView.findViewById(R.id.directorNameText);
-    userNameText.setText(mReactable.getDirector().getDisplayName());
+    // Sets director name.
+    mDirectorNameText.setText(mReactable.getDirector().getDisplayName());
+    // Hide the director name if it is the user.
+    if (mReactable.getDirector().equals(App.getAuthModule().getUser())) {
+      mDirectorNameText.setVisibility(View.GONE);
+    }
     // Sets time ago
-    TextView timeAgoText = (TextView) mRootView.findViewById(R.id.timeAgoText);
-    timeAgoText.setText(DateUtil.formatTimeAgo(mReactable.getCreated()));
+    mTimeAgoText.setText(DateUtil.formatTimeAgo(mReactable.getCreated()));
   }
 
   /**

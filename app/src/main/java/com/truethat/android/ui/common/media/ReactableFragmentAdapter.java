@@ -1,11 +1,11 @@
-package com.truethat.android.ui.theater;
+package com.truethat.android.ui.common.media;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.ui.common.media.ReactableFragment;
+import com.truethat.android.ui.theater.TheaterActivity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +16,10 @@ import java.util.List;
  * nicely in {@link TheaterActivity}.
  */
 
-class ReactableFragmentAdapter extends FragmentStatePagerAdapter {
+public class ReactableFragmentAdapter extends FragmentStatePagerAdapter {
   private List<Reactable> mReactables = new ArrayList<>();
 
-  ReactableFragmentAdapter(FragmentManager fm) {
+  public ReactableFragmentAdapter(FragmentManager fm) {
     super(fm);
   }
 
@@ -34,7 +34,7 @@ class ReactableFragmentAdapter extends FragmentStatePagerAdapter {
   /**
    * @param reactables new {@link Reactable} fetched from our backend.
    */
-  void add(List<Reactable> reactables) {
+  public void add(List<Reactable> reactables) {
     mReactables.addAll(reactables);
     notifyDataSetChanged();
   }

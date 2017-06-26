@@ -2,6 +2,7 @@ package com.truethat.android.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.ui.common.media.ReactableFragment;
@@ -112,6 +113,15 @@ public abstract class Reactable implements Serializable {
   }
 
   public abstract ReactableFragment createFragment();
+
+  /**
+   * @return whether the user can react to this reactable.
+   */
+  public boolean canReactTo() {
+    boolean notReactedTo = mUserReaction == null;
+    boolean notMine = !App.getAuthModule().getUser().equals(mDirector);
+    return notReactedTo && notMine;
+  }
 
   /**
    * Increases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Creates new map

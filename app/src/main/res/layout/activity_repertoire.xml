@@ -3,11 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/repertoireActivity"
+    android:id="@+id/activityRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.truethat.android.studio.RepertoireActivity"
+    tools:context="com.truethat.android.ui.studio.RepertoireActivity"
     >
+
+  <android.support.constraint.ConstraintLayout
+      android:id="@+id/loadingLayout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      >
+    <ImageView
+        android:id="@+id/loadingImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/image_content_description"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toTopOf="@+id/notFoundText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/loading_elephant"
+        />
+    <TextView
+        android:id="@+id/notFoundText"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/non_created"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loadingImage"
+        tools:visibility="visible"
+        />
+  </android.support.constraint.ConstraintLayout>
 
   <android.support.v4.view.ViewPager
       android:id="@+id/reactablesPager"

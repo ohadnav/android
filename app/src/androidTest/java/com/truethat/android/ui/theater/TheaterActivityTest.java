@@ -21,6 +21,8 @@ import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.media.ReactableFragment;
+import com.truethat.android.ui.studio.StudioActivity;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -39,12 +41,14 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
+import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.not;
@@ -95,6 +99,11 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     mRespondedScenes = Collections.emptyList();
   }
 
+  @Test public void navigation() throws Exception {
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    waitForActivity(StudioActivity.class);
+  }
+
   @Test public void displayScene() throws Exception {
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
@@ -114,8 +123,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserting the layout is displayed fullscreen.
     onView(withId(R.id.reactableFragment)).check(matches(isFullScreen()));
-    // Loading image should be hidden.
-    onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    // Loading layout should be hidden.
+    onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
     // Asserting the reactions count is abbreviated.
     onView(withId(R.id.reactionCountText)).check(
         matches(withText(NumberUtil.format(HAPPY_COUNT + SAD_COUNT))));
@@ -138,6 +147,70 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
         assertEquals(1, mPostEventCount);
       }
     });
+  }
+
+  @Test public void noReactablesFound() throws Exception {
+    // A new dispatcher is set to ensure asynchronous server behaviour, so that we can test non
+    // found text proper display.
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
+        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        return new MockResponse().setBody(responseBody);
+      }
+    });
+    mTheaterActivityTestRule.launchActivity(null);
+    // Wait until not found text is displayed
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText))));
+    // A reactable should not be displayed.
+    onView(withId(R.id.reactableFragment)).check(doesNotExist());
+    // Explicitly load more reactables.
+    mRespondedScenes = Collections.singletonList(
+        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, new TreeMap<Emotion, Long>(), HOUR_AGO,
+            Emotion.HAPPY));
+    // Triggers navigation to next reactable.
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
+    // Not found text should be hidden.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        // Fragment is not yet shown
+        onView(withId(R.id.reactableFragment)).check(doesNotExist());
+        // Not found text is hidden
+        onView(withId(R.id.notFoundText)).check(matches(not(isDisplayed())));
+      }
+    });
+    // Wait until the reactable is displayed.
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    // Loading layout should be hidden.
+    onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
+  }
+
+  @Test public void nonFoundTextClick() throws Exception {
+    mMockWebServer.close();
+    mTheaterActivityTestRule.launchActivity(null);
+    // Not found text should be displayed.
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText))));
+    onView(withId(R.id.notFoundText)).perform(ViewActions.click());
+    // Should navigate to Studio.
+    waitForActivity(StudioActivity.class);
+  }
+
+  @Test public void noReactablesFound_failedRequest() throws Exception {
+    mMockWebServer.close();
+    mTheaterActivityTestRule.launchActivity(null);
+    // Not found text should be displayed.
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText))));
+  }
+
+  @Test public void noReactablesFound_failedResponse() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+      }
+    });
+    mTheaterActivityTestRule.launchActivity(null);
+    // Not found text should be displayed.
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText))));
   }
 
   @Test public void displayScene_noReaction() throws Exception {
@@ -211,14 +284,23 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    // Asserts that a single view event was posted.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(1, mPostEventCount);
+      }
+    });
     // Updates responded scenes.
     mRespondedScenes = Collections.singletonList(
         new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY)))));
+    // Wait until second view event is recorded.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(2, mPostEventCount);
+      }
+    });
   }
 
   @Test public void emotionalReaction() throws Exception {

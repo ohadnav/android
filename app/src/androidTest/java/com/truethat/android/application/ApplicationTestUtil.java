@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Size;
 import android.view.View;
 import android.widget.EditText;
+import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.AppUtil;
 import java.util.concurrent.TimeoutException;
 import org.hamcrest.Description;
@@ -25,6 +26,7 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.intent.Checks.checkNotNull;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
+import static com.truethat.android.common.BaseApplicationTestSuite.DEFAULT_TIMEOUT;
 import static org.hamcrest.CoreMatchers.allOf;
 
 /**
@@ -33,15 +35,11 @@ import static org.hamcrest.CoreMatchers.allOf;
 public class ApplicationTestUtil {
   public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android.debug";
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
-  /**
-   * Timeout to wait for a {@link Matcher}.
-   */
-  private static final long WAIT_TIMEOUT_MILLIS = 1000;
 
   /**
    * @param viewMatcher for find a specific view.
    * @return action that attempts to find the {@link View} described by {@code viewMatcher} for at
-   * most {@link #WAIT_TIMEOUT_MILLIS}.
+   * most {@link BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
    */
   public static ViewAction waitMatcher(final Matcher viewMatcher) {
     return new ViewAction() {
@@ -52,13 +50,15 @@ public class ApplicationTestUtil {
       @Override public String getDescription() {
         return "waited for to for a specific view with matcher <"
             + viewMatcher
-            + "> during " + WAIT_TIMEOUT_MILLIS + "ms.";
+            + "> during "
+            + DEFAULT_TIMEOUT
+            + ".";
       }
 
       @Override public void perform(final UiController uiController, final View view) {
         uiController.loopMainThreadUntilIdle();
         final long startTime = System.currentTimeMillis();
-        final long endTime = startTime + WAIT_TIMEOUT_MILLIS;
+        final long endTime = startTime + DEFAULT_TIMEOUT.getValueInMS();
 
         do {
           for (View child : TreeIterables.breadthFirstViewTraversal(view)) {
@@ -83,7 +83,7 @@ public class ApplicationTestUtil {
   /**
    * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
    * @return action that throws if {@code activityClass} is not displayed within {@link
-   * #WAIT_TIMEOUT_MILLIS}.
+   * BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
    */
   public static ViewAction waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
     return waitMatcher(allOf(isDisplayed(), withinActivity(activityClass)));

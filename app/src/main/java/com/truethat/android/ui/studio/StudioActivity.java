@@ -14,20 +14,20 @@ import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CameraUtil;
-import com.truethat.android.model.Scene;
 import com.truethat.android.ui.common.BaseActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
 import com.truethat.android.ui.theater.TheaterActivity;
-import java.io.IOException;
 import java.util.Date;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+//TODO(ohad): add "photo approve" stage, and failure Toast when sending scene failed.
 public class StudioActivity extends BaseActivity implements CameraFragment.OnPictureTakenListener {
 
   /**
@@ -36,24 +36,15 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   private static final String FILENAME = "studio-image";
   @VisibleForTesting @BindString(R.string.signing_in) String UNAUTHORIZED_TOAST = "Signing in...";
   /**
-   * Retrofit API interface for saving scenes.
+   * API interface for saving scenes.
    */
   private StudioAPI mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
-  private Callback<Scene> mSaveSceneCallback = new Callback<Scene>() {
-    @Override public void onResponse(@NonNull Call<Scene> call, @NonNull Response<Scene> response) {
+  private Callback<ResponseBody> mSaveSceneCallback = new Callback<ResponseBody>() {
+    @Override public void onResponse(@NonNull Call<ResponseBody> call,
+        @NonNull Response<ResponseBody> response) {
       if (response.isSuccessful()) {
-        try {
-          Scene respondedScene = response.body();
-          if (respondedScene == null) {
-            throw new AssertionError("Responded scene no tiene nada!");
-          }
-          App.getInternalStorage()
-              .write(StudioActivity.this, respondedScene.internalStoragePath(), respondedScene);
-        } catch (IOException e) {
-          Log.e(TAG, "Failed to save scene to internal storage.", e);
-        } catch (NullPointerException e) {
-          Log.e(TAG, "saveScene response is null.");
-        }
+        // Navigate to theater after posting.
+        startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       } else {
         Log.e(TAG,
             "Failed to save scene.\n" + response.code() + " " + response.message() + "\n" + response
@@ -61,7 +52,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
       }
     }
 
-    @Override public void onFailure(@NonNull Call<Scene> call, @NonNull Throwable t) {
+    @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
       Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
     }
   };
@@ -86,10 +77,6 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     return R.layout.activity_studio;
   }
 
-  @VisibleForTesting public CameraFragment getCameraFragment() {
-    return mCameraFragment;
-  }
-
   /**
    * UI initiated picture taking.
    */
@@ -107,7 +94,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
         MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"), CameraUtil.toByteArray(image)));
     MultipartBody.Part creatorPart = MultipartBody.Part.createFormData(StudioAPI.DIRECTOR_PART,
-        Long.toString(App.getAuthModule().getUser().getId()));
+        NetworkUtil.GSON.toJson(App.getAuthModule().getUser()));
     MultipartBody.Part timestampPart = MultipartBody.Part.createFormData(StudioAPI.CREATED_PART,
         Long.toString(new Date().getTime()));
     mStudioAPI.saveScene(imagePart, creatorPart, timestampPart).enqueue(mSaveSceneCallback);

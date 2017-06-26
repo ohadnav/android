@@ -210,4 +210,17 @@ public class User implements Serializable {
     mDeviceId = lastUser.mDeviceId;
     mPhoneNumber = lastUser.mPhoneNumber;
   }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof User)) return false;
+
+    User user = (User) o;
+
+    return mId.equals(user.mId);
+  }
+
+  @Override public int hashCode() {
+    return mId.hashCode();
+  }
 }
