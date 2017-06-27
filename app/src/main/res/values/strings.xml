@@ -18,6 +18,7 @@
   <string name="hey">hey</string>
   <string name="real_life_smile">like in real life smile</string>
   <string name="create_your_account">Create your account</string>
-  <string name="not_found_reactables">It\'s have been quite lately. Heck! Create you own scene.</string>
+  <string name="not_found_reactables">It\'s quiet here. Create you own scene.</string>
   <string name="non_created">Not in a sharing mood today?</string>
+  <string name="sent_failed">Heaven forbid! Sending had failed</string>
 </resources>

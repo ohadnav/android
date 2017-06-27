@@ -12,11 +12,12 @@ import retrofit2.http.POST;
  */
 
 interface AuthAPI {
+  String PATH = "auth";
   /**
    * Posts an authentication or an authorization to our magical backend.
    *
    * @param user current logged in user.
    * @return the user, as stored in our backend.
    */
-  @POST("auth") Call<User> postAuth(@Body User user);
+  @POST(PATH) Call<User> postAuth(@Body User user);
 }

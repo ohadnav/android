@@ -11,7 +11,9 @@ import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.network.TheaterAPI;
 import com.truethat.android.common.util.CameraTestUtil;
+import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
@@ -27,11 +29,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Duration;
@@ -79,17 +79,11 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Scene> mRespondedScenes;
-  private int mPostEventCount;
 
   @Before public void setUp() throws Exception {
     super.setUp();
-    // Resets the post event counter.
-    mPostEventCount = 0;
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        if (Objects.equals(request.getMethod(), "POST") && request.getPath().contains("theater")) {
-          mPostEventCount++;
-        }
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
@@ -144,7 +138,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
+        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
   }
@@ -152,8 +146,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Test public void noReactablesFound() throws Exception {
     // A new dispatcher is set to ensure asynchronous server behaviour, so that we can test non
     // found text proper display.
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
         Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(responseBody);
@@ -203,8 +197,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void noReactablesFound_failedResponse() throws Exception {
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
@@ -238,7 +232,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
+        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
     // Triggers navigation to next reactable.
@@ -249,7 +243,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mPostEventCount);
+        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
   }
@@ -287,7 +281,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
+        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
     // Updates responded scenes.
@@ -298,7 +292,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Wait until second view event is recorded.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mPostEventCount);
+        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
   }
@@ -312,7 +306,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
+        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
@@ -321,7 +315,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mPostEventCount);
+        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
     // Asserting the reaction image is changed to reflect the user reaction.
@@ -349,7 +343,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mPostEventCount);
+        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
     // Already detected reaction, and so reaction detection should be stopped.
@@ -378,7 +372,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a reaction event was posted.
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mPostEventCount);
+        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
     });
   }

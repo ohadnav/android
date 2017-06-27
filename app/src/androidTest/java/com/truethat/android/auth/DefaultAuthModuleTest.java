@@ -5,13 +5,12 @@ import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.User;
 import com.truethat.android.ui.common.AskForPermissionActivity;
 import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.welcome.OnBoardingActivity;
 import com.truethat.android.ui.welcome.WelcomeActivity;
-import java.util.Objects;
-import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Before;
@@ -32,7 +31,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
   private User mRespondedUser;
-  private int mAuthRequestCount;
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -40,13 +38,8 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.setAuthModule(new DefaultAuthModule());
     // Initializes the responded user.
     mRespondedUser = MockAuthModule.USER;
-    // Resets request counter
-    mAuthRequestCount = 0;
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        if (Objects.equals(request.getMethod(), "POST") && request.getPath().endsWith("auth")) {
-          mAuthRequestCount++;
-        }
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser) + "\n");
       }
     });
@@ -61,7 +54,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert a single call to auth API.
-    assertEquals(1, mAuthRequestCount);
+    assertEquals(1, mDispatcher.getCount("POST", AuthAPI.PATH));
   }
 
   @Test public void authWithBadResponse() throws Exception {
@@ -84,7 +77,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     onView(withId(R.id.signInText)).check(matches(isDisplayed())).perform(click());
     assertAuthOk();
     // Assert a single call to auth API.
-    assertEquals(2, mAuthRequestCount);
+    assertEquals(2, mDispatcher.getCount("POST", AuthAPI.PATH));
   }
 
   @Test public void authWithStorageFailure() throws Exception {
@@ -113,18 +106,19 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert there was only a single call to auth API, at the second auth attempt.
-    assertEquals(1, mAuthRequestCount);
+    assertEquals(1, mDispatcher.getCount("POST", AuthAPI.PATH));
   }
 
   // Asserts auth is synchronous.
   @Test public void authSync() throws Exception {
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        if (Objects.equals(request.getMethod(), "POST") && request.getPath().endsWith("auth")) {
-          mAuthRequestCount++;
-        }
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         // Sleep to ensure synchronous behaviour.
-        Thread.sleep(100);
+        try {
+          Thread.sleep(100);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
         return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser) + "\n");
       }
     });
@@ -140,7 +134,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert there wasn't any auth request.
-    assertEquals(0, mAuthRequestCount);
+    assertEquals(0, mDispatcher.getCount("POST", AuthAPI.PATH));
   }
 
   @Test public void sendToOnBoarding() throws Exception {
@@ -151,7 +145,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     // Should navigate to OnBoarding activity.
     waitForActivity(OnBoardingActivity.class);
     // Assert there wasn't any auth request.
-    assertEquals(0, mAuthRequestCount);
+    assertEquals(0, mDispatcher.getCount("POST", AuthAPI.PATH));
   }
 
   private void assertAuthOk() {

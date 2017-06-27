@@ -16,15 +16,16 @@ import retrofit2.http.POST;
  */
 
 public interface TheaterAPI {
+  String PATH = "theater";
   /**
    * Get reactables from out beloved backend to add some drama to our users life.
    */
-  @GET("theater") Call<List<Reactable>> getReactables();
+  @GET(PATH) Call<List<Reactable>> getReactables();
 
   /**
    * Informs our backend of the the current user interaction with reactables.
    *
    * @param reactableEvent the encapsulates all the event information.
    */
-  @POST("theater") Call<ResponseBody> postEvent(@Body ReactableEvent reactableEvent);
+  @POST(PATH) Call<ResponseBody> postEvent(@Body ReactableEvent reactableEvent);
 }

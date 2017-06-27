@@ -3,32 +3,36 @@ package com.truethat.android.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.truethat.android.application.App;
+import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.common.media.SceneFragment;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.TreeMap;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 /**
  * Proudly created by ohad on 01/05/2017 for TrueThat.
  */
 
 public class Scene extends Reactable implements Serializable {
-
-  /**
-   * Internal storage directory that contains serialized scenes.
-   */
-  private static final String CREATED_SCENES_PATH = "studio/scenes/";
-  /**
-   * Internal storage suffix for scenes.
-   */
-  private static final String SCENE_SUFFIX = ".scene";
-
+  private static final String IMAGE_FILENAME = "scene.jpg";
   /**
    * Signed URL to the scene's image on our storage.
    */
   private String mImageSignedUrl;
+  /**
+   * The byte representation of this scene. Used in {@link #createApiCall(StudioAPI)}.
+   */
+  private transient byte[] mImageBytes;
 
   @VisibleForTesting public Scene(long id, String imageSignedUrl, User director,
       @NonNull TreeMap<Emotion, Long> reactionCounters, Date created,
@@ -37,26 +41,32 @@ public class Scene extends Reactable implements Serializable {
     mImageSignedUrl = imageSignedUrl;
   }
 
-  // A default constructor is provided for serialization and de-serialization.
-  @SuppressWarnings("unused") private Scene() {
+  public Scene(byte[] imageBytes) {
+    super(App.getAuthModule().getUser(), new Date());
+    mImageBytes = imageBytes;
   }
 
-  public static String internalStoragePath(long id) {
-    return CREATED_SCENES_PATH + id + SCENE_SUFFIX;
+  // A default constructor is provided for serialization and de-serialization.
+  @SuppressWarnings("unused") private Scene() {
   }
 
   public String getImageSignedUrl() {
     return mImageSignedUrl;
   }
 
-  /**
-   * @return The relative path of the scene within the app's internal storage.
-   */
-  public String internalStoragePath() {
-    return internalStoragePath(getId());
-  }
-
   @Override public ReactableFragment createFragment() {
     return SceneFragment.newInstance(this);
+  }
+
+  @Override public Call<ResponseBody> createApiCall(StudioAPI studioAPI) {
+    if (mImageBytes == null) {
+      throw new AssertionError("Image bytes had not been properly initialized.");
+    }
+    MultipartBody.Part imagePart =
+        MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, IMAGE_FILENAME,
+            RequestBody.create(MediaType.parse("image/jpg"), mImageBytes));
+    MultipartBody.Part reactablePart =
+        MultipartBody.Part.createFormData(StudioAPI.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
+    return studioAPI.saveReactable(reactablePart, Collections.singletonList(imagePart));
   }
 }

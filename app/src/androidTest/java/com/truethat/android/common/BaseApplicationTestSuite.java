@@ -7,12 +7,10 @@ import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
 import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.empathy.MockReactionDetectionModule;
 import com.truethat.android.ui.common.TestActivity;
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.junit.After;
@@ -40,6 +38,7 @@ import static com.truethat.android.BuildConfig.PORT;
   protected MockAuthModule mMockAuthModule;
   protected MockInternalStorage mMockInternalStorage;
   protected MockReactionDetectionModule mMockReactionDetectionModule;
+  protected CountingDispatcher mDispatcher;
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
@@ -58,11 +57,7 @@ import static com.truethat.android.BuildConfig.PORT;
     NetworkUtil.setBackendUrl("http://localhost");
     // Starts mock server
     mMockWebServer.start(PORT);
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        return new MockResponse();
-      }
-    });
+    setDispatcher(new CountingDispatcher());
     // Launches activity
     mActivityTestRule.launchActivity(null);
   }
@@ -70,5 +65,10 @@ import static com.truethat.android.BuildConfig.PORT;
   @After public void tearDown() throws Exception {
     // Closes mock server
     mMockWebServer.close();
+  }
+
+  public void setDispatcher(CountingDispatcher dispatcher) {
+    mDispatcher = dispatcher;
+    mMockWebServer.setDispatcher(dispatcher);
   }
 }

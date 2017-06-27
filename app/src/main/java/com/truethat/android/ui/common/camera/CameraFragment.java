@@ -85,7 +85,8 @@ public class CameraFragment extends BaseFragment {
   }
 
   /**
-   * A {@link FullscreenTextureView} for camera preview. To remove camera preview set {@link #mShowPreview} to false.
+   * A {@link FullscreenTextureView} for camera preview. To remove camera preview set {@link
+   * #mShowPreview} to false.
    */
   @BindView(R.id.cameraPreview) FullscreenTextureView mCameraPreview;
   private OnPictureTakenListener mOnPictureTakenListener;
@@ -390,10 +391,6 @@ public class CameraFragment extends BaseFragment {
       } else {
         mCameraPreview.setSurfaceTextureListener(mSurfaceTextureListener);
       }
-    } else {
-      if (mState == CameraState.PICTURE_TAKEN) {
-        unlockFocus();
-      }
     }
   }
 
@@ -418,7 +415,7 @@ public class CameraFragment extends BaseFragment {
     mOnPictureTakenListener = null;
   }
 
-  @VisibleForTesting public FullscreenTextureView getCameraPreview() {
+  public FullscreenTextureView getCameraPreview() {
     return mCameraPreview;
   }
 
@@ -429,6 +426,10 @@ public class CameraFragment extends BaseFragment {
   @VisibleForTesting public void setOnImageAvailableListener(
       ImageReader.OnImageAvailableListener onImageAvailableListener) {
     mOnImageAvailableListener = onImageAvailableListener;
+  }
+
+  public CameraState getState() {
+    return mState;
   }
 
   public CameraUtil.Facing getFacing() {
@@ -445,6 +446,30 @@ public class CameraFragment extends BaseFragment {
     mFacing = mFacing == CameraUtil.Facing.FRONT ? CameraUtil.Facing.BACK : CameraUtil.Facing.FRONT;
     // Reopens camera.
     openCamera();
+  }
+
+  /**
+   * Restores camera preview after a picture was taken.
+   */
+  public void restorePreview() {
+    if (mState == CameraState.PICTURE_TAKEN) {
+      unlockFocus();
+    }
+  }
+
+  /**
+   * Adjusts camera preview for emulator defects, so that it looks normal.
+   */
+  public void adjustForEmulator() {
+    Matrix matrix = new Matrix();
+    Point displaySize = AppUtil.realDisplaySize(getActivity());
+    RectF viewRect = new RectF(0, 0, mCameraPreview.getWidth(), mCameraPreview.getHeight());
+    float centerX = viewRect.centerX();
+    float centerY = viewRect.centerY();
+    float scale = (float) mCameraPreview.getWidth() / (float) displaySize.x;
+    matrix.postScale(scale, scale, centerX, centerY);
+    matrix.postRotate(270, centerX, centerY);
+    mCameraPreview.setTransform(matrix);
   }
 
   /**
@@ -686,18 +711,6 @@ public class CameraFragment extends BaseFragment {
     }
   }
 
-  public void adjustForEmulator() {
-    Matrix matrix = new Matrix();
-    Point displaySize = AppUtil.realDisplaySize(getActivity());
-    RectF viewRect = new RectF(0, 0, mCameraPreview.getWidth(), mCameraPreview.getHeight());
-    float centerX = viewRect.centerX();
-    float centerY = viewRect.centerY();
-    float scale = (float) mCameraPreview.getWidth() / (float) displaySize.x;
-    matrix.postScale(scale, scale, centerX, centerY);
-    matrix.postRotate(270, centerX, centerY);
-    mCameraPreview.setTransform(matrix);
-  }
-
   /**
    * Configures the necessary {@link Matrix} transformation to {@link
    * #mCameraPreview}. This method should be called after the camera preview size is determined in
@@ -893,7 +906,7 @@ public class CameraFragment extends BaseFragment {
   /**
    * Camera state when it comes to showing preview, taking pictures and the like.
    */
-  private enum CameraState {
+  public enum CameraState {
     /**
      * Showing camera preview.
      */

@@ -4,11 +4,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.empathy.Emotion;
 import com.truethat.android.ui.common.media.ReactableFragment;
+import com.truethat.android.ui.theater.TheaterActivity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.TreeMap;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
@@ -54,6 +58,11 @@ public abstract class Reactable implements Serializable {
     mUserReaction = userReaction;
     mDirector = director;
     mReactionCounters = reactionCounters;
+    mCreated = created;
+  }
+
+  Reactable(User director, Date created) {
+    mDirector = director;
     mCreated = created;
   }
 
@@ -112,7 +121,13 @@ public abstract class Reactable implements Serializable {
     return mUserReaction;
   }
 
+  /**
+   * @return created a {@link ReactableFragment} to show it around in dubious activities such as
+   * {@link TheaterActivity}.
+   */
   public abstract ReactableFragment createFragment();
+
+  public abstract Call<ResponseBody> createApiCall(StudioAPI studioAPI);
 
   /**
    * @return whether the user can react to this reactable.

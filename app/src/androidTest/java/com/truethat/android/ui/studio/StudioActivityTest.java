@@ -1,23 +1,22 @@
 package com.truethat.android.ui.studio;
 
-import android.media.Image;
+import android.content.Intent;
 import android.media.ImageReader;
+import android.support.test.espresso.Espresso;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.empathy.Emotion;
-import com.truethat.android.model.Scene;
+import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.util.CountingDispatcher;
+import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.theater.TheaterActivity;
-import java.util.Date;
-import java.util.TreeMap;
+import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
-import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,20 +26,24 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
 public class StudioActivityTest extends BaseApplicationTestSuite {
-  private static final long SCENE_ID = 123L;
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
-  private Image mImageMock;
   private boolean mImageTaken = false;
   private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
       new ImageReader.OnImageAvailableListener() {
@@ -57,19 +60,20 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     mCameraFragment = (CameraFragment) mStudioActivityTestRule.getActivity()
         .getSupportFragmentManager()
         .findFragmentById(R.id.cameraFragment);
+    assertDirectingState();
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
+        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        return new MockResponse();
+      }
+    });
   }
 
   @Test @MediumTest public void takePictureWithButton() throws Exception {
     // Modifies image listener, so that images are not sent.
     mCameraFragment.setOnImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
-    // Takes a picture.
+    // Take a picture.
     onView(withId(R.id.captureButton)).perform(click());
-    // Wait until camera is opened
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mCameraFragment.isCameraOpen();
-      }
-    });
     // Wait until an image is taken
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
@@ -81,25 +85,158 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
   @Test @MediumTest public void notTakingPictureWhenNotAuth() throws Exception {
     mMockAuthModule.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
+    assertDirectingState();
     // Ensuring signing in Toast is shown.
     onView(withText(mStudioActivityTestRule.getActivity().UNAUTHORIZED_TOAST)).inRoot(
         withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
   }
 
-  // -------------------------- StudioAPI tests --------------------------------
-  @Test public void studioAPI_imageSent() throws Exception {
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        Scene respondedScene =
-            new Scene(SCENE_ID, "", App.getAuthModule().getUser(), new TreeMap<Emotion, Long>(),
-                new Date(), null);
-        return new MockResponse().setBody(NetworkUtil.GSON.toJson(respondedScene) + "\n");
+  @Test public void directingState() throws Exception {
+    assertDirectingState();
+  }
+
+  @Test public void switchCamera() throws Exception {
+    // Switch front with back camera
+    onView(withId(R.id.switchCameraButton)).perform(click());
+    assertDirectingState();
+  }
+
+  @Test public void approvalState() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+  }
+
+  @Test public void approvalCancel() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+    // Cancel the picture taken
+    onView(withId(R.id.cancelButton)).perform(click());
+    assertDirectingState();
+  }
+
+  @Test public void sentState() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+    // Send the reactable.
+    onView(withId(R.id.sendButton)).perform(click());
+    assertSentState();
+  }
+
+  @Test public void publishedState() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+    // Send the reactable.
+    onView(withId(R.id.sendButton)).perform(click());
+    assertSentState();
+    assertPublishedState();
+  }
+
+  @Test public void publishedFailed() throws Exception {
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
+        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
-    // Should navigate to theater
+    assertApprovalState();
+    // Send the reactable.
+    onView(withId(R.id.sendButton)).perform(click());
+    assertSentState();
+    // Should fail
+    assertPublishFailed();
+  }
+
+  @Test public void activityPausedWhileSending() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+    // Send the reactable.
+    onView(withId(R.id.sendButton)).perform(click());
+    assertSentState();
+    // Pause activity.
+    mStudioActivityTestRule.getActivity()
+        .startActivity(new Intent(mStudioActivityTestRule.getActivity(), TestActivity.class));
+    // Hit back
+    Espresso.pressBack();
+    // Should fail
+    assertPublishFailed();
+  }
+
+  private void assertDirectingState() {
+    // Wait until camera preview is live.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(CameraFragment.CameraState.PREVIEW, mCameraFragment.getState());
+      }
+    });
+    // Capture buttons are displayed.
+    onView(isRoot()).perform(waitMatcher(allOf(withId(R.id.captureButton), isDisplayed())));
+    onView(withId(R.id.switchCameraButton)).check(matches(isDisplayed()));
+    // Approval buttons are hidden
+    onView(withId(R.id.sendButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
+    // Loading image is hidden
+    onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    // Preview should have no tint
+    assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
+  }
+
+  private void assertApprovalState() {
+    // Wait until camera preview is frozen.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertNotEquals(CameraFragment.CameraState.PREVIEW, mCameraFragment.getState());
+      }
+    });
+    // Approval buttons are shown
+    onView(isRoot()).perform(waitMatcher(allOf(withId(R.id.sendButton), isDisplayed())));
+    onView(withId(R.id.cancelButton)).check(matches(isDisplayed()));
+    // Capture buttons are hidden.
+    onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
+    // Loading image is hidden
+    onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    // Preview should have no tint
+    assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
+  }
+
+  private void assertSentState() {
+    // Capture and approval buttons are hidden.
+    onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.sendButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
+    // Should have a tint
+    assertEquals(mStudioActivityTestRule.getActivity().getColorStateList(R.color.tint),
+        mCameraFragment.getCameraPreview().getBackgroundTintList());
+    // Loading image should be visible
+    onView(withId(R.id.loadingImage)).check(matches(isDisplayed()));
+  }
+
+  private void assertPublishedState() {
+    // Should post the reactable.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(1, mDispatcher.getCount("POST", StudioAPI.PATH));
+      }
+    });
+    // Should navigate to theater.
     waitForActivity(TheaterActivity.class);
+  }
+
+  private void assertPublishFailed() {
+    // Should return to approval.
+    assertApprovalState();
+    // Should show failure Toast.
+    onView(withText(mStudioActivityTestRule.getActivity().SENT_FAILED)).inRoot(
+        withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
+        .check(matches(isDisplayed()));
   }
 }

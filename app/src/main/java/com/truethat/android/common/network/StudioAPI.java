@@ -19,13 +19,13 @@ import retrofit2.http.Query;
  */
 
 public interface StudioAPI {
-  String SCENE_IMAGE_PART = "image";
-  String DIRECTOR_PART = "director";
-  String CREATED_PART = "created";
-  String USER_PARAM = "director_id";
+  String PATH = "studio";
+  String SCENE_IMAGE_PART = "scene-image";
+  String REACTABLE_PART = "reactable";
+  String USER_PARAM = "user";
 
-  @Multipart @POST("studio") Call<ResponseBody> saveScene(@Part MultipartBody.Part image,
-      @Part MultipartBody.Part director, @Part MultipartBody.Part created);
+  @Multipart @POST(PATH) Call<ResponseBody> saveReactable(@Part MultipartBody.Part reactable,
+      @Part List<MultipartBody.Part> media);
 
-  @GET("studio") Call<List<Reactable>> getRepertoire(@Query(USER_PARAM) User user);
+  @GET(PATH) Call<List<Reactable>> getRepertoire(@Query(USER_PARAM) User user);
 }

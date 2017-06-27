@@ -174,7 +174,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     assertTrue(than.sameAs(now));
   }
 
-  @Test public void cameraPreviewIsResumedAfterActivityPaused() throws Exception {
+  @Test public void cameraPreviewCanBeRestored() throws Exception {
     init(true);
     mCameraFragment.takePicture();
     // An image should be taken.
@@ -185,21 +185,8 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     });
     // Save current preview.
     Bitmap than = mCameraFragment.getCameraPreview().getBitmap();
-    // Simulate pausing and resuming activity.
-    mCameraFragment.onHidden();
-    // Camera should be closed.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return !mCameraFragment.isCameraOpen();
-      }
-    });
-    mCameraFragment.onVisible();
-    // Camera should be opened.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mCameraFragment.isCameraOpen();
-      }
-    });
+    // Restores preview
+    mCameraFragment.restorePreview();
     // Increase probability of preview change.
     Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
     // New preview should be different

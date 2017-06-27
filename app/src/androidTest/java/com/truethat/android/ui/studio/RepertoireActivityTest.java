@@ -8,7 +8,9 @@ import com.truethat.android.R;
 import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CameraTestUtil;
+import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.Emotion;
@@ -18,10 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
@@ -67,17 +67,12 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
   private List<Scene> mRespondedScenes;
-  private int mPostEventCount;
 
   @Before public void setUp() throws Exception {
     super.setUp();
     // Resets the post event counter.
-    mPostEventCount = 0;
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        if (Objects.equals(request.getMethod(), "POST") && request.getPath().contains("studio")) {
-          mPostEventCount++;
-        }
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
@@ -122,14 +117,14 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     assertFalse(mMockReactionDetectionModule.isDetecting());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
-    assertEquals(0, mPostEventCount);
+    assertEquals(0, mDispatcher.getCount("POST", StudioAPI.PATH));
   }
 
   @Test public void noReactablesFound() throws Exception {
     // A new dispatcher is set to ensure asynchronous server behaviour, so that we can test non
     // found text proper display.
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
         Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(responseBody);
@@ -169,8 +164,8 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void noReactablesFound_failedResponse() throws Exception {
-    mMockWebServer.setDispatcher(new Dispatcher() {
-      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+    setDispatcher(new CountingDispatcher() {
+      @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
