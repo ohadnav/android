@@ -1,4 +1,4 @@
-package com.truethat.android.common.network;
+package com.truethat.android.external;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -21,11 +21,11 @@ import java.util.TimeZone;
  * Big thanks to <a>https://github.com/google/gson/issues/281</a>
  */
 
-class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
   private final DateFormat dateFormat;
 
-  GsonUTCDateAdapter() {
+  public GsonUTCDateAdapter() {
     //This is the format I need
     dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

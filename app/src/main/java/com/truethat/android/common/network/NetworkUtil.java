@@ -7,6 +7,7 @@ import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
+import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
