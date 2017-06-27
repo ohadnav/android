@@ -1,7 +1,6 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
-import com.truethat.android.empathy.Emotion;
 import java.util.Date;
 
 /**

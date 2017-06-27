@@ -13,7 +13,7 @@ import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
-import com.truethat.android.empathy.Emotion;
+import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
 import java.net.HttpURLConnection;
 import java.util.Arrays;

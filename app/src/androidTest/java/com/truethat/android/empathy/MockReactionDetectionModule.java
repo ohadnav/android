@@ -1,6 +1,7 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
+import com.truethat.android.model.Emotion;
 
 /**
  * Proudly created by ohad on 18/06/2017 for TrueThat.

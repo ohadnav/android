@@ -3,6 +3,7 @@ package com.truethat.android.empathy;
 import android.media.Image;
 import android.support.annotation.Nullable;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.model.Emotion;
 import java.util.Date;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.AfterClass;

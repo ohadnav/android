@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioAPI;
-import com.truethat.android.empathy.Emotion;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.theater.TheaterActivity;
 import java.io.Serializable;

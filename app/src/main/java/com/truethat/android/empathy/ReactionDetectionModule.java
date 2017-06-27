@@ -1,6 +1,7 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
+import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 
 /**

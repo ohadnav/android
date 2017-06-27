@@ -1,4 +1,4 @@
-package com.truethat.android.empathy;
+package com.truethat.android.model;
 
 import com.truethat.android.R;
 

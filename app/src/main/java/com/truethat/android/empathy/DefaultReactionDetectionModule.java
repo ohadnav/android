@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.truethat.android.common.util.BackgroundHandler;
+import com.truethat.android.model.Emotion;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
