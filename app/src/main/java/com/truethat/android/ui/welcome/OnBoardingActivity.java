@@ -31,6 +31,11 @@ public class OnBoardingActivity extends BaseActivity
   @BindView(R.id.nameEditText) EditText mNameInput;
   private CameraFragment mCameraFragment;
 
+  @Override public void processImage(Image image) {
+    // Pushes new input to the detection module.
+    App.getReactionDetectionModule().attempt(image);
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
@@ -62,11 +67,6 @@ public class OnBoardingActivity extends BaseActivity
     stopDetection();
   }
 
-  @Override public void processImage(Image image) {
-    // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(image);
-  }
-
   /**
    * Updates the underline color of {@link #mNameInput}.
    *
@@ -92,9 +92,14 @@ public class OnBoardingActivity extends BaseActivity
     return handled;
   }
 
+  // A method is used since a new instance of an inner class cannot be created in tests.
+  @VisibleForTesting OnBoardingReactionDetectionPubSub buildReactionDetectionPubSub() {
+    return new OnBoardingReactionDetectionPubSub();
+  }
+
   /**
    * Initiates smile ({@link Emotion#HAPPY} detection, in order to complete the on boarding flow.
-   *
+   * <p>
    * This is meant to entice users with the way things go around here.
    */
   private void detectSmile() {
@@ -130,11 +135,6 @@ public class OnBoardingActivity extends BaseActivity
     finishOnBoarding.putExtra(USER_NAME_INTENT, mNameInput.getText().toString());
     setResult(RESULT_OK, finishOnBoarding);
     finish();
-  }
-
-  // A method is used since a new instance of an inner class cannot be created in tests.
-  @VisibleForTesting OnBoardingReactionDetectionPubSub buildReactionDetectionPubSub() {
-    return new OnBoardingReactionDetectionPubSub();
   }
 
   private class OnBoardingReactionDetectionPubSub implements ReactionDetectionPubSub {

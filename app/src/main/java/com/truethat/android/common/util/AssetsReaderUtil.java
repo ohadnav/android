@@ -9,13 +9,13 @@ import java.io.InputStream;
  * Proudly created by ohad on 25/05/2017 for TrueThat.
  */
 
-public class AssetsReaderUtil {
+class AssetsReaderUtil {
   /**
    * @param context of which the asset is belonged to.
-   * @param path relative path to asset from within the context's asserts directory.
+   * @param path    relative path to asset from within the context's asserts directory.
    * @return the app asset as byte array.
    */
-  public static byte[] readAsBytes(Context context, String path) throws IOException {
+  static byte[] readAsBytes(Context context, String path) throws IOException {
     InputStream inputStream = context.getAssets().open(path);
     return ByteStreams.toByteArray(inputStream);
   }

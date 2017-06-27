@@ -76,13 +76,13 @@ import java.util.List;
    * doesn't exist, choose the largest one that is at most as large as the respective max size,
    * and whose aspect ratio matches with the specified value.
    *
-   * @param choices The list of sizes that the camera supports for the intended output
-   * class
-   * @param textureViewWidth The width of the texture view relative to sensor coordinate
+   * @param choices           The list of sizes that the camera supports for the intended output
+   *                          class
+   * @param textureViewWidth  The width of the texture view relative to sensor coordinate
    * @param textureViewHeight The height of the texture view relative to sensor coordinate
-   * @param maxWidth The maximum width that can be chosen
-   * @param maxHeight The maximum height that can be chosen
-   * @param aspectRatio The aspect ratio
+   * @param maxWidth          The maximum width that can be chosen
+   * @param maxHeight         The maximum height that can be chosen
+   * @param aspectRatio       The aspect ratio
    * @return The optimal {@code Size}, or the largest one.
    */
   public static Size chooseOptimalSize(Size[] choices, int textureViewWidth, int textureViewHeight,

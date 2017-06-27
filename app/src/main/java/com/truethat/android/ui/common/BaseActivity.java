@@ -36,68 +36,6 @@ public abstract class BaseActivity extends AppCompatActivity {
   protected boolean mSkipAuth = false;
   @BindView(R.id.activityRootView) protected View mRootView;
 
-  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(getLayoutResId());
-    ButterKnife.bind(this);
-  }
-
-  /**
-   * @return The activity layout resource ID, as found in {@link R.layout}.
-   */
-  protected abstract int getLayoutResId();
-
-  @Override protected void onResume() {
-    super.onResume();
-    if (!mSkipAuth) {
-      App.getAuthModule().auth(this);
-    }
-  }
-
-  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-      @NonNull int[] grantResults) {
-    for (int i = 0; i < permissions.length; i++) {
-      Permission permission = Permission.fromManifest(permissions[i]);
-      if (grantResults[i] != PERMISSION_GRANTED) {
-        Log.w(TAG, permission.name() + " not granted.");
-        onRequestPermissionsFailed(permission);
-      }
-    }
-  }
-
-  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == RequestCodes.ON_BOARDING) {
-      boolean authFailed = false;
-      String newUserName = data.getExtras().getString(USER_NAME_INTENT);
-      if (resultCode == RESULT_OK) {
-        if (newUserName != null) {
-          try {
-            App.getAuthModule().getUser().updateNames(newUserName, this);
-            App.getAuthModule().auth(this);
-          } catch (IOException e) {
-            Log.e(TAG, "Failed to update names.", e);
-            e.printStackTrace();
-            authFailed = true;
-          }
-        } else {
-          // New names are null
-          authFailed = true;
-        }
-      } else {
-        // Result not OK
-        authFailed = true;
-      }
-      if (authFailed) {
-        runOnUiThread(new Runnable() {
-          @Override public void run() {
-            onAuthFailed();
-          }
-        });
-      }
-    }
-  }
-
   /**
    * Permission not granted callback.
    *
@@ -132,5 +70,67 @@ public abstract class BaseActivity extends AppCompatActivity {
   @MainThread public void onBoarding() {
     Log.v(TAG, "New user, yay!");
     startActivityForResult(new Intent(this, OnBoardingActivity.class), RequestCodes.ON_BOARDING);
+  }
+
+  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(getLayoutResId());
+    ButterKnife.bind(this);
+  }
+
+  /**
+   * @return The activity layout resource ID, as found in {@link R.layout}.
+   */
+  protected abstract int getLayoutResId();
+
+  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RequestCodes.ON_BOARDING) {
+      boolean authFailed = false;
+      String newUserName = data.getExtras().getString(USER_NAME_INTENT);
+      if (resultCode == RESULT_OK) {
+        if (newUserName != null) {
+          try {
+            App.getAuthModule().getUser().updateNames(newUserName, this);
+            App.getAuthModule().auth(this);
+          } catch (IOException e) {
+            Log.e(TAG, "Failed to update names.", e);
+            e.printStackTrace();
+            authFailed = true;
+          }
+        } else {
+          // New names are null
+          authFailed = true;
+        }
+      } else {
+        // Result not OK
+        authFailed = true;
+      }
+      if (authFailed) {
+        runOnUiThread(new Runnable() {
+          @Override public void run() {
+            onAuthFailed();
+          }
+        });
+      }
+    }
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+    if (!mSkipAuth) {
+      App.getAuthModule().auth(this);
+    }
+  }
+
+  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+      @NonNull int[] grantResults) {
+    for (int i = 0; i < permissions.length; i++) {
+      Permission permission = Permission.fromManifest(permissions[i]);
+      if (grantResults[i] != PERMISSION_GRANTED) {
+        Log.w(TAG, permission.name() + " not granted.");
+        onRequestPermissionsFailed(permission);
+      }
+    }
   }
 }

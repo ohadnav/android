@@ -21,7 +21,7 @@ import static com.truethat.android.BuildConfig.PORT;
 
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
- *
+ * <p>
  * BaseApplicationTestSuite suite. Initializes mock application modules, and more.
  */
 
@@ -62,13 +62,13 @@ import static com.truethat.android.BuildConfig.PORT;
     mActivityTestRule.launchActivity(null);
   }
 
-  @After public void tearDown() throws Exception {
-    // Closes mock server
-    mMockWebServer.close();
-  }
-
   public void setDispatcher(CountingDispatcher dispatcher) {
     mDispatcher = dispatcher;
     mMockWebServer.setDispatcher(dispatcher);
+  }
+
+  @After public void tearDown() throws Exception {
+    // Closes mock server
+    mMockWebServer.close();
   }
 }

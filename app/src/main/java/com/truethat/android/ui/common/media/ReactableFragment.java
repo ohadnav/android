@@ -82,13 +82,24 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    * Prepares {@code fragment} for creation in implementing class, such as {@link
    * SceneFragment#newInstance(Scene)}.
    *
-   * @param fragment to prepare.
+   * @param fragment  to prepare.
    * @param reactable to associate with this fragment.
    */
   public static void prepareInstance(Fragment fragment, Reactable reactable) {
     Bundle args = new Bundle();
     args.putSerializable(ARG_REACTABLE, reactable);
     fragment.setArguments(args);
+  }
+
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof OnReactableInteractionListener) {
+      mListener = (OnReactableInteractionListener) context;
+    } else {
+      throw new RuntimeException(context.toString()
+          + " must implement "
+          + OnReactableInteractionListener.class.getSimpleName());
+    }
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
@@ -120,21 +131,6 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     mReadyForDisplay = false;
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.fragment_reactable;
-  }
-
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof OnReactableInteractionListener) {
-      mListener = (OnReactableInteractionListener) context;
-    } else {
-      throw new RuntimeException(context.toString()
-          + " must implement "
-          + OnReactableInteractionListener.class.getSimpleName());
-    }
-  }
-
   @Override public void onDetach() {
     super.onDetach();
     mListener = null;
@@ -151,6 +147,10 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   @Override public void onHidden() {
     super.onHidden();
     App.getReactionDetectionModule().stop();
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.fragment_reactable;
   }
 
   /**
@@ -183,10 +183,6 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   @MainThread protected abstract void createMedia(LayoutInflater inflater,
       Bundle savedInstanceState);
 
-  @MainThread private void doReaction() {
-    updateReactionCounters();
-  }
-
   /**
    * Marks {@link #mReactable} as viewed by the user, and informs our backend about it.
    */
@@ -198,6 +194,10 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
           new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(), new Date(),
               EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
     }
+  }
+
+  @MainThread private void doReaction() {
+    updateReactionCounters();
   }
 
   /**

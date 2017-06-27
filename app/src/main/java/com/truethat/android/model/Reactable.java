@@ -15,9 +15,9 @@ import retrofit2.Call;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
- *
+ * <p>
  * A media item that the user can have an emotional reaction to, such as {@link Scene}.
- *
+ * <p>
  * Each implementation should register at {@link NetworkUtil#GSON}.
  */
 public abstract class Reactable implements Serializable {
@@ -137,6 +137,30 @@ public abstract class Reactable implements Serializable {
     return notReactedTo && notMine;
   }
 
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Reactable)) return false;
+
+    Reactable reactable = (Reactable) o;
+
+    if (mId != reactable.mId) return false;
+    if (mViewed != reactable.mViewed) return false;
+    if (mUserReaction != reactable.mUserReaction) return false;
+    if (mDirector != null ? !mDirector.equals(reactable.mDirector) : reactable.mDirector != null) {
+      return false;
+    }
+    //noinspection SimplifiableIfStatement
+    if (mReactionCounters != null ? !mReactionCounters.equals(reactable.mReactionCounters)
+        : reactable.mReactionCounters != null) {
+      return false;
+    }
+    return mCreated != null ? mCreated.equals(reactable.mCreated) : reactable.mCreated == null;
+  }
+
+  @Override public String toString() {
+    return NetworkUtil.GSON.toJson(this);
+  }
+
   /**
    * Increases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Creates new map
    * key if needed.
@@ -166,29 +190,5 @@ public abstract class Reactable implements Serializable {
     } else {
       mReactionCounters.put(emotion, mReactionCounters.get(emotion) - 1);
     }
-  }
-
-  @Override public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Reactable)) return false;
-
-    Reactable reactable = (Reactable) o;
-
-    if (mId != reactable.mId) return false;
-    if (mViewed != reactable.mViewed) return false;
-    if (mUserReaction != reactable.mUserReaction) return false;
-    if (mDirector != null ? !mDirector.equals(reactable.mDirector) : reactable.mDirector != null) {
-      return false;
-    }
-    //noinspection SimplifiableIfStatement
-    if (mReactionCounters != null ? !mReactionCounters.equals(reactable.mReactionCounters)
-        : reactable.mReactionCounters != null) {
-      return false;
-    }
-    return mCreated != null ? mCreated.equals(reactable.mCreated) : reactable.mCreated == null;
-  }
-
-  @Override public String toString() {
-    return NetworkUtil.GSON.toJson(this);
   }
 }

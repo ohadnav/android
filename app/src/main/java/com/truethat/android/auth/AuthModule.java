@@ -17,7 +17,7 @@ public interface AuthModule {
    * Creates a User instance, and authenticate it against our backend.
    *
    * @param activity for which to auth. We need its context to access internal storage and {@link
-   * TelephonyManager}.
+   *                 TelephonyManager}.
    */
   void auth(BaseActivity activity);
 

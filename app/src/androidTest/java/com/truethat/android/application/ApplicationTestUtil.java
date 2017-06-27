@@ -37,6 +37,15 @@ public class ApplicationTestUtil {
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
 
   /**
+   * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
+   * @return action that throws if {@code activityClass} is not displayed within {@link
+   * BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
+   */
+  public static ViewAction waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
+    return waitMatcher(allOf(isDisplayed(), withinActivity(activityClass)));
+  }
+
+  /**
    * @param viewMatcher for find a specific view.
    * @return action that attempts to find the {@link View} described by {@code viewMatcher} for at
    * most {@link BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
@@ -81,12 +90,20 @@ public class ApplicationTestUtil {
   }
 
   /**
-   * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
-   * @return action that throws if {@code activityClass} is not displayed within {@link
-   * BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
+   * @param activityClass of activity that should contain the view.
+   * @return a matcher that checks whether a view is contained within that activity.
    */
-  public static ViewAction waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
-    return waitMatcher(allOf(isDisplayed(), withinActivity(activityClass)));
+  private static Matcher<View> withinActivity(
+      final Class<? extends AppCompatActivity> activityClass) {
+    return new TypeSafeMatcher<View>() {
+      @Override public void describeTo(Description description) {
+        description.appendText("is within " + activityClass.getSimpleName());
+      }
+
+      @Override public boolean matchesSafely(View view) {
+        return activityClass.isInstance(view.getContext());
+      }
+    };
   }
 
   /**
@@ -119,23 +136,6 @@ public class ApplicationTestUtil {
         return isDisplayed().matches(view)
             && windowSize.getWidth() <= view.getWidth()
             && windowSize.getHeight() <= view.getHeight();
-      }
-    };
-  }
-
-  /**
-   * @param activityClass of activity that should contain the view.
-   * @return a matcher that checks whether a view is contained within that activity.
-   */
-  private static Matcher<View> withinActivity(
-      final Class<? extends AppCompatActivity> activityClass) {
-    return new TypeSafeMatcher<View>() {
-      @Override public void describeTo(Description description) {
-        description.appendText("is within " + activityClass.getSimpleName());
-      }
-
-      @Override public boolean matchesSafely(View view) {
-        return activityClass.isInstance(view.getContext());
       }
     };
   }

@@ -25,7 +25,7 @@ public class CameraTestUtil {
    * Creates a mocked Image from a bitmap underlying byte array.
    *
    * @param bitmapBytes array the is derived from a bitmap image.
-   * @param timestamp of the mocked image.
+   * @param timestamp   of the mocked image.
    * @return mocked Image that is derived from the asset.
    */
   static Image bitmapBytesToMockedImage(byte[] bitmapBytes, long timestamp) throws Exception {

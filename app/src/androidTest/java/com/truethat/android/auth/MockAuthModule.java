@@ -34,20 +34,6 @@ public class MockAuthModule implements AuthModule {
     return mUser;
   }
 
-  public void setAllowAuth(boolean allowAuth) {
-    if (!allowAuth) {
-      signOut();
-    }
-    mAllowAuth = allowAuth;
-  }
-
-  public void setOnBoarded(boolean onBoarded) {
-    if (!onBoarded) {
-      signOut();
-    }
-    mOnBoarded = onBoarded;
-  }
-
   @Override public void auth(final BaseActivity activity) {
     if (!mOnBoarded) {
       activity.runOnUiThread(new Runnable() {
@@ -80,6 +66,20 @@ public class MockAuthModule implements AuthModule {
 
   @Override public boolean isAuthOk() {
     return mUser != null && mUser.isAuthOk();
+  }
+
+  public void setAllowAuth(boolean allowAuth) {
+    if (!allowAuth) {
+      signOut();
+    }
+    mAllowAuth = allowAuth;
+  }
+
+  public void setOnBoarded(boolean onBoarded) {
+    if (!onBoarded) {
+      signOut();
+    }
+    mOnBoarded = onBoarded;
   }
 
   /**

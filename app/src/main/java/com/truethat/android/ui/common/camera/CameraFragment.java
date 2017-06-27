@@ -188,6 +188,16 @@ public class CameraFragment extends BaseFragment {
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
       new CameraCaptureSession.CaptureCallback() {
 
+        @Override public void onCaptureProgressed(@NonNull CameraCaptureSession session,
+            @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
+          process(partialResult);
+        }
+
+        @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+            @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+          process(result);
+        }
+
         private void process(CaptureResult result) {
           switch (mState) {
             case PREVIEW: {
@@ -236,16 +246,6 @@ public class CameraFragment extends BaseFragment {
               break;
             }
           }
-        }
-
-        @Override public void onCaptureProgressed(@NonNull CameraCaptureSession session,
-            @NonNull CaptureRequest request, @NonNull CaptureResult partialResult) {
-          process(partialResult);
-        }
-
-        @Override public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-            @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-          process(result);
         }
       };
   /**
@@ -318,6 +318,18 @@ public class CameraFragment extends BaseFragment {
     return fragment;
   }
 
+  /**
+   * Initiate a still image capture.
+   */
+  public void takePicture() {
+    Log.v(TAG, "takePicture");
+    if (mShowPreview) {
+      lockFocus();
+    } else {
+      prepareCaptureWithoutPreview();
+    }
+  }
+
   @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
     super.onInflate(context, attrs, savedInstanceState);
     TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.CameraFragment);
@@ -328,10 +340,14 @@ public class CameraFragment extends BaseFragment {
     styledAttributes.recycle();
   }
 
-  @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
-    outState.putSerializable(ARG_FACING, mFacing);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof OnPictureTakenListener) {
+      mOnPictureTakenListener = (OnPictureTakenListener) context;
+    } else {
+      throw new RuntimeException(
+          context.toString() + " must implement " + OnPictureTakenListener.class.getSimpleName());
+    }
   }
 
   @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
@@ -356,20 +372,15 @@ public class CameraFragment extends BaseFragment {
     }
   }
 
-  /**
-   * Initiate a still image capture.
-   */
-  public void takePicture() {
-    Log.v(TAG, "takePicture");
-    if (mShowPreview) {
-      lockFocus();
-    } else {
-      prepareCaptureWithoutPreview();
-    }
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
+    outState.putSerializable(ARG_FACING, mFacing);
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.fragment_camera;
+  @Override public void onDetach() {
+    super.onDetach();
+    mOnPictureTakenListener = null;
   }
 
   /**
@@ -400,19 +411,8 @@ public class CameraFragment extends BaseFragment {
     mBackgroundHandler.stop();
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof OnPictureTakenListener) {
-      mOnPictureTakenListener = (OnPictureTakenListener) context;
-    } else {
-      throw new RuntimeException(
-          context.toString() + " must implement " + OnPictureTakenListener.class.getSimpleName());
-    }
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mOnPictureTakenListener = null;
+  @Override protected int getLayoutResId() {
+    return R.layout.fragment_camera;
   }
 
   public FullscreenTextureView getCameraPreview() {
@@ -716,7 +716,7 @@ public class CameraFragment extends BaseFragment {
    * #mCameraPreview}. This method should be called after the camera preview size is determined in
    * {@link #setUpCameraOutputs()} and also the size of {@link #mCameraPreview} is fixed.
    *
-   * @param viewWidth The width of {@link #mCameraPreview}
+   * @param viewWidth  The width of {@link #mCameraPreview}
    * @param viewHeight The height of {@link #mCameraPreview}
    */
   private void configureTransform(int viewWidth, int viewHeight) {

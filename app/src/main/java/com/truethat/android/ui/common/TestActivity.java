@@ -9,6 +9,9 @@ import com.truethat.android.ui.common.camera.CameraFragment;
 @VisibleForTesting public class TestActivity extends BaseActivity
     implements CameraFragment.OnPictureTakenListener {
 
+  @Override public void processImage(Image image) {
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     // Should not authenticate on tests.
     mSkipAuth = true;
@@ -17,8 +20,5 @@ import com.truethat.android.ui.common.camera.CameraFragment;
 
   @Override protected int getLayoutResId() {
     return R.layout.activity_test;
-  }
-
-  @Override public void processImage(Image image) {
   }
 }

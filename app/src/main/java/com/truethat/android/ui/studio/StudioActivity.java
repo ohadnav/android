@@ -78,49 +78,6 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     }
   };
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    // Initialize activity transitions.
-    this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
-    // Defines the navigation to the Theater.
-    mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
-      @Override public void onSwipeDown() {
-        startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
-      }
-    });
-    // Hooks the camera fragment
-    mCameraFragment =
-        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
-  }
-
-  @Override protected void onPause() {
-    super.onPause();
-    if (mSaveSceneCall != null) {
-      mSaveSceneCall.cancel();
-      onApproval();
-    }
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    switch (mDirectingState) {
-      case APPROVAL:
-        onApproval();
-        break;
-      case SENT:
-        onSent();
-        break;
-      case PUBLISHED:
-      case DIRECTING:
-      default:
-        onDirecting();
-    }
-  }
-
-  @Override protected int getLayoutResId() {
-    return R.layout.activity_studio;
-  }
-
   /**
    * UI initiated picture taking.
    */
@@ -145,6 +102,49 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     mCameraFragment.switchCamera();
   }
 
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // Initialize activity transitions.
+    this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
+    // Defines the navigation to the Theater.
+    mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
+      @Override public void onSwipeDown() {
+        startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
+      }
+    });
+    // Hooks the camera fragment
+    mCameraFragment =
+        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
+  }
+
+  @Override protected int getLayoutResId() {
+    return R.layout.activity_studio;
+  }
+
+  @Override protected void onResume() {
+    super.onResume();
+    switch (mDirectingState) {
+      case APPROVAL:
+        onApproval();
+        break;
+      case SENT:
+        onSent();
+        break;
+      case PUBLISHED:
+      case DIRECTING:
+      default:
+        onDirecting();
+    }
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    if (mSaveSceneCall != null) {
+      mSaveSceneCall.cancel();
+      onApproval();
+    }
+  }
+
   @MainThread @OnClick(R.id.cancelButton) void onDirecting() {
     Log.v(TAG, "Change state: " + DirectingState.DIRECTING.name());
     mDirectingState = DirectingState.DIRECTING;
@@ -164,21 +164,6 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     mDirectedReactable = null;
   }
 
-  @MainThread private void onApproval() {
-    Log.v(TAG, "Change state: " + DirectingState.APPROVAL.name());
-    mDirectingState = DirectingState.APPROVAL;
-    // Exposes approval buttons.
-    mCancelButton.setVisibility(View.VISIBLE);
-    mSendButton.setVisibility(View.VISIBLE);
-    // Hides capture button.
-    mCaptureButton.setVisibility(GONE);
-    mSwitchCameraButton.setVisibility(GONE);
-    // Hides loading image.
-    mLoadingImage.setVisibility(GONE);
-    // Removes preview tint
-    mCameraFragment.getCameraPreview().setBackgroundTintList(null);
-  }
-
   @MainThread @OnClick(R.id.sendButton) void onSent() {
     Log.v(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
@@ -193,6 +178,21 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     mCameraFragment.getCameraPreview().setBackgroundTintList(getColorStateList(R.color.tint));
     mLoadingImage.setVisibility(View.VISIBLE);
     Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
+  }
+
+  @MainThread private void onApproval() {
+    Log.v(TAG, "Change state: " + DirectingState.APPROVAL.name());
+    mDirectingState = DirectingState.APPROVAL;
+    // Exposes approval buttons.
+    mCancelButton.setVisibility(View.VISIBLE);
+    mSendButton.setVisibility(View.VISIBLE);
+    // Hides capture button.
+    mCaptureButton.setVisibility(GONE);
+    mSwitchCameraButton.setVisibility(GONE);
+    // Hides loading image.
+    mLoadingImage.setVisibility(GONE);
+    // Removes preview tint
+    mCameraFragment.getCameraPreview().setBackgroundTintList(null);
   }
 
   private void onPublished() {

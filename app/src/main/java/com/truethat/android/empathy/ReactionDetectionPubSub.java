@@ -6,7 +6,7 @@ import com.truethat.android.ui.common.camera.CameraFragment;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
- *
+ * <p>
  * Communication interface through which {@link ReactionDetectionModule} publishes its
  * classification and subscribes to requests input.
  */

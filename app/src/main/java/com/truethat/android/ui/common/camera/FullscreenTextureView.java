@@ -33,7 +33,7 @@ public class FullscreenTextureView extends TextureView {
    * calculated from the parameters. Note that the actual sizes of parameters don't matter, that
    * is, calling setAspectRatio(2, 3) and setAspectRatio(4, 6) make the same result.
    *
-   * @param width Relative horizontal size
+   * @param width  Relative horizontal size
    * @param height Relative vertical size
    */
   public void setAspectRatio(int width, int height) {

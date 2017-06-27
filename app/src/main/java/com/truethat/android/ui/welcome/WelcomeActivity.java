@@ -10,6 +10,17 @@ import com.truethat.android.ui.common.BaseActivity;
 public class WelcomeActivity extends BaseActivity {
   public static final String AUTH_FAILED = "authFailed";
 
+  @Override public void onAuthOk() {
+    finish();
+  }
+
+  @Override public void onAuthFailed() {
+    // Display error message to the user.
+    findViewById(R.id.errorText).setVisibility(View.VISIBLE);
+    // Display sign in message
+    findViewById(R.id.signInText).setVisibility(View.VISIBLE);
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
@@ -28,17 +39,6 @@ public class WelcomeActivity extends BaseActivity {
     if (getIntent().getExtras().getBoolean(AUTH_FAILED)) {
       onAuthFailed();
     }
-  }
-
-  @Override public void onAuthFailed() {
-    // Display error message to the user.
-    findViewById(R.id.errorText).setVisibility(View.VISIBLE);
-    // Display sign in message
-    findViewById(R.id.signInText).setVisibility(View.VISIBLE);
-  }
-
-  @Override public void onAuthOk() {
-    finish();
   }
 
   /**

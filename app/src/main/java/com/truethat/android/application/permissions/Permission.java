@@ -11,9 +11,9 @@ import static com.truethat.android.common.util.RequestCodes.PERMISSION_PHONE;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
- *
+ * <p>
  * Android permissions.
- *
+ * <p>
  * To add a new {@link Permission}, add a request code in {@link RequestCodes}.
  */
 
@@ -47,7 +47,7 @@ public enum Permission {
 
   /**
    * @param manifest Taken from {@link Manifest.permission}, usually returned by {@link
-   * AppCompatActivity#onRequestPermissionsResult(int, String[], int[])}.
+   *                 AppCompatActivity#onRequestPermissionsResult(int, String[], int[])}.
    * @return the matching {@link Permission} enum.
    */
   public static Permission fromManifest(String manifest) {

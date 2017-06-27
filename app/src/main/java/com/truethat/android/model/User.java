@@ -139,7 +139,7 @@ public class User implements Serializable {
    * Updates this User {@code mFirstName} and {@code mLastName}, and then saves the entire instance
    * to internal storage.
    *
-   * @param name full name
+   * @param name    full name
    * @param context for internal storage.
    */
   public void updateNames(String name, Context context) throws IOException {
@@ -158,7 +158,7 @@ public class User implements Serializable {
   /**
    * Updates this user instance using another one. Only updates {@code mId} and {@code mName}.
    *
-   * @param user to copy fields from.
+   * @param user    to copy fields from.
    * @param context to access internal storage.
    */
   public void update(User user, Context context) throws IOException {
@@ -196,6 +196,19 @@ public class User implements Serializable {
     return mFirstName != null && mLastName != null;
   }
 
+  @Override public int hashCode() {
+    return mId.hashCode();
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof User)) return false;
+
+    User user = (User) o;
+
+    return mId.equals(user.mId);
+  }
+
   /**
    * Populates this User fields based on ones found in {@link #LAST_USER_PATH}.
    *
@@ -209,18 +222,5 @@ public class User implements Serializable {
     mLastName = lastUser.mLastName;
     mDeviceId = lastUser.mDeviceId;
     mPhoneNumber = lastUser.mPhoneNumber;
-  }
-
-  @Override public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof User)) return false;
-
-    User user = (User) o;
-
-    return mId.equals(user.mId);
-  }
-
-  @Override public int hashCode() {
-    return mId.hashCode();
   }
 }

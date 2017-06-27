@@ -69,6 +69,10 @@ public class NetworkUtilTest {
       mAwesomeness = anAwesomeness;
     }
 
+    @Override public int hashCode() {
+      return mAwesomeness;
+    }
+
     @Override public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
@@ -76,10 +80,6 @@ public class NetworkUtilTest {
       MyAndroidClass that = (MyAndroidClass) o;
 
       return mAwesomeness == that.mAwesomeness;
-    }
-
-    @Override public int hashCode() {
-      return mAwesomeness;
     }
   }
 

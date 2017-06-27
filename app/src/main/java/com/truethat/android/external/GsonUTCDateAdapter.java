@@ -17,7 +17,7 @@ import java.util.TimeZone;
 
 /**
  * Proudly created by ohad on 27/06/2017 for TrueThat.
- *
+ * <p>
  * Big thanks to <a>https://github.com/google/gson/issues/281</a>
  */
 

@@ -5,7 +5,7 @@ import java.util.Date;
 
 /**
  * Proudly created by ohad on 12/06/2017 for TrueThat.
- *
+ * <p>
  * Encapsulates event of user interaction with a reactable.
  *
  * @backend <a>https://goo.gl/s9o2rt</a>
@@ -24,7 +24,7 @@ import java.util.Date;
 
   /**
    * For {@link EventType#REACTABLE_REACTION}.
-   *
+   * <p>
    * Must be null for irrelevant events (such as {@link EventType#REACTABLE_VIEW}).
    */
   private Emotion mReaction;

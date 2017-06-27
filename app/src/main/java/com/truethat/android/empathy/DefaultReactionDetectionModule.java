@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
- *
+ * <p>
  * Executes {@link DetectionTask}s in a sequential manner. The detection is executed in iterations,
  * each started by
  * {@link #next()}, and each has the following stages:

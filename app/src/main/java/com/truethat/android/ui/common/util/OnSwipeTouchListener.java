@@ -7,7 +7,7 @@ import android.view.View;
 
 /**
  * Proudly created by ohad on 01/05/2017 for TrueThat.
- *
+ * <p>
  * Detects swipes across a view.
  */
 @SuppressWarnings("WeakerAccess") public class OnSwipeTouchListener
@@ -40,10 +40,6 @@ import android.view.View;
     private static final int SWIPE_DISTANCE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
-    @Override public boolean onDown(MotionEvent e) {
-      return true;
-    }
-
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
       float distanceX = e2.getX() - e1.getX();
@@ -68,6 +64,10 @@ import android.view.View;
         return true;
       }
       return false;
+    }
+
+    @Override public boolean onDown(MotionEvent e) {
+      return true;
     }
   }
 }

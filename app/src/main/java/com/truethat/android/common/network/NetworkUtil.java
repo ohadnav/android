@@ -49,7 +49,7 @@ public class NetworkUtil {
   };
   /**
    * Json converter for network requests.
-   *
+   * <p>
    * The following modifications has been made:
    * <ul>
    * <li>Android naming strategy, so that serialized json match regular Java notations.</li>
@@ -87,7 +87,7 @@ public class NetworkUtil {
 
   /**
    * @param service API interface.
-   * @param <T> type of API interface.
+   * @param <T>     type of API interface.
    * @return the provided API interface, inflated by Retrofit.
    */
   public static <T> T createAPI(final Class<T> service) {

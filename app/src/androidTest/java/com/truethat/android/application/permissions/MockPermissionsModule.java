@@ -38,6 +38,10 @@ import java.util.Map;
     }
   }
 
+  public void grant(Permission permission) {
+    mPermissionToState.put(permission, PermissionState.GRANTED);
+  }
+
   @Override public boolean isPermissionGranted(@Nullable Context context, Permission permission) {
     return mPermissionToState.containsKey(permission)
         && mPermissionToState.get(permission) == PermissionState.GRANTED;
@@ -98,10 +102,6 @@ import java.util.Map;
 
   public void forbid(Permission permission) {
     mPermissionToState.put(permission, PermissionState.FORBID);
-  }
-
-  public void grant(Permission permission) {
-    mPermissionToState.put(permission, PermissionState.GRANTED);
   }
 
   /**

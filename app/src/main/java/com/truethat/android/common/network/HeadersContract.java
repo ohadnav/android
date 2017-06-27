@@ -2,7 +2,7 @@ package com.truethat.android.common.network;
 
 /**
  * Proudly created by ohad on 07/06/2017 for TrueThat.
- *
+ * <p>
  * Headers name for HTTP communication with out beloved backend.
  */
 enum HeadersContract {

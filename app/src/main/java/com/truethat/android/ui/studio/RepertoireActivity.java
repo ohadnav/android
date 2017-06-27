@@ -42,6 +42,10 @@ public class RepertoireActivity extends BaseActivity
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
 
+  @Override public void onAuthOk() {
+    if (mPager.getAdapter().getCount() == 0) fetchReactables();
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Navigation to other activities
@@ -80,15 +84,6 @@ public class RepertoireActivity extends BaseActivity
     Log.e(TAG, "Input requested by mistake.");
   }
 
-  @Override public void onAuthOk() {
-    if (mPager.getAdapter().getCount() == 0) fetchReactables();
-  }
-
-  @Override protected void onPause() {
-    super.onPause();
-    if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
-  }
-
   /**
    * Fetching User's repertoire from our backend. i.e. the {@link Reactable} of which she is the
    * director.
@@ -102,6 +97,11 @@ public class RepertoireActivity extends BaseActivity
     }
     mFetchReactablesCall = mStudioAPI.getRepertoire(App.getAuthModule().getUser());
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
   }
 
   /**

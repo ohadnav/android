@@ -20,6 +20,14 @@ public class AskForPermissionActivity extends BaseActivity {
   private Permission mPermission;
   private Button mAskPermissionButton;
 
+  /**
+   * Asks for permission again.
+   */
+  @OnClick(R.id.askPermissionButton) public void askForPermission() {
+    Log.v(TAG, "Asking for " + mPermission.name() + " again.");
+    App.getPermissionsModule().requestIfNeeded(AskForPermissionActivity.this, mPermission);
+  }
+
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     // Should not authenticate when asking for device permissions.
     mSkipAuth = true;
@@ -29,20 +37,6 @@ public class AskForPermissionActivity extends BaseActivity {
 
   @Override protected int getLayoutResId() {
     return R.layout.activity_ask_for_permission;
-  }
-
-  /**
-   * Overridden to invoke {@link #finishActivity(int)}
-   */
-  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-      @NonNull int[] grantResults) {
-    boolean allPermissionsGranted = true;
-    for (int grantResult : grantResults) {
-      if (grantResult != PERMISSION_GRANTED) allPermissionsGranted = false;
-    }
-    if (allPermissionsGranted) {
-      finish();
-    }
   }
 
   @Override protected void onResume() {
@@ -59,11 +53,17 @@ public class AskForPermissionActivity extends BaseActivity {
   }
 
   /**
-   * Asks for permission again.
+   * Overridden to invoke {@link #finishActivity(int)}
    */
-  @OnClick(R.id.askPermissionButton) public void askForPermission() {
-    Log.v(TAG, "Asking for " + mPermission.name() + " again.");
-    App.getPermissionsModule().requestIfNeeded(AskForPermissionActivity.this, mPermission);
+  @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+      @NonNull int[] grantResults) {
+    boolean allPermissionsGranted = true;
+    for (int grantResult : grantResults) {
+      if (grantResult != PERMISSION_GRANTED) allPermissionsGranted = false;
+    }
+    if (allPermissionsGranted) {
+      finish();
+    }
   }
 
   /**

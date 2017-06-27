@@ -53,16 +53,16 @@ public class MockInternalStorage implements InternalStorage {
     return result;
   }
 
+  @Override public boolean exists(Context context, String fileName) {
+    return mFileNameToBytes.containsKey(fileName);
+  }
+
   @Override public void delete(Context context, String fileName) throws IOException {
     if (mShouldFail) fail();
     if (!exists(context, fileName)) {
       throw new IOException("File " + fileName + " does not exist.");
     }
     mFileNameToBytes.remove(fileName);
-  }
-
-  @Override public boolean exists(Context context, String fileName) {
-    return mFileNameToBytes.containsKey(fileName);
   }
 
   public void setShouldFail(boolean shouldFail) {

@@ -42,7 +42,7 @@ public class DefaultAuthModule implements AuthModule {
   /**
    * Authenticate user synchronously, to ensure a {@link User} can be retrieved from {@link
    * #getUser()}
-   *
+   * <p>
    * If {@link Permission#PHONE} is not granted then the authentication will terminate and will be
    * run again on {@link BaseActivity#onResume()}
    *
@@ -144,10 +144,10 @@ public class DefaultAuthModule implements AuthModule {
   /**
    * Handles Auth API HTTP response
    *
-   * @param call HTTP request
+   * @param call     HTTP request
    * @param response HTTP request. Note that in case of unauthorized users, a null response body is
-   * @param context to access internal storage, when updating user.
-   * returned.
+   * @param context  to access internal storage, when updating user.
+   *                 returned.
    * @return whether the response contained a valid {@link User} with an ID.
    */
   private boolean handleResponse(Call<User> call, Response<User> response, Context context)

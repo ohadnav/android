@@ -32,6 +32,32 @@ public abstract class BaseFragment extends Fragment {
    */
   private Unbinder mUnbinder;
 
+  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
+    super.setUserVisibleHint(isVisibleToUser);
+    if (isResumed()) {
+      if (isVisibleToUser) {
+        onVisible();
+      } else {
+        onHidden();
+      }
+    }
+  }
+
+  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    Log.v(TAG, "onInflate");
+    super.onInflate(context, attrs, savedInstanceState);
+  }
+
+  @Override public void onAttach(Context context) {
+    Log.v(TAG, "onAttach");
+    super.onAttach(context);
+  }
+
+  @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    Log.v(TAG, "onCreate");
+    super.onCreate(savedInstanceState);
+  }
+
   /**
    * Initializes root view and
    */
@@ -43,15 +69,14 @@ public abstract class BaseFragment extends Fragment {
     return mRootView;
   }
 
-  /**
-   * @return the fragment layout resource ID, as found in {@link R.layout}.
-   */
-  protected abstract int getLayoutResId();
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    Log.v(TAG, "onViewStateRestored");
+  }
 
-  @Override public void onDestroyView() {
-    Log.v(TAG, "onDestroyView");
-    super.onDestroyView();
-    mUnbinder.unbind();
+  @Override public void onStart() {
+    Log.v(TAG, "onStart");
+    super.onStart();
   }
 
   /**
@@ -64,21 +89,36 @@ public abstract class BaseFragment extends Fragment {
     if (getUserVisibleHint()) onVisible();
   }
 
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Log.v(TAG, "onSaveInstanceState");
+  }
+
   @Override public void onPause() {
     Log.v(TAG, "onPause");
     super.onPause();
     onHidden();
   }
 
-  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
-    if (isResumed()) {
-      if (isVisibleToUser) {
-        onVisible();
-      } else {
-        onHidden();
-      }
-    }
+  @Override public void onStop() {
+    Log.v(TAG, "onStop");
+    super.onStop();
+  }
+
+  @Override public void onDestroyView() {
+    Log.v(TAG, "onDestroyView");
+    super.onDestroyView();
+    mUnbinder.unbind();
+  }
+
+  @Override public void onDestroy() {
+    Log.v(TAG, "onDestroy");
+    super.onDestroy();
+  }
+
+  @Override public void onDetach() {
+    Log.v(TAG, "onDetach");
+    super.onDetach();
   }
 
   /**
@@ -95,55 +135,15 @@ public abstract class BaseFragment extends Fragment {
     Log.v(TAG, "onHidden");
   }
 
-  @Override public void onCreate(@Nullable Bundle savedInstanceState) {
-    Log.v(TAG, "onCreate");
-    super.onCreate(savedInstanceState);
-  }
-
-  @Override public void onDestroy() {
-    Log.v(TAG, "onDestroy");
-    super.onDestroy();
-  }
-
-  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
-    Log.v(TAG, "onInflate");
-    super.onInflate(context, attrs, savedInstanceState);
-  }
-
-  @Override public void onAttach(Context context) {
-    Log.v(TAG, "onAttach");
-    super.onAttach(context);
-  }
-
-  @Override public void onDetach() {
-    Log.v(TAG, "onDetach");
-    super.onDetach();
-  }
-
-  @Override public void onStart() {
-    Log.v(TAG, "onStart");
-    super.onStart();
-  }
-
-  @Override public void onStop() {
-    Log.v(TAG, "onStop");
-    super.onStop();
-  }
-
-  @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    Log.v(TAG, "onSaveInstanceState");
-  }
-
-  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    Log.v(TAG, "onViewStateRestored");
-  }
-
   /**
    * @return whether this fragment is resumed and visible to the user.
    */
   public boolean isReallyVisible() {
     return getUserVisibleHint() && isResumed();
   }
+
+  /**
+   * @return the fragment layout resource ID, as found in {@link R.layout}.
+   */
+  protected abstract int getLayoutResId();
 }

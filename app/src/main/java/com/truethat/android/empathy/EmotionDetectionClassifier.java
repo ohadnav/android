@@ -6,7 +6,7 @@ import com.truethat.android.model.Emotion;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
- *
+ * <p>
  * Interface for emotion detection classifiers.
  */
 

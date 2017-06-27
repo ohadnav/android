@@ -5,7 +5,7 @@ import android.os.HandlerThread;
 
 /**
  * Proudly created by ohad on 18/06/2017 for TrueThat.
- *
+ * <p>
  * Background thread wrapper.
  */
 

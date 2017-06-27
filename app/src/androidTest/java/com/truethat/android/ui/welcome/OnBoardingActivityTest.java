@@ -117,19 +117,17 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     assertOnBoardingSuccessful();
   }
 
-  private void assertValidName() {
-    onView(withId(R.id.nameEditText)).check(matches(withBackgroundColor(
-        mActivityTestRule.getActivity()
-            .getResources()
-            .getColor(OnBoardingActivity.VALID_NAME_COLOR,
-                mActivityTestRule.getActivity().getTheme()))));
-  }
-
-  private void assertReadyForSmile() {
-    // Wait until smile text is shown
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.smileText))));
-    // Assert detection is ongoing.
-    assertTrue(mMockReactionDetectionModule.isDetecting());
+  private void assertOnBoardingSuccessful() {
+    // Should navigate back to Test activity.
+    waitForActivity(TestActivity.class);
+    // Wait until Auth OK.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(App.getAuthModule().isAuthOk());
+      }
+    });
+    // Assert the current user now the proper name.
+    assertEquals(NAME, App.getAuthModule().getUser().getDisplayName());
   }
 
   private void assertInvalidName() {
@@ -150,16 +148,18 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.smileText)).check(matches(not(isDisplayed())));
   }
 
-  private void assertOnBoardingSuccessful() {
-    // Should navigate back to Test activity.
-    waitForActivity(TestActivity.class);
-    // Wait until Auth OK.
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(App.getAuthModule().isAuthOk());
-      }
-    });
-    // Assert the current user now the proper name.
-    assertEquals(NAME, App.getAuthModule().getUser().getDisplayName());
+  private void assertValidName() {
+    onView(withId(R.id.nameEditText)).check(matches(withBackgroundColor(
+        mActivityTestRule.getActivity()
+            .getResources()
+            .getColor(OnBoardingActivity.VALID_NAME_COLOR,
+                mActivityTestRule.getActivity().getTheme()))));
+  }
+
+  private void assertReadyForSmile() {
+    // Wait until smile text is shown
+    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.smileText))));
+    // Assert detection is ongoing.
+    assertTrue(mMockReactionDetectionModule.isDetecting());
   }
 }

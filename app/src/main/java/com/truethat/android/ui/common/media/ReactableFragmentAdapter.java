@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
- *
+ * <p>
  * {@link PagerAdapter} for {@link ReactableFragment}, so that {@link Reactable} are displayed
  * nicely in {@link TheaterActivity}.
  */

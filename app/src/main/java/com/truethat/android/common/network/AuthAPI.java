@@ -13,6 +13,7 @@ import retrofit2.http.POST;
 
 public interface AuthAPI {
   String PATH = "auth";
+
   /**
    * Posts an authentication or an authorization to our magical backend.
    *

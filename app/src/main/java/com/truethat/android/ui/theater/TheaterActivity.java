@@ -48,20 +48,24 @@ public class TheaterActivity extends BaseActivity
   private Call<List<Reactable>> mFetchReactablesCall;
   private CameraFragment mCameraFragment;
 
+  @Override public void onAuthOk() {
+    if (mPager.getAdapter().getCount() == 0) fetchReactables();
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Animation for screen transitions.
     this.overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
     // Navigation to other activities
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
-      @Override public void onSwipeUp() {
-        startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
-      }
-
       @Override public void onSwipeLeft() {
         if (mPager.getAdapter().getCount() == 0) {
           fetchReactables();
         }
+      }
+
+      @Override public void onSwipeUp() {
+        startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
       }
     });
     // Initialize views
@@ -92,22 +96,10 @@ public class TheaterActivity extends BaseActivity
     App.getReactionDetectionModule().attempt(image);
   }
 
-  @Override public void onAuthOk() {
-    if (mPager.getAdapter().getCount() == 0) fetchReactables();
-  }
-
   @Override public void requestDetectionInput() {
     mCameraFragment.takePicture();
   }
 
-  @Override protected void onPause() {
-    super.onPause();
-    if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
-  }
-
-  @OnClick(R.id.notFoundText) void navigateToStudio() {
-    startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
-  }
   /**
    * Fetching {@link Reactable} from our backend.
    */
@@ -122,8 +114,18 @@ public class TheaterActivity extends BaseActivity
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
   }
 
+  @Override protected void onPause() {
+    super.onPause();
+    if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
+  }
+
+  @OnClick(R.id.notFoundText) void navigateToStudio() {
+    startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
+  }
+
   /**
-   * @return fetching callback. If new {@link Reactable}s are retrieved, then they are added to {@link #mPager}.
+   * @return fetching callback. If new {@link Reactable}s are retrieved, then they are added to
+   * {@link #mPager}.
    */
   private Callback<List<Reactable>> buildFetchReactablesCallback() {
     return new Callback<List<Reactable>>() {

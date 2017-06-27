@@ -17,6 +17,7 @@ import retrofit2.http.POST;
 
 public interface TheaterAPI {
   String PATH = "theater";
+
   /**
    * Get reactables from out beloved backend to add some drama to our users life.
    */
