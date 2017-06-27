@@ -139,4 +139,11 @@ public abstract class BaseFragment extends Fragment {
     super.onViewStateRestored(savedInstanceState);
     Log.v(TAG, "onViewStateRestored");
   }
+
+  /**
+   * @return whether this fragment is resumed and visible to the user.
+   */
+  public boolean isReallyVisible() {
+    return getUserVisibleHint() && isResumed();
+  }
 }

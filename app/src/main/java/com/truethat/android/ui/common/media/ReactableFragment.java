@@ -69,6 +69,10 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    * Communication interface with {@link ReactionDetectionModule}.
    */
   private ReactionDetectionPubSub mDetectionPubSub;
+  /**
+   * Whether the media resources to display this reactable had been downloaded.
+   */
+  private boolean mReadyForDisplay = false;
 
   public ReactableFragment() {
     // Required empty public constructor
@@ -110,6 +114,12 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     return mRootView;
   }
 
+  @Override public void onDestroyView() {
+    super.onDestroyView();
+    // Media layout will be created again in #onCreateView, and so the reactable is not ready.
+    mReadyForDisplay = false;
+  }
+
   @Override protected int getLayoutResId() {
     return R.layout.fragment_reactable;
   }
@@ -132,14 +142,39 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   }
 
   @Override public void onVisible() {
-    doView();
-    if (mReactable.canReactTo()) {
-      App.getReactionDetectionModule().detect(mDetectionPubSub);
+    super.onVisible();
+    if (mReadyForDisplay) {
+      onDisplay();
     }
   }
 
   @Override public void onHidden() {
+    super.onHidden();
     App.getReactionDetectionModule().stop();
+  }
+
+  /**
+   * Run once media resources of {@link #mReactable} had been downloaded, to the degree they can be
+   * displayed to the user.
+   */
+  public void onReady() {
+    Log.v(TAG, "onReady");
+    mReadyForDisplay = true;
+    if (isReallyVisible()) {
+      onDisplay();
+    }
+  }
+
+  /**
+   * Run once the media resources of the {@link #mReactable} are ready and this fragment satisfies
+   * {@link #isReallyVisible()}.
+   */
+  public void onDisplay() {
+    Log.v(TAG, "onDisplay");
+    doView();
+    if (mReactable.canReactTo()) {
+      App.getReactionDetectionModule().detect(mDetectionPubSub);
+    }
   }
 
   /**
@@ -155,7 +190,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   /**
    * Marks {@link #mReactable} as viewed by the user, and informs our backend about it.
    */
-  private void doView() {
+  protected void doView() {
     // Don't record view of the user's own reactables.
     if (!mReactable.isViewed() && !mReactable.getDirector().equals(App.getAuthModule().getUser())) {
       mReactable.doView();

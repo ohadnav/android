@@ -9,12 +9,15 @@ import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.ui.common.TestActivity;
 import java.util.concurrent.Callable;
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static com.truethat.android.application.ApplicationTestUtil.isDebugging;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsNot.not;
@@ -39,6 +42,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   @Override public void setUp() throws Exception {
     super.setUp();
     mImageTaken = false;
+    if (!isDebugging()) Awaitility.setDefaultTimeout(Duration.FIVE_SECONDS);
   }
 
   @Test public void pictureTakenWithoutCameraPreview() throws Exception {

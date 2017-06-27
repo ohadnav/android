@@ -31,7 +31,7 @@ public class DefaultReactionDetectionModule implements ReactionDetectionModule {
    * input will be
    * requested.
    */
-  @VisibleForTesting static long REQUEST_INPUT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(1);
+  @VisibleForTesting static long REQUEST_INPUT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(3);
   /**
    * Maximum duration in millis to start a new detection attempt, measured with relation to {@code
    * mDetectionStartTime}.

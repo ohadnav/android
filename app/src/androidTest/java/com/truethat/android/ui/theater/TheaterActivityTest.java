@@ -370,7 +370,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a reaction event was posted.
-    await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
+    await().atMost(Duration.TEN_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
       }
