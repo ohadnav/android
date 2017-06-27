@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.common.network.AuthAPI;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.model.User;

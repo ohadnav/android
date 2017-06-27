@@ -4,6 +4,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.AuthAPI;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.User;

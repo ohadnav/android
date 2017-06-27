@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.common.network;
 
 import com.truethat.android.model.User;
 import retrofit2.Call;
@@ -11,7 +11,7 @@ import retrofit2.http.POST;
  * @backend https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/servlet/AuthServlet.java
  */
 
-interface AuthAPI {
+public interface AuthAPI {
   String PATH = "auth";
   /**
    * Posts an authentication or an authorization to our magical backend.
