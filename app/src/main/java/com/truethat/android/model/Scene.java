@@ -68,4 +68,15 @@ public class Scene extends Reactable implements Serializable {
         MultipartBody.Part.createFormData(StudioAPI.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
     return studioAPI.saveReactable(reactablePart, Collections.singletonList(imagePart));
   }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Scene)) return false;
+    if (!super.equals(o)) return false;
+
+    Scene scene = (Scene) o;
+
+    return mImageSignedUrl != null ? mImageSignedUrl.equals(scene.mImageSignedUrl)
+        : scene.mImageSignedUrl == null;
+  }
 }

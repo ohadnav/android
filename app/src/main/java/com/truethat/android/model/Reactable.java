@@ -170,14 +170,25 @@ public abstract class Reactable implements Serializable {
 
   @Override public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof Reactable)) return false;
 
     Reactable reactable = (Reactable) o;
 
-    return mId == reactable.mId;
+    if (mId != reactable.mId) return false;
+    if (mViewed != reactable.mViewed) return false;
+    if (mUserReaction != reactable.mUserReaction) return false;
+    if (mDirector != null ? !mDirector.equals(reactable.mDirector) : reactable.mDirector != null) {
+      return false;
+    }
+    //noinspection SimplifiableIfStatement
+    if (mReactionCounters != null ? !mReactionCounters.equals(reactable.mReactionCounters)
+        : reactable.mReactionCounters != null) {
+      return false;
+    }
+    return mCreated != null ? mCreated.equals(reactable.mCreated) : reactable.mCreated == null;
   }
 
-  @Override public int hashCode() {
-    return (int) (mId ^ (mId >>> 32));
+  @Override public String toString() {
+    return NetworkUtil.GSON.toJson(this);
   }
 }

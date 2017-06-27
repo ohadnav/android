@@ -13,6 +13,7 @@ import com.truethat.android.model.Scene;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.regex.Pattern;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -50,13 +51,14 @@ public class NetworkUtil {
    *
    * The following modifications has been made:
    * <ul>
-   *   <li>Android naming strategy, so that serialized json match regular Java notations.</li>
-   *   <li>Date format, to sync with our backend.</li>
-   *   <li>{@link Reactable} serialization, so that {@link ReactableFragment} can be created more freely.</li>
+   * <li>Android naming strategy, so that serialized json match regular Java notations.</li>
+   * <li>Date format, to sync with our backend.</li>
+   * <li>{@link Reactable} serialization, so that {@link ReactableFragment} can be created more
+   * freely.</li>
    * </ul>
    */
   public static final Gson GSON = new GsonBuilder().setFieldNamingStrategy(NAMING_STRATEGY)
-      .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+      .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
       .registerTypeAdapterFactory(
           RuntimeTypeAdapterFactory.of(Reactable.class).registerSubtype(Scene.class))
       .create();
@@ -96,7 +98,7 @@ public class NetworkUtil {
     return retrofit.create(service);
   }
 
-  public static String getBackendUrl() {
+  private static String getBackendUrl() {
     try {
       return sBackendUrl + ":" + BuildConfig.PORT + "/";
     } catch (Exception ignored) {

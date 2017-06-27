@@ -123,6 +123,7 @@ import java.util.Map;
  */
 @SuppressWarnings("WeakerAccess") public final class RuntimeTypeAdapterFactory<T>
     implements TypeAdapterFactory {
+  public static final String TYPE_FIELD_NAME = "type";
   private final Class<?> baseType;
   private final String typeFieldName;
   private final Map<String, Class<?>> labelToSubtype = new LinkedHashMap<>();
@@ -149,7 +150,7 @@ import java.util.Map;
    * the type field name.
    */
   public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType) {
-    return new RuntimeTypeAdapterFactory<>(baseType, "type");
+    return new RuntimeTypeAdapterFactory<>(baseType, TYPE_FIELD_NAME);
   }
 
   /**
