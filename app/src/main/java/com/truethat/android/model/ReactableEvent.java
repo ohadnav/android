@@ -37,14 +37,14 @@ import java.util.Date;
   /**
    * Of the {@link Reactable} that was interacted with.
    */
-  private long mSceneId;
+  private long mReactableId;
 
-  public ReactableEvent(long userId, long sceneId, Date timestamp, EventType eventType,
+  public ReactableEvent(long userId, long reactableId, Date timestamp, EventType eventType,
       @Nullable Emotion reaction) {
     mTimestamp = timestamp;
     mUserId = userId;
     mReaction = reaction;
     mEventType = eventType;
-    mSceneId = sceneId;
+    mReactableId = reactableId;
   }
 }
