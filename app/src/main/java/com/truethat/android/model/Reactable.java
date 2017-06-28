@@ -27,7 +27,7 @@ public abstract class Reactable implements Serializable {
   private long mId;
 
   /**
-   * Whether the user had already reacted to the reactable
+   * The user reaction to the reactable, {@code null} for no reaction.
    */
   private Emotion mUserReaction;
 
