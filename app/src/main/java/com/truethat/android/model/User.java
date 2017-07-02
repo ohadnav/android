@@ -1,11 +1,10 @@
 package com.truethat.android.model;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.telephony.TelephonyManager;
 import com.truethat.android.application.App;
+import com.truethat.android.application.DeviceManager;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
@@ -43,28 +42,24 @@ public class User implements Serializable {
   private String mPhoneNumber;
 
   @VisibleForTesting
-  public User(@Nullable Long id, @Nullable String firstName, @Nullable String lastName,
-      @Nullable String deviceId, @Nullable String phoneNumber) {
+  public User(@Nullable Long id, @Nullable String firstName, @Nullable String lastName) {
     mId = id;
     mFirstName = firstName;
     mLastName = lastName;
-    mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
+    mDeviceId = App.getDeviceManager().getDeviceId(null);
+    mPhoneNumber = App.getDeviceManager().getPhoneNumber(null);
   }
 
   /**
-   * @param context to access internal storage and {@link TelephonyManager}.
+   * @param context to utilize internal storage and {@link DeviceManager}.
    */
-  @SuppressLint("HardwareIds") public User(Context context)
-      throws IOException, ClassNotFoundException {
+  public User(Context context) throws IOException, ClassNotFoundException {
     // Trying to retrieve previous session from internal storage.
     if (App.getInternalStorage().exists(context, LAST_USER_PATH)) {
       populateFromInternalStorage(context);
     }
-    TelephonyManager telephonyManager =
-        (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-    mDeviceId = telephonyManager.getDeviceId();
-    mPhoneNumber = telephonyManager.getLine1Number();
+    mDeviceId = App.getDeviceManager().getDeviceId(context);
+    mPhoneNumber = App.getDeviceManager().getPhoneNumber(context);
   }
 
   /**

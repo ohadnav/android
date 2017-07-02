@@ -63,7 +63,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     assertDirectingState();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse();
       }
     });
@@ -139,7 +139,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
   @Test public void publishedFailed() throws Exception {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });

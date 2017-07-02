@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.application.auth;
 
 import com.truethat.android.model.User;
 import com.truethat.android.ui.common.BaseActivity;
@@ -11,12 +11,10 @@ public class MockAuthModule implements AuthModule {
   private static final long USER_ID = 1000;
   private static final String FIRST_NAME = "Donal";
   private static final String LAST_NAME = "Trump";
-  private static final String DEVICE_ID = "my-android";
-  private static final String PHONE_NUMBER = "+1200300400";
   /**
    * Mocked user for testing.
    */
-  public static final User USER = new User(USER_ID, FIRST_NAME, LAST_NAME, DEVICE_ID, PHONE_NUMBER);
+  public static final User USER = new User(USER_ID, FIRST_NAME, LAST_NAME);
   /**
    * Whether auth requests should be authorized.
    */
@@ -38,7 +36,7 @@ public class MockAuthModule implements AuthModule {
     if (!mOnBoarded) {
       activity.runOnUiThread(new Runnable() {
         @Override public void run() {
-          mUser = new User(null, null, null, DEVICE_ID, PHONE_NUMBER);
+          mUser = new User(null, null, null);
           activity.onBoarding();
           mOnBoarded = true;
         }
@@ -68,6 +66,10 @@ public class MockAuthModule implements AuthModule {
     return mUser != null && mUser.isAuthOk();
   }
 
+  public void signOut() {
+    mUser = null;
+  }
+
   public void setAllowAuth(boolean allowAuth) {
     if (!allowAuth) {
       signOut();
@@ -80,12 +82,5 @@ public class MockAuthModule implements AuthModule {
       signOut();
     }
     mOnBoarded = onBoarded;
-  }
-
-  /**
-   * Deletes current user session.
-   */
-  private void signOut() {
-    mUser = null;
   }
 }

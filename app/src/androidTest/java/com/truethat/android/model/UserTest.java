@@ -42,7 +42,7 @@ public class UserTest extends BaseApplicationTestSuite {
   }
 
   @Test public void updateNames() throws Exception {
-    @SuppressWarnings("ConstantConditions") User user = new User(null, null, null, null, null);
+    @SuppressWarnings("ConstantConditions") User user = new User(null, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
     assertEquals("speedy gonzales", user.getDisplayName());
     // Double spaces are shrunk.
@@ -57,7 +57,7 @@ public class UserTest extends BaseApplicationTestSuite {
   }
 
   @Test public void updateNamesDontSaveWhenSignedOut() throws Exception {
-    User user = new User(null, null, null, null, null);
+    User user = new User(null, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
     assertEquals("speedy gonzales", user.getDisplayName());
     // Assert not saved.
@@ -66,7 +66,7 @@ public class UserTest extends BaseApplicationTestSuite {
   }
 
   @Test public void updateNamesSaves() throws Exception {
-    User user = new User(0L, null, null, null, null);
+    User user = new User(0L, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
     assertEquals("speedy gonzales", user.getDisplayName());
     // Assert not saved.

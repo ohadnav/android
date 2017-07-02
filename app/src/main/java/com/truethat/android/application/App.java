@@ -1,12 +1,12 @@
 package com.truethat.android.application;
 
 import android.support.annotation.VisibleForTesting;
+import com.truethat.android.application.auth.AuthModule;
+import com.truethat.android.application.auth.DefaultAuthModule;
 import com.truethat.android.application.permissions.DefaultPermissionsModule;
 import com.truethat.android.application.permissions.PermissionsModule;
 import com.truethat.android.application.storage.internal.DefaultInternalStorage;
 import com.truethat.android.application.storage.internal.InternalStorage;
-import com.truethat.android.auth.AuthModule;
-import com.truethat.android.auth.DefaultAuthModule;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
 import com.truethat.android.empathy.RandomEmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionModule;
@@ -21,6 +21,7 @@ public class App {
   private static AuthModule sAuthModule = new DefaultAuthModule();
   private static ReactionDetectionModule sReactionDetectionModule =
       new DefaultReactionDetectionModule(new RandomEmotionDetectionClassifier());
+  private static DeviceManager sDeviceManager = new DefaultDeviceManager();
 
   public static PermissionsModule getPermissionsModule() {
     return sPermissionsModule;
@@ -53,5 +54,13 @@ public class App {
   @VisibleForTesting
   public static void setReactionDetectionModule(ReactionDetectionModule reactionDetectionModule) {
     sReactionDetectionModule = reactionDetectionModule;
+  }
+
+  public static DeviceManager getDeviceManager() {
+    return sDeviceManager;
+  }
+
+  @VisibleForTesting public static void setDeviceManager(DeviceManager deviceManager) {
+    sDeviceManager = deviceManager;
   }
 }

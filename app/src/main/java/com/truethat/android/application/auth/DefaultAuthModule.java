@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.application.auth;
 
 import android.content.Context;
 import android.util.Log;
@@ -101,6 +101,10 @@ public class DefaultAuthModule implements AuthModule {
     return mUser != null && mUser.isAuthOk();
   }
 
+  @Override public void signOut() {
+    mUser = null;
+  }
+
   /**
    * Authenticates user against our lovely backend
    *
@@ -148,6 +152,7 @@ public class DefaultAuthModule implements AuthModule {
    * @param response HTTP request. Note that in case of unauthorized users, a null response body is
    * @param context  to access internal storage, when updating user.
    *                 returned.
+   *
    * @return whether the response contained a valid {@link User} with an ID.
    */
   private boolean handleResponse(Call<User> call, Response<User> response, Context context)

@@ -4,6 +4,7 @@ import android.content.Intent;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.empathy.MockReactionDetectionModule;
 import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import java.util.concurrent.Callable;
@@ -36,6 +37,34 @@ import static org.junit.Assert.assertTrue;
 public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   private static final String NAME = "donald duck";
 
+  /**
+   * Programmatically completes the on boarding process as if a user completed it.
+   *
+   * @param name                        of the new user.
+   * @param mockReactionDetectionModule to detect {@link OnBoardingActivity#REACTION_FOR_DONE}.
+   */
+  public static void doOnBoarding(String name,
+      final MockReactionDetectionModule mockReactionDetectionModule) {
+    // Should navigate to On-Boarding
+    waitForActivity(OnBoardingActivity.class);
+    // Type user name and hit done.
+    onView(withId(R.id.nameEditText)).perform(typeText(name)).perform(pressImeActionButton());
+    // Wait until detection had started.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mockReactionDetectionModule.isDetecting();
+      }
+    });
+    // Detect smile.
+    mockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    // Wait until Auth OK.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(App.getAuthModule().isAuthOk());
+      }
+    });
+  }
+
   @Before public void setUp() throws Exception {
     super.setUp();
     mMockAuthModule.setOnBoarded(false);
@@ -48,30 +77,12 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   @Test public void successfulOnBoarding() throws Exception {
     // EditText should be auto focused.
     onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
-    // Type user name and hit done.
-    onView(withId(R.id.nameEditText)).perform(typeText(NAME)).perform(pressImeActionButton());
-    // Wait until detection had started.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mMockReactionDetectionModule.isDetecting();
-      }
-    });
-    // Detect smile.
-    mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    doOnBoarding(NAME, mMockReactionDetectionModule);
     assertOnBoardingSuccessful();
   }
 
   @Test public void alreadyAuthOk() throws Exception {
-    // Type user name and hit done.
-    onView(withId(R.id.nameEditText)).perform(typeText(NAME)).perform(pressImeActionButton());
-    // Wait until detection had started.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mMockReactionDetectionModule.isDetecting();
-      }
-    });
-    // Detect smile.
-    mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    doOnBoarding(NAME, mMockReactionDetectionModule);
     assertOnBoardingSuccessful();
     // Go to on boarding by mistake.
     mActivityTestRule.getActivity()

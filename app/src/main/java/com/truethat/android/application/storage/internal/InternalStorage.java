@@ -25,6 +25,7 @@ public interface InternalStorage {
    * @param context  for which to read from internal storage.
    * @param fileName relative path, in relation to context.getFilesDir, to the designated file.
    * @param <T>      of the deserialized object.
+   *
    * @return the deserialized content of fileName.
    */
   <T extends Serializable> T read(Context context, String fileName)
@@ -35,6 +36,7 @@ public interface InternalStorage {
    *
    * @param context  for which to read from internal storage.
    * @param fileName relative path, in relation to context.getFilesDir, to the designated file.
+   *
    * @return the deserialized content of fileName.
    */
   boolean exists(Context context, String fileName);

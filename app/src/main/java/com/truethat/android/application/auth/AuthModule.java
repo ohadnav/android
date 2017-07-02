@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.application.auth;
 
 import android.telephony.TelephonyManager;
 import com.truethat.android.model.User;
@@ -25,4 +25,9 @@ public interface AuthModule {
    * @return Whether the user in {@link #getUser()} is authorized.
    */
   boolean isAuthOk();
+
+  /**
+   * Signing the user of {@link #getUser()} out.
+   */
+  void signOut();
 }

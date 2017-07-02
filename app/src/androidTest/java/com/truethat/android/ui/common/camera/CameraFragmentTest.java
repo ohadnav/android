@@ -133,7 +133,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     mActivityTestRule.getActivity()
         .startActivity(new Intent(mActivityTestRule.getActivity(), TestActivity.class));
     // Wait for an image to be taken
-    Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
+    Thread.sleep(TIMEOUT.getValueInMS());
     // An image should not have been taken.
     assertFalse(mImageTaken);
   }
@@ -144,7 +144,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     // Close camera
     mCameraFragment.onHidden();
     // Wait for an image to be taken
-    Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
+    Thread.sleep(TIMEOUT.getValueInMS());
     // An image should not have been taken.
     assertFalse(mImageTaken);
   }
@@ -192,7 +192,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     // Restores preview
     mCameraFragment.restorePreview();
     // Increase probability of preview change.
-    Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
+    Thread.sleep(TIMEOUT.getValueInMS());
     // New preview should be different
     Bitmap now = mCameraFragment.getCameraPreview().getBitmap();
     assertFalse(than.sameAs(now));

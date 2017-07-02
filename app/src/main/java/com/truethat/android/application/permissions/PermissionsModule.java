@@ -11,6 +11,7 @@ public interface PermissionsModule {
   /**
    * @param context    for the desired permission
    * @param permission for which to enquire
+   *
    * @return whether the permission is granted.
    */
   boolean isPermissionGranted(Context context, Permission permission);
@@ -18,6 +19,7 @@ public interface PermissionsModule {
   /**
    * @param activity   to provide context
    * @param permission for which to enquire
+   *
    * @return whether an explanatory dialogue should be shown to the use prior to asking for
    * permission.
    */

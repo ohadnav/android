@@ -48,6 +48,7 @@ public enum Permission {
   /**
    * @param manifest Taken from {@link Manifest.permission}, usually returned by {@link
    *                 AppCompatActivity#onRequestPermissionsResult(int, String[], int[])}.
+   *
    * @return the matching {@link Permission} enum.
    */
   public static Permission fromManifest(String manifest) {

@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.application.auth;
 
 import com.truethat.android.R;
 import com.truethat.android.application.App;
@@ -45,7 +45,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
       }
     });
     User initializedUser =
-        new User(null, mRespondedUser.getFirstName(), mRespondedUser.getLastName(), null, null);
+        new User(null, mRespondedUser.getFirstName(), mRespondedUser.getLastName());
     // Mock user onBoarding.
     initializedUser.save(mActivityTestRule.getActivity());
   }

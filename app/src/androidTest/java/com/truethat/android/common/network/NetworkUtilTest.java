@@ -2,7 +2,7 @@ package com.truethat.android.common.network;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.truethat.android.auth.MockAuthModule;
+import com.truethat.android.application.auth.MockAuthModule;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;

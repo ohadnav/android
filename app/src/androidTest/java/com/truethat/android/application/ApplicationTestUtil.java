@@ -26,7 +26,7 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.intent.Checks.checkNotNull;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
-import static com.truethat.android.common.BaseApplicationTestSuite.DEFAULT_TIMEOUT;
+import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
 import static org.hamcrest.CoreMatchers.allOf;
 
 /**
@@ -38,8 +38,9 @@ public class ApplicationTestUtil {
 
   /**
    * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
+   *
    * @return action that throws if {@code activityClass} is not displayed within {@link
-   * BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
+   * BaseApplicationTestSuite#TIMEOUT}.
    */
   public static ViewAction waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
     return waitMatcher(allOf(isDisplayed(), withinActivity(activityClass)));
@@ -47,8 +48,9 @@ public class ApplicationTestUtil {
 
   /**
    * @param viewMatcher for find a specific view.
+   *
    * @return action that attempts to find the {@link View} described by {@code viewMatcher} for at
-   * most {@link BaseApplicationTestSuite#DEFAULT_TIMEOUT}.
+   * most {@link BaseApplicationTestSuite#TIMEOUT}.
    */
   public static ViewAction waitMatcher(final Matcher viewMatcher) {
     return new ViewAction() {
@@ -60,14 +62,14 @@ public class ApplicationTestUtil {
         return "waited for to for a specific view with matcher <"
             + viewMatcher
             + "> during "
-            + DEFAULT_TIMEOUT
+            + TIMEOUT
             + ".";
       }
 
       @Override public void perform(final UiController uiController, final View view) {
         uiController.loopMainThreadUntilIdle();
         final long startTime = System.currentTimeMillis();
-        final long endTime = startTime + DEFAULT_TIMEOUT.getValueInMS();
+        final long endTime = startTime + TIMEOUT.getValueInMS();
 
         do {
           for (View child : TreeIterables.breadthFirstViewTraversal(view)) {
@@ -91,6 +93,7 @@ public class ApplicationTestUtil {
 
   /**
    * @param activityClass of activity that should contain the view.
+   *
    * @return a matcher that checks whether a view is contained within that activity.
    */
   private static Matcher<View> withinActivity(
@@ -142,6 +145,7 @@ public class ApplicationTestUtil {
 
   /**
    * @param color of background
+   *
    * @return Matcher to assert whether a {@link EditText} has a certain background color.
    */
   public static Matcher<View> withBackgroundColor(final int color) {

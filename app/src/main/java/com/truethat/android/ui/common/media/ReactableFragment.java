@@ -153,6 +153,10 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     return R.layout.fragment_reactable;
   }
 
+  public T getReactable() {
+    return mReactable;
+  }
+
   /**
    * Run once media resources of {@link #mReactable} had been downloaded, to the degree they can be
    * displayed to the user.

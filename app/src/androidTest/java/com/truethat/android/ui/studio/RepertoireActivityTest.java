@@ -5,7 +5,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 import com.truethat.android.R;
-import com.truethat.android.auth.MockAuthModule;
+import com.truethat.android.application.auth.MockAuthModule;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioAPI;
@@ -116,7 +116,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     // Should not be detecting reaction
     assertFalse(mMockReactionDetectionModule.isDetecting());
     // Let a post event to maybe be sent.
-    Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+    Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount("POST", StudioAPI.PATH));
   }
 
@@ -126,7 +126,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
-        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(responseBody);
       }
     });

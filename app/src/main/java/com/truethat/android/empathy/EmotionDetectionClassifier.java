@@ -13,6 +13,7 @@ import com.truethat.android.model.Emotion;
 public interface EmotionDetectionClassifier {
   /**
    * @param image captured by the device's camera.
+   *
    * @return the most probable {@link Emotion} in {@code image}, or null if no confident
    * classification could be made.
    */

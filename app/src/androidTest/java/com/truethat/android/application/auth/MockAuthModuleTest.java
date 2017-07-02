@@ -1,4 +1,4 @@
-package com.truethat.android.auth;
+package com.truethat.android.application.auth;
 
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;

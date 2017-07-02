@@ -83,6 +83,7 @@ import java.util.List;
    * @param maxWidth          The maximum width that can be chosen
    * @param maxHeight         The maximum height that can be chosen
    * @param aspectRatio       The aspect ratio
+   *
    * @return The optimal {@code Size}, or the largest one.
    */
   public static Size chooseOptimalSize(Size[] choices, int textureViewWidth, int textureViewHeight,

@@ -5,6 +5,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -65,7 +66,7 @@ public class TheaterActivity extends BaseActivity
       }
 
       @Override public void onSwipeUp() {
-        startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
+        navigateToStudio();
       }
     });
     // Initialize views
@@ -110,8 +111,12 @@ public class TheaterActivity extends BaseActivity
       mNotFoundText.setVisibility(GONE);
       Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
     }
-    mFetchReactablesCall = mTheaterAPI.getReactables();
+    mFetchReactablesCall = mTheaterAPI.getReactables(App.getAuthModule().getUser());
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
+  }
+
+  @VisibleForTesting public ViewPager getPager() {
+    return mPager;
   }
 
   @Override protected void onPause() {

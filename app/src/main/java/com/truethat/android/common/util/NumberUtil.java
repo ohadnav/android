@@ -34,4 +34,19 @@ public class NumberUtil {
     boolean hasDecimal = truncated < 100 && (truncated / 10d) != (truncated / 10);
     return hasDecimal ? (truncated / 10d) + suffix : (truncated / 10) + suffix;
   }
+
+  /**
+   * @param map to sum.
+   * @param <K> of map keys.
+   * @param <V> of map values.
+   *
+   * @return the sum of the map values.
+   */
+  public static <K, V extends Number> double sum(Map<K, V> map) {
+    double sum = 0;
+    for (Number aLong : map.values()) {
+      sum += aLong.longValue();
+    }
+    return sum;
+  }
 }

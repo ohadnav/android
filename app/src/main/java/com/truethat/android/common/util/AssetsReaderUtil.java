@@ -13,6 +13,7 @@ class AssetsReaderUtil {
   /**
    * @param context of which the asset is belonged to.
    * @param path    relative path to asset from within the context's asserts directory.
+   *
    * @return the app asset as byte array.
    */
   static byte[] readAsBytes(Context context, String path) throws IOException {

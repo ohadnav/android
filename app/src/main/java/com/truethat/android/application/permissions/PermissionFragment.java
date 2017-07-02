@@ -21,6 +21,7 @@ public class PermissionFragment extends BaseFragment {
    * this fragment using the provided parameters.
    *
    * @param permission Parameter 1.
+   *
    * @return A new instance of fragment RageComicDetailsFragment.
    */
   public static PermissionFragment newInstance(Permission permission) {

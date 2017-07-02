@@ -19,6 +19,7 @@ import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.DefaultReactionDetectionModule;
 import com.truethat.android.empathy.EmotionDetectionClassifier;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.ui.common.camera.CameraFragment;
@@ -47,6 +48,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
@@ -75,10 +77,43 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     put(Emotion.HAPPY, HAPPY_COUNT);
     put(Emotion.SAD, SAD_COUNT);
   }};
-  private final User DIRECTOR = new User(99L, "James", "Cameron", "avatar", "+1000000000");
+  private final User DIRECTOR = new User(99L, "James", "Cameron");
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Scene> mRespondedScenes;
+
+  public static void assertReactableDisplayed(Reactable reactable) {
+    // Wait until the reactable is displayed.
+    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    TheaterActivity theaterActivity = (TheaterActivity) getCurrentActivity();
+    ReactableFragment currentFragment =
+        (ReactableFragment) theaterActivity.getSupportFragmentManager()
+            .findFragmentByTag(
+                "android:switcher:" + R.id.reactablesPager + ":" + theaterActivity.getPager()
+                    .getCurrentItem());
+    // Should have the same reactable.
+    assertEquals(reactable, currentFragment.getReactable());
+    // Asserting the layout is displayed fullscreen.
+    onView(withId(R.id.reactableFragment)).check(matches(isFullScreen()));
+    // Loading layout should be hidden.
+    onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
+    // Asserting the reactions count is abbreviated.
+    onView(withId(R.id.reactionCountText)).check(
+        matches(withText(NumberUtil.format(reactable.getReactionCounters().))));
+    // Asserting the reaction image is displayed and represents the most common reaction.
+    onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
+    ImageView imageView =
+        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
+    assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
+        ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
+            EMOTIONAL_REACTIONS.lastKey().getDrawableResource())));
+    // Asserting the scene image is displayed fullscreen.
+    onView(withId(R.id.sceneImage)).check(matches(isFullScreen()));
+    // Asserting the displayed name is of the reactable director
+    onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getDisplayName())));
+    // Asserting the displayed time is represents the reactable creation.
+    onView(withId(R.id.timeAgoText)).check(matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
+  }
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -149,7 +184,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes) + "\n";
-        Thread.sleep(BaseApplicationTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+        Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(responseBody);
       }
     });

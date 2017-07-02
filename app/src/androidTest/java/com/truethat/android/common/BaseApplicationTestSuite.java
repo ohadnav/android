@@ -3,9 +3,9 @@ package com.truethat.android.common;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.application.App;
 import com.truethat.android.application.ApplicationTestUtil;
+import com.truethat.android.application.auth.MockAuthModule;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
-import com.truethat.android.auth.MockAuthModule;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.empathy.MockReactionDetectionModule;
@@ -22,14 +22,14 @@ import static com.truethat.android.BuildConfig.PORT;
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
  * <p>
- * BaseApplicationTestSuite suite. Initializes mock application modules, and more.
+ * Base testing suite for instrumentation testing. Initializes mock application modules, and more.
  */
 
 @SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseApplicationTestSuite {
   /**
    * Default duration to wait for. When waiting for activities to change for example.
    */
-  public static final Duration DEFAULT_TIMEOUT =
+  public static final Duration TIMEOUT =
       ApplicationTestUtil.isDebugging() ? Duration.ONE_MINUTE : Duration.ONE_SECOND;
   protected final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
@@ -43,9 +43,11 @@ import static com.truethat.android.BuildConfig.PORT;
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
     Awaitility.reset();
-    Awaitility.setDefaultTimeout(DEFAULT_TIMEOUT);
+    Awaitility.setDefaultTimeout(TIMEOUT);
     // Sets up the mocked permissions module.
     App.setPermissionsModule(mMockPermissionsModule = new MockPermissionsModule());
+    // Sets up mocked device manager.
+    App.setDeviceManager(new MockDeviceManager());
     // Sets up the mocked auth module.
     App.setAuthModule(mMockAuthModule = new MockAuthModule());
     // Sets up the mocked in-mem internal storage.

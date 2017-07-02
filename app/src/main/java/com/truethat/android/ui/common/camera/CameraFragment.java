@@ -861,6 +861,7 @@ public class CameraFragment extends BaseFragment {
    * rotate the JPEG 180 degrees.
    *
    * @param rotation The screen rotation.
+   *
    * @return The JPEG orientation (one of 0, 90, 270, and 360)
    */
   private int getOrientation(int rotation) {

@@ -88,6 +88,7 @@ public class NetworkUtil {
   /**
    * @param service API interface.
    * @param <T>     type of API interface.
+   *
    * @return the provided API interface, inflated by Retrofit.
    */
   public static <T> T createAPI(final Class<T> service) {
