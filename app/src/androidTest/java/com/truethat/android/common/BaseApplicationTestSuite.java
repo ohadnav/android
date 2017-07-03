@@ -29,7 +29,7 @@ import static com.truethat.android.BuildConfig.PORT;
   /**
    * Default duration to wait for. When waiting for activities to change for example.
    */
-  public static final Duration TIMEOUT =
+  public static Duration TIMEOUT =
       ApplicationTestUtil.isDebugging() ? Duration.ONE_MINUTE : Duration.ONE_SECOND;
   protected final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =

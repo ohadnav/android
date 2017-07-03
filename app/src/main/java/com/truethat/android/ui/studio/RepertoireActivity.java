@@ -15,7 +15,7 @@ import com.bumptech.glide.Glide;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.network.RepertoireAPI;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.ui.common.BaseActivity;
 import com.truethat.android.ui.common.media.ReactableFragment;
@@ -37,7 +37,7 @@ public class RepertoireActivity extends BaseActivity
   /**
    * API interface for getting reactables.
    */
-  private StudioAPI mStudioAPI;
+  private RepertoireAPI mRepertoireAPI;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
@@ -72,7 +72,7 @@ public class RepertoireActivity extends BaseActivity
       }
     });
     // Initialize API
-    mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
+    mRepertoireAPI = NetworkUtil.createAPI(RepertoireAPI.class);
     mFetchReactablesCallback = buildFetchReactablesCallback();
   }
 
@@ -95,7 +95,7 @@ public class RepertoireActivity extends BaseActivity
       mNotFoundText.setVisibility(GONE);
       Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
     }
-    mFetchReactablesCall = mStudioAPI.getRepertoire(App.getAuthModule().getUser());
+    mFetchReactablesCall = mRepertoireAPI.fetchRepertoire(App.getAuthModule().getUser());
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
   }
 

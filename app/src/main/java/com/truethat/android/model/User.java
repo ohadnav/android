@@ -95,6 +95,16 @@ public class User implements Serializable {
     return lastName.toLowerCase();
   }
 
+  /**
+   * @param context to access internal storage.
+   *
+   * @return {@link User} that is stored in {@link #LAST_USER_PATH}.
+   */
+  @VisibleForTesting public static User getUserFromStorage(Context context)
+      throws IOException, ClassNotFoundException {
+    return App.getInternalStorage().read(context, LAST_USER_PATH);
+  }
+
   public long getId() {
     if (mId == null) {
       throw new IllegalStateException("User ID had not been initialized.");
@@ -211,7 +221,7 @@ public class User implements Serializable {
    */
   private void populateFromInternalStorage(Context context)
       throws IOException, ClassNotFoundException {
-    User lastUser = App.getInternalStorage().read(context, LAST_USER_PATH);
+    User lastUser = getUserFromStorage(context);
     mId = lastUser.mId;
     mFirstName = lastUser.mFirstName;
     mLastName = lastUser.mLastName;

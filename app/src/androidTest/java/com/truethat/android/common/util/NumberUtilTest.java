@@ -1,5 +1,6 @@
 package com.truethat.android.common.util;
 
+import android.support.test.espresso.core.deps.guava.collect.ImmutableMap;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,5 +26,9 @@ public class NumberUtilTest {
     assertEquals("1.2P", NumberUtil.format(1_230_000_000_000_000L));
     assertEquals("-9.2E", NumberUtil.format(Long.MIN_VALUE));
     assertEquals("9.2E", NumberUtil.format(Long.MAX_VALUE));
+  }
+
+  @Test public void sum() throws Exception {
+    assertEquals(2L, NumberUtil.sum(ImmutableMap.of("a", 1L, "b", 1L)));
   }
 }

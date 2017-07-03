@@ -102,6 +102,7 @@ public class DefaultAuthModule implements AuthModule {
   }
 
   @Override public void signOut() {
+    Log.v(TAG, "signing " + (mUser != null ? mUser.getDisplayName() : "") + " out...");
     mUser = null;
   }
 
@@ -164,8 +165,9 @@ public class DefaultAuthModule implements AuthModule {
         throw new AssertionError("Responded user is a ghost... scary.");
       }
       mUser.update(respondedUser, context);
+      Log.v(TAG, mUser.getDisplayName() + " is authenticated.");
     } else {
-      Log.e(TAG, "Failed to post event to "
+      Log.e(TAG, "Failed auth request "
           + call.request().url()
           + "\n"
           + response.code()

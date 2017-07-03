@@ -7,11 +7,12 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.InteractionAPI;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.TheaterAPI;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
@@ -47,9 +48,8 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
-import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
+import static com.truethat.android.application.ApplicationTestUtil.isFullscreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
@@ -73,46 +73,74 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   private static final Date YESTERDAY = new Date(new Date().getTime() - TimeUnit.DAYS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   private static final long SAD_COUNT = HAPPY_COUNT + 1;
+  private static final TreeMap<Emotion, Long> HAPPY_REACTIONS = new TreeMap<Emotion, Long>() {{
+    put(Emotion.HAPPY, HAPPY_COUNT);
+  }};
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
     put(Emotion.SAD, SAD_COUNT);
   }};
-  private final User DIRECTOR = new User(99L, "James", "Cameron");
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
+  private User mDirector;
   private List<Scene> mRespondedScenes;
 
-  public static void assertReactableDisplayed(Reactable reactable) {
+  @SuppressWarnings("ConstantConditions")
+  public static void assertReactableDisplayed(final Reactable reactable) throws Exception {
+    final TheaterActivity theaterActivity = (TheaterActivity) getCurrentActivity();
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
-    TheaterActivity theaterActivity = (TheaterActivity) getCurrentActivity();
-    ReactableFragment currentFragment =
-        (ReactableFragment) theaterActivity.getSupportFragmentManager()
-            .findFragmentByTag(
-                "android:switcher:" + R.id.reactablesPager + ":" + theaterActivity.getPager()
-                    .getCurrentItem());
-    // Should have the same reactable.
-    assertEquals(reactable, currentFragment.getReactable());
-    // Asserting the layout is displayed fullscreen.
-    onView(withId(R.id.reactableFragment)).check(matches(isFullScreen()));
+    // Wait until the correct fragment is the current one.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return reactable.getId() == theaterActivity.getDisplayedReactable().getReactable().getId();
+      }
+    });
+    final ReactableFragment currentFragment = theaterActivity.getDisplayedReactable();
+    // Wait until the fragment is really visible.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return currentFragment.isReady();
+      }
+    });
     // Loading layout should be hidden.
     onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
     // Asserting the reactions count is abbreviated.
-    onView(withId(R.id.reactionCountText)).check(
-        matches(withText(NumberUtil.format(reactable.getReactionCounters().))));
-    // Asserting the reaction image is displayed and represents the most common reaction.
-    onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
-    ImageView imageView =
-        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
-    assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
-        ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
-            EMOTIONAL_REACTIONS.lastKey().getDrawableResource())));
+    assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
+        ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
+    // Asserting the reaction image is displayed and represents the most common reaction, the user reaction, or the default one.
+    onView(allOf(isDisplayed(), withId(R.id.reactionImage))).check(matches(isDisplayed()));
+    ImageView reactionImage =
+        (ImageView) currentFragment.getView().findViewById(R.id.reactionImage);
+    if (currentFragment.getReactable().getUserReaction() != null) {
+      assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+          ContextCompat.getDrawable(theaterActivity.getApplicationContext(),
+              currentFragment.getReactable().getUserReaction().getDrawableResource())));
+    } else if (!reactable.getReactionCounters().isEmpty()) {
+      assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+          ContextCompat.getDrawable(theaterActivity.getApplicationContext(),
+              reactable.getReactionCounters().lastKey().getDrawableResource())));
+    } else {
+      assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+          ContextCompat.getDrawable(theaterActivity.getApplicationContext(),
+              ReactableFragment.DEFAULT_REACTION_COUNTER.getDrawableResource())));
+    }
     // Asserting the scene image is displayed fullscreen.
-    onView(withId(R.id.sceneImage)).check(matches(isFullScreen()));
-    // Asserting the displayed name is of the reactable director
-    onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getDisplayName())));
+    assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
     // Asserting the displayed time is represents the reactable creation.
-    onView(withId(R.id.timeAgoText)).check(matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
+    assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()),
+        ((TextView) currentFragment.getView().findViewById(R.id.timeAgoText)).getText());
+    // Should not display director name if the current user is the director.
+    if (reactable.getDirector() != App.getAuthModule().getUser()) {
+      assertEquals(View.VISIBLE,
+          currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
+      // Asserting the displayed name is of the reactable director
+      assertEquals(reactable.getDirector().getDisplayName(),
+          ((TextView) currentFragment.getView().findViewById(R.id.directorNameText)).getText());
+    } else {
+      assertEquals(View.GONE,
+          currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
+    }
   }
 
   @Before public void setUp() throws Exception {
@@ -126,6 +154,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     });
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
+    // Initialize director
+    mDirector = new User(99L, "James", "Cameron");
   }
 
   @Test public void navigation() throws Exception {
@@ -134,8 +164,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void displayScene() throws Exception {
-    mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+    Scene scene = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
+    mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
     // Camera preview should be hidden
     final CameraFragment cameraFragment = (CameraFragment) mTheaterActivityTestRule.getActivity()
@@ -148,32 +178,11 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
       }
     });
     assertEquals(View.GONE, cameraFragment.getCameraPreview().getVisibility());
-    // Wait until the reactable is displayed.
-    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
-    // Asserting the layout is displayed fullscreen.
-    onView(withId(R.id.reactableFragment)).check(matches(isFullScreen()));
-    // Loading layout should be hidden.
-    onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
-    // Asserting the reactions count is abbreviated.
-    onView(withId(R.id.reactionCountText)).check(
-        matches(withText(NumberUtil.format(HAPPY_COUNT + SAD_COUNT))));
-    // Asserting the reaction image is displayed and represents the most common reaction.
-    onView(withId(R.id.reactionImage)).check(matches(isDisplayed()));
-    ImageView imageView =
-        (ImageView) mTheaterActivityTestRule.getActivity().findViewById(R.id.reactionImage);
-    assertTrue(CameraTestUtil.areDrawablesIdentical(imageView.getDrawable(),
-        ContextCompat.getDrawable(mTheaterActivityTestRule.getActivity().getApplicationContext(),
-            EMOTIONAL_REACTIONS.lastKey().getDrawableResource())));
-    // Asserting the scene image is displayed fullscreen.
-    onView(withId(R.id.sceneImage)).check(matches(isFullScreen()));
-    // Asserting the displayed name is of the reactable director
-    onView(withId(R.id.directorNameText)).check(matches(withText(DIRECTOR.getDisplayName())));
-    // Asserting the displayed time is represents the reactable creation.
-    onView(withId(R.id.timeAgoText)).check(matches(withText(DateUtil.formatTimeAgo(HOUR_AGO))));
+    assertReactableDisplayed(scene);
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
   }
@@ -195,7 +204,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.reactableFragment)).check(doesNotExist());
     // Explicitly load more reactables.
     mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, new TreeMap<Emotion, Long>(), HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mDirector, new TreeMap<Emotion, Long>(), HOUR_AGO,
             Emotion.HAPPY));
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
@@ -244,7 +253,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
 
   @Test public void displayScene_noReaction() throws Exception {
     mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, new TreeMap<Emotion, Long>(), HOUR_AGO, null));
+        new Scene(ID_1, IMAGE_URL_1, mDirector, new TreeMap<Emotion, Long>(), HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
@@ -258,90 +267,87 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
 
   // Test is unstable, run individually if needed.
   @Test public void nextScene() throws Exception {
-    mRespondedScenes =
-        Arrays.asList(new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
-            new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    Scene scene1 = new Scene(ID_1, IMAGE_URL_1, mDirector, HAPPY_REACTIONS, HOUR_AGO, null);
+    Scene scene2 = new Scene(ID_2, IMAGE_URL_2, mDirector, EMOTIONAL_REACTIONS, YESTERDAY, null);
+    mRespondedScenes = Arrays.asList(scene1, scene2);
     mTheaterActivityTestRule.launchActivity(null);
-    // Wait until the reactable is displayed.
-    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    // First scene should be displayed.
+    assertReactableDisplayed(scene1);
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(YESTERDAY)))));
+    assertReactableDisplayed(scene2);
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
   }
 
   @Test public void previousScene() throws Exception {
-    mRespondedScenes =
-        Arrays.asList(new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null),
-            new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    Scene scene1 = new Scene(ID_1, IMAGE_URL_1, mDirector, HAPPY_REACTIONS, HOUR_AGO, null);
+    Scene scene2 = new Scene(ID_2, IMAGE_URL_2, mDirector, EMOTIONAL_REACTIONS, YESTERDAY, null);
+    mRespondedScenes = Arrays.asList(scene1, scene2);
     mTheaterActivityTestRule.launchActivity(null);
-    // Wait until the reactable is displayed.
-    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    // First scene should be displayed.
+    assertReactableDisplayed(scene1);
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.timeAgoText),
-        withText(DateUtil.formatTimeAgo(YESTERDAY)))));
+    // Second reactable should be displayed
+    assertReactableDisplayed(scene2);
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
-    // Wait until the next reactable is displayed, or throw otherwise.
-    onView(isRoot()).perform(
-        waitMatcher(allOf(withId(R.id.timeAgoText), withText(DateUtil.formatTimeAgo(HOUR_AGO)))));
+    // First reactable should be displayed.
+    assertReactableDisplayed(scene1);
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
-    // Makes sure reactable is unchanged
-    onView(allOf(isDisplayed(), withId(R.id.timeAgoText),
-        withText(DateUtil.formatTimeAgo(HOUR_AGO)))).check(matches(isDisplayed()));
+    // First reactable should still be displayed.
+    assertReactableDisplayed(scene1);
   }
 
   @Test public void nextSceneFetchesNewScenes() throws Exception {
-    mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+    Scene scene1 = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
+    mRespondedScenes = Collections.singletonList(scene1);
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
-    onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
+    assertReactableDisplayed(scene1);
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
     // Updates responded scenes.
-    mRespondedScenes = Collections.singletonList(
-        new Scene(ID_2, IMAGE_URL_2, DIRECTOR, EMOTIONAL_REACTIONS, YESTERDAY, null));
+    Scene scene2 = new Scene(ID_2, IMAGE_URL_2, mDirector, HAPPY_REACTIONS, YESTERDAY, null);
+    mRespondedScenes = Collections.singletonList(scene2);
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
+    // Second reactable should be displayed.
+    assertReactableDisplayed(scene2);
     // Wait until second view event is recorded.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
   }
 
   @Test public void emotionalReaction() throws Exception {
     mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+        new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
@@ -350,7 +356,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
     // Asserting the reaction image is changed to reflect the user reaction.
@@ -364,7 +370,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Test public void displayScene_alreadyReacted() throws Exception {
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
     mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, lessCommon));
+        new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, lessCommon));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
@@ -378,7 +384,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
     // Already detected reaction, and so reaction detection should be stopped.
@@ -400,14 +406,14 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
           }
         }));
     mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, DIRECTOR, EMOTIONAL_REACTIONS, HOUR_AGO, null));
+        new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null));
     mTheaterActivityTestRule.launchActivity(null);
     // Wait until the reactable is displayed.
     onView(isRoot()).perform(waitMatcher(withId(R.id.reactableFragment)));
     // Asserts that a reaction event was posted.
     await().atMost(Duration.TEN_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount("POST", TheaterAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
       }
     });
   }

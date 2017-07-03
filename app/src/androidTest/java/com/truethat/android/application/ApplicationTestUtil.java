@@ -1,7 +1,9 @@
 package com.truethat.android.application;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -144,6 +146,16 @@ public class ApplicationTestUtil {
   }
 
   /**
+   * @return whether a view is displayed full screen.
+   */
+  public static boolean isFullscreen(View view) {
+    Size windowSize = AppUtil.availableDisplaySize(view);
+    return isDisplayed().matches(view)
+        && windowSize.getWidth() <= view.getWidth()
+        && windowSize.getHeight() <= view.getHeight();
+  }
+
+  /**
    * @param color of background
    *
    * @return Matcher to assert whether a {@link EditText} has a certain background color.
@@ -166,5 +178,11 @@ public class ApplicationTestUtil {
     return android.os.Debug.isDebuggerConnected() || 0 != (
         getInstrumentation().getContext().getApplicationInfo().flags &=
             ApplicationInfo.FLAG_DEBUGGABLE);
+  }
+
+  public static void launchApp() {
+    PackageManager pm = getInstrumentation().getContext().getPackageManager();
+    Intent intent = pm.getLaunchIntentForPackage(APPLICATION_PACKAGE_NAME);
+    getInstrumentation().startActivitySync(intent);
   }
 }

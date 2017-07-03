@@ -1,8 +1,8 @@
 package com.truethat.android.common.util;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -12,13 +12,13 @@ import okhttp3.mockwebserver.RecordedRequest;
  */
 
 public class CountingDispatcher extends Dispatcher {
-  private Table<String, String, Integer> mCounters = HashBasedTable.create();
+  private Map<String, Integer> mPathToCount = new HashMap<>();
 
-  public int getCount(String method, String subPath) {
-    if (!mCounters.contains(method, subPath)) {
+  public int getCount(String path) {
+    if (!mPathToCount.containsKey(path)) {
       return 0;
     }
-    return mCounters.get(method, subPath);
+    return mPathToCount.get(path);
   }
 
   @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -40,10 +40,10 @@ public class CountingDispatcher extends Dispatcher {
 
   @SuppressWarnings("ResultOfMethodCallIgnored") private void count(RecordedRequest request) {
     // Removes initial "/"
-    String subPath = request.getPath().substring(1);
-    if (!mCounters.contains(request.getMethod(), subPath)) {
-      mCounters.put(request.getMethod(), subPath, 0);
+    String path = request.getPath().substring(1);
+    if (!mPathToCount.containsKey(path)) {
+      mPathToCount.put(path, 0);
     }
-    mCounters.put(request.getMethod(), subPath, mCounters.get(request.getMethod(), subPath) + 1);
+    mPathToCount.put(path, mPathToCount.get(path) + 1);
   }
 }

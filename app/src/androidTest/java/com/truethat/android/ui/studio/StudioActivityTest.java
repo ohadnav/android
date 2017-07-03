@@ -3,16 +3,20 @@ package com.truethat.android.ui.studio;
 import android.content.Intent;
 import android.media.ImageReader;
 import android.support.test.espresso.Espresso;
-import android.support.test.filters.MediumTest;
+import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CountingDispatcher;
+import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Scene;
 import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.theater.TheaterActivity;
 import java.net.HttpURLConnection;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -64,12 +68,13 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        return new MockResponse();
+        return new MockResponse().setBody(NetworkUtil.GSON.toJson(
+            new Scene(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
       }
     });
   }
 
-  @Test @MediumTest public void takePictureWithButton() throws Exception {
+  @Test public void takePictureWithButton() throws Exception {
     // Modifies image listener, so that images are not sent.
     mCameraFragment.setOnImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
     // Take a picture.
@@ -82,7 +87,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     });
   }
 
-  @Test @MediumTest public void notTakingPictureWhenNotAuth() throws Exception {
+  @Test public void notTakingPictureWhenNotAuth() throws Exception {
     mMockAuthModule.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
     assertDirectingState();
@@ -90,6 +95,16 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withText(mStudioActivityTestRule.getActivity().UNAUTHORIZED_TOAST)).inRoot(
         withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
+  }
+
+  @Test public void navigationToTheater() throws Exception {
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
+    waitForActivity(TheaterActivity.class);
+  }
+
+  @Test public void navigationToRepertoire() throws Exception {
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    waitForActivity(RepertoireActivity.class);
   }
 
   @Test public void directingState() throws Exception {
@@ -224,7 +239,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Should post the reactable.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount("POST", StudioAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(StudioAPI.PATH));
       }
     });
     // Should navigate to theater.

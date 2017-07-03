@@ -55,7 +55,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert a single call to auth API.
-    assertEquals(1, mDispatcher.getCount("POST", AuthAPI.PATH));
+    assertEquals(1, mDispatcher.getCount(AuthAPI.PATH));
   }
 
   @Test public void authWithBadResponse() throws Exception {
@@ -78,7 +78,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     onView(withId(R.id.signInText)).check(matches(isDisplayed())).perform(click());
     assertAuthOk();
     // Assert a single call to auth API.
-    assertEquals(2, mDispatcher.getCount("POST", AuthAPI.PATH));
+    assertEquals(2, mDispatcher.getCount(AuthAPI.PATH));
   }
 
   @Test public void authWithStorageFailure() throws Exception {
@@ -107,7 +107,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert there was only a single call to auth API, at the second auth attempt.
-    assertEquals(1, mDispatcher.getCount("POST", AuthAPI.PATH));
+    assertEquals(1, mDispatcher.getCount(AuthAPI.PATH));
   }
 
   // Asserts auth is synchronous.
@@ -135,7 +135,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     App.getAuthModule().auth(mActivityTestRule.getActivity());
     assertAuthOk();
     // Assert there wasn't any auth request.
-    assertEquals(0, mDispatcher.getCount("POST", AuthAPI.PATH));
+    assertEquals(0, mDispatcher.getCount(AuthAPI.PATH));
   }
 
   @Test public void sendToOnBoarding() throws Exception {
@@ -146,7 +146,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     // Should navigate to OnBoarding activity.
     waitForActivity(OnBoardingActivity.class);
     // Assert there wasn't any auth request.
-    assertEquals(0, mDispatcher.getCount("POST", AuthAPI.PATH));
+    assertEquals(0, mDispatcher.getCount(AuthAPI.PATH));
   }
 
   private void assertAuthOk() {

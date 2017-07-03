@@ -1,6 +1,5 @@
 package com.truethat.android.model;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.application.App;
@@ -15,7 +14,6 @@ import java.util.TreeMap;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 /**
@@ -34,7 +32,7 @@ public class Scene extends Reactable implements Serializable {
   private transient byte[] mImageBytes;
 
   @VisibleForTesting public Scene(long id, String imageSignedUrl, User director,
-      @NonNull TreeMap<Emotion, Long> reactionCounters, Date created,
+      TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction) {
     super(id, director, reactionCounters, created, userReaction);
     mImageSignedUrl = imageSignedUrl;
@@ -57,7 +55,7 @@ public class Scene extends Reactable implements Serializable {
     return SceneFragment.newInstance(this);
   }
 
-  @Override public Call<ResponseBody> createApiCall(StudioAPI studioAPI) {
+  @Override public Call<Reactable> createApiCall(StudioAPI studioAPI) {
     if (mImageBytes == null) {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }

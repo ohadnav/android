@@ -115,8 +115,9 @@ public class TheaterActivity extends BaseActivity
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
   }
 
-  @VisibleForTesting public ViewPager getPager() {
-    return mPager;
+  @VisibleForTesting public ReactableFragment getDisplayedReactable() {
+    return (ReactableFragment) mReactableFragmentAdapter.instantiateItem(mPager,
+        mPager.getCurrentItem());
   }
 
   @Override protected void onPause() {

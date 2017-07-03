@@ -26,7 +26,6 @@ import com.truethat.android.ui.common.BaseActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
 import com.truethat.android.ui.theater.TheaterActivity;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,12 +48,13 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
    * API interface for saving scenes.
    */
   private StudioAPI mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
-  private Call<ResponseBody> mSaveSceneCall;
+  private Call<Reactable> mSaveSceneCall;
   private CameraFragment mCameraFragment;
-  private Callback<ResponseBody> mSaveSceneCallback = new Callback<ResponseBody>() {
-    @Override public void onResponse(@NonNull Call<ResponseBody> call,
-        @NonNull Response<ResponseBody> response) {
-      if (response.isSuccessful()) {
+  private Callback<Reactable> mSaveSceneCallback = new Callback<Reactable>() {
+    @Override
+    public void onResponse(@NonNull Call<Reactable> call, @NonNull Response<Reactable> response) {
+      if (response.isSuccessful() && response.body() != null) {
+        mDirectedReactable = response.body();
         onPublished();
       } else {
         Log.e(TAG,
@@ -68,7 +68,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
       }
     }
 
-    @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+    @Override public void onFailure(@NonNull Call<Reactable> call, @NonNull Throwable t) {
       Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
       StudioActivity.this.runOnUiThread(new Runnable() {
         @Override public void run() {
@@ -102,12 +102,20 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     mCameraFragment.switchCamera();
   }
 
+  public Reactable getDirectedReactable() {
+    return mDirectedReactable;
+  }
+
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Initialize activity transitions.
     this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
     // Defines the navigation to the Theater.
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
+      @Override public void onSwipeUp() {
+        startActivity(new Intent(StudioActivity.this, RepertoireActivity.class));
+      }
+
       @Override public void onSwipeDown() {
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }

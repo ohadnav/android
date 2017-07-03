@@ -38,14 +38,13 @@ public class NumberUtil {
   /**
    * @param map to sum.
    * @param <K> of map keys.
-   * @param <V> of map values.
    *
    * @return the sum of the map values.
    */
-  public static <K, V extends Number> double sum(Map<K, V> map) {
-    double sum = 0;
-    for (Number aLong : map.values()) {
-      sum += aLong.longValue();
+  @SuppressWarnings("unchecked") public static <K> long sum(Map<K, Long> map) {
+    long sum = 0L;
+    for (Long l : map.values()) {
+      sum += l;
     }
     return sum;
   }

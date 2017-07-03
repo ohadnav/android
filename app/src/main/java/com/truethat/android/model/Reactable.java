@@ -9,8 +9,8 @@ import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.theater.TheaterActivity;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TreeMap;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 
 /**
@@ -22,9 +22,9 @@ import retrofit2.Call;
  */
 public abstract class Reactable implements Serializable {
   /**
-   * Scene ID, as stored in our backend.
+   * ID as stored in our backend.
    */
-  private long mId;
+  private Long mId;
 
   /**
    * The user reaction to the reactable, {@code null} for no reaction.
@@ -81,6 +81,10 @@ public abstract class Reactable implements Serializable {
     mId = id;
   }
 
+  public boolean hasId() {
+    return mId != null;
+  }
+
   public boolean isViewed() {
     return mViewed;
   }
@@ -113,6 +117,7 @@ public abstract class Reactable implements Serializable {
   }
 
   public TreeMap<Emotion, Long> getReactionCounters() {
+    if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     return mReactionCounters;
   }
 
@@ -126,7 +131,7 @@ public abstract class Reactable implements Serializable {
    */
   public abstract ReactableFragment createFragment();
 
-  public abstract Call<ResponseBody> createApiCall(StudioAPI studioAPI);
+  public abstract Call<Reactable> createApiCall(StudioAPI studioAPI);
 
   /**
    * @return whether the user can react to this reactable.
@@ -143,7 +148,7 @@ public abstract class Reactable implements Serializable {
 
     Reactable reactable = (Reactable) o;
 
-    if (mId != reactable.mId) return false;
+    if (!Objects.equals(mId, reactable.mId)) return false;
     if (mViewed != reactable.mViewed) return false;
     if (mUserReaction != reactable.mUserReaction) return false;
     if (mDirector != null ? !mDirector.equals(reactable.mDirector) : reactable.mDirector != null) {
@@ -158,7 +163,7 @@ public abstract class Reactable implements Serializable {
   }
 
   @Override public String toString() {
-    return NetworkUtil.GSON.toJson(this);
+    return this.getClass().getSimpleName() + "{id: " + mId + "}";
   }
 
   /**

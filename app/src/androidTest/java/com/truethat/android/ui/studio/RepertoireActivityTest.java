@@ -7,8 +7,8 @@ import android.widget.ImageView;
 import com.truethat.android.R;
 import com.truethat.android.application.auth.MockAuthModule;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.InteractionAPI;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
@@ -117,7 +117,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     assertFalse(mMockReactionDetectionModule.isDetecting());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-    assertEquals(0, mDispatcher.getCount("POST", StudioAPI.PATH));
+    assertEquals(0, mDispatcher.getCount(InteractionAPI.PATH));
   }
 
   @Test public void noReactablesFound() throws Exception {
