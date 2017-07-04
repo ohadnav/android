@@ -93,6 +93,8 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
         assertTrue(currentFragment.isReady());
       }
     });
+    // Asserting the scene image is displayed fullscreen.
+    assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
     // Loading layout should be hidden.
     onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
     // Asserting the reactions count is abbreviated.
@@ -115,8 +117,6 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
           ContextCompat.getDrawable(pagerActivity.getApplicationContext(),
               ReactableFragment.DEFAULT_REACTION_COUNTER.getDrawableResource())));
     }
-    // Asserting the scene image is displayed fullscreen.
-    assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
     // Asserting the displayed time is represents the reactable creation.
     assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()),
         ((TextView) currentFragment.getView().findViewById(R.id.timeAgoText)).getText());

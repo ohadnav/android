@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.media.ImageReader;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.action.ViewActions;
+import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
@@ -108,7 +109,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     waitForActivity(RepertoireActivity.class);
   }
 
-  @Test public void singleInstance() throws Exception {
+  @Test @FlakyTest public void singleInstance() throws Exception {
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
     assertApprovalState();

@@ -3,6 +3,7 @@ package com.truethat.android.ui.activity;
 import android.media.Image;
 import android.support.annotation.Nullable;
 import android.support.test.espresso.action.ViewActions;
+import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -104,7 +105,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     waitForActivity(StudioActivity.class);
   }
 
-  @Test public void singleInstance() throws Exception {
+  @Test @FlakyTest public void singleInstance() throws Exception {
     Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
         mDirector, new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);

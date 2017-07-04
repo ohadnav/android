@@ -12,19 +12,19 @@ class MockDeviceManager implements DeviceManager {
   private String mDeviceId = "android-" + new Date().getTime();
   private String mPhoneNumber = "+" + new Date().getTime();
 
+  MockDeviceManager() {
+  }
+
+  MockDeviceManager(String deviceId, String phoneNumber) {
+    mDeviceId = deviceId;
+    mPhoneNumber = phoneNumber;
+  }
+
   @Override public String getDeviceId(Context context) {
     return mDeviceId;
   }
 
   @Override public String getPhoneNumber(Context context) {
     return mPhoneNumber;
-  }
-
-  public void setDeviceId(String deviceId) {
-    mDeviceId = deviceId;
-  }
-
-  public void setPhoneNumber(String phoneNumber) {
-    mPhoneNumber = phoneNumber;
   }
 }

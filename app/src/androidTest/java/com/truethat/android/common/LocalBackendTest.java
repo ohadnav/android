@@ -1,10 +1,11 @@
 package com.truethat.android.common;
 
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
+import android.util.Log;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
+import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.permissions.MockPermissionsModule;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.MockInternalStorage;
@@ -13,7 +14,6 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.activity.BaseActivity;
 import com.truethat.android.ui.activity.OnBoardingActivity;
 import com.truethat.android.ui.activity.OnBoardingActivityTest;
 import com.truethat.android.ui.activity.RepertoireActivity;
@@ -25,6 +25,7 @@ import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -37,7 +38,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isDebugging;
-import static com.truethat.android.application.ApplicationTestUtil.launchApp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
@@ -52,17 +52,27 @@ import static org.junit.Assert.assertTrue;
  * Proudly created by ohad on 02/07/2017 for TrueThat.
  */
 
-@MediumTest public class LocalBackendTest {
+@MediumTest @Ignore public class LocalBackendTest {
   /**
    * Default duration to wait for. When waiting for activities to change for example.
    */
-  private static final String FIRST_NAME = "Pablo Escobar";
-  private static final String SECOND_NAME = "Gustavo Gaviria";
+  private static final Date NOW = new Date();
+  private static final String NAME_1 = "Pablo Escobar";
+  private static final String NAME_2 = "Gustavo Gaviria";
+  private static final String PHONE_1 = "+111-" + NOW.getTime();
+  private static final String PHONE_2 = "+222-" + NOW.getTime();
+  private static final String DEVICE_ID_1 = "android-1-" + NOW.getTime();
+  private static final String DEVICE_ID_2 = "android-2-" + NOW.getTime();
+  private static final String TAG = LocalBackendTest.class.getSimpleName();
   private static final Emotion REACTION = Emotion.HAPPY;
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
+  @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
+      new ActivityTestRule<>(TheaterActivity.class, true, false);
   private MockInternalStorage mMockInternalStorage;
   private MockReactionDetectionModule mMockReactionDetectionModule;
+  private MockDeviceManager mFirstDeviceManager = new MockDeviceManager(DEVICE_ID_1, PHONE_1);
+  private MockDeviceManager mSecondDeviceManager = new MockDeviceManager(DEVICE_ID_2, PHONE_2);
 
   @Before public void setUp() throws Exception {
     TIMEOUT = isDebugging() ? Duration.ONE_MINUTE : Duration.TEN_SECONDS;
@@ -100,25 +110,50 @@ import static org.junit.Assert.assertTrue;
    * </ul>
    */
   @Test public void basicFlow() throws Exception {
-    // Sets up first device manager for the first user.
-    MockDeviceManager firstDeviceManager = new MockDeviceManager();
-    firstDeviceManager.setDeviceId("sod-kamus-" + new Date().getTime());
-    firstDeviceManager.setPhoneNumber("+111-" + new Date().getTime());
-    App.setDeviceManager(firstDeviceManager);
-    // Launches the app.
-    launchApp();
+    User firstUser = signUp(mFirstDeviceManager, NAME_1);
+    assertNoScenesDisplayed();
+    Scene scene = publishScene();
+    sceneDisplayedInRepertoire(scene);
+    signUp(mSecondDeviceManager, NAME_2);
+    reactToScene(scene);
+    signIn(mFirstDeviceManager, firstUser);
+    sceneDisplayedInRepertoire(scene);
+  }
+
+  private User signUp(DeviceManager deviceManager, String name) throws Exception {
+    hardSignOut();
+    // Sets a new device manager to mock a new device.
+    App.setDeviceManager(deviceManager);
+    Log.v(TAG, "signUp - " + name);
+    // Launch app
+    mTheaterActivityTestRule.launchActivity(null);
     // Should navigate to On-Boarding
     waitForActivity(OnBoardingActivity.class);
-    // Do on boarding for first user.
-    OnBoardingActivityTest.doOnBoarding(FIRST_NAME, mMockReactionDetectionModule);
+    // Do on boarding for the user.
+    OnBoardingActivityTest.doOnBoarding(name, mMockReactionDetectionModule);
     // Should navigate to Theater Activity after on boarding.
     waitForActivity(TheaterActivity.class);
-    // Saves the first user.
-    User firstUser = User.getUserFromStorage(getCurrentActivity());
-    // Should not have any reactables to display.
-    waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText)));
+    return User.getUserFromStorage(getCurrentActivity());
+  }
+
+  private void signIn(DeviceManager deviceManager, User user) throws Exception {
+    hardSignOut();
+    Log.v(TAG, "signIn - " + user.getDisplayName());
+    App.setDeviceManager(deviceManager);
+    user.save(getCurrentActivity());
+    // Launch app
+    mTheaterActivityTestRule.launchActivity(null);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(App.getAuthModule().isAuthOk());
+      }
+    });
+  }
+
+  private Scene publishScene() {
+    Log.v(TAG, "publishScene");
     // Navigate to studio
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
@@ -139,31 +174,21 @@ import static org.junit.Assert.assertTrue;
       }
     });
     Scene scene = (Scene) studioActivity.getDirectedReactable();
-    // Navigate to repertoire.
-    centerSwipeUp();
-    waitForActivity(StudioActivity.class);
-    centerSwipeUp();
-    waitForActivity(RepertoireActivity.class);
-    // Should display the created scene.
-    assertReactableDisplayed(scene);
+    Log.v(TAG, "published scene - " + scene.getId());
+    return scene;
+  }
+
+  private void hardSignOut() throws Exception {
     // Sign out.
     App.getAuthModule().signOut();
-    // Relaunch app.
-    launchApp();
     // Delete user from internal storage.
-    mMockInternalStorage.delete(null, LAST_USER_PATH);
-    // Sets up device manager for the second user.
-    MockDeviceManager secondDeviceManager = new MockDeviceManager();
-    secondDeviceManager.setDeviceId("this-is-who-i-am-" + new Date().getTime());
-    secondDeviceManager.setPhoneNumber("+222-" + new Date().getTime());
-    App.setDeviceManager(secondDeviceManager);
-    // Start on boarding again
-    App.getAuthModule().auth((BaseActivity) getCurrentActivity());
-    waitForActivity(OnBoardingActivity.class);
-    // Do on boarding for the second user.
-    OnBoardingActivityTest.doOnBoarding(SECOND_NAME, mMockReactionDetectionModule);
-    // Should navigate to Theater Activity after on boarding.
-    waitForActivity(TheaterActivity.class);
+    if (mMockInternalStorage.exists(null, LAST_USER_PATH)) {
+      mMockInternalStorage.delete(null, LAST_USER_PATH);
+    }
+  }
+
+  private void reactToScene(Scene scene) throws Exception {
+    Log.v(TAG, "reactToScene - " + scene.getId());
     // Should display the scene directed by the first user
     assertReactableDisplayed(scene);
     // Should detect reactions.
@@ -175,24 +200,20 @@ import static org.junit.Assert.assertTrue;
     onView(withId(R.id.reactionCountText)).check(matches(withText("1")));
     // Let events be posted.
     Thread.sleep(TIMEOUT.getValueInMS() / 2);
-    // Sign out.
-    App.getAuthModule().signOut();
-    // Sets up first device manager for the first user.
-    App.setDeviceManager(firstDeviceManager);
-    // Save first user to internal storage.
-    firstUser.save(getCurrentActivity());
-    // Relaunch app.
-    launchApp();
-    // Auth again
-    App.getAuthModule().auth((BaseActivity) getCurrentActivity());
-    // Should remain in Theater Activity
-    waitForActivity(TheaterActivity.class);
+  }
+
+  private void sceneDisplayedInRepertoire(Scene scene) throws Exception {
+    Log.v(TAG, "sceneDisplayedInRepertoire - " + scene.getId());
     // Navigate to repertoire.
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    centerSwipeUp();
     waitForActivity(StudioActivity.class);
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    // Should display the scene. Note the updated reaction counter.
     assertReactableDisplayed(scene);
+  }
+
+  private void assertNoScenesDisplayed() throws Exception {
+    // Should not have any reactables to display.
+    waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText)));
   }
 }

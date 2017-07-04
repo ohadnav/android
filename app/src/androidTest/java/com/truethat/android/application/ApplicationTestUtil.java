@@ -114,14 +114,9 @@ public class ApplicationTestUtil {
     final Activity[] activity = new Activity[1];
     getInstrumentation().runOnMainSync(new Runnable() {
       @Override public void run() {
-        Stage stage = Stage.RESUMED;
         java.util.Collection<Activity> activities =
-            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage);
-        try {
-          activity[0] = Iterables.getOnlyElement(activities);
-        } catch (Exception ignored) {
-          Log.v(TAG, "No " + stage.name() + " activities");
-        }
+            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
+        activity[0] = Iterables.getOnlyElement(activities);
       }
     });
     return (AppCompatActivity) activity[0];
@@ -180,14 +175,7 @@ public class ApplicationTestUtil {
             ApplicationInfo.FLAG_DEBUGGABLE);
   }
 
-  @SuppressWarnings("InfiniteLoopStatement") public static void launchApp() {
-    // Finishes all current activities
-    try {
-      while (true) {
-        getCurrentActivity().finish();
-      }
-    } catch (Exception ignored) {
-    }
+  public static void launchApp() {
     Log.v("ApplicationTestUtil", "launchApp");
     PackageManager pm = getInstrumentation().getContext().getPackageManager();
     Intent intent = pm.getLaunchIntentForPackage(APPLICATION_PACKAGE_NAME);

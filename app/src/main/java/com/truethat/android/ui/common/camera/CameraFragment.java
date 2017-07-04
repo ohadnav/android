@@ -151,10 +151,6 @@ public class CameraFragment extends BaseFragment {
    */
   private CameraCaptureSession mCaptureSession;
   /**
-   * The {@link Size} of pictures taken.
-   */
-  private Size mCaptureSize;
-  /**
    * The current state of camera state for taking pictures.
    *
    * @see #mCaptureCallback
@@ -499,9 +495,9 @@ public class CameraFragment extends BaseFragment {
         throw new AssertionError("OMG configuration map is null.");
       }
       // For still image captures, we use the largest available size.
-      mCaptureSize = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
+      Size captureSize = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
           SIZE_AREA_COMPARATOR);
-      mImageReader = ImageReader.newInstance(mCaptureSize.getWidth(), mCaptureSize.getHeight(),
+      mImageReader = ImageReader.newInstance(captureSize.getWidth(), captureSize.getHeight(),
           ImageFormat.JPEG, 2);
       // Check if the flash is supported.
       Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
@@ -646,6 +642,7 @@ public class CameraFragment extends BaseFragment {
    * Creates a new {@link CameraCaptureSession} for camera preview.
    */
   @MainThread private void createCameraPreviewSession() {
+    Log.v(TAG, "createCameraPreviewSession");
     try {
       mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
       setUpPreviewOutputs();
