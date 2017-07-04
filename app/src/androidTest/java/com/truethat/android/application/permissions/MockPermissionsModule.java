@@ -73,7 +73,7 @@ import java.util.Map;
     boolean permissionNotAlreadyGranted =
         mPermissionToState.get(permission) != PermissionState.GRANTED;
     boolean permissionForbiddenOrFlagIsTrue =
-        mInvokeRequestCallback || mPermissionToState.get(permission) != PermissionState.FORBID;
+        mInvokeRequestCallback || mPermissionToState.get(permission) == PermissionState.FORBID;
     boolean shouldInvokeRequestCallback =
         activityNotNull && permissionNotAlreadyGranted && permissionForbiddenOrFlagIsTrue;
     // If permission was not forbidden, then grant it.

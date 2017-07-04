@@ -1,4 +1,4 @@
-package com.truethat.android.ui.welcome;
+package com.truethat.android.ui.activity;
 
 import com.truethat.android.R;
 import com.truethat.android.application.App;

@@ -13,17 +13,17 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.BaseActivity;
-import com.truethat.android.ui.common.TestActivity;
-import com.truethat.android.ui.studio.RepertoireActivity;
-import com.truethat.android.ui.studio.StudioActivity;
-import com.truethat.android.ui.theater.TheaterActivity;
-import com.truethat.android.ui.welcome.OnBoardingActivity;
-import com.truethat.android.ui.welcome.OnBoardingActivityTest;
+import com.truethat.android.ui.activity.BaseActivity;
+import com.truethat.android.ui.activity.OnBoardingActivity;
+import com.truethat.android.ui.activity.OnBoardingActivityTest;
+import com.truethat.android.ui.activity.RepertoireActivity;
+import com.truethat.android.ui.activity.StudioActivity;
+import com.truethat.android.ui.activity.TestActivity;
+import com.truethat.android.ui.activity.TheaterActivity;
 import java.util.Date;
-import java.util.concurrent.Callable;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,16 +32,17 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
+import static com.truethat.android.application.ApplicationTestUtil.isDebugging;
 import static com.truethat.android.application.ApplicationTestUtil.launchApp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
 import static com.truethat.android.model.User.LAST_USER_PATH;
-import static com.truethat.android.ui.theater.TheaterActivityTest.assertReactableDisplayed;
+import static com.truethat.android.ui.activity.ReactablesPagerActivityTest.assertReactableDisplayed;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertNotNull;
@@ -64,7 +65,7 @@ import static org.junit.Assert.assertTrue;
   private MockReactionDetectionModule mMockReactionDetectionModule;
 
   @Before public void setUp() throws Exception {
-    TIMEOUT = Duration.TEN_SECONDS;
+    TIMEOUT = isDebugging() ? Duration.ONE_MINUTE : Duration.TEN_SECONDS;
     // Initialize Awaitility
     Awaitility.reset();
     Awaitility.setDefaultTimeout(TIMEOUT);
@@ -115,14 +116,14 @@ import static org.junit.Assert.assertTrue;
     // Saves the first user.
     User firstUser = User.getUserFromStorage(getCurrentActivity());
     // Should not have any reactables to display.
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText))));
+    waitMatcher(allOf(isDisplayed(), withId(R.id.notFoundText)));
     // Navigate to studio
-    onView(withId(R.id.notFoundText)).perform(click());
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
     waitForActivity(StudioActivity.class);
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
     // Wait for approval
-    onView(isRoot()).perform(waitMatcher(allOf(withId(R.id.sendButton), isDisplayed())));
+    waitMatcher(allOf(withId(R.id.sendButton), isDisplayed()));
     // Store studio activity.
     final StudioActivity studioActivity = (StudioActivity) getCurrentActivity();
     // Approve scene
@@ -130,23 +131,25 @@ import static org.junit.Assert.assertTrue;
     // Should navigate to theater upon publish
     waitForActivity(TheaterActivity.class);
     // Reactable should have an id and an image url.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return studioActivity.getDirectedReactable().hasId();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        Scene scene = (Scene) studioActivity.getDirectedReactable();
+        assertTrue(scene.hasId());
+        assertNotNull(scene.getImageSignedUrl());
       }
     });
     Scene scene = (Scene) studioActivity.getDirectedReactable();
-    assertTrue(scene.hasId());
-    assertNotNull(scene.getImageSignedUrl());
     // Navigate to repertoire.
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    centerSwipeUp();
     waitForActivity(StudioActivity.class);
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
     // Should display the created scene.
     assertReactableDisplayed(scene);
     // Sign out.
     App.getAuthModule().signOut();
+    // Relaunch app.
+    launchApp();
     // Delete user from internal storage.
     mMockInternalStorage.delete(null, LAST_USER_PATH);
     // Sets up device manager for the second user.
@@ -178,6 +181,8 @@ import static org.junit.Assert.assertTrue;
     App.setDeviceManager(firstDeviceManager);
     // Save first user to internal storage.
     firstUser.save(getCurrentActivity());
+    // Relaunch app.
+    launchApp();
     // Auth again
     App.getAuthModule().auth((BaseActivity) getCurrentActivity());
     // Should remain in Theater Activity
@@ -185,7 +190,7 @@ import static org.junit.Assert.assertTrue;
     // Navigate to repertoire.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
     waitForActivity(StudioActivity.class);
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
     // Should display the scene. Note the updated reaction counter.
     assertReactableDisplayed(scene);

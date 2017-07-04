@@ -15,33 +15,43 @@
       android:icon="@mipmap/ic_logo"
       android:label="@string/app_name"
       android:roundIcon="@mipmap/ic_logo"
-      android:screenOrientation="portrait"
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
       tools:ignore="GoogleAppIndexingWarning">
-    <activity android:name=".ui.theater.TheaterActivity">
+    <activity
+        android:name=".ui.activity.TheaterActivity"
+        android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
-    <activity android:name=".ui.studio.StudioActivity">
-    </activity>
-    <activity android:name=".ui.common.TestActivity">
-    </activity>
-    <activity android:name=".ui.common.AskForPermissionActivity">
+    <activity
+        android:name=".ui.activity.StudioActivity"
+        android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.ATTACH_DATA"/>
 
         <data android:mimeType="application/octet-stream"/>
       </intent-filter>
     </activity>
-    <activity android:name=".ui.welcome.WelcomeActivity">
+    <activity android:name=".ui.activity.TestActivity">
     </activity>
-    <activity android:name=".ui.welcome.OnBoardingActivity">
+    <activity android:name=".ui.activity.AskForPermissionActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.ATTACH_DATA"/>
+
+        <data android:mimeType="application/octet-stream"/>
+      </intent-filter>
     </activity>
-    <activity android:name=".ui.studio.RepertoireActivity">
+    <activity android:name=".ui.activity.WelcomeActivity">
+    </activity>
+    <activity android:name=".ui.activity.OnBoardingActivity">
+    </activity>
+    <activity
+        android:name=".ui.activity.RepertoireActivity"
+        android:launchMode="singleTask">
     </activity>
   </application>
 

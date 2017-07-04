@@ -2,7 +2,7 @@ package com.truethat.android.application.auth;
 
 import android.telephony.TelephonyManager;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.BaseActivity;
+import com.truethat.android.ui.activity.BaseActivity;
 
 /**
  * Proudly created by ohad on 29/05/2017 for TrueThat.

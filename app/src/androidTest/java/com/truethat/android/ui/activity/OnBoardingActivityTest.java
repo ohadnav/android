@@ -1,11 +1,10 @@
-package com.truethat.android.ui.welcome;
+package com.truethat.android.ui.activity;
 
 import android.content.Intent;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.empathy.MockReactionDetectionModule;
-import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import java.util.concurrent.Callable;
 import org.awaitility.core.ThrowingRunnable;
@@ -18,7 +17,6 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
@@ -110,7 +108,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Request second input.
     mMockReactionDetectionModule.next();
     // Slow detection... should show encouragement text
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.realLifeText))));
+    waitMatcher(allOf(isDisplayed(), withId(R.id.realLifeText)));
     // Compete on boarding
     mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
@@ -169,7 +167,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
 
   private void assertReadyForSmile() {
     // Wait until smile text is shown
-    onView(isRoot()).perform(waitMatcher(allOf(isDisplayed(), withId(R.id.smileText))));
+    waitMatcher(allOf(isDisplayed(), withId(R.id.smileText)));
     // Assert detection is ongoing.
     assertTrue(mMockReactionDetectionModule.isDetecting());
   }

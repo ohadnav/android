@@ -6,7 +6,7 @@
     android:id="@+id/activityRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.common.TestActivity"
+    tools:context=".ui.activity.TestActivity"
     >
 
   <TextView

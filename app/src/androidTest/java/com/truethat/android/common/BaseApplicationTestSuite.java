@@ -9,7 +9,7 @@ import com.truethat.android.application.storage.internal.MockInternalStorage;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.empathy.MockReactionDetectionModule;
-import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.activity.TestActivity;
 import okhttp3.mockwebserver.MockWebServer;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;

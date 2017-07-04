@@ -1,4 +1,4 @@
-package com.truethat.android.ui.studio;
+package com.truethat.android.ui.activity;
 
 import android.content.Intent;
 import android.media.Image;
@@ -22,15 +22,15 @@ import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
-import com.truethat.android.ui.common.BaseActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
-import com.truethat.android.ui.theater.TheaterActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.View.GONE;
+import static com.truethat.android.ui.activity.RepertoireActivity.FROM_REPERTOIRE;
 
 public class StudioActivity extends BaseActivity implements CameraFragment.OnPictureTakenListener {
 
@@ -108,12 +108,14 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // Initialize activity transitions.
-    this.overridePendingTransition(R.animator.slide_in_right, R.animator.slide_out_right);
     // Defines the navigation to the Theater.
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeUp() {
-        startActivity(new Intent(StudioActivity.this, RepertoireActivity.class));
+        Intent intent = new Intent(StudioActivity.this, RepertoireActivity.class);
+        intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        //onBackPressed();
+        //finish();
       }
 
       @Override public void onSwipeDown() {
@@ -136,7 +138,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
         onApproval();
         break;
       case SENT:
-        onSent();
+        cancelSent();
         break;
       case PUBLISHED:
       case DIRECTING:
@@ -147,9 +149,16 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
 
   @Override protected void onPause() {
     super.onPause();
-    if (mSaveSceneCall != null) {
-      mSaveSceneCall.cancel();
-      onApproval();
+    cancelSent();
+  }
+
+  @Override protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    // Initialize activity transitions.
+    if (intent.getBooleanExtra(FROM_REPERTOIRE, false)) {
+      this.overridePendingTransition(R.animator.slide_in_bottom, R.animator.slide_out_bottom);
+    } else {
+      this.overridePendingTransition(R.animator.slide_in_top, R.animator.slide_out_top);
     }
   }
 
@@ -185,7 +194,15 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
     // Tinting camera preview and showing a loader.
     mCameraFragment.getCameraPreview().setBackgroundTintList(getColorStateList(R.color.tint));
     mLoadingImage.setVisibility(View.VISIBLE);
+    mLoadingImage.bringToFront();
     Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
+  }
+
+  private void cancelSent() {
+    if (mSaveSceneCall != null) {
+      mSaveSceneCall.cancel();
+      onApproval();
+    }
   }
 
   @MainThread private void onApproval() {

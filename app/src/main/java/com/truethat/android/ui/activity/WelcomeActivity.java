@@ -1,11 +1,10 @@
-package com.truethat.android.ui.welcome;
+package com.truethat.android.ui.activity;
 
 import android.os.Bundle;
 import android.view.View;
 import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.ui.common.BaseActivity;
 
 public class WelcomeActivity extends BaseActivity {
   public static final String AUTH_FAILED = "authFailed";

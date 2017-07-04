@@ -2,9 +2,9 @@ package com.truethat.android.application.auth;
 
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.ui.common.TestActivity;
-import com.truethat.android.ui.welcome.OnBoardingActivity;
-import com.truethat.android.ui.welcome.WelcomeActivity;
+import com.truethat.android.ui.activity.OnBoardingActivity;
+import com.truethat.android.ui.activity.TestActivity;
+import com.truethat.android.ui.activity.WelcomeActivity;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;

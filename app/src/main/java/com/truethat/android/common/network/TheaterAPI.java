@@ -17,7 +17,7 @@ public interface TheaterAPI {
   String PATH = "theater";
 
   /**
-   * Get reactables from our backend to add some drama to our users life.
+   * Get reactables from our backend to append some drama to our users life.
    */
-  @POST(PATH) Call<List<Reactable>> getReactables(@Body User user);
+  @POST(PATH) Call<List<Reactable>> fetchReactables(@Body User user);
 }

@@ -14,7 +14,7 @@ import static com.truethat.android.common.util.RequestCodes.PERMISSION_PHONE;
  * <p>
  * Android permissions.
  * <p>
- * To add a new {@link Permission}, add a request code in {@link RequestCodes}.
+ * To append a new {@link Permission}, append a request code in {@link RequestCodes}.
  */
 
 // Next available request code - 3

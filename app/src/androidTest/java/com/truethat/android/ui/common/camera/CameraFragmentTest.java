@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CameraUtil;
-import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.activity.TestActivity;
 import java.util.concurrent.Callable;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;

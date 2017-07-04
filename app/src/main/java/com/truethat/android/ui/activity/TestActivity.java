@@ -1,4 +1,4 @@
-package com.truethat.android.ui.common;
+package com.truethat.android.ui.activity;
 
 import android.media.Image;
 import android.os.Bundle;

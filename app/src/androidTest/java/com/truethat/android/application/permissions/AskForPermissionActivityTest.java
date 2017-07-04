@@ -2,8 +2,8 @@ package com.truethat.android.application.permissions;
 
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.ui.common.AskForPermissionActivity;
-import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.activity.AskForPermissionActivity;
+import com.truethat.android.ui.activity.TestActivity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,11 +39,12 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
     mMockPermissionsModule.grant(PERMISSION);
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
-    Thread.sleep(100);
     waitForActivity(TestActivity.class);
   }
 
   @Test public void finishAfterPermissionGranted() throws Exception {
+    // Invoke request callback, to finish activity.
+    mMockPermissionsModule.setInvokeRequestCallback(true);
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
@@ -63,6 +64,6 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.askPermissionButton)).perform(click());
     // Wait for possible navigation back to test activity, and assert no navigation was performed.
     Thread.sleep(100);
-    waitForActivity(TestActivity.class);
+    waitForActivity(AskForPermissionActivity.class);
   }
 }

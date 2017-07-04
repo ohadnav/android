@@ -1,6 +1,7 @@
-package com.truethat.android.ui.common;
+package com.truethat.android.ui.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -14,12 +15,10 @@ import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
-import com.truethat.android.ui.welcome.OnBoardingActivity;
-import com.truethat.android.ui.welcome.WelcomeActivity;
 import java.io.IOException;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.truethat.android.ui.welcome.OnBoardingActivity.USER_NAME_INTENT;
+import static com.truethat.android.ui.activity.OnBoardingActivity.USER_NAME_INTENT;
 
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
@@ -74,6 +73,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     setContentView(getLayoutResId());
     ButterKnife.bind(this);
   }

@@ -7,6 +7,10 @@ import android.content.pm.PackageManager;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.GeneralSwipeAction;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Swipe;
 import android.support.test.espresso.core.deps.guava.collect.Iterables;
 import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.espresso.util.HumanReadables;
@@ -14,22 +18,28 @@ import android.support.test.espresso.util.TreeIterables;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Size;
 import android.view.View;
 import android.widget.EditText;
+import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.AppUtil;
 import java.util.concurrent.TimeoutException;
+import org.awaitility.core.ThrowingRunnable;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.intent.Checks.checkNotNull;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
-import static org.hamcrest.CoreMatchers.allOf;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
@@ -37,25 +47,28 @@ import static org.hamcrest.CoreMatchers.allOf;
 public class ApplicationTestUtil {
   public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android.debug";
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
+  private static final String TAG = ApplicationTestUtil.class.getSimpleName();
 
   /**
    * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
-   *
-   * @return action that throws if {@code activityClass} is not displayed within {@link
-   * BaseApplicationTestSuite#TIMEOUT}.
    */
-  public static ViewAction waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
-    return waitMatcher(allOf(isDisplayed(), withinActivity(activityClass)));
+  public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(activityClass.getSimpleName(),
+            getCurrentActivity().getClass().getSimpleName());
+      }
+    });
   }
 
   /**
-   * @param viewMatcher for find a specific view.
-   *
-   * @return action that attempts to find the {@link View} described by {@code viewMatcher} for at
+   * Attempts to find the {@link View} described by {@code viewMatcher} for at
    * most {@link BaseApplicationTestSuite#TIMEOUT}.
+   *
+   * @param viewMatcher for find a specific view.
    */
-  public static ViewAction waitMatcher(final Matcher viewMatcher) {
-    return new ViewAction() {
+  public static void waitMatcher(final Matcher viewMatcher) {
+    onView(isRoot()).perform(new ViewAction() {
       @Override public Matcher<View> getConstraints() {
         return isRoot();
       }
@@ -90,25 +103,7 @@ public class ApplicationTestUtil {
             .withCause(new TimeoutException())
             .build();
       }
-    };
-  }
-
-  /**
-   * @param activityClass of activity that should contain the view.
-   *
-   * @return a matcher that checks whether a view is contained within that activity.
-   */
-  private static Matcher<View> withinActivity(
-      final Class<? extends AppCompatActivity> activityClass) {
-    return new TypeSafeMatcher<View>() {
-      @Override public void describeTo(Description description) {
-        description.appendText("is within " + activityClass.getSimpleName());
-      }
-
-      @Override public boolean matchesSafely(View view) {
-        return activityClass.isInstance(view.getContext());
-      }
-    };
+    });
   }
 
   /**
@@ -119,9 +114,14 @@ public class ApplicationTestUtil {
     final Activity[] activity = new Activity[1];
     getInstrumentation().runOnMainSync(new Runnable() {
       @Override public void run() {
+        Stage stage = Stage.RESUMED;
         java.util.Collection<Activity> activities =
-            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
-        activity[0] = Iterables.getOnlyElement(activities);
+            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage);
+        try {
+          activity[0] = Iterables.getOnlyElement(activities);
+        } catch (Exception ignored) {
+          Log.v(TAG, "No " + stage.name() + " activities");
+        }
       }
     });
     return (AppCompatActivity) activity[0];
@@ -180,9 +180,23 @@ public class ApplicationTestUtil {
             ApplicationInfo.FLAG_DEBUGGABLE);
   }
 
-  public static void launchApp() {
+  @SuppressWarnings("InfiniteLoopStatement") public static void launchApp() {
+    // Finishes all current activities
+    try {
+      while (true) {
+        getCurrentActivity().finish();
+      }
+    } catch (Exception ignored) {
+    }
+    Log.v("ApplicationTestUtil", "launchApp");
     PackageManager pm = getInstrumentation().getContext().getPackageManager();
     Intent intent = pm.getLaunchIntentForPackage(APPLICATION_PACKAGE_NAME);
     getInstrumentation().startActivitySync(intent);
+  }
+
+  public static void centerSwipeUp() {
+    onView(withId(R.id.activityRootView)).perform(
+        new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER, GeneralLocation.TOP_CENTER,
+            Press.FINGER));
   }
 }

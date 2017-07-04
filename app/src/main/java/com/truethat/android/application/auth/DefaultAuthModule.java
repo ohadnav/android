@@ -8,7 +8,7 @@ import com.truethat.android.common.network.AuthAPI;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.BaseActivity;
+import com.truethat.android.ui.activity.BaseActivity;
 import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Response;

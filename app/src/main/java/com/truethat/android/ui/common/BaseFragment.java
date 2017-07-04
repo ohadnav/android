@@ -49,6 +49,7 @@ public abstract class BaseFragment extends Fragment {
   }
 
   @Override public void onAttach(Context context) {
+    TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
     Log.v(TAG, "onAttach");
     super.onAttach(context);
   }

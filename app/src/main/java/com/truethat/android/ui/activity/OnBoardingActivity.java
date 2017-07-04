@@ -1,4 +1,4 @@
-package com.truethat.android.ui.welcome;
+package com.truethat.android.ui.activity;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -18,7 +18,6 @@ import com.truethat.android.application.App;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.BaseActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.util.UiUtil;
 

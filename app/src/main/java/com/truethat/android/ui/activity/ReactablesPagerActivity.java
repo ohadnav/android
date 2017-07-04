@@ -1,7 +1,5 @@
-package com.truethat.android.ui.theater;
+package com.truethat.android.ui.activity;
 
-import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -13,19 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
-import butterknife.OnClick;
 import com.bumptech.glide.Glide;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.TheaterAPI;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.ui.common.BaseActivity;
-import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.common.media.ReactableFragmentAdapter;
 import com.truethat.android.ui.common.util.OnSwipeTouchListener;
-import com.truethat.android.ui.studio.StudioActivity;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,20 +25,17 @@ import retrofit2.Response;
 import static android.view.View.GONE;
 
 /**
- * Theater is where users interact with scenes.
+ * Proudly created by ohad on 03/07/2017 for TrueThat.
  */
-public class TheaterActivity extends BaseActivity
-    implements ReactableFragment.OnReactableInteractionListener,
-    CameraFragment.OnPictureTakenListener {
+
+public abstract class ReactablesPagerActivity extends BaseActivity {
   @BindView(R.id.reactablesPager) ViewPager mPager;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.loadingLayout) ViewGroup mLoadingLayout;
   @BindView(R.id.notFoundText) TextView mNotFoundText;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
-  private TheaterAPI mTheaterAPI;
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
-  private CameraFragment mCameraFragment;
 
   @Override public void onAuthOk() {
     if (mPager.getAdapter().getCount() == 0) fetchReactables();
@@ -55,8 +43,6 @@ public class TheaterActivity extends BaseActivity
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // Animation for screen transitions.
-    this.overridePendingTransition(R.animator.slide_in_left, R.animator.slide_out_left);
     // Navigation to other activities
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
       @Override public void onSwipeLeft() {
@@ -65,40 +51,43 @@ public class TheaterActivity extends BaseActivity
         }
       }
 
+      @Override public void onSwipeDown() {
+        ReactablesPagerActivity.this.onSwipeDown();
+      }
+
       @Override public void onSwipeUp() {
-        navigateToStudio();
+        ReactablesPagerActivity.this.onSwipeUp();
+      }
+    });
+    mPager.setOnTouchListener(new OnSwipeTouchListener(this) {
+      @Override public void onSwipeLeft() {
+        // Fetch more reactables if we have none, or if we're at the last item.
+        if (mPager.getAdapter().getCount() == 0
+            || mPager.getCurrentItem() == mPager.getAdapter().getCount() - 1) {
+          fetchReactables();
+        } else {
+          mPager.setCurrentItem(mPager.getCurrentItem() + 1, true);
+        }
+      }
+
+      @Override public void onSwipeRight() {
+        if (mPager.getCurrentItem() != 0) {
+          mPager.setCurrentItem(mPager.getCurrentItem() - 1, true);
+        }
+      }
+
+      @Override public void onSwipeDown() {
+        ReactablesPagerActivity.this.onSwipeDown();
+      }
+
+      @Override public void onSwipeUp() {
+        ReactablesPagerActivity.this.onSwipeUp();
       }
     });
     // Initialize views
     mReactableFragmentAdapter = new ReactableFragmentAdapter(getSupportFragmentManager());
     mPager.setAdapter(mReactableFragmentAdapter);
-    mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override public void onPageScrollStateChanged(int state) {
-        if (state == ViewPager.SCROLL_STATE_DRAGGING
-            && mPager.getCurrentItem() == mPager.getAdapter().getCount() - 1) {
-          fetchReactables();
-        }
-      }
-    });
-    // Hooks the camera fragment
-    mCameraFragment =
-        (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
-    // Initializes the Theater API
-    mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
     mFetchReactablesCallback = buildFetchReactablesCallback();
-  }
-
-  @Override protected int getLayoutResId() {
-    return R.layout.activity_theater;
-  }
-
-  @Override public void processImage(Image image) {
-    // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(image);
-  }
-
-  @Override public void requestDetectionInput() {
-    mCameraFragment.takePicture();
   }
 
   /**
@@ -111,7 +100,7 @@ public class TheaterActivity extends BaseActivity
       mNotFoundText.setVisibility(GONE);
       Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
     }
-    mFetchReactablesCall = mTheaterAPI.getReactables(App.getAuthModule().getUser());
+    mFetchReactablesCall = buildFetchReactablesCall();
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
   }
 
@@ -125,8 +114,12 @@ public class TheaterActivity extends BaseActivity
     if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
   }
 
-  @OnClick(R.id.notFoundText) void navigateToStudio() {
-    startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
+  protected abstract Call<List<Reactable>> buildFetchReactablesCall();
+
+  protected void onSwipeUp() {
+  }
+
+  protected void onSwipeDown() {
   }
 
   /**
@@ -148,10 +141,10 @@ public class TheaterActivity extends BaseActivity
             mLoadingLayout.setVisibility(GONE);
             // Display new reactables.
             int toDisplayIndex = mPager.getAdapter().getCount();
-            mReactableFragmentAdapter.add(newReactables);
-            mPager.setCurrentItem(toDisplayIndex);
+            mReactableFragmentAdapter.append(newReactables);
+            mPager.setCurrentItem(toDisplayIndex, true);
           } else if (mPager.getAdapter().getCount() == 0) {
-            TheaterActivity.this.runOnUiThread(new Runnable() {
+            ReactablesPagerActivity.this.runOnUiThread(new Runnable() {
               @Override public void run() {
                 displayNotFound();
               }
@@ -166,7 +159,7 @@ public class TheaterActivity extends BaseActivity
               + response.message()
               + "\n"
               + response.headers());
-          TheaterActivity.this.runOnUiThread(new Runnable() {
+          ReactablesPagerActivity.this.runOnUiThread(new Runnable() {
             @Override public void run() {
               displayNotFound();
             }
@@ -176,7 +169,7 @@ public class TheaterActivity extends BaseActivity
 
       @Override public void onFailure(@NonNull Call<List<Reactable>> call, @NonNull Throwable t) {
         Log.e(TAG, "Fetch reactables request to " + call.request().url() + " had failed.", t);
-        TheaterActivity.this.runOnUiThread(new Runnable() {
+        ReactablesPagerActivity.this.runOnUiThread(new Runnable() {
           @Override public void run() {
             displayNotFound();
           }
@@ -189,8 +182,6 @@ public class TheaterActivity extends BaseActivity
     // Shows not found text
     mLoadingLayout.setVisibility(View.VISIBLE);
     mNotFoundText.setVisibility(View.VISIBLE);
-    Glide.with(TheaterActivity.this).load(R.drawable.sad_teddy).into(mLoadingImage);
+    Glide.with(ReactablesPagerActivity.this).load(R.drawable.sad_teddy).into(mLoadingImage);
   }
 }
-
-

@@ -5,8 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.ui.theater.TheaterActivity;
-import java.util.ArrayList;
+import com.truethat.android.ui.activity.TheaterActivity;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 public class ReactableFragmentAdapter extends FragmentStatePagerAdapter {
-  private List<Reactable> mReactables = new ArrayList<>();
+  private List<Reactable> mReactables = new LinkedList<>();
 
   public ReactableFragmentAdapter(FragmentManager fm) {
     super(fm);
@@ -32,9 +32,10 @@ public class ReactableFragmentAdapter extends FragmentStatePagerAdapter {
   }
 
   /**
+   * Appends {@code reactables} to {@link #mReactables}, so that they will be displayed at the end.
    * @param reactables new {@link Reactable} fetched from our backend.
    */
-  public void add(List<Reactable> reactables) {
+  public void append(List<Reactable> reactables) {
     mReactables.addAll(reactables);
     notifyDataSetChanged();
   }

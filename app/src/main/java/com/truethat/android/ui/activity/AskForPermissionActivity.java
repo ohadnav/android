@@ -1,4 +1,4 @@
-package com.truethat.android.ui.common;
+package com.truethat.android.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

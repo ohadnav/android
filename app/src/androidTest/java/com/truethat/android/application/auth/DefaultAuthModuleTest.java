@@ -8,10 +8,10 @@ import com.truethat.android.common.network.AuthAPI;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.common.AskForPermissionActivity;
-import com.truethat.android.ui.common.TestActivity;
-import com.truethat.android.ui.welcome.OnBoardingActivity;
-import com.truethat.android.ui.welcome.WelcomeActivity;
+import com.truethat.android.ui.activity.AskForPermissionActivity;
+import com.truethat.android.ui.activity.OnBoardingActivity;
+import com.truethat.android.ui.activity.TestActivity;
+import com.truethat.android.ui.activity.WelcomeActivity;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Before;
@@ -41,7 +41,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
     mRespondedUser = MockAuthModule.USER;
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser) + "\n");
+        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser));
       }
     });
     User initializedUser =
@@ -120,7 +120,7 @@ public class DefaultAuthModuleTest extends BaseApplicationTestSuite {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser) + "\n");
+        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mRespondedUser));
       }
     });
     // Authenticate user

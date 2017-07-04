@@ -69,10 +69,6 @@ public class CameraFragment extends BaseFragment {
    */
   private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
   /**
-   * Tag for the {@link Log}.
-   */
-  private static final String TAG = CameraFragment.class.getSimpleName();
-  /**
    * Max preview size that is guaranteed by Camera2 API
    */
   private static final Size MAX_SIZE = new Size(1920, 1080);
@@ -183,6 +179,30 @@ public class CameraFragment extends BaseFragment {
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
+  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -284,30 +304,6 @@ public class CameraFragment extends BaseFragment {
       Log.e(TAG, "Camera error " + error);
     }
   };
-  /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
 
   @VisibleForTesting static CameraFragment newInstance(boolean showPreview) {
     CameraFragment fragment = new CameraFragment();
@@ -440,6 +436,7 @@ public class CameraFragment extends BaseFragment {
    * Switches between {@link CameraUtil.Facing#FRONT} and {@link CameraUtil.Facing#BACK}
    */
   public void switchCamera() {
+    Log.v(TAG, "switchCamera");
     // Close camera.
     closeCamera();
     // Switching cameras.
@@ -452,6 +449,7 @@ public class CameraFragment extends BaseFragment {
    * Restores camera preview after a picture was taken.
    */
   public void restorePreview() {
+    Log.v(TAG, "restorePreview");
     if (mState == CameraState.PICTURE_TAKEN) {
       unlockFocus();
     }
@@ -692,10 +690,12 @@ public class CameraFragment extends BaseFragment {
                 // Auto focus should be continuous for camera preview.
                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-                // Finally, we start displaying the camera preview.
-                mPreviewRequest = mPreviewRequestBuilder.build();
-                mPreviewSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
-                    mBackgroundHandler.getHandler());
+                if (mState == CameraState.PREVIEW) {
+                  // Finally, we start displaying the camera preview.
+                  mPreviewRequest = mPreviewRequestBuilder.build();
+                  mPreviewSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
+                      mBackgroundHandler.getHandler());
+                }
               } catch (CameraAccessException e) {
                 e.printStackTrace();
               }

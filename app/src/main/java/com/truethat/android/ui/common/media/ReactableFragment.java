@@ -51,7 +51,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   /**
    * Communication interface with parent activity.
    */
-  private OnReactableInteractionListener mListener;
+  private ReactionDetectionListener mListener;
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * ReactableEvent}.
@@ -93,12 +93,8 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
 
   @Override public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof OnReactableInteractionListener) {
-      mListener = (OnReactableInteractionListener) context;
-    } else {
-      throw new RuntimeException(context.toString()
-          + " must implement "
-          + OnReactableInteractionListener.class.getSimpleName());
+    if (context instanceof ReactableFragment.ReactionDetectionListener) {
+      mListener = (ReactionDetectionListener) context;
     }
   }
 
@@ -177,6 +173,11 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     Log.v(TAG, "onDisplay");
     doView();
     if (mReactable.canReactTo()) {
+      if (mListener == null) {
+        throw new RuntimeException(getActivity().toString()
+            + " must implement "
+            + ReactionDetectionListener.class.getSimpleName());
+      }
       App.getReactionDetectionModule().detect(mDetectionPubSub);
     }
   }
@@ -308,7 +309,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     };
   }
 
-  public interface OnReactableInteractionListener {
+  public interface ReactionDetectionListener {
     /**
      * Request an image input for reaction detection.
      */

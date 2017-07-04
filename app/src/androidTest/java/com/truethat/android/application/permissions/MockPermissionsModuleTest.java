@@ -1,8 +1,8 @@
 package com.truethat.android.application.permissions;
 
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.ui.common.AskForPermissionActivity;
-import com.truethat.android.ui.common.TestActivity;
+import com.truethat.android.ui.activity.AskForPermissionActivity;
+import com.truethat.android.ui.activity.TestActivity;
 import org.junit.Test;
 
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
@@ -59,15 +59,7 @@ import static org.junit.Assert.assertTrue;
     assertFalse(mMockPermissionsModule.isPermissionGranted(null, PERMISSION));
   }
 
-  @Test public void requestCallback_InvokedWhenGrantingWithInvocationFlag() throws Exception {
-    // Enables invocation of request callback.
-    mMockPermissionsModule.setInvokeRequestCallback(true);
-    mMockPermissionsModule.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
-    // Should navigate to AskForPermissionActivity
-    waitForActivity(AskForPermissionActivity.class);
-  }
-
-  @Test public void requestCallback_InvokedWhenForbidden() throws Exception {
+  @Test public void requestCallback_invokedWhenForbidden() throws Exception {
     // Enables invocation of request callback.
     mMockPermissionsModule.forbid(PERMISSION);
     mMockPermissionsModule.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);

@@ -1,6 +1,7 @@
-package com.truethat.android.ui.studio;
+package com.truethat.android.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.ImageReader;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.action.ViewActions;
@@ -12,9 +13,7 @@ import com.truethat.android.common.network.StudioAPI;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
-import com.truethat.android.ui.common.TestActivity;
 import com.truethat.android.ui.common.camera.CameraFragment;
-import com.truethat.android.ui.theater.TheaterActivity;
 import java.net.HttpURLConnection;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -30,9 +29,9 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
@@ -41,6 +40,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
@@ -103,8 +103,27 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationToRepertoire() throws Exception {
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    // Regular swipe up interferes with the capture button, and so the test fails.
+    centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
+  }
+
+  @Test public void singleInstance() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    assertApprovalState();
+    Bitmap than = mCameraFragment.getCameraPreview().getBitmap();
+    // Navigate out of studio
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
+    waitForActivity(TheaterActivity.class);
+    // Navigate back to studio
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    waitForActivity(StudioActivity.class);
+    // Should remain in approval state
+    assertApprovalState();
+    // Preview should remain frozen.
+    Bitmap now = mCameraFragment.getCameraPreview().getBitmap();
+    assertTrue(than.sameAs(now));
   }
 
   @Test public void directingState() throws Exception {
@@ -192,7 +211,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Capture buttons are displayed.
-    onView(isRoot()).perform(waitMatcher(allOf(withId(R.id.captureButton), isDisplayed())));
+    waitMatcher(allOf(withId(R.id.captureButton), isDisplayed()));
     onView(withId(R.id.switchCameraButton)).check(matches(isDisplayed()));
     // Approval buttons are hidden
     onView(withId(R.id.sendButton)).check(matches(not(isDisplayed())));
@@ -211,7 +230,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Approval buttons are shown
-    onView(isRoot()).perform(waitMatcher(allOf(withId(R.id.sendButton), isDisplayed())));
+    waitMatcher(allOf(withId(R.id.sendButton), isDisplayed()));
     onView(withId(R.id.cancelButton)).check(matches(isDisplayed()));
     // Capture buttons are hidden.
     onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
