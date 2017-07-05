@@ -1,9 +1,7 @@
 package com.truethat.android.application;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -18,13 +16,11 @@ import android.support.test.espresso.util.TreeIterables;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.Size;
 import android.view.View;
 import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.util.AppUtil;
 import java.util.concurrent.TimeoutException;
 import org.awaitility.core.ThrowingRunnable;
 import org.hamcrest.Description;
@@ -38,6 +34,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
+import static com.truethat.android.common.util.AppUtil.availableDisplaySize;
+import static com.truethat.android.common.util.AppUtil.realDisplaySize;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
@@ -53,6 +51,9 @@ public class ApplicationTestUtil {
    * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
    */
   public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
+    if (getCurrentActivity() == null) {
+      throw new AssertionError("App has not started. Device locked?");
+    }
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(activityClass.getSimpleName(),
@@ -116,7 +117,10 @@ public class ApplicationTestUtil {
       @Override public void run() {
         java.util.Collection<Activity> activities =
             ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
-        activity[0] = Iterables.getOnlyElement(activities);
+        try {
+          activity[0] = Iterables.getOnlyElement(activities);
+        } catch (Exception ignored) {
+        }
       }
     });
     return (AppCompatActivity) activity[0];
@@ -132,7 +136,7 @@ public class ApplicationTestUtil {
       }
 
       @Override public boolean matchesSafely(View view) {
-        Size windowSize = AppUtil.availableDisplaySize(view);
+        Size windowSize = availableDisplaySize(view);
         return isDisplayed().matches(view)
             && windowSize.getWidth() <= view.getWidth()
             && windowSize.getHeight() <= view.getHeight();
@@ -144,7 +148,7 @@ public class ApplicationTestUtil {
    * @return whether a view is displayed full screen.
    */
   public static boolean isFullscreen(View view) {
-    Size windowSize = AppUtil.availableDisplaySize(view);
+    Size windowSize = availableDisplaySize(view);
     return isDisplayed().matches(view)
         && windowSize.getWidth() <= view.getWidth()
         && windowSize.getHeight() <= view.getHeight();
@@ -175,16 +179,16 @@ public class ApplicationTestUtil {
             ApplicationInfo.FLAG_DEBUGGABLE);
   }
 
-  public static void launchApp() {
-    Log.v("ApplicationTestUtil", "launchApp");
-    PackageManager pm = getInstrumentation().getContext().getPackageManager();
-    Intent intent = pm.getLaunchIntentForPackage(APPLICATION_PACKAGE_NAME);
-    getInstrumentation().startActivitySync(intent);
-  }
-
   public static void centerSwipeUp() {
     onView(withId(R.id.activityRootView)).perform(
         new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER, GeneralLocation.TOP_CENTER,
             Press.FINGER));
+  }
+
+  public static boolean isKeyboardVisible() {
+    // 0.85 ratio is perhaps enough to determine keypad height.
+    return availableDisplaySize(
+        getCurrentActivity().findViewById(R.id.activityRootView)).getHeight()
+        < realDisplaySize(getCurrentActivity()).y * 0.85;
   }
 }

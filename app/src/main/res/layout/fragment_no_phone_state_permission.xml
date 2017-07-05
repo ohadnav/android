@@ -8,20 +8,6 @@
     tools:context="com.truethat.android.application.permissions.PermissionFragment"
     >
 
-  <ImageView
-      android:id="@+id/imageView"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="centerCrop"
-      android:tint="@color/tint"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/phone_dog"
-      />
-
   <TextView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -33,13 +19,12 @@
       android:shadowRadius="4"
       android:text="@string/no_phone_permission_rationale"
       android:textAlignment="center"
-      android:textColor="@color/light"
+      android:textColor="@color/primary"
       android:textSize="20sp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0.05"
       />
 
 </android.support.constraint.ConstraintLayout>

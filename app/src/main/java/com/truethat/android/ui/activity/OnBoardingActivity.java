@@ -1,5 +1,6 @@
 package com.truethat.android.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.media.Image;
@@ -8,10 +9,13 @@ import android.support.annotation.MainThread;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnEditorAction;
+import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
@@ -19,7 +23,6 @@ import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.ui.common.camera.CameraFragment;
-import com.truethat.android.ui.common.util.UiUtil;
 
 public class OnBoardingActivity extends BaseActivity
     implements CameraFragment.OnPictureTakenListener {
@@ -27,7 +30,8 @@ public class OnBoardingActivity extends BaseActivity
   public static final String USER_NAME_INTENT = "userName";
   @VisibleForTesting static final int ERROR_COLOR = R.color.error;
   @VisibleForTesting static final int VALID_NAME_COLOR = R.color.success;
-  @BindView(R.id.nameEditText) EditText mNameInput;
+  @BindView(R.id.nameEditText) EditText mNameEditText;
+  @BindView(R.id.warningText) TextView mWarningText;
   private CameraFragment mCameraFragment;
 
   @Override public void processImage(Image image) {
@@ -54,10 +58,10 @@ public class OnBoardingActivity extends BaseActivity
       finish();
     }
     // Check if input is already valid.
-    if (User.isValidName(mNameInput.getText().toString())) {
+    if (User.isValidName(mNameEditText.getText().toString())) {
       detectSmile();
     } else {
-      mNameInput.requestFocus();
+      mNameEditText.requestFocus();
     }
   }
 
@@ -67,28 +71,41 @@ public class OnBoardingActivity extends BaseActivity
   }
 
   /**
-   * Updates the underline color of {@link #mNameInput}.
+   * Updates the underline color of {@link #mNameEditText}.
    *
    * @param typedName a CharSequence is used thanks to the one and only {@link ButterKnife}.
    */
-  @OnTextChanged(R.id.nameEditText) void updateColor(CharSequence typedName) {
+  @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {
     if (User.isValidName(typedName.toString())) {
-      mNameInput.setBackgroundTintList(
+      mWarningText.setVisibility(View.INVISIBLE);
+      mNameEditText.setBackgroundTintList(
           ColorStateList.valueOf(getResources().getColor(VALID_NAME_COLOR, getTheme())));
     } else {
-      mNameInput.setBackgroundTintList(
+      mNameEditText.setBackgroundTintList(
           ColorStateList.valueOf(getResources().getColor(ERROR_COLOR, getTheme())));
     }
   }
 
   @OnEditorAction(R.id.nameEditText) boolean onNameDone(int actionId) {
-    boolean handled = false;
     if (actionId == EditorInfo.IME_ACTION_DONE) {
-      detectSmile();
-      UiUtil.hideSoftKeyboard(OnBoardingActivity.this);
-      handled = true;
+      if (User.isValidName(mNameEditText.getText().toString())) {
+        detectSmile();
+      } else {
+        mWarningText.setVisibility(View.VISIBLE);
+      }
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(mNameEditText.getWindowToken(), 0);
+      mNameEditText.setCursorVisible(false);
     }
-    return handled;
+    return true;
+  }
+
+  @OnFocusChange(R.id.nameEditText) void onNameFocusChange(boolean hasFocus) {
+    mNameEditText.setCursorVisible(hasFocus);
+    if (!hasFocus) {
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(mNameEditText.getWindowToken(), 0);
+    }
   }
 
   // A method is used since a new instance of an inner class cannot be created in tests.
@@ -113,13 +130,13 @@ public class OnBoardingActivity extends BaseActivity
 
   /**
    * Stops emotional reaction detection that is started by {@link #detectSmile()}. Should be called
-   * on activity pauses and {@link #mNameInput} edits.
+   * on activity pauses and {@link #mNameEditText} edits.
    */
   private void stopDetection() {
     this.runOnUiThread(new Runnable() {
       @Override public void run() {
-        findViewById(R.id.smileText).setVisibility(View.GONE);
-        findViewById(R.id.realLifeText).setVisibility(View.GONE);
+        findViewById(R.id.smileText).setVisibility(View.INVISIBLE);
+        findViewById(R.id.realLifeText).setVisibility(View.INVISIBLE);
       }
     });
     // Starts emotional reaction detection. Any previous detection is immediately stopped.
@@ -131,7 +148,7 @@ public class OnBoardingActivity extends BaseActivity
    */
   @MainThread private void finishOnBoarding() {
     Intent finishOnBoarding = new Intent();
-    finishOnBoarding.putExtra(USER_NAME_INTENT, mNameInput.getText().toString());
+    finishOnBoarding.putExtra(USER_NAME_INTENT, mNameEditText.getText().toString());
     setResult(RESULT_OK, finishOnBoarding);
     finish();
   }

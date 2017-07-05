@@ -1,6 +1,7 @@
 package com.truethat.android.ui.activity;
 
 import android.content.Intent;
+import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
@@ -19,6 +20,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
+import static com.truethat.android.application.ApplicationTestUtil.isKeyboardVisible;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.application.ApplicationTestUtil.withBackgroundColor;
@@ -33,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * Proudly created by ohad on 16/06/2017 for TrueThat.
  */
 public class OnBoardingActivityTest extends BaseApplicationTestSuite {
-  private static final String NAME = "donald duck";
+  private static final String NAME = "Matt Damon";
 
   /**
    * Programmatically completes the on boarding process as if a user completed it.
@@ -115,12 +117,48 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void typingName() throws Exception {
+    final EditText editText = (EditText) getCurrentActivity().findViewById(R.id.nameEditText);
+    // Type first name
     onView(withId(R.id.nameEditText)).perform(typeText(NAME.split(" ")[0]));
+    // Cursor should be visible.
+    assertTrue(editText.isCursorVisible());
     assertInvalidName();
-    onView(withId(R.id.nameEditText)).perform(typeText(" " + NAME.split(" ")[1]));
+    // Lose focus, keyboard and cursor should be hidden.
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        editText.clearFocus();
+      }
+    });
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
+    assertFalse(editText.isCursorVisible());
+    // Type again, and assert keyboard and cursor are visible again.
+    onView(withId(R.id.nameEditText)).perform(typeText(" "));
+    assertTrue(isKeyboardVisible());
+    assertTrue(editText.isCursorVisible());
+    // Hit done (ime button).
+    onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
+    // Should not be moving to next stage
+    assertInvalidName();
+    // Cursor and keyboard should be hidden.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
+    assertFalse(editText.isCursorVisible());
+    // Warning text visible.
+    waitMatcher(allOf(withId(R.id.warningText), isDisplayed()));
+    // Type last name
+    onView(withId(R.id.nameEditText)).perform(typeText(NAME.split(" ")[1]));
     assertValidName();
     onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
     assertReadyForSmile();
+    // Cursor should be hidden after hitting ime button.
+    assertFalse(editText.isCursorVisible());
     // Detect smile.
     mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
@@ -166,9 +204,17 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   private void assertReadyForSmile() {
-    // Wait until smile text is shown
+    // Wait until smile text is shown.
     waitMatcher(allOf(isDisplayed(), withId(R.id.smileText)));
+    // Warning text should be hidden.
+    onView(withId(R.id.warningText)).check(matches(not(isDisplayed())));
     // Assert detection is ongoing.
     assertTrue(mMockReactionDetectionModule.isDetecting());
+    // Keyboard should be hidden.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
   }
 }

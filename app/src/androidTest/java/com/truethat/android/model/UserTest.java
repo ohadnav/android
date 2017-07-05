@@ -44,22 +44,22 @@ public class UserTest extends BaseApplicationTestSuite {
   @Test public void updateNames() throws Exception {
     @SuppressWarnings("ConstantConditions") User user = new User(null, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
-    assertEquals("speedy gonzales", user.getDisplayName());
+    assertEquals("Speedy Gonzales", user.getDisplayName());
     // Double spaces are shrunk.
     user.updateNames("ab  cd", mActivityTestRule.getActivity());
-    assertEquals("ab cd", user.getDisplayName());
+    assertEquals("Ab Cd", user.getDisplayName());
     // Names are trimmed
     user.updateNames("  speedy gonzales  ", mActivityTestRule.getActivity());
-    assertEquals("speedy gonzales", user.getDisplayName());
+    assertEquals("Speedy Gonzales", user.getDisplayName());
     // Last name can have multiple words in it.
     user.updateNames("speedy gonzales the second", mActivityTestRule.getActivity());
-    assertEquals("speedy gonzales the second", user.getDisplayName());
+    assertEquals("Speedy Gonzales The Second", user.getDisplayName());
   }
 
   @Test public void updateNamesDontSaveWhenSignedOut() throws Exception {
     User user = new User(null, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
-    assertEquals("speedy gonzales", user.getDisplayName());
+    assertEquals("Speedy Gonzales", user.getDisplayName());
     // Assert not saved.
     assertFalse(
         App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));
@@ -68,7 +68,7 @@ public class UserTest extends BaseApplicationTestSuite {
   @Test public void updateNamesSaves() throws Exception {
     User user = new User(0L, null, null);
     user.updateNames("speedy gonzales", mActivityTestRule.getActivity());
-    assertEquals("speedy gonzales", user.getDisplayName());
+    assertEquals("Speedy Gonzales", user.getDisplayName());
     // Assert not saved.
     assertTrue(
         App.getInternalStorage().exists(mActivityTestRule.getActivity(), User.LAST_USER_PATH));

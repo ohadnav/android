@@ -1,6 +1,6 @@
 package com.truethat.android.common.util;
 
-import android.support.test.espresso.core.deps.guava.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

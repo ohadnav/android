@@ -78,8 +78,8 @@
 
   <ImageButton
       android:id="@+id/sendButton"
-      android:layout_width="40dp"
-      android:layout_height="40dp"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
       android:layout_margin="16dp"
       android:background="@null"
       android:contentDescription="@string/image_content_description"
