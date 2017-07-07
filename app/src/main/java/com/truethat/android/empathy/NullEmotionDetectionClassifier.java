@@ -10,9 +10,8 @@ import com.truethat.android.model.Emotion;
  * Classifies all any {@code image} as null, i.e. as having no emotion in it.
  */
 
-public class RandomEmotionDetectionClassifier implements EmotionDetectionClassifier {
+public class NullEmotionDetectionClassifier implements EmotionDetectionClassifier {
   @Nullable @Override public Emotion classify(Image image) {
-    return Emotion.values()[Math.min((int) Math.round(Math.random() * Emotion.values().length),
-        Emotion.values().length - 1)];
+    return null;
   }
 }

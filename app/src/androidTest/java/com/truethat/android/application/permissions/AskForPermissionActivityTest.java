@@ -31,7 +31,6 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Assert that no camera permission fragment is displayed.
-    onView(withId(R.id.noCameraPermissionImage)).check(matches(isDisplayed()));
     onView(withId(R.id.noCameraPermissionTopRationale)).check(matches(isDisplayed()));
   }
 

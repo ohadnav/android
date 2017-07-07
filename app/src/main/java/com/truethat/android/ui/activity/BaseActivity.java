@@ -76,6 +76,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     setContentView(getLayoutResId());
     ButterKnife.bind(this);
+    // Hide both the navigation bar and the status bar.
+    View decorView = getWindow().getDecorView();
+    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        | View.SYSTEM_UI_FLAG_IMMERSIVE
+        | View.SYSTEM_UI_FLAG_FULLSCREEN;
+    decorView.setSystemUiVisibility(uiOptions);
   }
 
   /**

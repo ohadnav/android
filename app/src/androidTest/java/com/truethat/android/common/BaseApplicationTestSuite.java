@@ -17,8 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
-import static com.truethat.android.BuildConfig.PORT;
-
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
  * <p>
@@ -56,9 +54,9 @@ import static com.truethat.android.BuildConfig.PORT;
     App.setReactionDetectionModule(
         mMockReactionDetectionModule = new MockReactionDetectionModule());
     // Sets the backend URL, for MockWebServer.
-    NetworkUtil.setBackendUrl("http://localhost");
+    NetworkUtil.setBackendUrl("http://localhost:8080/");
     // Starts mock server
-    mMockWebServer.start(PORT);
+    mMockWebServer.start(8080);
     setDispatcher(new CountingDispatcher());
     // Launches activity
     mActivityTestRule.launchActivity(null);

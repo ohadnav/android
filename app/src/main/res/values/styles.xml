@@ -6,6 +6,10 @@
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/primaryDark</item>
     <item name="colorAccent">@color/light</item>
+    <!-- Hides status bar -->
+    <item name="android:windowTranslucentStatus">true</item>
+    <!-- Hides bottom action bar -->
+    <item name="android:windowFullscreen">true</item>
   </style>
 
 </resources>

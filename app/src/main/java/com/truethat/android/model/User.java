@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
+import static com.truethat.android.common.util.StringUtil.toTitleCase;
+
 /**
  * Proudly created by ohad on 22/05/2017 for TrueThat.
  *
@@ -128,7 +130,7 @@ public class User implements Serializable {
     if (mFirstName == null || mLastName == null) {
       throw new IllegalStateException("User had not been initialized.");
     }
-    return mFirstName + " " + mLastName;
+    return toTitleCase(mFirstName + " " + mLastName);
   }
 
   /**

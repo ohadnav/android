@@ -156,7 +156,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
 
   @Test public void displayReactable() throws Exception {
     Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), EMOTIONAL_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityRule.launchActivity(null);

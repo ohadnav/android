@@ -101,12 +101,7 @@ public class NetworkUtil {
   }
 
   private static String getBackendUrl() {
-    try {
-      return sBackendUrl + ":" + BuildConfig.PORT + "/";
-    } catch (Exception ignored) {
-      // PORT does not necessarily exists.
-      return sBackendUrl;
-    }
+    return sBackendUrl;
   }
 
   @VisibleForTesting public static void setBackendUrl(String backendUrl) {
