@@ -33,6 +33,7 @@ public class WelcomeActivityTest extends BaseApplicationTestSuite {
   @Test public void onBoarding() throws Exception {
     mMockAuthModule.setAllowAuth(false);
     App.getAuthModule().auth(mActivityTestRule.getActivity());
+    waitForActivity(WelcomeActivity.class);
     onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
     waitForActivity(OnBoardingActivity.class);
