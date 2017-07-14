@@ -1,62 +1,64 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 
 android {
-  compileSdkVersion 25
-  buildToolsVersion '25.0.3'
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  buildToolsVersion rootProject.ext.buildToolsVersion
   defaultConfig {
-    applicationId 'com.truethat.android'
-    minSdkVersion 23
+    applicationId "com.truethat.android"
+    minSdkVersion rootProject.ext.minSdkVersion
     //noinspection OldTargetApi
-    targetSdkVersion 25
+    targetSdkVersion rootProject.ext.targetSdkVersion
     versionCode buildVersionCode()
     versionName version
-    testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
   buildTypes {
     debug {
-      // Using 10.0.2.2 (the desktop's localhost), as the app normally runs on an Emulator
+      // Using 10.0.2.2 (the desktop"s localhost), as the app normally runs on an Emulator
       // in debug mode.
-      buildConfigField 'String', 'BACKEND_URL', '"http://10.0.2.2:8080/"'
-      applicationIdSuffix '.debug'
+      buildConfigField "String", "BACKEND_URL", '"http://10.0.2.2:8080/"'
+      applicationIdSuffix ".debug"
     }
     release {
       minifyEnabled true
       zipAlignEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-      buildConfigField 'String', 'BACKEND_URL', '"https://truethat-app.appspot.com/"'
+      proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+      buildConfigField "String", "BACKEND_URL", '"https://truethat-app.appspot.com/"'
     }
   }
 }
 
 dependencies {
-  compile fileTree(include: ['*.jar'], dir: 'libs')
-  compile('com.squareup.retrofit2:retrofit:2.3.0') {
-    exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+  compile fileTree(include: ["*.jar"], dir: "libs")
+  compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
+  compile "com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion"
+  compile "com.google.code.findbugs:jsr305:$rootProject.findBugsVersion"
+  compile "com.google.guava:guava:$rootProject.guavaVersion"
+  compile "com.squareup.okhttp3:okhttp:$rootProject.okhttpVersion"
+  compile("com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion") {
+    exclude group: "com.squareup.okhttp3", module: "okhttp"
   }
-  compile 'com.android.support:appcompat-v7:25.3.1'
-  compile 'com.android.support.constraint:constraint-layout:1.0.2'
-  compile 'com.google.code.findbugs:jsr305:3.0.2'
-  compile 'com.google.guava:guava:22.0-android'
-  compile 'com.squareup.okhttp3:okhttp:3.5.0'
-  compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-  compile 'com.github.bumptech.glide:glide:3.8.0'
-  compile 'com.jakewharton:butterknife:8.6.0'
-  annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
-  testCompile 'junit:junit:4.12'
-  androidTestCompile 'org.mockito:mockito-android:2.8.9'
-  androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
-  androidTestCompile 'org.awaitility:awaitility:3.0.0'
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-    exclude group: 'com.android.support', module: 'support-annotations'
-    exclude group: 'junit', module: 'junit'
-    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
+  compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+  compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
+  annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+  testCompile "junit:junit:$rootProject.junitVersion"
+  androidTestCompile "org.mockito:mockito-android:$rootProject.mockitoVersion"
+  androidTestCompile "com.android.support.test.uiautomator:uiautomator-v18:$rootProject.uiAutomatorVersion"
+  androidTestCompile "org.awaitility:awaitility:$rootProject.awaitilityVersion"
+  androidTestCompile("com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion",
+      {
+        exclude group: "com.android.support", module: "support-annotations"
+        exclude group: "junit", module: "junit"
+        exclude group: "com.google.code.findbugs", module: "jsr305"
   })
-  androidTestCompile('com.android.support.test.espresso:espresso-intents:2.2.2', {
-    exclude group: 'com.android.support', module: 'support-annotations'
-    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  androidTestCompile(
+      "com.android.support.test.espresso:espresso-intents:$rootProject.espressoVersion", {
+    exclude group: "com.android.support", module: "support-annotations"
+    exclude group: "com.google.code.findbugs", module: "jsr305"
   })
-  androidTestCompile('com.squareup.okhttp3:mockwebserver:3.5.0') {
-    exclude module: 'okhttp'
+  androidTestCompile("com.squareup.okhttp3:mockwebserver:$rootProject.mockWebServerVersion") {
+    exclude module: "okhttp"
   }
 }
 
