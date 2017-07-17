@@ -14,7 +14,7 @@ import retrofit2.http.Part;
  * @backend <a>https://goo.gl/KfkLZp</a>
  */
 
-public interface StudioAPI {
+public interface StudioApi {
   String PATH = "studio";
   String SCENE_IMAGE_PART = "scene_image";
   String REACTABLE_PART = "reactable";

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.common.network.AuthAPI;
+import com.truethat.android.common.network.AuthApi;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.model.User;
@@ -25,7 +25,7 @@ public class DefaultAuthModule implements AuthModule {
   /**
    * Auth API interface.
    */
-  private AuthAPI mAuthAPI = NetworkUtil.createAPI(AuthAPI.class);
+  private AuthApi mAuthApi = NetworkUtil.createAPI(AuthApi.class);
   /**
    * Used for network requests.
    */
@@ -113,7 +113,7 @@ public class DefaultAuthModule implements AuthModule {
    */
   private void backendAuth(final BaseActivity activity) {
     mNetworkHandler.start();
-    final Call<User> authCall = mAuthAPI.postAuth(mUser);
+    final Call<User> authCall = mAuthApi.postAuth(mUser);
     if (!mNetworkHandler.getHandler().post(new Runnable() {
       @Override public void run() {
         try {

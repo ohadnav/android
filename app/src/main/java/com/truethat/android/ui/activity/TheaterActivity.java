@@ -5,8 +5,7 @@ import android.media.Image;
 import android.os.Bundle;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.TheaterAPI;
+import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import com.truethat.android.ui.common.media.ReactableFragment;
@@ -19,7 +18,7 @@ import retrofit2.Call;
 public class TheaterActivity extends ReactablesPagerActivity
     implements ReactableFragment.ReactionDetectionListener,
     CameraFragment.OnPictureTakenListener {
-  private TheaterAPI mTheaterAPI;
+  private TheaterApi mTheaterApi;
   private CameraFragment mCameraFragment;
 
   @Override public void onAuthOk() {
@@ -34,11 +33,11 @@ public class TheaterActivity extends ReactablesPagerActivity
     mCameraFragment =
         (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
     // Initializes the Theater API
-    mTheaterAPI = NetworkUtil.createAPI(TheaterAPI.class);
+    mTheaterApi = createApiInterface(TheaterApi.class);
   }
 
   @Override protected Call<List<Reactable>> buildFetchReactablesCall() {
-    return mTheaterAPI.fetchReactables(App.getAuthModule().getUser());
+    return mTheaterApi.fetchReactables(App.getAuthModule().getUser());
   }
 
   @Override protected void onSwipeUp() {

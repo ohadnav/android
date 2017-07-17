@@ -18,7 +18,7 @@ import com.bumptech.glide.Glide;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
@@ -47,7 +47,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   /**
    * API interface for saving scenes.
    */
-  private StudioAPI mStudioAPI = NetworkUtil.createAPI(StudioAPI.class);
+  private StudioApi mStudioApi = NetworkUtil.createAPI(StudioApi.class);
   private Call<Reactable> mSaveSceneCall;
   private CameraFragment mCameraFragment;
   private Callback<Reactable> mSaveSceneCallback = new Callback<Reactable>() {
@@ -184,7 +184,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   @MainThread @OnClick(R.id.sendButton) void onSent() {
     Log.v(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
-    mSaveSceneCall = mDirectedReactable.createApiCall(mStudioAPI);
+    mSaveSceneCall = mDirectedReactable.createApiCall(mStudioApi);
     mSaveSceneCall.enqueue(mSaveSceneCallback);
     // Hides buttons.
     mCaptureButton.setVisibility(GONE);

@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.common.media.SceneFragment;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ public class Scene extends Reactable implements Serializable {
    */
   private String mImageSignedUrl;
   /**
-   * The byte representation of this scene. Used in {@link #createApiCall(StudioAPI)}.
+   * The byte representation of this scene. Used in {@link #createApiCall(StudioApi)}.
    */
   private transient byte[] mImageBytes;
 
@@ -55,16 +55,16 @@ public class Scene extends Reactable implements Serializable {
     return SceneFragment.newInstance(this);
   }
 
-  @Override public Call<Reactable> createApiCall(StudioAPI studioAPI) {
+  @Override public Call<Reactable> createApiCall(StudioApi studioApi) {
     if (mImageBytes == null) {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
     MultipartBody.Part imagePart =
-        MultipartBody.Part.createFormData(StudioAPI.SCENE_IMAGE_PART, IMAGE_FILENAME,
+        MultipartBody.Part.createFormData(StudioApi.SCENE_IMAGE_PART, IMAGE_FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"), mImageBytes));
     MultipartBody.Part reactablePart =
-        MultipartBody.Part.createFormData(StudioAPI.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
-    return studioAPI.saveReactable(reactablePart, Collections.singletonList(imagePart));
+        MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
+    return studioApi.saveReactable(reactablePart, Collections.singletonList(imagePart));
   }
 
   @Override public boolean equals(Object o) {

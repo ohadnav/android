@@ -2,6 +2,7 @@ package com.truethat.android.application;
 
 import android.app.Activity;
 import android.content.pm.ApplicationInfo;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -190,5 +191,11 @@ public class ApplicationTestUtil {
     return availableDisplaySize(
         getCurrentActivity().findViewById(R.id.activityRootView)).getHeight()
         < realDisplaySize(getCurrentActivity()).y * 0.85;
+  }
+
+  public static TrueThatApp getApp() {
+    return (TrueThatApp) InstrumentationRegistry.getInstrumentation()
+        .getTargetContext()
+        .getApplicationContext();
   }
 }

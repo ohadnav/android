@@ -10,7 +10,7 @@ import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
@@ -259,7 +259,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Should post the reactable.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount(StudioAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(StudioApi.PATH));
       }
     });
     // Should navigate to theater.

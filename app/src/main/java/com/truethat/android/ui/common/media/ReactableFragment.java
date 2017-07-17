@@ -16,7 +16,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.common.network.InteractionAPI;
+import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
@@ -56,13 +56,13 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * ReactableEvent}.
    */
-  private InteractionAPI mInteractionAPI;
+  private InteractionApi mInteractionApi;
   /**
-   * HTTP POST call of {@link #mInteractionAPI}.
+   * HTTP POST call of {@link #mInteractionApi}.
    */
   private Call<ResponseBody> mPostEventCall;
   /**
-   * Callback for {@link #mInteractionAPI}.
+   * Callback for {@link #mInteractionApi}.
    */
   private Callback<ResponseBody> mPostEventCallback;
   /**
@@ -103,7 +103,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     //noinspection unchecked
     mReactable = (T) getArguments().getSerializable(ARG_REACTABLE);
     // Initializes the Theater API
-    mInteractionAPI = NetworkUtil.createAPI(InteractionAPI.class);
+    mInteractionApi = NetworkUtil.createAPI(InteractionApi.class);
     mPostEventCallback = buildPostEventCallback();
     mDetectionPubSub = buildDetectionPubSub();
   }
@@ -203,7 +203,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     // Don't record view of the user's own reactables.
     if (!mReactable.isViewed() && !mReactable.getDirector().equals(App.getAuthModule().getUser())) {
       mReactable.doView();
-      mInteractionAPI.postEvent(
+      mInteractionApi.postEvent(
           new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(), new Date(),
               EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
     }
@@ -287,7 +287,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
           Log.v(TAG, "Reaction detected: " + reaction.name());
           mReactable.doReaction(reaction);
           // Post event of reactable reaction.
-          mPostEventCall = mInteractionAPI.postEvent(
+          mPostEventCall = mInteractionApi.postEvent(
               new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(),
                   mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
           mPostEventCall.enqueue(mPostEventCallback);

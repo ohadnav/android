@@ -13,9 +13,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
+import com.truethat.android.application.TrueThatApp;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import java.io.IOException;
+import javax.inject.Inject;
+import retrofit2.Retrofit;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.truethat.android.ui.activity.OnBoardingActivity.USER_NAME_INTENT;
@@ -34,6 +37,8 @@ public abstract class BaseActivity extends AppCompatActivity {
    */
   protected boolean mSkipAuth = false;
   @BindView(R.id.activityRootView) protected View mRootView;
+
+  @Inject Retrofit mRetrofit;
 
   /**
    * Permission not granted callback.
@@ -72,8 +77,12 @@ public abstract class BaseActivity extends AppCompatActivity {
   }
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    // Injects dependencies.
+    ((TrueThatApp) getApplication()).getInjector(this);
     super.onCreate(savedInstanceState);
+    // Disable landscape orientation.
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    // Initializes the view.
     setContentView(getLayoutResId());
     ButterKnife.bind(this);
     // Hide both the navigation bar and the status bar.
@@ -138,5 +147,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         onRequestPermissionsFailed(permission);
       }
     }
+  }
+
+  protected <T> T createApiInterface(final Class<T> service) {
+    return mRetrofit.create(service);
+  }
+
+  @Inject void logInjection() {
+    Log.v(TAG, "Injecting " + getClass().getSimpleName() + " for " + getApplication().getClass()
+        .getSimpleName() + "(" + getApplication().hashCode() + ")");
   }
 }

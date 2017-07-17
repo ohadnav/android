@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.RepertoireAPI;
+import com.truethat.android.common.network.RepertoireApi;
 import com.truethat.android.model.Reactable;
 import java.util.List;
 import retrofit2.Call;
@@ -15,18 +15,18 @@ public class RepertoireActivity extends ReactablesPagerActivity {
   /**
    * API interface for getting reactables.
    */
-  private RepertoireAPI mRepertoireAPI;
+  private RepertoireApi mRepertoireApi;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Initialize activity transitions.
     this.overridePendingTransition(R.animator.slide_in_top, R.animator.slide_out_top);
     // Initialize API
-    mRepertoireAPI = NetworkUtil.createAPI(RepertoireAPI.class);
+    mRepertoireApi = NetworkUtil.createAPI(RepertoireApi.class);
   }
 
   @Override protected Call<List<Reactable>> buildFetchReactablesCall() {
-    return mRepertoireAPI.fetchRepertoire(App.getAuthModule().getUser());
+    return mRepertoireApi.fetchRepertoire(App.getAuthModule().getUser());
   }
 
   @Override protected void onSwipeDown() {

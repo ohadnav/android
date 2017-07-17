@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.InteractionAPI;
+import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
@@ -165,7 +165,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
     assertFalse(mMockReactionDetectionModule.isDetecting());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-    assertEquals(0, mDispatcher.getCount(InteractionAPI.PATH));
+    assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
   }
 
   @Test public void noReactablesFound() throws Exception {

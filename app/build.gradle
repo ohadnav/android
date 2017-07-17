@@ -16,14 +16,14 @@ android {
     debug {
       // Using 10.0.2.2 (the desktop"s localhost), as the app normally runs on an Emulator
       // in debug mode.
-      buildConfigField "String", "BACKEND_URL", '"http://10.0.2.2:8080/"'
+      buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
       applicationIdSuffix ".debug"
     }
     release {
       minifyEnabled true
       zipAlignEnabled true
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-      buildConfigField "String", "BACKEND_URL", '"https://truethat-app.appspot.com/"'
+      buildConfigField "String", "BASE_BACKEND_URL", '"https://truethat-app.appspot.com/"'
     }
   }
 }
@@ -40,6 +40,11 @@ dependencies {
   }
   compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
   compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+  compile "com.google.dagger:dagger:$rootProject.daggerVersion"
+  compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+  compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
+  annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+  annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
   compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
   annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
   testCompile "junit:junit:$rootProject.junitVersion"

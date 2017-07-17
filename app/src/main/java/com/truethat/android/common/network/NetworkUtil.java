@@ -70,7 +70,7 @@ public class NetworkUtil {
   /**
    * Backend URL to use. Can be changed during tests. Use {@link #getBackendUrl()} to retrieve it.
    */
-  private static String sBackendUrl = BuildConfig.BACKEND_URL;
+  private static String sBackendUrl = BuildConfig.BASE_BACKEND_URL;
   /**
    * HTTP interceptor to append additional headers.
    */
@@ -79,7 +79,7 @@ public class NetworkUtil {
       Request request = chain.request();
       Log.v(TAG, "Sending " + request.method() + " request to " + request.url());
       Request newRequest = request.newBuilder()
-          .addHeader(HeadersContract.BUILD_NUMBER.getName(), BuildConfig.VERSION_NAME)
+          .addHeader(HeadersContract.VERSION_NAME.getName(), BuildConfig.VERSION_NAME)
           .build();
       return chain.proceed(newRequest);
     }

@@ -11,7 +11,7 @@ import retrofit2.http.POST;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/servlet/AuthServlet.java</a>
  */
 
-public interface AuthAPI {
+public interface AuthApi {
   String PATH = "auth";
 
   /**

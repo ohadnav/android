@@ -12,7 +12,7 @@ import retrofit2.http.POST;
  * * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/servlet/InteractionServlet.java</a>
  */
 
-public interface InteractionAPI {
+public interface InteractionApi {
   String PATH = "interaction";
 
   /**

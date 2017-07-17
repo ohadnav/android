@@ -13,7 +13,7 @@ import retrofit2.http.POST;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/servlet/TheaterServlet.java</a>
  */
 
-public interface TheaterAPI {
+public interface TheaterApi {
   String PATH = "theater";
 
   /**

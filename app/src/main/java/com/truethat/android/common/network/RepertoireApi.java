@@ -11,7 +11,7 @@ import retrofit2.http.POST;
  * Proudly created by ohad on 03/07/2017 for TrueThat.
  */
 
-public interface RepertoireAPI {
+public interface RepertoireApi {
   String PATH = "repertoire";
 
   /**

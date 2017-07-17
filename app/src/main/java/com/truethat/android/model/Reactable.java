@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.truethat.android.application.App;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioAPI;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.ui.activity.TheaterActivity;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import java.io.Serializable;
@@ -131,7 +131,7 @@ public abstract class Reactable implements Serializable {
    */
   public abstract ReactableFragment createFragment();
 
-  public abstract Call<Reactable> createApiCall(StudioAPI studioAPI);
+  public abstract Call<Reactable> createApiCall(StudioApi studioApi);
 
   /**
    * @return whether the user can react to this reactable.

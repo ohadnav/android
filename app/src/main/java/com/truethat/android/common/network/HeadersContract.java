@@ -5,8 +5,8 @@ package com.truethat.android.common.network;
  * <p>
  * Headers name for HTTP communication with out beloved backend.
  */
-enum HeadersContract {
-  BUILD_NUMBER("build-number");
+public enum HeadersContract {
+  VERSION_NAME("version-name");
 
   public static final String PREFIX = "x-thuethat-";
   private String mName;

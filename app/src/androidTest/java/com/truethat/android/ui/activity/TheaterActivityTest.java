@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.InteractionAPI;
+import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
@@ -147,7 +147,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
     // Triggers navigation to next reactable.
@@ -156,7 +156,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
   }
@@ -168,7 +168,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
     // Assert the detection is ongoing
@@ -179,7 +179,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
     // Asserting the reaction image is changed to reflect the user reaction.
@@ -207,7 +207,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(1, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(1, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
     // Already detected reaction, and so reaction detection should be stopped.
@@ -236,7 +236,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // Asserts that a reaction event was posted.
     await().atMost(Duration.TEN_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount(InteractionAPI.PATH));
+        assertEquals(2, mDispatcher.getCount(InteractionApi.PATH));
       }
     });
   }
