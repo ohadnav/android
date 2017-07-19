@@ -1,7 +1,7 @@
 package com.truethat.android.application.permissions;
 
 import android.os.Bundle;
-import com.truethat.android.ui.common.BaseFragment;
+import com.truethat.android.view.fragment.BaseFragment;
 
 /**
  * Proudly created by ohad on 20/06/2017 for TrueThat.

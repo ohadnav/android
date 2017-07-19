@@ -17,9 +17,9 @@ import com.truethat.android.di.module.DeviceModule;
 import com.truethat.android.di.module.InternalStorageModule;
 import com.truethat.android.di.module.NetModule;
 import com.truethat.android.di.module.PermissionsModule;
-import com.truethat.android.ui.activity.BaseActivity;
-import com.truethat.android.ui.common.BaseFragment;
-import com.truethat.android.ui.common.media.ReactableFragment;
+import com.truethat.android.view.activity.BaseActivity;
+import com.truethat.android.view.fragment.BaseFragment;
+import com.truethat.android.view.fragment.ReactableFragment;
 import javax.inject.Inject;
 
 /**

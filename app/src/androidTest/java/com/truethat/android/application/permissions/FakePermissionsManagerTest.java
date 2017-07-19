@@ -1,8 +1,8 @@
 package com.truethat.android.application.permissions;
 
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.ui.activity.AskForPermissionActivity;
-import com.truethat.android.ui.activity.TestActivity;
+import com.truethat.android.view.activity.AskForPermissionActivity;
+import com.truethat.android.view.activity.TestActivity;
 import org.junit.Test;
 
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;

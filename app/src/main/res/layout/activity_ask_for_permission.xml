@@ -6,7 +6,7 @@
     android:id="@+id/activityRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.truethat.android.ui.activity.AskForPermissionActivity"
+    tools:context="com.truethat.android.view.activity.AskForPermissionActivity"
     >
 
   <android.support.constraint.ConstraintLayout

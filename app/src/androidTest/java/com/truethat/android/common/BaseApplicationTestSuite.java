@@ -17,7 +17,7 @@ import com.truethat.android.di.module.fake.FakePermissionsModule;
 import com.truethat.android.di.module.fake.FakeReactionDetectionModule;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.activity.TestActivity;
+import com.truethat.android.view.activity.TestActivity;
 import okhttp3.mockwebserver.MockWebServer;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;

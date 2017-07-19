@@ -1,8 +1,8 @@
 package com.truethat.android.di.component;
 
 import com.truethat.android.di.scope.FragmentScope;
-import com.truethat.android.ui.common.BaseFragment;
-import com.truethat.android.ui.common.media.ReactableFragment;
+import com.truethat.android.view.fragment.BaseFragment;
+import com.truethat.android.view.fragment.ReactableFragment;
 import dagger.Component;
 
 /**

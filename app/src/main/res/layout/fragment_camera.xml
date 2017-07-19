@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     >
 
-  <com.truethat.android.ui.common.camera.FullscreenTextureView
+  <com.truethat.android.view.custom.FullscreenTextureView
       android:id="@+id/cameraPreview"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

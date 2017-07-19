@@ -5,7 +5,7 @@ import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.InternalStorageManager;
 import com.truethat.android.model.User;
-import com.truethat.android.ui.activity.BaseActivity;
+import com.truethat.android.view.activity.BaseActivity;
 import java.io.IOException;
 
 /**

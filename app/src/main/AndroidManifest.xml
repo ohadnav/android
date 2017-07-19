@@ -19,7 +19,7 @@
       android:theme="@style/AppTheme"
       tools:ignore="GoogleAppIndexingWarning">
     <activity
-        android:name=".ui.activity.TheaterActivity"
+        android:name=".view.activity.TheaterActivity"
         android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -28,7 +28,7 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".ui.activity.StudioActivity"
+        android:name=".view.activity.StudioActivity"
         android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.ATTACH_DATA"/>
@@ -36,21 +36,21 @@
         <data android:mimeType="application/octet-stream"/>
       </intent-filter>
     </activity>
-    <activity android:name=".ui.activity.TestActivity">
+    <activity android:name=".view.activity.TestActivity">
     </activity>
-    <activity android:name=".ui.activity.AskForPermissionActivity">
+    <activity android:name=".view.activity.AskForPermissionActivity">
       <intent-filter>
         <action android:name="android.intent.action.ATTACH_DATA"/>
 
         <data android:mimeType="application/octet-stream"/>
       </intent-filter>
     </activity>
-    <activity android:name=".ui.activity.WelcomeActivity">
+    <activity android:name=".view.activity.WelcomeActivity">
     </activity>
-    <activity android:name=".ui.activity.OnBoardingActivity">
+    <activity android:name=".view.activity.OnBoardingActivity">
     </activity>
     <activity
-        android:name=".ui.activity.RepertoireActivity"
+        android:name=".view.activity.RepertoireActivity"
         android:launchMode="singleTask">
     </activity>
   </application>

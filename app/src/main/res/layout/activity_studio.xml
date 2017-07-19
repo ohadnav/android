@@ -6,12 +6,12 @@
     android:id="@+id/activityRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activity.StudioActivity"
+    tools:context=".view.activity.StudioActivity"
     >
 
   <fragment
       android:id="@+id/cameraFragment"
-      android:name="com.truethat.android.ui.common.camera.CameraFragment"
+      android:name="com.truethat.android.view.fragment.CameraFragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       app:layout_constraintBottom_toBottomOf="parent"

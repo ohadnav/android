@@ -2,7 +2,7 @@ package com.truethat.android.empathy;
 
 import android.media.Image;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.ui.common.camera.CameraFragment;
+import com.truethat.android.view.fragment.CameraFragment;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.

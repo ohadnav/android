@@ -1,7 +1,7 @@
 package com.truethat.android.di.component;
 
 import com.truethat.android.di.scope.ActivityScope;
-import com.truethat.android.ui.activity.BaseActivity;
+import com.truethat.android.view.activity.BaseActivity;
 import dagger.Component;
 
 /**

@@ -8,12 +8,12 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusableInTouchMode="true"
-    tools:context=".ui.activity.OnBoardingActivity"
+    tools:context=".view.activity.OnBoardingActivity"
     >
 
   <fragment
       android:id="@+id/cameraFragment"
-      android:name="com.truethat.android.ui.common.camera.CameraFragment"
+      android:name="com.truethat.android.view.fragment.CameraFragment"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       app:layout_constraintBottom_toBottomOf="parent"
