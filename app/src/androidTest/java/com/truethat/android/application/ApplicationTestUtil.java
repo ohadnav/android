@@ -193,8 +193,8 @@ public class ApplicationTestUtil {
         < realDisplaySize(getCurrentActivity()).y * 0.85;
   }
 
-  public static TrueThatApp getApp() {
-    return (TrueThatApp) InstrumentationRegistry.getInstrumentation()
+  public static App getApp() {
+    return (App) InstrumentationRegistry.getInstrumentation()
         .getTargetContext()
         .getApplicationContext();
   }

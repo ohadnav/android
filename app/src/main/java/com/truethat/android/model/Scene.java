@@ -2,8 +2,7 @@ package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
+import com.google.gson.Gson;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import com.truethat.android.ui.common.media.SceneFragment;
@@ -27,7 +26,7 @@ public class Scene extends Reactable implements Serializable {
    */
   private String mImageSignedUrl;
   /**
-   * The byte representation of this scene. Used in {@link #createApiCall(StudioApi)}.
+   * The byte representation of this scene. Used in {@link Reactable#createApiCall(StudioApi, Gson)}.
    */
   private transient byte[] mImageBytes;
 
@@ -38,8 +37,8 @@ public class Scene extends Reactable implements Serializable {
     mImageSignedUrl = imageSignedUrl;
   }
 
-  public Scene(byte[] imageBytes) {
-    super(App.getAuthModule().getUser(), new Date());
+  public Scene(User director, byte[] imageBytes) {
+    super(director, new Date());
     mImageBytes = imageBytes;
   }
 
@@ -55,7 +54,7 @@ public class Scene extends Reactable implements Serializable {
     return SceneFragment.newInstance(this);
   }
 
-  @Override public Call<Reactable> createApiCall(StudioApi studioApi) {
+  @Override public Call<Reactable> createApiCall(StudioApi studioApi, Gson gson) {
     if (mImageBytes == null) {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
@@ -63,7 +62,7 @@ public class Scene extends Reactable implements Serializable {
         MultipartBody.Part.createFormData(StudioApi.SCENE_IMAGE_PART, IMAGE_FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"), mImageBytes));
     MultipartBody.Part reactablePart =
-        MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
+        MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, gson.toJson(this));
     return studioApi.saveReactable(reactablePart, Collections.singletonList(imagePart));
   }
 

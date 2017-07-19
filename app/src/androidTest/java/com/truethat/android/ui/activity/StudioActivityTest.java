@@ -9,7 +9,6 @@ import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
@@ -69,7 +68,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        return new MockResponse().setBody(NetworkUtil.GSON.toJson(
+        return new MockResponse().setBody(mGson.toJson(
             new Scene(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
       }
     });
@@ -89,7 +88,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void notTakingPictureWhenNotAuth() throws Exception {
-    mMockAuthModule.setAllowAuth(false);
+    mFakeAuthManager.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
     assertDirectingState();
     // Ensuring signing in Toast is shown.

@@ -3,9 +3,9 @@ package com.truethat.android.ui.activity;
 import android.content.Intent;
 import android.widget.EditText;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
+import com.truethat.android.application.auth.FakeAuthManager;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.empathy.MockReactionDetectionModule;
+import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.ui.common.camera.CameraFragment;
 import java.util.concurrent.Callable;
 import org.awaitility.core.ThrowingRunnable;
@@ -39,12 +39,13 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
 
   /**
    * Programmatically completes the on boarding process as if a user completed it.
-   *
-   * @param name                        of the new user.
-   * @param mockReactionDetectionModule to detect {@link OnBoardingActivity#REACTION_FOR_DONE}.
+   *  @param name                        of the new user.
+   * @param reactionDetectionManager to detect {@link OnBoardingActivity#REACTION_FOR_DONE}.
+   * @param fakeAuthManager to perform the on boarding with.
    */
-  public static void doOnBoarding(String name,
-      final MockReactionDetectionModule mockReactionDetectionModule) {
+  private static void doOnBoarding(String name,
+      final FakeReactionDetectionManager reactionDetectionManager,
+      final FakeAuthManager fakeAuthManager) {
     // Should navigate to On-Boarding
     waitForActivity(OnBoardingActivity.class);
     // Type user name and hit done.
@@ -52,37 +53,37 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Wait until detection had started.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
-        return mockReactionDetectionModule.isDetecting();
+        return reactionDetectionManager.isDetecting();
       }
     });
     // Detect smile.
-    mockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    reactionDetectionManager.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     // Wait until Auth OK.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(App.getAuthModule().isAuthOk());
+        assertTrue(fakeAuthManager.isAuthOk());
       }
     });
   }
 
   @Before public void setUp() throws Exception {
     super.setUp();
-    mMockAuthModule.setOnBoarded(false);
-    // Authentication should navigate user to on boarding. We start from test activity,
-    // so that we can assert successful on boarding.
-    App.getAuthModule().auth(mActivityTestRule.getActivity());
+    // Signs out
+    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    getCurrentActivity().startActivity(
+        new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
     waitForActivity(OnBoardingActivity.class);
   }
 
   @Test public void successfulOnBoarding() throws Exception {
     // EditText should be auto focused.
     onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
-    doOnBoarding(NAME, mMockReactionDetectionModule);
+    doOnBoarding(NAME, mFakeReactionDetectionManager, mFakeAuthManager);
     assertOnBoardingSuccessful();
   }
 
   @Test public void alreadyAuthOk() throws Exception {
-    doOnBoarding(NAME, mMockReactionDetectionModule);
+    doOnBoarding(NAME, mFakeReactionDetectionManager, mFakeAuthManager);
     assertOnBoardingSuccessful();
     // Go to on boarding by mistake.
     mActivityTestRule.getActivity()
@@ -106,13 +107,13 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Hit done.
     onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
     // Request first input.
-    mMockReactionDetectionModule.next();
+    mFakeReactionDetectionManager.next();
     // Request second input.
-    mMockReactionDetectionModule.next();
+    mFakeReactionDetectionManager.next();
     // Slow detection... should show encouragement text
     waitMatcher(allOf(isDisplayed(), withId(R.id.realLifeText)));
     // Compete on boarding
-    mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    mFakeReactionDetectionManager.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
   }
 
@@ -160,7 +161,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Cursor should be hidden after hitting ime button.
     assertFalse(editText.isCursorVisible());
     // Detect smile.
-    mMockReactionDetectionModule.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
+    mFakeReactionDetectionManager.doDetection(OnBoardingActivity.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
   }
 
@@ -170,11 +171,11 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Wait until Auth OK.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(App.getAuthModule().isAuthOk());
+        assertTrue(mFakeAuthManager.isAuthOk());
       }
     });
     // Assert the current user now the proper name.
-    assertEquals(NAME, App.getAuthModule().getUser().getDisplayName());
+    assertEquals(NAME, mFakeAuthManager.currentUser().getDisplayName());
   }
 
   private void assertInvalidName() {
@@ -190,7 +191,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
       assertTrue(false);
     }
     // Detection is NOT ongoing.
-    assertFalse(mMockReactionDetectionModule.isDetecting());
+    assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Smile text is hidden
     onView(withId(R.id.smileText)).check(matches(not(isDisplayed())));
   }
@@ -209,7 +210,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Warning text should be hidden.
     onView(withId(R.id.warningText)).check(matches(not(isDisplayed())));
     // Assert detection is ongoing.
-    assertTrue(mMockReactionDetectionModule.isDetecting());
+    assertTrue(mFakeReactionDetectionManager.isDetecting());
     // Keyboard should be hidden.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

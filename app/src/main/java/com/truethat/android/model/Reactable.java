@@ -2,9 +2,9 @@ package com.truethat.android.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
+import com.google.gson.Gson;
 import com.truethat.android.common.network.StudioApi;
+import com.truethat.android.di.module.NetModule;
 import com.truethat.android.ui.activity.TheaterActivity;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import retrofit2.Call;
  * <p>
  * A media item that the user can have an emotional reaction to, such as {@link Scene}.
  * <p>
- * Each implementation should register at {@link NetworkUtil#GSON}.
+ * Each implementation should register at {@link NetModule#provideGson()}.
  */
 public abstract class Reactable implements Serializable {
   /**
@@ -131,14 +131,16 @@ public abstract class Reactable implements Serializable {
    */
   public abstract ReactableFragment createFragment();
 
-  public abstract Call<Reactable> createApiCall(StudioApi studioApi);
+  public abstract Call<Reactable> createApiCall(StudioApi studioApi, Gson gson);
 
   /**
-   * @return whether the user can react to this reactable.
+   * @param user that should react to this reactable.
+   *
+   * @return whether {@code user} can react to this reactable.
    */
-  public boolean canReactTo() {
+  public boolean canReactTo(User user) {
     boolean notReactedTo = mUserReaction == null;
-    boolean notMine = !App.getAuthModule().getUser().equals(mDirector);
+    boolean notMine = !user.equals(mDirector);
     return notReactedTo && notMine;
   }
 

@@ -35,11 +35,11 @@ import android.view.TextureView;
 import android.view.View;
 import butterknife.BindView;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.ui.activity.BaseActivity;
 import com.truethat.android.ui.common.BaseFragment;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,30 +175,6 @@ public class CameraFragment extends BaseFragment {
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
-  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -300,6 +276,30 @@ public class CameraFragment extends BaseFragment {
       Log.e(TAG, "Camera error " + error);
     }
   };
+  /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
 
   @VisibleForTesting static CameraFragment newInstance(boolean showPreview) {
     CameraFragment fragment = new CameraFragment();
@@ -590,8 +590,10 @@ public class CameraFragment extends BaseFragment {
    * Opens the camera specified by {@link #mCameraId}.
    */
   @SuppressWarnings("MissingPermission") private void openCamera() {
-    App.getPermissionsModule().requestIfNeeded(getActivity(), Permission.CAMERA);
-    if (!App.getPermissionsModule().isPermissionGranted(getContext(), Permission.CAMERA)) {
+    ((BaseActivity) getActivity()).getPermissionsManager()
+        .requestIfNeeded(getActivity(), Permission.CAMERA);
+    if (!((BaseActivity) getActivity()).getPermissionsManager()
+        .isPermissionGranted(Permission.CAMERA)) {
       return;
     }
     Log.v(TAG, "openCamera");

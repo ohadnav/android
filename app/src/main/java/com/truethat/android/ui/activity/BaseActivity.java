@@ -11,23 +11,25 @@ import android.util.Log;
 import android.view.View;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.gson.Gson;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.TrueThatApp;
+import com.truethat.android.application.DeviceManager;
+import com.truethat.android.application.auth.AuthListener;
+import com.truethat.android.application.auth.AuthManager;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.common.util.RequestCodes;
-import java.io.IOException;
+import com.truethat.android.application.permissions.PermissionsManager;
+import com.truethat.android.empathy.ReactionDetectionManager;
 import javax.inject.Inject;
 import retrofit2.Retrofit;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static com.truethat.android.ui.activity.OnBoardingActivity.USER_NAME_INTENT;
 
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements AuthListener {
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
@@ -39,6 +41,16 @@ public abstract class BaseActivity extends AppCompatActivity {
   @BindView(R.id.activityRootView) protected View mRootView;
 
   @Inject Retrofit mRetrofit;
+
+  @Inject Gson mGson;
+
+  @Inject PermissionsManager mPermissionsManager;
+
+  @Inject AuthManager mAuthManager;
+
+  @Inject DeviceManager mDeviceManager;
+
+  @Inject ReactionDetectionManager mReactionDetectionManager;
 
   /**
    * Permission not granted callback.
@@ -54,31 +66,44 @@ public abstract class BaseActivity extends AppCompatActivity {
   /**
    * Authentication success callback.
    */
-  @MainThread public void onAuthOk() {
-
+  public void onAuthOk() {
+    Log.v(TAG, "onAuthOk");
   }
 
   /**
    * Authentication failure callback.
    */
-  @MainThread public void onAuthFailed() {
+  public void onAuthFailed() {
     Log.v(TAG, "Auth failed. Something smells bad...");
-    Intent authFailed = new Intent(this, WelcomeActivity.class);
-    authFailed.putExtra(WelcomeActivity.AUTH_FAILED, true);
-    startActivity(authFailed);
+    runOnUiThread(new Runnable() {
+      @Override public void run() {
+        Intent authFailed = new Intent(BaseActivity.this, WelcomeActivity.class);
+        authFailed.putExtra(WelcomeActivity.AUTH_FAILED, true);
+        startActivity(authFailed);
+      }
+    });
+
   }
 
-  /**
-   * Called to initiate user on boarding, i.e. a new account creation.
-   */
-  @MainThread public void onBoarding() {
-    Log.v(TAG, "New user, yay!");
-    startActivityForResult(new Intent(this, OnBoardingActivity.class), RequestCodes.ON_BOARDING);
+  public <T> T createApiInterface(final Class<T> service) {
+    return mRetrofit.create(service);
+  }
+
+  public App getApp() {
+    return (App) getApplication();
+  }
+
+  public ReactionDetectionManager getReactionDetectionManager() {
+    return mReactionDetectionManager;
+  }
+
+  public PermissionsManager getPermissionsManager() {
+    return mPermissionsManager;
   }
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     // Injects dependencies.
-    ((TrueThatApp) getApplication()).getInjector(this);
+    getApp().inject(this);
     super.onCreate(savedInstanceState);
     // Disable landscape orientation.
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -98,43 +123,10 @@ public abstract class BaseActivity extends AppCompatActivity {
    */
   protected abstract int getLayoutResId();
 
-  @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == RequestCodes.ON_BOARDING) {
-      boolean authFailed = false;
-      String newUserName = data.getExtras().getString(USER_NAME_INTENT);
-      if (resultCode == RESULT_OK) {
-        if (newUserName != null) {
-          try {
-            App.getAuthModule().getUser().updateNames(newUserName, this);
-            App.getAuthModule().auth(this);
-          } catch (IOException e) {
-            Log.e(TAG, "Failed to update names.", e);
-            e.printStackTrace();
-            authFailed = true;
-          }
-        } else {
-          // New names are null
-          authFailed = true;
-        }
-      } else {
-        // Result not OK
-        authFailed = true;
-      }
-      if (authFailed) {
-        runOnUiThread(new Runnable() {
-          @Override public void run() {
-            onAuthFailed();
-          }
-        });
-      }
-    }
-  }
-
   @Override protected void onResume() {
     super.onResume();
     if (!mSkipAuth) {
-      App.getAuthModule().auth(this);
+      mAuthManager.auth(this);
     }
   }
 
@@ -147,10 +139,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         onRequestPermissionsFailed(permission);
       }
     }
-  }
-
-  protected <T> T createApiInterface(final Class<T> service) {
-    return mRetrofit.create(service);
   }
 
   @Inject void logInjection() {

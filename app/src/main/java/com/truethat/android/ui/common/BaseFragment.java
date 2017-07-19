@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.truethat.android.R;
+import com.truethat.android.application.App;
+import com.truethat.android.ui.activity.BaseActivity;
 
 /**
  * Proudly created by ohad on 22/06/2017 for TrueThat.
@@ -141,6 +143,14 @@ public abstract class BaseFragment extends Fragment {
    */
   public boolean isReallyVisible() {
     return getUserVisibleHint() && isResumed();
+  }
+
+  public BaseActivity getBaseActivity() {
+    return (BaseActivity) getActivity();
+  }
+
+  public App getApp() {
+    return getBaseActivity().getApp();
   }
 
   /**

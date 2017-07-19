@@ -16,8 +16,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import com.bumptech.glide.Glide;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Reactable;
@@ -47,7 +45,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   /**
    * API interface for saving scenes.
    */
-  private StudioApi mStudioApi = NetworkUtil.createAPI(StudioApi.class);
+  private StudioApi mStudioApi;
   private Call<Reactable> mSaveSceneCall;
   private CameraFragment mCameraFragment;
   private Callback<Reactable> mSaveSceneCallback = new Callback<Reactable>() {
@@ -82,7 +80,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
    * UI initiated picture taking.
    */
   @OnClick(R.id.captureButton) public void captureImage() {
-    if (App.getAuthModule().isAuthOk() && mCameraFragment.isCameraOpen()) {
+    if (mAuthManager.isAuthOk() && mCameraFragment.isCameraOpen()) {
       mCameraFragment.takePicture();
     } else {
       Toast.makeText(this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
@@ -90,7 +88,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   }
 
   @Override public void processImage(Image image) {
-    mDirectedReactable = new Scene(CameraUtil.toByteArray(image));
+    mDirectedReactable = new Scene(mAuthManager.currentUser(), CameraUtil.toByteArray(image));
     runOnUiThread(new Runnable() {
       @Override public void run() {
         onApproval();
@@ -122,6 +120,8 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
+    // Initializes API interface
+    mStudioApi = createApiInterface(StudioApi.class);
     // Hooks the camera fragment
     mCameraFragment =
         (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
@@ -184,7 +184,7 @@ public class StudioActivity extends BaseActivity implements CameraFragment.OnPic
   @MainThread @OnClick(R.id.sendButton) void onSent() {
     Log.v(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
-    mSaveSceneCall = mDirectedReactable.createApiCall(mStudioApi);
+    mSaveSceneCall = mDirectedReactable.createApiCall(mStudioApi, mGson);
     mSaveSceneCall.enqueue(mSaveSceneCallback);
     // Hides buttons.
     mCaptureButton.setVisibility(GONE);

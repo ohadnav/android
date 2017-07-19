@@ -8,7 +8,7 @@ import dagger.Component;
  * Proudly created by ohad on 16/07/2017 for TrueThat.
  */
 
-@ActivityScope @Component(dependencies = BaseComponent.class)
+@ActivityScope @Component(dependencies = AppComponent.class)
 public interface ActivityInjectorComponent {
   void inject(BaseActivity activity);
 }

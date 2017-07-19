@@ -3,6 +3,7 @@ package com.truethat.android.ui.common.camera;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.ImageReader;
+import android.support.test.filters.FlakyTest;
 import android.support.v4.app.FragmentTransaction;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
@@ -161,7 +162,8 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     onView(withId(R.id.cameraPreview)).check(matches(isFullScreen()));
   }
 
-  @Test public void cameraPreviewIsFrozenAfterTakingPicture() throws Exception {
+  // Test is flaky in real devices
+  @Test @FlakyTest public void cameraPreviewIsFrozenAfterTakingPicture() throws Exception {
     init(true);
     mCameraFragment.takePicture();
     // An image should be taken.

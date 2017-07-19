@@ -23,7 +23,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   @Before public void setUp() throws Exception {
     super.setUp();
     // Revoke permission on launch.
-    mMockPermissionsModule.forbid(PERMISSION);
+    mFakePermissionsManager.forbid(PERMISSION);
   }
 
   @Test public void onRequestPermissionsFailed() throws Exception {
@@ -35,7 +35,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void finishIfPermissionIsAlreadyGranted() throws Exception {
-    mMockPermissionsModule.grant(PERMISSION);
+    mFakePermissionsManager.grant(PERMISSION);
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
     waitForActivity(TestActivity.class);
@@ -43,12 +43,12 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
 
   @Test public void finishAfterPermissionGranted() throws Exception {
     // Invoke request callback, to finish activity.
-    mMockPermissionsModule.setInvokeRequestCallback(true);
+    mFakePermissionsManager.setInvokeRequestCallback(true);
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Grant permission, to mock the scenario where the user allowed the permission.
-    mMockPermissionsModule.reset(PERMISSION);
+    mFakePermissionsManager.reset(PERMISSION);
     // Ask for permission again.
     onView(withId(R.id.askPermissionButton)).perform(click());
     // Wait until we return to test activity.

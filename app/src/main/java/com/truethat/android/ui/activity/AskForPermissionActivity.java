@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.Button;
 import butterknife.OnClick;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.permissions.PermissionFragment;
 
@@ -25,7 +24,7 @@ public class AskForPermissionActivity extends BaseActivity {
    */
   @OnClick(R.id.askPermissionButton) public void askForPermission() {
     Log.v(TAG, "Asking for " + mPermission.name() + " again.");
-    App.getPermissionsModule().requestIfNeeded(AskForPermissionActivity.this, mPermission);
+    mPermissionsManager.requestIfNeeded(AskForPermissionActivity.this, mPermission);
   }
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +46,7 @@ public class AskForPermissionActivity extends BaseActivity {
     // Ensure the button is revealed.
     mAskPermissionButton.bringToFront();
     // Check if permission is granted, and if so, finishes activity.
-    if (App.getPermissionsModule().isPermissionGranted(this, mPermission)) {
+    if (mPermissionsManager.isPermissionGranted(mPermission)) {
       finish();
     }
   }

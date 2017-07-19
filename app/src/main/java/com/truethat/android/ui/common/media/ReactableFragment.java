@@ -15,20 +15,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.network.InteractionApi;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
-import com.truethat.android.empathy.ReactionDetectionModule;
+import com.truethat.android.empathy.ReactionDetectionManager;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.ReactableEvent;
 import com.truethat.android.model.Scene;
+import com.truethat.android.model.User;
 import com.truethat.android.ui.common.BaseFragment;
 import java.util.Date;
+import javax.inject.Inject;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,16 +38,17 @@ import retrofit2.Response;
  * A generic container for {@link Reactable}. Handles touch gestures for navigation between {@link
  * ReactableFragment}, and emotional reaction detection.
  */
-public abstract class ReactableFragment<T extends Reactable> extends BaseFragment {
+public abstract class ReactableFragment extends BaseFragment {
   /**
    * Default for reaction counter's image view.
    */
   @VisibleForTesting public static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
   private static final String ARG_REACTABLE = "reactable";
 
-  protected T mReactable;
+  protected Reactable mReactable;
   @BindView(R.id.directorNameText) TextView mDirectorNameText;
   @BindView(R.id.timeAgoText) TextView mTimeAgoText;
+  @Inject User currentUser;
   /**
    * Communication interface with parent activity.
    */
@@ -66,7 +67,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    */
   private Callback<ResponseBody> mPostEventCallback;
   /**
-   * Communication interface with {@link ReactionDetectionModule}.
+   * Communication interface with {@link ReactionDetectionManager}.
    */
   private ReactionDetectionPubSub mDetectionPubSub;
   /**
@@ -96,14 +97,15 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     if (context instanceof ReactableFragment.ReactionDetectionListener) {
       mListener = (ReactionDetectionListener) context;
     }
+    getApp().inject(this);
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //noinspection unchecked
-    mReactable = (T) getArguments().getSerializable(ARG_REACTABLE);
+    mReactable = (Reactable) getArguments().getSerializable(ARG_REACTABLE);
     // Initializes the Theater API
-    mInteractionApi = NetworkUtil.createAPI(InteractionApi.class);
+    mInteractionApi = getBaseActivity().createApiInterface(InteractionApi.class);
     mPostEventCallback = buildPostEventCallback();
     mDetectionPubSub = buildDetectionPubSub();
   }
@@ -142,14 +144,14 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
 
   @Override public void onHidden() {
     super.onHidden();
-    App.getReactionDetectionModule().stop();
+    getBaseActivity().getReactionDetectionManager().stop();
   }
 
   @Override protected int getLayoutResId() {
     return R.layout.fragment_reactable;
   }
 
-  public T getReactable() {
+  public Reactable getReactable() {
     return mReactable;
   }
 
@@ -172,13 +174,13 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
   public void onDisplay() {
     Log.v(TAG, "onDisplay");
     doView();
-    if (mReactable.canReactTo()) {
+    if (mReactable.canReactTo(currentUser)) {
       if (mListener == null) {
         throw new RuntimeException(getActivity().toString()
             + " must implement "
             + ReactionDetectionListener.class.getSimpleName());
       }
-      App.getReactionDetectionModule().detect(mDetectionPubSub);
+      getBaseActivity().getReactionDetectionManager().detect(mDetectionPubSub);
     }
   }
 
@@ -201,10 +203,10 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
    */
   protected void doView() {
     // Don't record view of the user's own reactables.
-    if (!mReactable.isViewed() && !mReactable.getDirector().equals(App.getAuthModule().getUser())) {
+    if (!mReactable.isViewed() && !mReactable.getDirector().equals(currentUser)) {
       mReactable.doView();
       mInteractionApi.postEvent(
-          new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(), new Date(),
+          new ReactableEvent(currentUser.getId(), mReactable.getId(), new Date(),
               EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
     }
   }
@@ -220,7 +222,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
     // Sets director name.
     mDirectorNameText.setText(mReactable.getDirector().getDisplayName());
     // Hide the director name if it is the user.
-    if (mReactable.getDirector().equals(App.getAuthModule().getUser())) {
+    if (mReactable.getDirector().equals(currentUser)) {
       mDirectorNameText.setVisibility(View.GONE);
     }
     // Sets time ago
@@ -288,7 +290,7 @@ public abstract class ReactableFragment<T extends Reactable> extends BaseFragmen
           mReactable.doReaction(reaction);
           // Post event of reactable reaction.
           mPostEventCall = mInteractionApi.postEvent(
-              new ReactableEvent(App.getAuthModule().getUser().getId(), mReactable.getId(),
+              new ReactableEvent(currentUser.getId(), mReactable.getId(),
                   mRealEventTime, EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
           mPostEventCall.enqueue(mPostEventCallback);
           // Triggers the reaction visual outcome.

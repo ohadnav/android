@@ -17,7 +17,7 @@ import com.truethat.android.model.Scene;
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
 
-public class SceneFragment extends ReactableFragment<Scene> {
+public class SceneFragment extends ReactableFragment {
   public SceneFragment() {
     // Required empty public constructor
   }
@@ -43,8 +43,7 @@ public class SceneFragment extends ReactableFragment<Scene> {
     }
     animationDrawable.start();
     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-    Glide.with(getContext())
-        .load(mReactable.getImageSignedUrl())
+    Glide.with(getContext()).load(((Scene) mReactable).getImageSignedUrl())
         .placeholder(animationDrawable)
         .centerCrop()
         .listener(new RequestListener<String, GlideDrawable>() {

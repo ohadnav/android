@@ -7,10 +7,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.InteractionApi;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
@@ -18,6 +16,7 @@ import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
+import com.truethat.android.model.User;
 import com.truethat.android.ui.common.media.ReactableFragment;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -25,7 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -75,7 +73,8 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
   private List<Scene> mRespondedScenes;
 
   @SuppressWarnings("ConstantConditions")
-  public static void assertReactableDisplayed(final Reactable reactable) throws Exception {
+  static void assertReactableDisplayed(final Reactable reactable, User currentUser)
+      throws Exception {
     final ReactablesPagerActivity pagerActivity = (ReactablesPagerActivity) getCurrentActivity();
     // Wait until the reactable is displayed.
     waitMatcher(withId(R.id.reactableFragment));
@@ -121,7 +120,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
     assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()),
         ((TextView) currentFragment.getView().findViewById(R.id.timeAgoText)).getText());
     // Should not display director name if the current user is the director.
-    if (reactable.getDirector().getId() != App.getAuthModule().getUser().getId()) {
+    if (reactable.getDirector().getId() != currentUser.getId()) {
       assertEquals(View.VISIBLE,
           currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
       // Asserting the displayed name is of the reactable director
@@ -138,31 +137,24 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
     // Resets the post event counter.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
+        String responseBody = mGson.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
-    // Authenticate the user.
-    App.getAuthModule().auth(mActivityTestRule.getActivity());
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return App.getAuthModule().isAuthOk();
-      }
-    });
   }
 
   @Test public void displayReactable() throws Exception {
     Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityRule.launchActivity(null);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Should not be detecting reaction
-    assertFalse(mMockReactionDetectionModule.isDetecting());
+    assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
@@ -173,7 +165,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
     // found text proper display.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
+        String responseBody = mGson.toJson(mRespondedScenes);
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(responseBody);
       }
@@ -184,7 +176,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
     // A reactable should not be displayed.
     onView(withId(R.id.reactableFragment)).check(doesNotExist());
     Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), new TreeMap<Emotion, Long>(),
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(),
             HOUR_AGO, Emotion.HAPPY);
     // Explicitly load more reactables.
     mRespondedScenes = Collections.singletonList(scene);
@@ -200,7 +192,7 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Wait until the reactable is displayed.
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
   }
 
   @Test public void noReactablesFound_failedRequest() throws Exception {
@@ -223,62 +215,62 @@ public class ReactablesPagerActivityTest extends BaseApplicationTestSuite {
 
   @Test public void nextReactable() throws Exception {
     Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, App.getAuthModule().getUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             null);
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mRepertoireActivityRule.launchActivity(null);
     // First reactable should be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Second reactable should be displayed.
-    assertReactableDisplayed(scene2);
+    assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
   }
 
   @Test public void previousReactable() throws Exception {
     Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, App.getAuthModule().getUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             null);
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mRepertoireActivityRule.launchActivity(null);
     // First reactable should be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Second reactable should be displayed.
-    assertReactableDisplayed(scene2);
+    assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // First reactable should be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Triggers navigation to previous reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeRight());
     // First reactable should still be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
   }
 
   @Test public void nextReactableFetchesNewReactables() throws Exception {
     Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, App.getAuthModule().getUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, App.getAuthModule().getUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             null);
     mRespondedScenes = Collections.singletonList(scene1);
     mRepertoireActivityRule.launchActivity(null);
     // First reactable should be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Updates responded scenes.
     mRespondedScenes = Collections.singletonList(scene2);
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
     // Second reactable should be displayed.
-    assertReactableDisplayed(scene2);
+    assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
   }
 }

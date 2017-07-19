@@ -1,29 +1,34 @@
 package com.truethat.android.common;
 
-import android.app.Application;
 import android.support.test.rule.ActivityTestRule;
-import com.truethat.android.application.App;
+import com.google.gson.Gson;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.ApplicationTestUtil;
-import com.truethat.android.application.auth.MockAuthModule;
-import com.truethat.android.application.permissions.MockPermissionsModule;
-import com.truethat.android.application.storage.internal.MockInternalStorage;
-import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.application.FakeDeviceManager;
+import com.truethat.android.application.auth.FakeAuthManager;
+import com.truethat.android.application.permissions.FakePermissionsManager;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.di.component.BaseComponent;
-import com.truethat.android.di.component.DaggerAppComponent;
-import com.truethat.android.di.component.DaggerBaseComponent;
-import com.truethat.android.di.module.AppModule;
+import com.truethat.android.di.component.DaggerTestAppComponent;
 import com.truethat.android.di.module.NetModule;
-import com.truethat.android.empathy.MockReactionDetectionModule;
+import com.truethat.android.di.module.fake.FakeAuthModule;
+import com.truethat.android.di.module.fake.FakeDeviceModule;
+import com.truethat.android.di.module.fake.FakeInternalStorageModule;
+import com.truethat.android.di.module.fake.FakePermissionsModule;
+import com.truethat.android.di.module.fake.FakeReactionDetectionModule;
+import com.truethat.android.empathy.FakeReactionDetectionManager;
+import com.truethat.android.model.User;
 import com.truethat.android.ui.activity.TestActivity;
 import okhttp3.mockwebserver.MockWebServer;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
 import static com.truethat.android.application.ApplicationTestUtil.getApp;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 15/06/2017 for TrueThat.
@@ -40,42 +45,48 @@ import static com.truethat.android.application.ApplicationTestUtil.getApp;
   protected final MockWebServer mMockWebServer = new MockWebServer();
   @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
-  protected MockPermissionsModule mMockPermissionsModule;
-  protected MockAuthModule mMockAuthModule;
-  protected MockInternalStorage mMockInternalStorage;
-  protected MockReactionDetectionModule mMockReactionDetectionModule;
+  protected FakePermissionsManager mFakePermissionsManager;
+  protected FakeAuthManager mFakeAuthManager;
+  protected FakeReactionDetectionManager mFakeReactionDetectionManager;
+  protected FakeDeviceManager mFakeDeviceManager;
+  protected Gson mGson;
   protected CountingDispatcher mDispatcher;
-
-  protected BaseComponent mBaseComponent = DaggerBaseComponent.builder()
-      .appComponent(
-          DaggerAppComponent.builder().appModule(new AppModule(new Application())).build())
-      .netModule(new NetModule("http://localhost:8080/"))
-      .build();
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
     Awaitility.reset();
     Awaitility.setDefaultTimeout(TIMEOUT);
-    // Sets up the mocked permissions module.
-    App.setPermissionsModule(mMockPermissionsModule = new MockPermissionsModule());
-    // Sets up mocked device manager.
-    App.setDeviceManager(new MockDeviceManager());
-    // Sets up the mocked auth module.
-    App.setAuthModule(mMockAuthModule = new MockAuthModule());
-    // Sets up the mocked in-mem internal storage.
-    App.setInternalStorage(mMockInternalStorage = new MockInternalStorage());
-    // Sets up a mocked emotional reaction detection module.
-    App.setReactionDetectionModule(
-        mMockReactionDetectionModule = new MockReactionDetectionModule());
-    // Sets the backend URL, for MockWebServer.
-    NetworkUtil.setBackendUrl("http://localhost:8080/");
     // Starts mock server
     mMockWebServer.start(8080);
     setDispatcher(new CountingDispatcher());
     // Injects mock dependencies.
-    getApp().updateBaseComponent(mBaseComponent);
+    getApp().updateComponents(DaggerTestAppComponent.builder()
+        // Sets the backend URL, for MockWebServer.
+        .netModule(new NetModule(BuildConfig.EMULATOR_BASE_BACKEND_URL))
+        .fakePermissionsModule(new FakePermissionsModule())
+        .fakeAuthModule(new FakeAuthModule())
+        .fakeDeviceModule(new FakeDeviceModule())
+        .fakeInternalStorageModule(new FakeInternalStorageModule())
+        .fakeReactionDetectionModule(new FakeReactionDetectionModule())
+        .build());
     // Launches activity
     mActivityTestRule.launchActivity(null);
+    // Initializes fakes
+    mFakeAuthManager = (FakeAuthManager) mActivityTestRule.getActivity().getAuthManager();
+    mFakeDeviceManager = (FakeDeviceManager) mActivityTestRule.getActivity().getDeviceManager();
+    mFakePermissionsManager =
+        (FakePermissionsManager) mActivityTestRule.getActivity().getPermissionsManager();
+    // Sign up
+    mFakeAuthManager.signUp(mActivityTestRule.getActivity(),
+        new User(mFakeDeviceManager.getDeviceId(), mFakeDeviceManager.getPhoneNumber()));
+    mFakeReactionDetectionManager = (FakeReactionDetectionManager) mActivityTestRule.getActivity()
+        .getReactionDetectionManager();
+    mGson = mActivityTestRule.getActivity().getGson();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeAuthManager.isAuthOk());
+      }
+    });
   }
 
   public void setDispatcher(CountingDispatcher dispatcher) {

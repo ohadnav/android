@@ -3,9 +3,7 @@ package com.truethat.android.ui.activity;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
@@ -13,7 +11,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Rule;
@@ -24,7 +21,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.ui.activity.ReactablesPagerActivityTest.assertReactableDisplayed;
-import static org.awaitility.Awaitility.await;
 
 /**
  * Proudly created by ohad on 03/07/2017 for TrueThat.
@@ -38,20 +34,13 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
+        String responseBody = mGson.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
-    // Authenticate the user.
-    App.getAuthModule().auth(mActivityTestRule.getActivity());
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return App.getAuthModule().isAuthOk();
-      }
-    });
   }
 
   @Test public void navigation() throws Exception {
@@ -62,26 +51,26 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
     Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        App.getAuthModule().getUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+        mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
   }
 
   @Test public void singleInstance() throws Exception {
     Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        App.getAuthModule().getUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+        mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Navigate out of Repertoire activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
     // Navigate back to Repertoire activity
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
   }
 }

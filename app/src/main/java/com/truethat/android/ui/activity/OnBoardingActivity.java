@@ -1,11 +1,9 @@
 package com.truethat.android.ui.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.media.Image;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,7 +16,7 @@ import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
+import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
@@ -27,7 +25,6 @@ import com.truethat.android.ui.common.camera.CameraFragment;
 public class OnBoardingActivity extends BaseActivity
     implements CameraFragment.OnPictureTakenListener {
   public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
-  public static final String USER_NAME_INTENT = "userName";
   @VisibleForTesting static final int ERROR_COLOR = R.color.error;
   @VisibleForTesting static final int VALID_NAME_COLOR = R.color.success;
   @BindView(R.id.nameEditText) EditText mNameEditText;
@@ -36,7 +33,12 @@ public class OnBoardingActivity extends BaseActivity
 
   @Override public void processImage(Image image) {
     // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(image);
+    mReactionDetectionManager.attempt(image);
+  }
+
+  @Override public void onAuthOk() {
+    super.onAuthOk();
+    finish();
   }
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +56,11 @@ public class OnBoardingActivity extends BaseActivity
   @Override protected void onResume() {
     super.onResume();
     // Maybe we are here by mistake.
-    if (App.getAuthModule().isAuthOk()) {
+    if (mAuthManager.isAuthOk()) {
       finish();
     }
     // Check if input is already valid.
-    if (User.isValidName(mNameEditText.getText().toString())) {
+    if (StringUtil.isValidFullName(mNameEditText.getText().toString())) {
       detectSmile();
     } else {
       mNameEditText.requestFocus();
@@ -76,7 +78,7 @@ public class OnBoardingActivity extends BaseActivity
    * @param typedName a CharSequence is used thanks to the one and only {@link ButterKnife}.
    */
   @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {
-    if (User.isValidName(typedName.toString())) {
+    if (StringUtil.isValidFullName(typedName.toString())) {
       mWarningText.setVisibility(View.INVISIBLE);
       mNameEditText.setBackgroundTintList(
           ColorStateList.valueOf(getResources().getColor(VALID_NAME_COLOR, getTheme())));
@@ -88,7 +90,7 @@ public class OnBoardingActivity extends BaseActivity
 
   @OnEditorAction(R.id.nameEditText) boolean onNameDone(int actionId) {
     if (actionId == EditorInfo.IME_ACTION_DONE) {
-      if (User.isValidName(mNameEditText.getText().toString())) {
+      if (StringUtil.isValidFullName(mNameEditText.getText().toString())) {
         detectSmile();
       } else {
         mWarningText.setVisibility(View.VISIBLE);
@@ -125,7 +127,7 @@ public class OnBoardingActivity extends BaseActivity
       }
     });
     // Starts emotional reaction detection. Any previous detection is immediately stopped.
-    App.getReactionDetectionModule().detect(buildReactionDetectionPubSub());
+    mReactionDetectionManager.detect(buildReactionDetectionPubSub());
   }
 
   /**
@@ -140,29 +142,27 @@ public class OnBoardingActivity extends BaseActivity
       }
     });
     // Starts emotional reaction detection. Any previous detection is immediately stopped.
-    App.getReactionDetectionModule().stop();
+    mReactionDetectionManager.stop();
   }
 
   /**
    * Finishes the on boarding flow.
    */
-  @MainThread private void finishOnBoarding() {
-    Intent finishOnBoarding = new Intent();
-    finishOnBoarding.putExtra(USER_NAME_INTENT, mNameEditText.getText().toString());
-    setResult(RESULT_OK, finishOnBoarding);
-    finish();
+  private void finishOnBoarding() {
+    String userFullName = mNameEditText.getText().toString();
+    User newUser = new User(StringUtil.extractFirstName(userFullName),
+        StringUtil.extractLastName(userFullName), mDeviceManager.getDeviceId(),
+        mDeviceManager.getPhoneNumber());
+    mAuthManager.signUp(this, newUser);
   }
 
   private class OnBoardingReactionDetectionPubSub implements ReactionDetectionPubSub {
     boolean mFirstInput = true;
 
+    // TODO(ohad): add 2 step reactions.
     @Override public void onReactionDetected(Emotion reaction) {
       if (reaction == REACTION_FOR_DONE) {
-        OnBoardingActivity.this.runOnUiThread(new Runnable() {
-          @Override public void run() {
-            OnBoardingActivity.this.finishOnBoarding();
-          }
-        });
+        OnBoardingActivity.this.finishOnBoarding();
       } else {
         detectSmile();
       }

@@ -1,66 +1,71 @@
 package com.truethat.android.application;
 
+import android.app.Application;
 import android.support.annotation.VisibleForTesting;
-import com.truethat.android.application.auth.AuthModule;
-import com.truethat.android.application.auth.DefaultAuthModule;
-import com.truethat.android.application.permissions.DefaultPermissionsModule;
-import com.truethat.android.application.permissions.PermissionsModule;
-import com.truethat.android.application.storage.internal.DefaultInternalStorage;
-import com.truethat.android.application.storage.internal.InternalStorage;
-import com.truethat.android.empathy.DefaultReactionDetectionModule;
-import com.truethat.android.empathy.NullEmotionDetectionClassifier;
-import com.truethat.android.empathy.ReactionDetectionModule;
+import android.util.Log;
+import com.truethat.android.BuildConfig;
+import com.truethat.android.di.component.ActivityInjectorComponent;
+import com.truethat.android.di.component.AppComponent;
+import com.truethat.android.di.component.DaggerActivityInjectorComponent;
+import com.truethat.android.di.component.DaggerAppComponent;
+import com.truethat.android.di.component.DaggerFragmentInjectorComponent;
+import com.truethat.android.di.component.FragmentInjectorComponent;
+import com.truethat.android.di.module.AppModule;
+import com.truethat.android.di.module.AuthModule;
+import com.truethat.android.di.module.DefaultAuthModule;
+import com.truethat.android.di.module.DeviceModule;
+import com.truethat.android.di.module.InternalStorageModule;
+import com.truethat.android.di.module.NetModule;
+import com.truethat.android.di.module.PermissionsModule;
+import com.truethat.android.ui.activity.BaseActivity;
+import com.truethat.android.ui.common.BaseFragment;
+import com.truethat.android.ui.common.media.ReactableFragment;
+import javax.inject.Inject;
 
 /**
- * Proudly created by ohad on 24/05/2017 for TrueThat.
+ * Proudly created by ohad on 14/07/2017 for TrueThat.
  */
 
-public class App {
-  private static PermissionsModule sPermissionsModule = new DefaultPermissionsModule();
-  private static InternalStorage sInternalStorage = new DefaultInternalStorage();
-  private static AuthModule sAuthModule = new DefaultAuthModule();
-  private static ReactionDetectionModule sReactionDetectionModule =
-      new DefaultReactionDetectionModule(new NullEmotionDetectionClassifier());
-  private static DeviceManager sDeviceManager = new DefaultDeviceManager();
+public class App extends Application {
+  private static final String TAG = App.class.getSimpleName();
 
-  public static PermissionsModule getPermissionsModule() {
-    return sPermissionsModule;
+  private ActivityInjectorComponent mActivityInjectorComponent;
+  private FragmentInjectorComponent mFragmentInjectorComponent;
+
+  public void inject(BaseActivity activity) {
+    mActivityInjectorComponent.inject(activity);
   }
 
-  @VisibleForTesting public static void setPermissionsModule(PermissionsModule permissionsModule) {
-    sPermissionsModule = permissionsModule;
+  public void inject(BaseFragment fragment) {
+    mFragmentInjectorComponent.inject(fragment);
   }
 
-  public static InternalStorage getInternalStorage() {
-    return sInternalStorage;
+  public void inject(ReactableFragment reactableFragment) {
+    mFragmentInjectorComponent.inject(reactableFragment);
   }
 
-  @VisibleForTesting public static void setInternalStorage(InternalStorage internalStorage) {
-    sInternalStorage = internalStorage;
+  @Override public void onCreate() {
+    Log.v(TAG, this.getClass().getSimpleName() + " has been created.");
+    updateComponents(DaggerAppComponent.builder()
+        .appModule(new AppModule(this))
+        .netModule(new NetModule(BuildConfig.BASE_BACKEND_URL))
+        .permissionsModule(new PermissionsModule())
+        .authModule(new AuthModule())
+        .defaultAuthModule(new DefaultAuthModule())
+        .deviceModule(new DeviceModule())
+        .internalStorageModule(new InternalStorageModule())
+        .build());
+    super.onCreate();
   }
 
-  public static AuthModule getAuthModule() {
-    return sAuthModule;
+  @VisibleForTesting public void updateComponents(AppComponent appComponent) {
+    mActivityInjectorComponent =
+        DaggerActivityInjectorComponent.builder().appComponent(appComponent).build();
+    mFragmentInjectorComponent =
+        DaggerFragmentInjectorComponent.builder().appComponent(appComponent).build();
   }
 
-  @VisibleForTesting public static void setAuthModule(AuthModule authModule) {
-    sAuthModule = authModule;
-  }
-
-  public static ReactionDetectionModule getReactionDetectionModule() {
-    return sReactionDetectionModule;
-  }
-
-  @VisibleForTesting
-  public static void setReactionDetectionModule(ReactionDetectionModule reactionDetectionModule) {
-    sReactionDetectionModule = reactionDetectionModule;
-  }
-
-  public static DeviceManager getDeviceManager() {
-    return sDeviceManager;
-  }
-
-  @VisibleForTesting public static void setDeviceManager(DeviceManager deviceManager) {
-    sDeviceManager = deviceManager;
+  @Inject void logInjection() {
+    Log.v(TAG, "Injecting " + App.class.getSimpleName());
   }
 }

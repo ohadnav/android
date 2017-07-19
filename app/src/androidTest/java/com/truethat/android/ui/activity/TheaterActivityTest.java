@@ -1,7 +1,5 @@
 package com.truethat.android.ui.activity;
 
-import android.media.Image;
-import android.support.annotation.Nullable;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
@@ -9,14 +7,10 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.InteractionApi;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.empathy.DefaultReactionDetectionModule;
-import com.truethat.android.empathy.EmotionDetectionClassifier;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
@@ -30,7 +24,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -79,7 +72,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
+        String responseBody = mGson.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
@@ -87,7 +80,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
     // Initialize director
-    mDirector = new User(99L, "James", "Cameron");
+    mDirector = new User(99L, "James", "Cameron", mFakeDeviceManager.getDeviceId(),
+        mFakeDeviceManager.getPhoneNumber());
   }
 
   @Test public void navigation() throws Exception {
@@ -100,7 +94,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     Scene scene = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
     waitForActivity(StudioActivity.class);
   }
@@ -110,14 +104,14 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
         mDirector, new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Navigate out of Theater activity
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(TheaterActivity.class);
-    assertReactableDisplayed(scene);
+    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
   }
 
   @Test public void cameraPreviewIsHidden() throws Exception {
@@ -143,7 +137,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mTheaterActivityTestRule.launchActivity(null);
     // First scene should be displayed.
-    assertReactableDisplayed(scene1);
+    assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -152,7 +146,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     });
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertReactableDisplayed(scene2);
+    assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -172,10 +166,10 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Assert the detection is ongoing
-    assertTrue(mMockReactionDetectionModule.isDetecting());
+    assertTrue(mFakeReactionDetectionManager.isDetecting());
     Emotion lessCommon = EMOTIONAL_REACTIONS.firstKey();
     // Do the detection
-    mMockReactionDetectionModule.doDetection(lessCommon);
+    mFakeReactionDetectionManager.doDetection(lessCommon);
     // Asserts that a reaction event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -211,33 +205,6 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Already detected reaction, and so reaction detection should be stopped.
-    assertFalse(mMockReactionDetectionModule.isDetecting());
-  }
-
-  @Test public void cameraInputRequestsForDetection() throws Exception {
-    App.setReactionDetectionModule(
-        new DefaultReactionDetectionModule(new EmotionDetectionClassifier() {
-          boolean isFirst = true;
-
-          @Nullable @Override public Emotion classify(Image image) {
-            Emotion reaction = Emotion.HAPPY;
-            if (isFirst) {
-              isFirst = false;
-              reaction = null;
-            }
-            return reaction;
-          }
-        }));
-    mRespondedScenes = Collections.singletonList(
-        new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null));
-    mTheaterActivityTestRule.launchActivity(null);
-    // Wait until the reactable is displayed.
-    waitMatcher(withId(R.id.reactableFragment));
-    // Asserts that a reaction event was posted.
-    await().atMost(Duration.TEN_SECONDS).untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertEquals(2, mDispatcher.getCount(InteractionApi.PATH));
-      }
-    });
+    assertFalse(mFakeReactionDetectionManager.isDetecting());
   }
 }

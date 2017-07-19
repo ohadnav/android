@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.ui.common.camera.CameraFragment;
@@ -37,7 +36,7 @@ public class TheaterActivity extends ReactablesPagerActivity
   }
 
   @Override protected Call<List<Reactable>> buildFetchReactablesCall() {
-    return mTheaterApi.fetchReactables(App.getAuthModule().getUser());
+    return mTheaterApi.fetchReactables(mAuthManager.currentUser());
   }
 
   @Override protected void onSwipeUp() {
@@ -46,7 +45,7 @@ public class TheaterActivity extends ReactablesPagerActivity
 
   @Override public void processImage(Image image) {
     // Pushes new input to the detection module.
-    App.getReactionDetectionModule().attempt(image);
+    mReactionDetectionManager.attempt(image);
   }
 
   @Override public void requestDetectionInput() {

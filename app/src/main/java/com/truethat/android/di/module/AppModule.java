@@ -1,6 +1,7 @@
 package com.truethat.android.di.module;
 
 import android.app.Application;
+import android.content.Context;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Singleton;
@@ -18,6 +19,10 @@ import javax.inject.Singleton;
   }
 
   @Provides @Singleton Application provideApplication() {
+    return mApplication;
+  }
+
+  @Provides @Singleton Context provideContext() {
     return mApplication;
   }
 }

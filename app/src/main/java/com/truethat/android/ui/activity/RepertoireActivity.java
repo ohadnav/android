@@ -3,8 +3,6 @@ package com.truethat.android.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import com.truethat.android.R;
-import com.truethat.android.application.App;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.RepertoireApi;
 import com.truethat.android.model.Reactable;
 import java.util.List;
@@ -22,11 +20,11 @@ public class RepertoireActivity extends ReactablesPagerActivity {
     // Initialize activity transitions.
     this.overridePendingTransition(R.animator.slide_in_top, R.animator.slide_out_top);
     // Initialize API
-    mRepertoireApi = NetworkUtil.createAPI(RepertoireApi.class);
+    mRepertoireApi = createApiInterface(RepertoireApi.class);
   }
 
   @Override protected Call<List<Reactable>> buildFetchReactablesCall() {
-    return mRepertoireApi.fetchRepertoire(App.getAuthModule().getUser());
+    return mRepertoireApi.fetchRepertoire(mAuthManager.currentUser());
   }
 
   @Override protected void onSwipeDown() {

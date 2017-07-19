@@ -4,11 +4,16 @@ import android.os.ParcelFileDescriptor;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.SearchCondition;
+import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.Until;
+import android.support.v4.app.ActivityCompat;
 import com.truethat.android.application.ApplicationTestUtil;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
@@ -46,6 +51,14 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
             + " "
             + permission.getManifest());
     res.close();
+    // Attempts to hit the allow button.
+    ActivityCompat.requestPermissions(getCurrentActivity(),
+        new String[] { permission.getManifest() }, permission.getRequestCode());
+    UiObject2 allowButton = UiDevice.getInstance(getInstrumentation())
+        .wait(PermissionsTestUtil.ALLOW_SEARCH_CONDITION, 100);
+    MatcherAssert.assertThat(allowButton.isEnabled(), Is.is(true));
+    allowButton.click();
+
     Thread.sleep(SLEEP_TIME);
   }
 }

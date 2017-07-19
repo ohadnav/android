@@ -8,13 +8,19 @@ import android.telephony.TelephonyManager;
  * Proudly created by ohad on 02/07/2017 for TrueThat.
  */
 
-class DefaultDeviceManager implements DeviceManager {
-  @SuppressLint("HardwareIds") @Override public String getDeviceId(Context context) {
-    return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+public class DefaultDeviceManager implements DeviceManager {
+  private Context mContext;
+
+  public DefaultDeviceManager(Context context) {
+    mContext = context;
   }
 
-  @SuppressLint("HardwareIds") @Override public String getPhoneNumber(Context context) {
-    return ((TelephonyManager) context.getSystemService(
+  @SuppressLint("HardwareIds") @Override public String getDeviceId() {
+    return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+  }
+
+  @SuppressLint("HardwareIds") @Override public String getPhoneNumber() {
+    return ((TelephonyManager) mContext.getSystemService(
         Context.TELEPHONY_SERVICE)).getLine1Number();
   }
 }

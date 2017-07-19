@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.common.network.HeadersContract;
-import com.truethat.android.di.scope.ApplicationScope;
+import com.truethat.android.di.scope.AppScope;
 import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
 import com.truethat.android.model.Reactable;
@@ -56,7 +56,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     mBaseUrl = baseUrl;
   }
 
-  @Provides @ApplicationScope public Gson provideGson() {
+  @Provides @AppScope public Gson provideGson() {
     GsonBuilder gsonBuilder = new GsonBuilder().setFieldNamingStrategy(NAMING_STRATEGY)
         .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
         .registerTypeAdapterFactory(
@@ -64,7 +64,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     return gsonBuilder.create();
   }
 
-  @Provides @ApplicationScope public OkHttpClient provideOkHttpClient() {
+  @Provides @AppScope public OkHttpClient provideOkHttpClient() {
     return new OkHttpClient.Builder().addInterceptor(new Interceptor() {
       @Override public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
@@ -78,7 +78,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     }).build();
   }
 
-  @Provides @ApplicationScope
+  @Provides @AppScope
   public Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
     return new Retrofit.Builder().addConverterFactory(GsonConverterFactory.create(gson))
         .baseUrl(mBaseUrl)
