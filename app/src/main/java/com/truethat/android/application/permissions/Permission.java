@@ -1,6 +1,7 @@
 package com.truethat.android.application.permissions;
 
 import android.Manifest;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import com.truethat.android.R;
 import com.truethat.android.common.util.RequestCodes;
@@ -20,9 +21,9 @@ import static com.truethat.android.common.util.RequestCodes.PERMISSION_PHONE;
 // Next available request code - 3
 public enum Permission {
   CAMERA(Manifest.permission.CAMERA, PERMISSION_CAMERA,
-      R.layout.fragment_no_camera_permission), // For phone number and device ID.
+      R.string.camera_permission_rationale), // For phone number and device ID.
   PHONE(Manifest.permission.READ_PHONE_STATE, PERMISSION_PHONE,
-      R.layout.fragment_no_phone_state_permission);
+      R.string.phone_permission_rationale);
 
   /**
    * An Android internal string to describe the permission. Taken from {@link Manifest.permission}.
@@ -37,12 +38,12 @@ public enum Permission {
   /**
    * Resource ID of rationale fragment.
    */
-  private int mRationaleFragment;
+  private @StringRes int mRationaleText;
 
-  Permission(String manifest, int requestCode, int rationaleFragment) {
+  Permission(String manifest, int requestCode, int rationaleText) {
     mManifest = manifest;
     mRequestCode = requestCode;
-    mRationaleFragment = rationaleFragment;
+    mRationaleText = rationaleText;
   }
 
   /**
@@ -66,7 +67,7 @@ public enum Permission {
     return mRequestCode;
   }
 
-  public int getRationaleFragment() {
-    return mRationaleFragment;
+  public int getRationaleText() {
+    return mRationaleText;
   }
 }

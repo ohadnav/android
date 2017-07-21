@@ -3,28 +3,30 @@ package com.truethat.android.view.activity;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import com.truethat.android.R;
 import com.truethat.android.common.network.TheaterApi;
+import com.truethat.android.databinding.ActivityTheaterBinding;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.viewmodel.TheaterViewModel;
+import com.truethat.android.viewmodel.viewinterface.TheaterViewInterface;
+import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
 import retrofit2.Call;
 
 /**
  * Theater is where users interact with scenes.
  */
-public class TheaterActivity extends ReactablesPagerActivity
+public class TheaterActivity
+    extends ReactablesPagerActivity<TheaterViewInterface, TheaterViewModel, ActivityTheaterBinding>
     implements ReactableFragment.ReactionDetectionListener,
     CameraFragment.OnPictureTakenListener {
   private TheaterApi mTheaterApi;
   private CameraFragment mCameraFragment;
 
-  @Override public void onAuthOk() {
-    if (mPager.getAdapter().getCount() == 0) fetchReactables();
-  }
-
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Animation for screen transitions.
     this.overridePendingTransition(R.animator.slide_in_bottom, R.animator.slide_out_bottom);
@@ -52,8 +54,8 @@ public class TheaterActivity extends ReactablesPagerActivity
     mCameraFragment.takePicture();
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.activity_theater;
+  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
+    return new ViewModelBindingConfig(R.layout.activity_theater, this);
   }
 }
 

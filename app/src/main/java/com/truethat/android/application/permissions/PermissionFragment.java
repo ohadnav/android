@@ -38,6 +38,6 @@ public class PermissionFragment extends BaseFragment {
   }
 
   @Override protected int getLayoutResId() {
-    return mPermission.getRationaleFragment();
+    return mPermission.getRationaleText();
   }
 }

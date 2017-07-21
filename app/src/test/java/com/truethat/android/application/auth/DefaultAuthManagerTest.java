@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
  * Proudly created by ohad on 19/07/2017 for TrueThat.
  */
 public class DefaultAuthManagerTest extends AuthManagerTest {
-  private static final NetModule NET_MODULE = new NetModule(BuildConfig.EMULATOR_BASE_BACKEND_URL);
+  private static final NetModule NET_MODULE = new NetModule(BuildConfig.TEST_BASE_BACKEND_URL);
   private static final Gson GSON = NET_MODULE.provideGson();
   private static final Retrofit RETROFIT =
       NET_MODULE.provideRetrofit(GSON, NET_MODULE.provideOkHttpClient());

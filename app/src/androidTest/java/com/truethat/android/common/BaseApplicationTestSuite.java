@@ -9,6 +9,7 @@ import com.truethat.android.application.auth.FakeAuthManager;
 import com.truethat.android.application.permissions.FakePermissionsManager;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.di.component.DaggerTestAppComponent;
+import com.truethat.android.di.module.AppModule;
 import com.truethat.android.di.module.NetModule;
 import com.truethat.android.di.module.fake.FakeAuthModule;
 import com.truethat.android.di.module.fake.FakeDeviceModule;
@@ -60,9 +61,9 @@ import static org.junit.Assert.assertTrue;
     mMockWebServer.start(8080);
     setDispatcher(new CountingDispatcher());
     // Injects mock dependencies.
-    getApp().updateComponents(DaggerTestAppComponent.builder()
+    getApp().updateComponents(DaggerTestAppComponent.builder().appModule(new AppModule(getApp()))
         // Sets the backend URL, for MockWebServer.
-        .netModule(new NetModule(BuildConfig.EMULATOR_BASE_BACKEND_URL))
+        .netModule(new NetModule(BuildConfig.TEST_BASE_BACKEND_URL))
         .fakePermissionsModule(new FakePermissionsModule())
         .fakeAuthModule(new FakeAuthModule())
         .fakeDeviceModule(new FakeDeviceModule())

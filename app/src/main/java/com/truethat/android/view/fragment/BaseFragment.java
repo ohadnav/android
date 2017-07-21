@@ -2,6 +2,8 @@ package com.truethat.android.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
@@ -32,7 +34,7 @@ public abstract class BaseFragment extends Fragment {
   /**
    * Unbinds views, to prevent memory leaks.
    */
-  private Unbinder mUnbinder;
+  private Unbinder mViewUnbinder;
 
   @Override public void setUserVisibleHint(boolean isVisibleToUser) {
     super.setUserVisibleHint(isVisibleToUser);
@@ -64,11 +66,13 @@ public abstract class BaseFragment extends Fragment {
   /**
    * Initializes root view and
    */
+  @CallSuper
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     Log.v(TAG, "onCreateView");
     mRootView = inflater.inflate(getLayoutResId(), container, false);
-    mUnbinder = ButterKnife.bind(this, mRootView);
+    mViewUnbinder = ButterKnife.bind(this, mRootView);
+    getApp().getFragmentInjector().inject(this);
     return mRootView;
   }
 
@@ -86,6 +90,7 @@ public abstract class BaseFragment extends Fragment {
    * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
    * and {@link #onHidden()} here as well.
    */
+  @CallSuper
   @Override public void onResume() {
     Log.v(TAG, "onResume");
     super.onResume();
@@ -97,6 +102,7 @@ public abstract class BaseFragment extends Fragment {
     Log.v(TAG, "onSaveInstanceState");
   }
 
+  @CallSuper
   @Override public void onPause() {
     Log.v(TAG, "onPause");
     super.onPause();
@@ -108,10 +114,11 @@ public abstract class BaseFragment extends Fragment {
     super.onStop();
   }
 
+  @CallSuper
   @Override public void onDestroyView() {
     Log.v(TAG, "onDestroyView");
     super.onDestroyView();
-    mUnbinder.unbind();
+    mViewUnbinder.unbind();
   }
 
   @Override public void onDestroy() {
@@ -156,5 +163,5 @@ public abstract class BaseFragment extends Fragment {
   /**
    * @return the fragment layout resource ID, as found in {@link R.layout}.
    */
-  protected abstract int getLayoutResId();
+  protected abstract @LayoutRes int getLayoutResId();
 }

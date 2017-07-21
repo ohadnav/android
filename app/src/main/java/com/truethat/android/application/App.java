@@ -9,7 +9,9 @@ import com.truethat.android.di.component.AppComponent;
 import com.truethat.android.di.component.DaggerActivityInjectorComponent;
 import com.truethat.android.di.component.DaggerAppComponent;
 import com.truethat.android.di.component.DaggerFragmentInjectorComponent;
+import com.truethat.android.di.component.DaggerViewModelInjectorComponent;
 import com.truethat.android.di.component.FragmentInjectorComponent;
+import com.truethat.android.di.component.ViewModelInjectorComponent;
 import com.truethat.android.di.module.AppModule;
 import com.truethat.android.di.module.AuthModule;
 import com.truethat.android.di.module.DefaultAuthModule;
@@ -17,9 +19,6 @@ import com.truethat.android.di.module.DeviceModule;
 import com.truethat.android.di.module.InternalStorageModule;
 import com.truethat.android.di.module.NetModule;
 import com.truethat.android.di.module.PermissionsModule;
-import com.truethat.android.view.activity.BaseActivity;
-import com.truethat.android.view.fragment.BaseFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
 import javax.inject.Inject;
 
 /**
@@ -29,19 +28,20 @@ import javax.inject.Inject;
 public class App extends Application {
   private static final String TAG = App.class.getSimpleName();
 
-  private ActivityInjectorComponent mActivityInjectorComponent;
-  private FragmentInjectorComponent mFragmentInjectorComponent;
+  private ActivityInjectorComponent mActivityInjector;
+  private FragmentInjectorComponent mFragmentInjector;
+  private ViewModelInjectorComponent mViewModelInjector;
 
-  public void inject(BaseActivity activity) {
-    mActivityInjectorComponent.inject(activity);
+  public ViewModelInjectorComponent getViewModelInjector() {
+    return mViewModelInjector;
   }
 
-  public void inject(BaseFragment fragment) {
-    mFragmentInjectorComponent.inject(fragment);
+  public ActivityInjectorComponent getActivityInjector() {
+    return mActivityInjector;
   }
 
-  public void inject(ReactableFragment reactableFragment) {
-    mFragmentInjectorComponent.inject(reactableFragment);
+  public FragmentInjectorComponent getFragmentInjector() {
+    return mFragmentInjector;
   }
 
   @Override public void onCreate() {
@@ -59,10 +59,12 @@ public class App extends Application {
   }
 
   @VisibleForTesting public void updateComponents(AppComponent appComponent) {
-    mActivityInjectorComponent =
+    mActivityInjector =
         DaggerActivityInjectorComponent.builder().appComponent(appComponent).build();
-    mFragmentInjectorComponent =
+    mFragmentInjector =
         DaggerFragmentInjectorComponent.builder().appComponent(appComponent).build();
+    mViewModelInjector =
+        DaggerViewModelInjectorComponent.builder().appComponent(appComponent).build();
   }
 
   @Inject void logInjection() {

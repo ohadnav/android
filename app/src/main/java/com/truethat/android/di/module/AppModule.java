@@ -23,6 +23,6 @@ import javax.inject.Singleton;
   }
 
   @Provides @Singleton Context provideContext() {
-    return mApplication;
+    return mApplication.getApplicationContext();
   }
 }

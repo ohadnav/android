@@ -37,14 +37,14 @@ import retrofit2.Response;
  * A generic container for {@link Reactable}. Handles touch gestures for navigation between {@link
  * ReactableFragment}, and emotional reaction detection.
  */
-public abstract class ReactableFragment extends BaseFragment {
+public abstract class ReactableFragment<Model extends Reactable> extends BaseFragment {
   /**
    * Default for reaction counter's image view.
    */
   @VisibleForTesting public static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
   private static final String ARG_REACTABLE = "reactable";
 
-  protected Reactable mReactable;
+  protected Model mReactable;
   @BindView(R.id.directorNameText) TextView mDirectorNameText;
   @BindView(R.id.timeAgoText) TextView mTimeAgoText;
   @Inject User currentUser;
@@ -96,15 +96,16 @@ public abstract class ReactableFragment extends BaseFragment {
     if (context instanceof ReactableFragment.ReactionDetectionListener) {
       mListener = (ReactionDetectionListener) context;
     }
-    getApp().inject(this);
+    //noinspection unchecked
+    getApp().getFragmentInjector().inject((ReactableFragment<Reactable>) this);
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //noinspection unchecked
-    mReactable = (Reactable) getArguments().getSerializable(ARG_REACTABLE);
-    // Initializes the Theater API
-    mInteractionApi = getBaseActivity().createApiInterface(InteractionApi.class);
+    mReactable = (Model) getArguments().getSerializable(ARG_REACTABLE);
+    // Initializes the API
+    mInteractionApi = (InteractionApi) getBaseActivity().createApiInterface(InteractionApi.class);
     mPostEventCallback = buildPostEventCallback();
     mDetectionPubSub = buildDetectionPubSub();
   }

@@ -1,5 +1,6 @@
 package com.truethat.android.di.component;
 
+import android.content.Context;
 import com.google.gson.Gson;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.auth.AuthManager;
@@ -25,6 +26,8 @@ import retrofit2.Retrofit;
     AppModule.class, NetModule.class, PermissionsModule.class, DeviceModule.class, AuthModule.class,
     DefaultAuthModule.class, ReactionDetectionModule.class
 }) @Singleton @AppScope public interface AppComponent {
+  Context context();
+  
   Gson gson();
 
   Retrofit retrofit();

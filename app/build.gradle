@@ -23,7 +23,7 @@ android {
       // Using 10.0.2.2 (the desktop"s localhost), as the app normally runs on an Emulator
       // in debug mode.
       buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
-      buildConfigField "String", "EMULATOR_BASE_BACKEND_URL", '"http://localhost:8080/"'
+      buildConfigField "String", "TEST_BASE_BACKEND_URL", '"http://localhost:8080/"'
       applicationIdSuffix ".debug"
     }
     release {
@@ -47,6 +47,7 @@ dependencies {
   }
   compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
   compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+  compile "eu.inloop:androidviewmodel:$rootProject.inloopMvvmVersion"
   compile "com.google.dagger:dagger:$rootProject.daggerVersion"
   compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
   compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
@@ -59,6 +60,8 @@ dependencies {
     exclude module: "okhttp"
   }
   testCompile "org.awaitility:awaitility:$rootProject.awaitilityVersion"
+  testAnnotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+  testAnnotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
   androidTestCompile("com.squareup.okhttp3:mockwebserver:$rootProject.mockWebServerVersion") {
     exclude module: "okhttp"
   }

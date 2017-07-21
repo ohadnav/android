@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -17,12 +18,17 @@ import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.common.util.StringUtil;
+import com.truethat.android.databinding.ActivityOnBoardingBinding;
 import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.view.fragment.CameraFragment;
+import com.truethat.android.viewmodel.OnBoardingViewModel;
+import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
-public class OnBoardingActivity extends BaseActivity
+public class OnBoardingActivity
+    extends BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding>
     implements CameraFragment.OnPictureTakenListener {
   public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   @VisibleForTesting static final int ERROR_COLOR = R.color.error;
@@ -41,7 +47,11 @@ public class OnBoardingActivity extends BaseActivity
     finish();
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
+    return new ViewModelBindingConfig(R.layout.activity_on_boarding, this);
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
     // Hooks the camera fragment
@@ -49,11 +59,7 @@ public class OnBoardingActivity extends BaseActivity
         (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.activity_on_boarding;
-  }
-
-  @Override protected void onResume() {
+  @Override public void onResume() {
     super.onResume();
     // Maybe we are here by mistake.
     if (mAuthManager.isAuthOk()) {
@@ -67,7 +73,7 @@ public class OnBoardingActivity extends BaseActivity
     }
   }
 
-  @Override protected void onPause() {
+  @Override public void onPause() {
     super.onPause();
     stopDetection();
   }

@@ -1,5 +1,6 @@
 package com.truethat.android.view.activity;
 
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -17,6 +18,8 @@ import com.truethat.android.model.Reactable;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.custom.ReactableFragmentAdapter;
 import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,7 +31,8 @@ import static android.view.View.GONE;
  * Proudly created by ohad on 03/07/2017 for TrueThat.
  */
 
-public abstract class ReactablesPagerActivity extends BaseActivity {
+public abstract class ReactablesPagerActivity<ViewInterface extends BaseViewInterface, ViewModelType extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
+    extends BaseActivity<ViewInterface, ViewModelType, DataBinding> {
   @BindView(R.id.reactablesPager) ViewPager mPager;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.loadingLayout) ViewGroup mLoadingLayout;
@@ -38,10 +42,11 @@ public abstract class ReactablesPagerActivity extends BaseActivity {
   private Call<List<Reactable>> mFetchReactablesCall;
 
   @Override public void onAuthOk() {
+    super.onAuthOk();
     if (mPager.getAdapter().getCount() == 0) fetchReactables();
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // Navigation to other activities
     mRootView.setOnTouchListener(new OnSwipeTouchListener(this) {
@@ -109,7 +114,7 @@ public abstract class ReactablesPagerActivity extends BaseActivity {
         mPager.getCurrentItem());
   }
 
-  @Override protected void onPause() {
+  @Override public void onPause() {
     super.onPause();
     if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
   }

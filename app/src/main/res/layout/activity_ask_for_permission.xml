@@ -1,18 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.AskForPermissionViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
     android:id="@+id/activityRootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.truethat.android.view.activity.AskForPermissionActivity"
     >
 
-  <android.support.constraint.ConstraintLayout
-      android:id="@+id/rationaleLayout"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
+    <TextView
+        android:id="@+id/rationaleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="50dp"
+        android:paddingStart="50dp"
+        android:text="@string/camera_permission_rationale"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
       />
 
   <Button
@@ -28,3 +46,4 @@
       app:layout_constraintVertical_bias="0.95"
       />
 </android.support.constraint.ConstraintLayout>
+</layout>

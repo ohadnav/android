@@ -42,6 +42,10 @@ public class Scene extends Reactable implements Serializable {
     mImageBytes = imageBytes;
   }
 
+  @VisibleForTesting public Scene(byte[] imageBytes) {
+    mImageBytes = imageBytes;
+  }
+
   // A default constructor is provided for serialization and de-serialization.
   @SuppressWarnings("unused") private Scene() {
   }

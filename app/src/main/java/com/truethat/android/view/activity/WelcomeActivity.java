@@ -2,17 +2,24 @@ package com.truethat.android.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
+import com.truethat.android.databinding.ActivityWelcomeBinding;
+import com.truethat.android.viewmodel.WelcomeViewModel;
+import com.truethat.android.viewmodel.viewinterface.WelcomeViewInterface;
+import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
-public class WelcomeActivity extends BaseActivity {
-  public static final String AUTH_FAILED = "authFailed";
+public class WelcomeActivity
+    extends BaseActivity<WelcomeViewInterface, WelcomeViewModel, ActivityWelcomeBinding> {
+  public static final String EXTRA_AUTH_FAILED = "authFailed";
 
   @Override public void onAuthOk() {
+    super.onAuthOk();
     finish();
   }
 
@@ -21,22 +28,26 @@ public class WelcomeActivity extends BaseActivity {
     findViewById(R.id.errorText).setVisibility(View.VISIBLE);
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
+  @Override public void onDestroy() {
+    super.onDestroy();
+  }
+
+  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
+    return new ViewModelBindingConfig(R.layout.activity_welcome, this);
+  }
+
+  @Override public void onCreate(Bundle savedInstanceState) {
     mSkipAuth = true;
     super.onCreate(savedInstanceState);
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.activity_welcome;
-  }
-
-  @Override protected void onResume() {
+  @Override public void onResume() {
     super.onResume();
     // If the user is initialized, then finish activity.
     if (mAuthManager.isAuthOk()) {
       finish();
     }
-    if (getIntent().getExtras().getBoolean(AUTH_FAILED)) {
+    if (getIntent().getExtras().getBoolean(EXTRA_AUTH_FAILED)) {
       onAuthFailed();
     }
   }

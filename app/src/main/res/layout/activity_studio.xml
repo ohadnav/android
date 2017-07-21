@@ -1,110 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activityRootView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.activity.StudioActivity"
     >
-
-  <fragment
-      android:id="@+id/cameraFragment"
-      android:name="com.truethat.android.view.fragment.CameraFragment"
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.StudioViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
+      android:id="@+id/activityRootView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:show_preview="true"
-      tools:layout="@layout/fragment_camera"
-      />
+      tools:context=".view.activity.StudioActivity"
+      >
 
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.truethat.android.view.fragment.CameraFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:show_preview="true"
+        tools:layout="@layout/fragment_camera"
+        />
 
-  <ImageButton
-      android:id="@+id/captureButton"
-      android:layout_width="70dp"
-      android:layout_height="70dp"
-      android:layout_margin="16dp"
-      android:background="@null"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="fitCenter"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="1"
-      app:srcCompat="@drawable/capture_image"
-      tools:visibility="visible"
-      />
+    <ImageButton
+        android:id="@+id/captureButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="16dp"
+        android:background="@null"
+        android:contentDescription="@string/image_content_description"
+        android:scaleType="fitCenter"
+        android:visibility="@{viewModel.mCaptureButtonVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1"
+        app:srcCompat="@drawable/capture_image"
+        tools:visibility="visible"
+        />
 
-  <ImageButton
-      android:id="@+id/switchCameraButton"
-      android:layout_width="30dp"
-      android:layout_height="30dp"
-      android:layout_margin="16dp"
-      android:background="@null"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="fitCenter"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="1"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0"
-      app:srcCompat="@drawable/switch_camera"
-      />
+    <ImageButton
+        android:id="@+id/switchCameraButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="16dp"
+        android:background="@null"
+        android:contentDescription="@string/image_content_description"
+        android:scaleType="fitCenter"
+        android:visibility="@{viewModel.mSwitchCameraButtonVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:srcCompat="@drawable/switch_camera"
+        />
 
-  <ImageButton
-      android:id="@+id/cancelButton"
-      android:layout_width="30dp"
-      android:layout_height="30dp"
-      android:layout_margin="16dp"
-      android:background="@null"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="fitCenter"
-      android:visibility="gone"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0"
-      app:srcCompat="@drawable/cross"
-      tools:visibility="visible"
-      />
+    <ImageButton
+        android:id="@+id/cancelButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="16dp"
+        android:background="@null"
+        android:contentDescription="@string/image_content_description"
+        android:onClick="@{() -> viewModel.disapprove()}"
+        android:scaleType="fitCenter"
+        android:visibility="@{viewModel.mCancelButtonVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:srcCompat="@drawable/cross"
+        tools:visibility="visible"
+        />
 
-  <ImageButton
-      android:id="@+id/sendButton"
-      android:layout_width="60dp"
-      android:layout_height="60dp"
-      android:layout_margin="16dp"
-      android:background="@null"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="fitCenter"
-      android:visibility="gone"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="1"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="1"
-      app:srcCompat="@drawable/send_reactable"
-      tools:visibility="visible"
-      />
+    <ImageButton
+        android:id="@+id/sendButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:background="@null"
+        android:contentDescription="@string/image_content_description"
+        android:onClick="@{() -> viewModel.onSent()}"
+        android:scaleType="fitCenter"
+        android:visibility="@{viewModel.mSendButtonVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1"
+        app:srcCompat="@drawable/send_reactable"
+        tools:visibility="visible"
+        />
 
-  <ImageView
-      android:id="@+id/loadingImage"
-      android:layout_width="150dp"
-      android:layout_height="150dp"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="centerInside"
-      app:layout_constraintBottom_toTopOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/anim_loading_elephant"
-      />
-</android.support.constraint.ConstraintLayout>
+    <ImageView
+        android:id="@+id/loadingImage"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="@string/image_content_description"
+        android:scaleType="centerInside"
+        android:visibility="@{viewModel.mLoadingImageVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/anim_loading_elephant"
+        />
+  </android.support.constraint.ConstraintLayout>
+</layout>
