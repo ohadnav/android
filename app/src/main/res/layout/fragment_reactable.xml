@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.ReactableViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
     android:id="@+id/reactableFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,6 +45,7 @@
         android:layout_width="30dp"
         android:layout_height="31dp"
         android:contentDescription="@string/image_content_description"
+        android:src="@{viewModel.mReactionDrawableResource}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/reactionCountText"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +64,7 @@
         android:shadowDx="1"
         android:shadowDy="1"
         android:shadowRadius="4"
-        android:text=""
+        android:text="@{viewModel.mReactionsCountText}"
         android:textColor="@color/light"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -84,10 +94,11 @@
         android:shadowDx="1"
         android:shadowDy="1"
         android:shadowRadius="4"
-        android:text="@string/anonymous"
+        android:text="@{viewModel.mDirectorName}"
         android:textColor="@color/light"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:visibility="@{viewModel.mDirectorNameVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/timeAgoText"
         app:layout_constraintStart_toStartOf="parent"
@@ -100,6 +111,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:gravity="bottom"
+        android:text="@{viewModel.mTimeAgoText}"
         android:textColor="@color/hint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -109,3 +121,4 @@
   </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
+</layout>

@@ -54,6 +54,12 @@ public class User implements Serializable {
     mPhoneNumber = phoneNumber;
   }
 
+  @VisibleForTesting public User(Long id, String firstName, String lastName) {
+    mId = id;
+    mFirstName = firstName;
+    mLastName = lastName;
+  }
+
   public long getId() {
     if (mId == null) {
       throw new IllegalStateException("User ID had not been initialized.");

@@ -9,9 +9,10 @@ import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.databinding.ActivityTheaterBinding;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.fragment.CameraFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
-import com.truethat.android.viewmodel.TheaterViewModel;
-import com.truethat.android.viewmodel.viewinterface.TheaterViewInterface;
+import com.truethat.android.view.fragment.ReactablesPagerFragment;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
 import retrofit2.Call;
@@ -19,12 +20,22 @@ import retrofit2.Call;
 /**
  * Theater is where users interact with scenes.
  */
-public class TheaterActivity
-    extends ReactablesPagerActivity<TheaterViewInterface, TheaterViewModel, ActivityTheaterBinding>
-    implements ReactableFragment.ReactionDetectionListener,
-    CameraFragment.OnPictureTakenListener {
+public class TheaterActivity extends
+    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityTheaterBinding>
+    implements ReactableViewModel.ReactionDetectionListener, CameraFragment.OnPictureTakenListener,
+    ReactablesPagerFragment.ReactablePagerListener {
   private TheaterApi mTheaterApi;
   private CameraFragment mCameraFragment;
+  private ReactablesPagerFragment mPagerFragment;
+
+  @Override public void onAuthOk() {
+    super.onAuthOk();
+    mPagerFragment.getViewModel().fetchReactables();
+  }
+
+  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
+    return new ViewModelBindingConfig(R.layout.activity_theater, this);
+  }
 
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -33,16 +44,21 @@ public class TheaterActivity
     // Hooks the camera fragment
     mCameraFragment =
         (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
+    mPagerFragment = (ReactablesPagerFragment) getSupportFragmentManager().findFragmentById(
+        R.id.reactablesPagerFragment);
     // Initializes the Theater API
     mTheaterApi = createApiInterface(TheaterApi.class);
   }
 
-  @Override protected Call<List<Reactable>> buildFetchReactablesCall() {
-    return mTheaterApi.fetchReactables(mAuthManager.currentUser());
+  @Override public void onSwipeUp() {
+    startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
   }
 
-  @Override protected void onSwipeUp() {
-    startActivity(new Intent(TheaterActivity.this, StudioActivity.class));
+  @Override public void onSwipeDown() {
+  }
+
+  @Override public Call<List<Reactable>> buildFetchReactablesCall() {
+    return mTheaterApi.fetchReactables(mAuthManager.currentUser());
   }
 
   @Override public void processImage(Image image) {
@@ -52,10 +68,6 @@ public class TheaterActivity
 
   @Override public void requestDetectionInput() {
     mCameraFragment.takePicture();
-  }
-
-  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
-    return new ViewModelBindingConfig(R.layout.activity_theater, this);
   }
 }
 

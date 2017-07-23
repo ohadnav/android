@@ -1,11 +1,11 @@
 package com.truethat.android.view.fragment;
 
 import android.content.Context;
+import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,15 +13,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.view.activity.BaseActivity;
+import com.truethat.android.viewmodel.BaseFragmentViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
+import eu.inloop.viewmodel.binding.ViewModelBaseBindingFragment;
+import javax.inject.Inject;
 
 /**
  * Proudly created by ohad on 22/06/2017 for TrueThat.
  */
 
-public abstract class BaseFragment extends Fragment {
+public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterface, ViewModelType extends BaseFragmentViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
+    extends ViewModelBaseBindingFragment<ViewInterface, ViewModelType, DataBinding>
+    implements BaseViewInterface {
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
@@ -58,6 +64,32 @@ public abstract class BaseFragment extends Fragment {
     super.onAttach(context);
   }
 
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    Log.v(TAG, "onViewStateRestored");
+  }
+
+  /**
+   * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
+   * and {@link #onHidden()} here as well.
+   */
+  @CallSuper @Override public void onResume() {
+    Log.v(TAG, "onResume");
+    super.onResume();
+    if (getUserVisibleHint()) onVisible();
+  }
+
+  @CallSuper @Override public void onPause() {
+    Log.v(TAG, "onPause");
+    super.onPause();
+    onHidden();
+  }
+
+  @Override public void onDetach() {
+    Log.v(TAG, "onDetach");
+    super.onDetach();
+  }
+
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     Log.v(TAG, "onCreate");
     super.onCreate(savedInstanceState);
@@ -66,19 +98,21 @@ public abstract class BaseFragment extends Fragment {
   /**
    * Initializes root view and
    */
-  @CallSuper
-  @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     Log.v(TAG, "onCreateView");
-    mRootView = inflater.inflate(getLayoutResId(), container, false);
+    mRootView = super.onCreateView(inflater, container, savedInstanceState);
+    setModelView((ViewInterface) this);
     mViewUnbinder = ButterKnife.bind(this, mRootView);
-    getApp().getFragmentInjector().inject(this);
+    getApp().getFragmentInjector()
+        .inject(
+            (BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, ViewDataBinding>) this);
     return mRootView;
   }
 
-  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    Log.v(TAG, "onViewStateRestored");
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Log.v(TAG, "onSaveInstanceState");
   }
 
   @Override public void onStart() {
@@ -86,36 +120,12 @@ public abstract class BaseFragment extends Fragment {
     super.onStart();
   }
 
-  /**
-   * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
-   * and {@link #onHidden()} here as well.
-   */
-  @CallSuper
-  @Override public void onResume() {
-    Log.v(TAG, "onResume");
-    super.onResume();
-    if (getUserVisibleHint()) onVisible();
-  }
-
-  @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    Log.v(TAG, "onSaveInstanceState");
-  }
-
-  @CallSuper
-  @Override public void onPause() {
-    Log.v(TAG, "onPause");
-    super.onPause();
-    onHidden();
-  }
-
   @Override public void onStop() {
     Log.v(TAG, "onStop");
     super.onStop();
   }
 
-  @CallSuper
-  @Override public void onDestroyView() {
+  @CallSuper @Override public void onDestroyView() {
     Log.v(TAG, "onDestroyView");
     super.onDestroyView();
     mViewUnbinder.unbind();
@@ -126,23 +136,20 @@ public abstract class BaseFragment extends Fragment {
     super.onDestroy();
   }
 
-  @Override public void onDetach() {
-    Log.v(TAG, "onDetach");
-    super.onDetach();
-  }
-
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
-  public void onVisible() {
+  @CallSuper public void onVisible() {
     Log.v(TAG, "onVisible");
+    getViewModel().onVisible();
   }
 
   /**
    * Should be invoked once this fragment is hidden. Use with caution.
    */
-  public void onHidden() {
+  @CallSuper public void onHidden() {
     Log.v(TAG, "onHidden");
+    getViewModel().onHidden();
   }
 
   /**
@@ -160,8 +167,17 @@ public abstract class BaseFragment extends Fragment {
     return getBaseActivity().getApp();
   }
 
-  /**
-   * @return the fragment layout resource ID, as found in {@link R.layout}.
-   */
-  protected abstract @LayoutRes int getLayoutResId();
+  @Override public void toast(String text) {
+    getBaseActivity().toast(text);
+  }
+
+  @SuppressWarnings("unused") @Inject void logInjection() {
+    Log.v(TAG, "Injecting "
+        + getClass().getSimpleName()
+        + " for "
+        + getApp().getClass().getSimpleName()
+        + "("
+        + getApp().hashCode()
+        + ")");
+  }
 }

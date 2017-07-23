@@ -28,9 +28,14 @@ import javax.inject.Inject;
 public class App extends Application {
   private static final String TAG = App.class.getSimpleName();
 
+  private AppComponent mAppComponent;
   private ActivityInjectorComponent mActivityInjector;
   private FragmentInjectorComponent mFragmentInjector;
   private ViewModelInjectorComponent mViewModelInjector;
+
+  public AppComponent getAppComponent() {
+    return mAppComponent;
+  }
 
   public ViewModelInjectorComponent getViewModelInjector() {
     return mViewModelInjector;
@@ -59,6 +64,7 @@ public class App extends Application {
   }
 
   @VisibleForTesting public void updateComponents(AppComponent appComponent) {
+    mAppComponent = appComponent;
     mActivityInjector =
         DaggerActivityInjectorComponent.builder().appComponent(appComponent).build();
     mFragmentInjector =

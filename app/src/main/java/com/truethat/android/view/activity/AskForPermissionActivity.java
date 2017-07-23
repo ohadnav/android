@@ -11,14 +11,14 @@ import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.databinding.ActivityAskForPermissionBinding;
-import com.truethat.android.viewmodel.AskForPermissionViewModel;
-import com.truethat.android.viewmodel.viewinterface.AskForPermissionViewInterface;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class AskForPermissionActivity extends
-    BaseActivity<AskForPermissionViewInterface, AskForPermissionViewModel, ActivityAskForPermissionBinding> {
+    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityAskForPermissionBinding> {
   public static final String EXTRA_PERMISSION = "permission";
   @BindView(R.id.rationaleText) TextView mRationaleText;
   private Permission mPermission;

@@ -7,6 +7,7 @@ import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
+import com.truethat.android.view.fragment.ReactablesPagerFragmentTest;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -53,7 +54,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
         mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
   }
@@ -63,13 +64,13 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
         mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Navigate out of Repertoire activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
     // Navigate back to Repertoire activity
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
   }
 }

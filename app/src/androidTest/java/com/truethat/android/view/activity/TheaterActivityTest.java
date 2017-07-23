@@ -15,6 +15,7 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.view.fragment.CameraFragment;
+import com.truethat.android.view.fragment.ReactablesPagerFragmentTest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -93,7 +94,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     Scene scene = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
     waitForActivity(StudioActivity.class);
   }
@@ -103,14 +104,14 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
         mDirector, new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Navigate out of Theater activity
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(TheaterActivity.class);
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
   }
 
   @Test public void cameraPreviewIsHidden() throws Exception {
@@ -136,7 +137,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mTheaterActivityTestRule.launchActivity(null);
     // First scene should be displayed.
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene1, mFakeAuthManager.currentUser());
     // Asserts that a single view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -145,7 +146,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     });
     // Triggers navigation to next reactable.
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    ReactablesPagerActivityTest.assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene2, mFakeAuthManager.currentUser());
     // Asserts that a view event was posted.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

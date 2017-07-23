@@ -10,12 +10,12 @@ import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.auth.AuthManager;
 import com.truethat.android.databinding.ActivityTestBinding;
 import com.truethat.android.view.fragment.CameraFragment;
-import com.truethat.android.viewmodel.TestViewModel;
-import com.truethat.android.viewmodel.viewinterface.TestViewInterface;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 @VisibleForTesting public class TestActivity
-    extends BaseActivity<TestViewInterface, TestViewModel, ActivityTestBinding>
+    extends BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityTestBinding>
     implements CameraFragment.OnPictureTakenListener {
 
   @Override public void processImage(Image image) {

@@ -23,12 +23,12 @@ import com.truethat.android.empathy.ReactionDetectionPubSub;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.view.fragment.CameraFragment;
-import com.truethat.android.viewmodel.OnBoardingViewModel;
-import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
-public class OnBoardingActivity
-    extends BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding>
+public class OnBoardingActivity extends
+    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityOnBoardingBinding>
     implements CameraFragment.OnPictureTakenListener {
   public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   @VisibleForTesting static final int ERROR_COLOR = R.color.error;

@@ -1,7 +1,6 @@
 package com.truethat.android.view.fragment;
 
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +10,16 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.truethat.android.R;
+import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Scene;
+import com.truethat.android.viewmodel.ReactableViewModel;
 
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
 
-public class SceneFragment extends ReactableFragment<Scene> {
+public class SceneFragment
+    extends ReactableFragment<Scene, ReactableViewModel<Scene>, FragmentReactableBinding> {
   public SceneFragment() {
     // Required empty public constructor
   }
@@ -32,7 +34,7 @@ public class SceneFragment extends ReactableFragment<Scene> {
    * Displays the image from {@link Scene#getImageSignedUrl()}, and adds a cute loading animation
    * until it is loaded.
    */
-  @Override protected void createMedia(LayoutInflater inflater, Bundle savedInstanceState) {
+  @Override protected void createMedia(LayoutInflater inflater) {
     View sceneLayout = inflater.inflate(R.layout.fragment_scene,
         (ViewGroup) mRootView.findViewById(R.id.mediaLayout));
     final ImageView imageView = (ImageView) sceneLayout.findViewById(R.id.sceneImage);
@@ -55,7 +57,7 @@ public class SceneFragment extends ReactableFragment<Scene> {
 
           @Override public boolean onResourceReady(GlideDrawable resource, String model,
               Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-            SceneFragment.this.onReady();
+            getViewModel().onReady();
             return false;
           }
         })

@@ -1,9 +1,7 @@
 package com.truethat.android.viewmodel;
 
-import android.support.annotation.Nullable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
-import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.net.HttpURLConnection;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -26,55 +24,15 @@ import static org.junit.Assert.assertTrue;
  */
 public class StudioViewModelTest extends ViewModelTestSuite {
   private StudioViewModel mViewModel;
-  private StudioViewInterface mViewInterface;
   private StudioViewModel.DirectingState mCurrentState;
-  private boolean mHadPublishedState;
   private boolean mPublishedToBackend;
 
   @Before public void setUp() throws Exception {
     super.setUp();
     mCurrentState = DIRECTING;
-    mHadPublishedState = false;
     mPublishedToBackend = false;
-    mViewInterface = new StudioViewInterface() {
-      @Override public void onPublished() {
-        mCurrentState = PUBLISHED;
-        mHadPublishedState = true;
-      }
-
-      @Override public void onApproval() {
-        mCurrentState = APPROVAL;
-      }
-
-      @Override public void onSent() {
-        mCurrentState = SENT;
-      }
-
-      @Override public void onDirecting() {
-        mCurrentState = DIRECTING;
-      }
-
-      @Override public void toast(String text) {
-
-      }
-
-      @Override public void onAuthOk() {
-
-      }
-
-      @Override public void onAuthFailed() {
-
-      }
-
-      @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
-        return null;
-      }
-
-      @Override public void removeViewModel() {
-
-      }
-    };
-    mViewModel = createViewModel(StudioViewModel.class, mViewInterface);
+    mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) new ViewInterface());
+    mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         mPublishedToBackend = true;
@@ -189,18 +147,35 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mPublishedToBackend);
+        assertEquals(PUBLISHED, mCurrentState);
       }
     });
-    assertTrue(mHadPublishedState);
   }
 
   private void assertPublishFailed() {
-    assertFalse(mHadPublishedState);
     // Should return to approval.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertApprovalState();
       }
     });
+  }
+
+  private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
+    @Override public void onPublished() {
+      mCurrentState = PUBLISHED;
+    }
+
+    @Override public void onApproval() {
+      mCurrentState = APPROVAL;
+    }
+
+    @Override public void onSent() {
+      mCurrentState = SENT;
+    }
+
+    @Override public void onDirecting() {
+      mCurrentState = DIRECTING;
+    }
   }
 }

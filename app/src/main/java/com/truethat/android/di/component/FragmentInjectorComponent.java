@@ -1,9 +1,13 @@
 package com.truethat.android.di.component;
 
+import android.databinding.ViewDataBinding;
 import com.truethat.android.di.scope.ActivityScope;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.fragment.BaseFragment;
 import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.viewmodel.BaseFragmentViewModel;
+import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import dagger.Component;
 
 /**
@@ -12,7 +16,9 @@ import dagger.Component;
 
 @ActivityScope @Component(dependencies = AppComponent.class)
 public interface FragmentInjectorComponent {
-  void inject(BaseFragment fragment);
+  void inject(
+      BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, ViewDataBinding> fragment);
 
-  void inject(ReactableFragment<Reactable> reactableFragment);
+  void inject(
+      ReactableFragment<Reactable, ReactableViewModel<Reactable>, ViewDataBinding> reactableFragment);
 }

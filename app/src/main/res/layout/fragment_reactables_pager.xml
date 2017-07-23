@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.ReactablesPagerViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
+      android:id="@+id/activityRootView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context=".view.fragment.ReactablesPagerFragment"
+      >
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/loadingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="@{viewModel.mLoadingLayoutVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+      <ImageView
+          android:id="@+id/loadingImage"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:contentDescription="@string/image_content_description"
+          android:scaleType="centerInside"
+          android:src="@{viewModel.mLoadingImageResource}"
+          app:layout_constraintBottom_toTopOf="@+id/notFoundText"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:src="@drawable/loading_elephant"
+          />
+      <TextView
+          android:id="@+id/notFoundText"
+          android:layout_width="200dp"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="16dp"
+          android:gravity="center"
+          android:text="@string/not_found_reactables"
+          android:visibility="@{viewModel.mNonFoundTextVisibility ? View.VISIBLE : View.GONE}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/loadingImage"
+          tools:visibility="visible"
+          />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/reactablesPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:items="@{viewModel.mItems}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+  </android.support.constraint.ConstraintLayout>
+</layout>

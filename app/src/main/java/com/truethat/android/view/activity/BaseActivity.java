@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.DeviceManager;
+import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.AuthManager;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.permissions.PermissionsManager;
@@ -39,7 +40,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
  */
 
 public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModelType extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends ViewModelBaseEmptyActivity implements BaseViewInterface {
+    extends ViewModelBaseEmptyActivity implements BaseViewInterface, AuthListener {
   @NonNull private final ViewModelHelper<ViewInterface, ViewModelType> mViewModeHelper =
       new ViewModelHelper<>();
   /**

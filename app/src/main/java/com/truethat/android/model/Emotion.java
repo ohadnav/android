@@ -1,5 +1,6 @@
 package com.truethat.android.model;
 
+import android.support.annotation.DrawableRes;
 import com.truethat.android.R;
 
 /**
@@ -17,7 +18,7 @@ public enum Emotion {
     mDrawableResource = drawableResource;
   }
 
-  public int getDrawableResource() {
+  @DrawableRes public int getDrawableResource() {
     return mDrawableResource;
   }
 }

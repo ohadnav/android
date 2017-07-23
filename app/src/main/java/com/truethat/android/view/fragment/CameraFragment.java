@@ -39,8 +39,13 @@ import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.databinding.FragmentCameraBinding;
 import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.view.custom.FullscreenTextureView;
+import com.truethat.android.viewmodel.BaseFragmentViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
+import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +60,9 @@ import static com.truethat.android.common.util.CameraUtil.SIZE_AREA_COMPARATOR;
 /**
  * Taken from Google example at <a>https://github.com/googlesamples/android-Camera2Basic/blob/master/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.java</a>
  */
-public class CameraFragment extends BaseFragment {
+public class CameraFragment extends
+    BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, FragmentCameraBinding>
+    implements BaseViewInterface {
   /**
    * Whether camera preview should be shown.
    */
@@ -355,6 +362,17 @@ public class CameraFragment extends BaseFragment {
     }
   }
 
+  @Override public void onDetach() {
+    super.onDetach();
+    mOnPictureTakenListener = null;
+  }
+
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
+    outState.putSerializable(ARG_FACING, mFacing);
+  }
+
   @Override public void onStart() {
     super.onStart();
     if (mShowPreview) {
@@ -362,17 +380,6 @@ public class CameraFragment extends BaseFragment {
     } else {
       mCameraPreview.setVisibility(GONE);
     }
-  }
-
-  @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
-    outState.putSerializable(ARG_FACING, mFacing);
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mOnPictureTakenListener = null;
   }
 
   /**
@@ -403,8 +410,8 @@ public class CameraFragment extends BaseFragment {
     mBackgroundHandler.stop();
   }
 
-  @Override protected int getLayoutResId() {
-    return R.layout.fragment_camera;
+  @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
+    return new ViewModelBindingConfig(R.layout.fragment_camera, getContext());
   }
 
   public FullscreenTextureView getCameraPreview() {

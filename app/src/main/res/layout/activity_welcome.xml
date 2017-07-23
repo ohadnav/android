@@ -7,7 +7,7 @@
     <import type="android.view.View"/>
     <variable
         name="viewModel"
-        type="com.truethat.android.viewmodel.WelcomeViewModel"
+        type="com.truethat.android.viewmodel.BaseViewModel"
         />
   </data>
 
@@ -83,7 +83,7 @@
         android:textAlignment="center"
         android:textColor="@color/error"
         android:textSize="12sp"
-        android:visibility="@{viewModel.mErrorTextVisibility ? View.VISIBLE : View.GONE}"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

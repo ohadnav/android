@@ -7,7 +7,7 @@
     <import type="android.view.View"/>
     <variable
         name="viewModel"
-        type="com.truethat.android.viewmodel.TestViewModel"
+        type="com.truethat.android.viewmodel.BaseViewModel"
         />
   </data>
   <android.support.constraint.ConstraintLayout

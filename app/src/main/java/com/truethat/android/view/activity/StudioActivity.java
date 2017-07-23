@@ -5,13 +5,11 @@ import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.OnClick;
-import com.bumptech.glide.Glide;
 import com.truethat.android.R;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.databinding.ActivityStudioBinding;
@@ -97,9 +95,7 @@ public class StudioActivity
       @Override public void run() {
         // Tinting camera preview and showing a loader.
         mCameraFragment.getCameraPreview().setBackgroundTintList(getColorStateList(R.color.tint));
-        mLoadingImage.setVisibility(View.VISIBLE);
         mLoadingImage.bringToFront();
-        Glide.with(StudioActivity.this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
       }
     });
   }

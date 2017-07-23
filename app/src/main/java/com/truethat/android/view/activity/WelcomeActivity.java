@@ -10,12 +10,12 @@ import com.truethat.android.R;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import com.truethat.android.databinding.ActivityWelcomeBinding;
-import com.truethat.android.viewmodel.WelcomeViewModel;
-import com.truethat.android.viewmodel.viewinterface.WelcomeViewInterface;
+import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
-public class WelcomeActivity
-    extends BaseActivity<WelcomeViewInterface, WelcomeViewModel, ActivityWelcomeBinding> {
+public class WelcomeActivity extends
+    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding> {
   public static final String EXTRA_AUTH_FAILED = "authFailed";
 
   @Override public void onAuthOk() {
