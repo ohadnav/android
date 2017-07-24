@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Proudly created by ohad on 19/07/2017 for TrueThat.
  */
 
-class AuthManagerTest {
+@SuppressWarnings("WeakerAccess") public class AuthManagerTest {
   static final long USER_ID = 1;
   static final DeviceManager DEVICE_MANAGER = new FakeDeviceManager("android1", "911-kapara");
   private static final String FIRST_NAME = "Brad";

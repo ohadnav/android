@@ -23,10 +23,10 @@ import com.truethat.android.application.auth.AuthManager;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.permissions.PermissionsManager;
 import com.truethat.android.empathy.ReactionDetectionManager;
+import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.AbstractViewModel;
-import eu.inloop.viewmodel.ProxyViewHelper;
 import eu.inloop.viewmodel.ViewModelHelper;
 import eu.inloop.viewmodel.base.ViewModelBaseEmptyActivity;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -39,9 +39,9 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
 
-public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModelType extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
+public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
     extends ViewModelBaseEmptyActivity implements BaseViewInterface, AuthListener {
-  @NonNull private final ViewModelHelper<ViewInterface, ViewModelType> mViewModeHelper =
+  @NonNull private final ViewModelHelper<ViewInterface, ViewModel> mViewModelHelper =
       new ViewModelHelper<>();
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
@@ -114,7 +114,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     super.onCreate(savedInstanceState, persistentState);
     initializeViewModelBinding();
     // Ensures data binding was made.
-    final ViewDataBinding binding = mViewModeHelper.getBinding();
+    final ViewDataBinding binding = mViewModelHelper.getBinding();
     if (binding == null) {
       throw new IllegalStateException(
           "Binding cannot be null. Perform binding before calling getBinding()");
@@ -128,45 +128,45 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    * @param view view
    */
   @SuppressWarnings("unused") public void setModelView(@NonNull final ViewInterface view) {
-    mViewModeHelper.setView(view);
+    mViewModelHelper.setView(view);
   }
 
-  @Nullable public Class<ViewModelType> getViewModelClass() {
+  @Nullable public Class<ViewModel> getViewModelClass() {
     return null;
   }
 
   @CallSuper @Override public void onStart() {
     super.onStart();
-    mViewModeHelper.onStart();
+    mViewModelHelper.onStart();
   }
 
   @CallSuper @Override public void onDestroy() {
-    mViewModeHelper.onDestroy(this);
+    mViewModelHelper.onDestroy(this);
     super.onDestroy();
   }
 
   @CallSuper @Override public void onSaveInstanceState(@NonNull final Bundle outState) {
     super.onSaveInstanceState(outState);
-    mViewModeHelper.onSaveInstanceState(outState);
+    mViewModelHelper.onSaveInstanceState(outState);
   }
 
   /**
    * @see ViewModelHelper#getViewModel()
    */
-  @SuppressWarnings("unused") @NonNull public ViewModelType getViewModel() {
-    return mViewModeHelper.getViewModel();
+  @SuppressWarnings("unused") @NonNull public ViewModel getViewModel() {
+    return mViewModelHelper.getViewModel();
   }
 
   @Override public abstract ViewModelBindingConfig getViewModelBindingConfig();
 
   @Override public void removeViewModel() {
-    mViewModeHelper.removeViewModel(this);
+    mViewModelHelper.removeViewModel(this);
   }
 
   @SuppressWarnings({ "unused", "ConstantConditions", "unchecked" }) @NonNull
   public DataBinding getBinding() {
     try {
-      return (DataBinding) mViewModeHelper.getBinding();
+      return (DataBinding) mViewModelHelper.getBinding();
     } catch (ClassCastException ex) {
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
@@ -201,9 +201,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
       //noinspection unchecked
       viewModelClass =
           (Class<? extends AbstractViewModel<ViewInterface>>) ProxyViewHelper.getGenericType(
-              getClass(), AbstractViewModel.class);
+              getClass(), BaseViewModel.class);
     }
-    mViewModeHelper.onCreate(this, savedInstanceState, viewModelClass, getIntent().getExtras());
+    mViewModelHelper.onCreate(this, savedInstanceState, viewModelClass, getIntent().getExtras());
     // Bind the activity to its view model.
     initializeViewModelBinding();
     // Bind views references.
@@ -212,7 +212,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @CallSuper @Override public void onStop() {
     super.onStop();
-    mViewModeHelper.onStop();
+    mViewModelHelper.onStop();
   }
 
   @CallSuper @Override public void onResume() {
@@ -243,8 +243,8 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   }
 
   @SuppressWarnings("unchecked") private void initializeViewModelBinding() {
-    mViewModeHelper.performBinding(this);
+    mViewModelHelper.performBinding(this);
     getViewModel().inject(getApp().getViewModelInjector());
-    mViewModeHelper.setView((ViewInterface) this);
+    mViewModelHelper.setView((ViewInterface) this);
   }
 }

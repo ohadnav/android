@@ -136,11 +136,6 @@ public class ReactableViewModel<Model extends Reactable>
     Log.v(TAG, "onDisplay");
     doView();
     if (mReactable.canReactTo(mCurrentUser.get())) {
-      if (!(getView() instanceof ReactionDetectionListener)) {
-        throw new RuntimeException(getView().getClass().getSimpleName()
-            + " must implement "
-            + ReactionDetectionListener.class.getSimpleName());
-      }
       mDetectionManager.detect(mDetectionPubSub);
     }
   }

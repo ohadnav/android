@@ -1,5 +1,6 @@
 package com.truethat.android.view.fragment;
 
+import android.content.Context;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
@@ -21,12 +22,16 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
  * A generic container for {@link Reactable}. Handles touch gestures for navigation between {@link
  * ReactableFragment}, and emotional reaction detection.
  */
-public abstract class ReactableFragment<Model extends Reactable, ViewModelType extends ReactableViewModel<Model>, DataBinding extends ViewDataBinding>
-    extends BaseFragment<BaseFragmentViewInterface, ViewModelType, DataBinding>
-    implements BaseFragmentViewInterface {
+public abstract class ReactableFragment<Model extends Reactable, ViewModel extends ReactableViewModel<Model>, DataBinding extends ViewDataBinding>
+    extends BaseFragment<BaseFragmentViewInterface, ViewModel, DataBinding>
+    implements BaseFragmentViewInterface, ReactableViewModel.ReactionDetectionListener {
   private static final String ARG_REACTABLE = "reactable";
 
   protected Model mReactable;
+  /**
+   * Communication interface with parent activity.
+   */
+  private ReactableViewModel.ReactionDetectionListener mListener;
 
   public ReactableFragment() {
     // Required empty public constructor
@@ -45,8 +50,11 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModelType e
     fragment.setArguments(args);
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof ReactableViewModel.ReactionDetectionListener) {
+      mListener = (ReactableViewModel.ReactionDetectionListener) context;
+    }
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
@@ -60,16 +68,21 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModelType e
    * #createMedia(LayoutInflater)} )}.
    */
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
-      LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     DaggerReactableInjectorComponent.builder()
         .appComponent(getApp().getAppComponent())
         .reactableModule(new ReactableModule(mReactable))
         .build()
         .inject((ReactableViewModel<Reactable>) getViewModel());
+    getViewModel().onInjected();
     createMedia(inflater);
     return mRootView;
+  }
+
+  @Override public void onDetach() {
+    super.onDetach();
+    mListener = null;
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -78,6 +91,15 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModelType e
 
   public Reactable getReactable() {
     return mReactable;
+  }
+
+  @Override public void requestDetectionInput() {
+    if (mListener == null) {
+      throw new RuntimeException(getActivity().getClass().getSimpleName()
+          + " must implement "
+          + ReactableViewModel.ReactionDetectionListener.class.getSimpleName());
+    }
+    mListener.requestDetectionInput();
   }
 
   /**

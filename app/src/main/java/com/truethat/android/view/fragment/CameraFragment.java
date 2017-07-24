@@ -40,7 +40,6 @@ import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.BackgroundHandler;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.databinding.FragmentCameraBinding;
-import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.view.custom.FullscreenTextureView;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
@@ -339,16 +338,6 @@ public class CameraFragment extends
     styledAttributes.recycle();
   }
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof OnPictureTakenListener) {
-      mOnPictureTakenListener = (OnPictureTakenListener) context;
-    } else {
-      throw new RuntimeException(
-          context.toString() + " must implement " + OnPictureTakenListener.class.getSimpleName());
-    }
-  }
-
   @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
     super.onViewStateRestored(savedInstanceState);
     if (savedInstanceState != null) {
@@ -362,15 +351,25 @@ public class CameraFragment extends
     }
   }
 
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
+    outState.putSerializable(ARG_FACING, mFacing);
+  }
+
   @Override public void onDetach() {
     super.onDetach();
     mOnPictureTakenListener = null;
   }
 
-  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
-    outState.putSerializable(ARG_FACING, mFacing);
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+    if (context instanceof OnPictureTakenListener) {
+      mOnPictureTakenListener = (OnPictureTakenListener) context;
+    } else {
+      throw new RuntimeException(
+          context.toString() + " must implement " + OnPictureTakenListener.class.getSimpleName());
+    }
   }
 
   @Override public void onStart() {
@@ -597,9 +596,9 @@ public class CameraFragment extends
    * Opens the camera specified by {@link #mCameraId}.
    */
   @SuppressWarnings("MissingPermission") private void openCamera() {
-    ((BaseActivity) getActivity()).getPermissionsManager()
+    getBaseActivity().getPermissionsManager()
         .requestIfNeeded(getActivity(), Permission.CAMERA);
-    if (!((BaseActivity) getActivity()).getPermissionsManager()
+    if (!getBaseActivity().getPermissionsManager()
         .isPermissionGranted(Permission.CAMERA)) {
       return;
     }

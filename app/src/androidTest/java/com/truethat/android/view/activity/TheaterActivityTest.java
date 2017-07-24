@@ -118,6 +118,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     Scene scene = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
+    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
     // Camera preview should be hidden
     final CameraFragment cameraFragment = (CameraFragment) mTheaterActivityTestRule.getActivity()
         .getSupportFragmentManager()

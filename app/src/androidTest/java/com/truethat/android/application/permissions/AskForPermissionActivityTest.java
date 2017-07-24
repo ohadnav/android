@@ -12,7 +12,9 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static org.hamcrest.core.AllOf.allOf;
 
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
@@ -31,7 +33,8 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Assert that no camera permission fragment is displayed.
-    onView(withId(R.id.noCameraPermissionTopRationale)).check(matches(isDisplayed()));
+    onView(withId(R.id.rationaleText)).check(
+        matches(allOf(isDisplayed(), withText(R.string.camera_permission_rationale))));
   }
 
   @Test public void finishIfPermissionIsAlreadyGranted() throws Exception {

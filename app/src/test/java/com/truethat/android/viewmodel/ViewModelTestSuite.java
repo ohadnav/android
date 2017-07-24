@@ -36,7 +36,7 @@ import org.junit.Before;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-class ViewModelTestSuite {
+@SuppressWarnings("WeakerAccess") public class ViewModelTestSuite {
   final MockWebServer mMockWebServer = new MockWebServer();
   public FakeAuthManager mFakeAuthManager;
   FakeReactionDetectionManager mFakeReactionDetectionManager;
@@ -45,7 +45,7 @@ class ViewModelTestSuite {
   Date mNow;
   private ViewModelInjectorComponent mInjector;
 
-  @Before public void setUp() throws Exception {
+  @SuppressWarnings("unchecked") @Before public void setUp() throws Exception {
     mNow = new Date();
     // Initialize Awaitility
     Awaitility.reset();
@@ -72,15 +72,17 @@ class ViewModelTestSuite {
             .build();
     // Initializes injected dependencies.
     mInjector = DaggerViewModelInjectorComponent.builder().appComponent(mUnitTestComponent).build();
+    // Initialize fakes by creating a view model.
+    createViewModel(BaseViewModel.class, new UnitTestViewInterface());
   }
 
   @After public void tearDown() throws Exception {
     mMockWebServer.close();
   }
 
-  <ViewInterface extends BaseViewInterface, ViewModelType extends BaseViewModel<ViewInterface>> ViewModelType createViewModel(
-      Class<ViewModelType> viewModelTypeClass, ViewInterface viewInterface) throws Exception {
-    ViewModelType viewModel = viewModelTypeClass.newInstance();
+  <ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>> ViewModel createViewModel(
+      Class<ViewModel> viewModelTypeClass, ViewInterface viewInterface) throws Exception {
+    ViewModel viewModel = viewModelTypeClass.newInstance();
     viewModel.onCreate(null, null);
     viewModel.onBindView(viewInterface);
     viewModel.inject(mInjector);
