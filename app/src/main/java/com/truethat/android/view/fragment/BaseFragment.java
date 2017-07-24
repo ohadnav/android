@@ -26,6 +26,9 @@ import eu.inloop.viewmodel.ViewModelHelper;
 
 public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterface, ViewModel extends BaseFragmentViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
     extends Fragment implements BaseFragmentViewInterface {
+  /**
+   * {@link BaseViewModel} manager of this fragment.
+   */
   @NonNull private final ViewModelHelper<ViewInterface, ViewModel> mViewModelHelper =
       new ViewModelHelper<>();
   /**
@@ -73,6 +76,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    // Completes data binding.
     mViewModelHelper.performBinding(this);
     final ViewDataBinding binding = mViewModelHelper.getBinding();
     if (binding != null) {
@@ -81,9 +85,12 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
       throw new IllegalStateException(
           "Binding cannot be null. Perform binding before calling getBinding()");
     }
+    // Sets the view interface.
     setModelView((ViewInterface) this);
+    // Binds views with butterknife.
     mViewUnbinder = ButterKnife.bind(this, mRootView);
-    getApp().getFragmentInjector()
+    // Injects dependencies.
+    getApp().getInjector()
         .inject(
             (BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, ViewDataBinding>) this);
     return mRootView;

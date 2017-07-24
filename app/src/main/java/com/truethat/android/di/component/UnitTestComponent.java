@@ -12,6 +12,8 @@ import javax.inject.Singleton;
 
 /**
  * Proudly created by ohad on 20/07/2017 for TrueThat.
+ *
+ * Container component for application scoped modules, in their unit-test flavour, so that it can be used in a JUnit testing suite.
  */
 
 @Component(modules = {

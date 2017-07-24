@@ -36,7 +36,7 @@ public enum Permission {
   private int mRequestCode;
 
   /**
-   * Resource ID of rationale fragment.
+   * Resource ID of rationale text string.
    */
   private @StringRes int mRationaleText;
 

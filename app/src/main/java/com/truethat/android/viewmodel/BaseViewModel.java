@@ -2,13 +2,11 @@ package com.truethat.android.viewmodel;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.gson.Gson;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.auth.AuthManager;
-import com.truethat.android.di.component.ViewModelInjectorComponent;
 import com.truethat.android.empathy.ReactionDetectionManager;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
@@ -46,12 +44,9 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     return super.getView();
   }
 
-  @SuppressWarnings("unchecked") @CallSuper
-  public void inject(ViewModelInjectorComponent injector) {
-    injector.inject((BaseViewModel<BaseViewInterface>) this);
-    onInjected();
-  }
-
+  /**
+   * Called after dependencies are injected to this view model.
+   */
   public void onInjected() {
 
   }

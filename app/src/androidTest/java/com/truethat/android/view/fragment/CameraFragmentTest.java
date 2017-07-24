@@ -97,7 +97,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     });
   }
 
-  @Test public void switchCameraTwice() throws Exception {
+  @Test @FlakyTest public void switchCameraTwice() throws Exception {
     init(true);
     // Switch camera
     mCameraFragment.switchCamera();

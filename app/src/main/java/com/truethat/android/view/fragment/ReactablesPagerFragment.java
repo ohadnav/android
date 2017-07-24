@@ -45,7 +45,7 @@ public class ReactablesPagerFragment extends
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    // Navigation to other activities
+    // Navigation between reactables and activities.
     mRootView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
       @Override public void onSwipeLeft() {
         getViewModel().onSwipeLeft();

@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel.viewinterface;
 
+import android.widget.Toast;
 import eu.inloop.viewmodel.IView;
 
 /**
@@ -7,5 +8,10 @@ import eu.inloop.viewmodel.IView;
  */
 
 public interface BaseViewInterface extends IView {
+  /**
+   * Displays a {@link Toast}.
+   *
+   * @param text to show within the toast.
+   */
   void toast(String text);
 }

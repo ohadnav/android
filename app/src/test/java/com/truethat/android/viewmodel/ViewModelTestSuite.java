@@ -7,10 +7,10 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.application.FakeDeviceManager;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.FakeAuthManager;
+import com.truethat.android.di.component.AppInjectorComponent;
+import com.truethat.android.di.component.DaggerAppInjectorComponent;
 import com.truethat.android.di.component.DaggerUnitTestComponent;
-import com.truethat.android.di.component.DaggerViewModelInjectorComponent;
 import com.truethat.android.di.component.UnitTestComponent;
-import com.truethat.android.di.component.ViewModelInjectorComponent;
 import com.truethat.android.di.module.NetModule;
 import com.truethat.android.di.module.fake.FakeAuthModule;
 import com.truethat.android.di.module.fake.FakeDeviceModule;
@@ -43,7 +43,7 @@ import org.junit.Before;
   Gson mGson;
   UnitTestComponent mUnitTestComponent;
   Date mNow;
-  private ViewModelInjectorComponent mInjector;
+  private AppInjectorComponent mInjector;
 
   @SuppressWarnings("unchecked") @Before public void setUp() throws Exception {
     mNow = new Date();
@@ -71,7 +71,7 @@ import org.junit.Before;
             .fakeReactionDetectionModule(new FakeReactionDetectionModule())
             .build();
     // Initializes injected dependencies.
-    mInjector = DaggerViewModelInjectorComponent.builder().appComponent(mUnitTestComponent).build();
+    mInjector = DaggerAppInjectorComponent.builder().appComponent(mUnitTestComponent).build();
     // Initialize fakes by creating a view model.
     createViewModel(BaseViewModel.class, new UnitTestViewInterface());
   }
@@ -80,12 +80,14 @@ import org.junit.Before;
     mMockWebServer.close();
   }
 
+  @SuppressWarnings("unchecked")
   <ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>> ViewModel createViewModel(
       Class<ViewModel> viewModelTypeClass, ViewInterface viewInterface) throws Exception {
     ViewModel viewModel = viewModelTypeClass.newInstance();
     viewModel.onCreate(null, null);
     viewModel.onBindView(viewInterface);
-    viewModel.inject(mInjector);
+    mInjector.inject((BaseViewModel<BaseViewInterface>) viewModel);
+    viewModel.onInjected();
     // Updates modules
     mFakeAuthManager = (FakeAuthManager) viewModel.getAuthManager();
     FakeDeviceManager fakeDeviceManager = (FakeDeviceManager) viewModel.getDeviceManager();

@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.common.network.HeadersContract;
+import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.di.scope.AppScope;
 import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
@@ -50,6 +51,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
     }
   };
 
+  /**
+   * Base backend endpoint URL. Usually a sub-path is appended to it. For example {@link
+   * TheaterApi#PATH}.
+   */
   private String mBaseUrl;
 
   public NetModule(String baseUrl) {
@@ -70,6 +75,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
         Request request = chain.request();
         Log.v(this.getClass().getSimpleName(),
             "Sending " + request.method() + " request to " + request.url());
+        // Add version to each request for backend logging.
         Request newRequest = request.newBuilder()
             .addHeader(HeadersContract.VERSION_NAME.getName(), BuildConfig.VERSION_NAME)
             .build();

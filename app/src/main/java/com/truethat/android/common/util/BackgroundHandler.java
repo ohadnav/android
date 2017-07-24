@@ -10,7 +10,13 @@ import android.os.HandlerThread;
  */
 
 public class BackgroundHandler {
+  /**
+   * Thread from which the handler manages tasks
+   */
   private HandlerThread mThread;
+  /**
+   * Manages tasks to run within a background thread.
+   */
   private Handler mHandler;
   private String mName;
 

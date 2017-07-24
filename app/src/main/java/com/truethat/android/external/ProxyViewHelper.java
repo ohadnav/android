@@ -10,12 +10,21 @@ import java.lang.reflect.Type;
  */
 
 public class ProxyViewHelper {
+  /**
+   * @param in           a generic type that should extend {@code whichExtends}.
+   * @param whichExtends a class we expect the generic type of {@code in} to extend.
+   *
+   * @return the generic type of {@code in} that extends {@code whichExtends}.
+   */
   @Nullable
   public static Class<?> getGenericType(@NonNull Class<?> in, @NonNull Class<?> whichExtends) {
     final Type genericSuperclass = in.getGenericSuperclass();
+    // If it has no parameters, then exit.
     if (genericSuperclass instanceof ParameterizedType) {
+      // Get superclasses types of `in`.
       final Type[] typeArgs = ((ParameterizedType) genericSuperclass).getActualTypeArguments();
       for (Type arg : typeArgs) {
+        // If the generic type is again generic, then simplify it.
         if (arg instanceof ParameterizedType) {
           arg = ((ParameterizedType) arg).getRawType();
         }

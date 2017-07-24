@@ -9,6 +9,9 @@ import java.util.TreeMap;
  */
 
 public class NumberUtil {
+  /**
+   * Suffixes for various magnitudes (i.e. "k" for thousands).
+   */
   private static final NavigableMap<Long, String> suffixes = new TreeMap<>();
 
   static {
@@ -20,6 +23,11 @@ public class NumberUtil {
     suffixes.put(1_000_000_000_000_000_000L, "E");
   }
 
+  /**
+   * @param value to format
+   *
+   * @return truncated textual formatting of {@code value}.
+   */
   public static String format(long value) {
     //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
     if (value == Long.MIN_VALUE) return format(Long.MIN_VALUE + 1);

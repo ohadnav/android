@@ -22,11 +22,6 @@ import dagger.Provides;
     mPhoneNumber = PHONE_NUMBER;
   }
 
-  public FakeDeviceModule(String deviceId, String phoneNumber) {
-    mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
-  }
-
   @Provides @AppScope DeviceManager provideDeviceManager() {
     return new FakeDeviceManager(mDeviceId, mPhoneNumber);
   }

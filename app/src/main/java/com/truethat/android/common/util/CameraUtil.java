@@ -8,6 +8,7 @@ import android.media.Image;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
+import com.truethat.android.view.fragment.CameraFragment;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,12 @@ import java.util.List;
   };
   private static final String TAG = "CameraUtil";
 
+  /**
+   * @param manager of device's cameras.
+   * @param facing  whether to return ID of front or back facing camera.
+   *
+   * @return camera ID to be used within {@link CameraFragment}.
+   */
   @Nullable public static String getCameraId(CameraManager manager, Facing facing) {
     String result = null;
     try {
@@ -62,6 +69,9 @@ import java.util.List;
     return pixels;
   }
 
+  /**
+   * @return whether the two images has identical content.
+   */
   public static boolean compare(Image image1, Image image2) {
     return image1.getFormat() == image2.getFormat()
         && image1.getHeight() == image2.getHeight()

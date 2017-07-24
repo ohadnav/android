@@ -21,6 +21,8 @@ import retrofit2.Retrofit;
 
 /**
  * Proudly created by ohad on 16/07/2017 for TrueThat.
+ *
+ * Container component for application scoped modules.
  */
 @Component(modules = {
     AppModule.class, NetModule.class, PermissionsModule.class, DeviceModule.class, AuthModule.class,

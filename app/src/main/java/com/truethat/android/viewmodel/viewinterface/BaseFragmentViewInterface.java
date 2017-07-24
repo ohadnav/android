@@ -5,5 +5,8 @@ package com.truethat.android.viewmodel.viewinterface;
  */
 
 public interface BaseFragmentViewInterface extends BaseViewInterface {
+  /**
+   * @return whether the encapsulating fragment is visible to the user and resumed.
+   */
   boolean isReallyVisible();
 }

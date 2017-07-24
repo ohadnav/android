@@ -15,6 +15,11 @@ import android.view.WindowManager;
  */
 
 public class AppUtil {
+  /**
+   * @param view within the display.
+   *
+   * @return available (for the app) dimensions of the device's display.
+   */
   public static Size availableDisplaySize(View view) {
     Rect windowRect = new Rect();
     view.getWindowVisibleDisplayFrame(windowRect);
@@ -30,6 +35,10 @@ public class AppUtil {
     return availableSize;
   }
 
+  /**
+   * @param context of the application.
+   * @return the hardware dimensions of the device (normally these are the answer to "what's the screen resolution?"
+   */
   public static Point realDisplaySize(Context context) {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = windowManager.getDefaultDisplay();
@@ -38,6 +47,9 @@ public class AppUtil {
     return size;
   }
 
+  /**
+   * @return whether the app is currently run within an emulator.
+   */
   public static boolean isEmulator() {
     return Build.FINGERPRINT.startsWith("generic")
         || Build.FINGERPRINT.startsWith("unknown")

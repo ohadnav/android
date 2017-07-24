@@ -6,6 +6,8 @@ import javax.inject.Scope;
 
 /**
  * Proudly created by ohad on 16/07/2017 for TrueThat.
+ *
+ * Application scope, pretty much it is a singleton scope.
  */
 
 @Retention(RetentionPolicy.RUNTIME) @Scope public @interface AppScope {

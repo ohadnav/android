@@ -7,6 +7,11 @@ import com.google.common.base.Strings;
  */
 
 public class StringUtil {
+  /**
+   * @param s to convert
+   *
+   * @return capitalize every first character of every word in {@code s}.
+   */
   public static String toTitleCase(String s) {
     String[] words = s.split(" ");
     StringBuilder builder = new StringBuilder();

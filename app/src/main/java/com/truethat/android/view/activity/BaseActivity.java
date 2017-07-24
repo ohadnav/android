@@ -41,6 +41,9 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
     extends ViewModelBaseEmptyActivity implements BaseViewInterface, AuthListener {
+  /**
+   * {@link BaseViewModel} manager of this activity.
+   */
   @NonNull private final ViewModelHelper<ViewInterface, ViewModel> mViewModelHelper =
       new ViewModelHelper<>();
   /**
@@ -51,6 +54,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    * Whether to skip authentication.
    */
   protected boolean mSkipAuth = false;
+  /**
+   * Root view layout of each activity.
+   */
   @BindView(R.id.activityRootView) protected View mRootView;
 
   @Inject Retrofit mRetrofit;
@@ -112,13 +118,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   @Override public void onCreate(@Nullable Bundle savedInstanceState,
       @Nullable PersistableBundle persistentState) {
     super.onCreate(savedInstanceState, persistentState);
-    initializeViewModelBinding();
-    // Ensures data binding was made.
-    final ViewDataBinding binding = mViewModelHelper.getBinding();
-    if (binding == null) {
-      throw new IllegalStateException(
-          "Binding cannot be null. Perform binding before calling getBinding()");
-    }
+    initializeViewModel();
   }
 
   /**
@@ -180,7 +180,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   @SuppressWarnings("unchecked") @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     // Injects dependencies.
-    getApp().getActivityInjector()
+    getApp().getInjector()
         .inject(
             (BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ViewDataBinding>) this);
     // Initializes activity class.
@@ -205,7 +205,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     }
     mViewModelHelper.onCreate(this, savedInstanceState, viewModelClass, getIntent().getExtras());
     // Bind the activity to its view model.
-    initializeViewModelBinding();
+    initializeViewModel();
     // Bind views references.
     ButterKnife.bind(this);
   }
@@ -242,9 +242,18 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
         .getSimpleName() + "(" + getApplication().hashCode() + ")");
   }
 
-  @SuppressWarnings("unchecked") private void initializeViewModelBinding() {
+  /**
+   * Initialize data-view binding for this activity, and injects dependencies to the view model.
+   */
+  @SuppressWarnings("unchecked") private void initializeViewModel() {
     mViewModelHelper.performBinding(this);
-    getViewModel().inject(getApp().getViewModelInjector());
+    // Injects dependencies
+    getApp().getInjector().inject((BaseViewModel<BaseViewInterface>) getViewModel());
+    getViewModel().onInjected();
     mViewModelHelper.setView((ViewInterface) this);
+    // Ensures data binding was made.
+    if (mViewModelHelper.getBinding() == null) {
+      throw new IllegalStateException("Binding cannot be null.");
+    }
   }
 }
