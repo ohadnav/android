@@ -1,28 +1,20 @@
 package com.truethat.android.view.activity;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
-import com.truethat.android.empathy.ReactionDetectionListener;
-import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
-import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
@@ -62,21 +54,6 @@ public class OnBoardingActivity extends
     imm.hideSoftInputFromWindow(mNameEditText.getWindowToken(), 0);
   }
 
-  @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {
-    getViewModel().mNameEditText.set(typedName.toString());
-  }
-
-  @OnEditorAction(R.id.nameEditText) boolean onNameDone(int actionId) {
-    if (actionId == EditorInfo.IME_ACTION_DONE) {
-      getViewModel().onNameDone();
-    }
-    return true;
-  }
-
-  @OnFocusChange(R.id.nameEditText) void onNameFocusChange(boolean hasFocus) {
-    getViewModel().onNameFocusChange(hasFocus);
-  }
-
   /**
    * Finishes the on boarding flow.
    */
@@ -86,5 +63,21 @@ public class OnBoardingActivity extends
         StringUtil.extractLastName(userFullName), mDeviceManager.getDeviceId(),
         mDeviceManager.getPhoneNumber());
     mAuthManager.signUp(this, newUser);
+  }
+
+  @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {
+    getViewModel().mNameEditText.set(typedName.toString());
+  }
+
+  @SuppressWarnings("SameReturnValue") @OnEditorAction(R.id.nameEditText) boolean onNameDone(
+      int actionId) {
+    if (actionId == EditorInfo.IME_ACTION_DONE) {
+      getViewModel().onNameDone();
+    }
+    return true;
+  }
+
+  @OnFocusChange(R.id.nameEditText) void onNameFocusChange(boolean hasFocus) {
+    getViewModel().onNameFocusChange(hasFocus);
   }
 }

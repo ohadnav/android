@@ -28,10 +28,6 @@ public class WelcomeActivity extends
     findViewById(R.id.errorText).setVisibility(View.VISIBLE);
   }
 
-  @Override public void onDestroy() {
-    super.onDestroy();
-  }
-
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.activity_welcome, this);
   }

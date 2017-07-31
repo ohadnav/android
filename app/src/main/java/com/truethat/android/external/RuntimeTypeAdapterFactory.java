@@ -141,7 +141,8 @@ import java.util.Map;
    * Creates a new runtime type adapter using for {@code baseType} using {@code
    * typeFieldName} as the type field name. Type field names are case sensitive.
    */
-  public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType, String typeFieldName) {
+  @SuppressWarnings("unused") public static <T> RuntimeTypeAdapterFactory<T> of(Class<T> baseType,
+      String typeFieldName) {
     return new RuntimeTypeAdapterFactory<>(baseType, typeFieldName);
   }
 

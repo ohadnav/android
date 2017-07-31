@@ -25,7 +25,7 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle, Bundle)}.
    */
-  protected String TAG = this.getClass().getSimpleName();
+  String TAG = this.getClass().getSimpleName();
 
   @Inject Context mContext;
   @Inject Retrofit mRetrofit;
@@ -52,18 +52,14 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     return super.getView();
   }
 
-  @Override public void onStart() {
-    Log.v(TAG, "STARTED");
-    super.onStart();
-  }
-
   @Override public void onStop() {
     Log.v(TAG, "STOPPED");
     super.onStop();
   }
 
-  @SuppressWarnings("unused") @Inject void logInjection() {
-    Log.v(TAG, "INJECTED");
+  @Override public void onStart() {
+    Log.v(TAG, "STARTED");
+    super.onStart();
   }
 
   /**
@@ -84,12 +80,16 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     return mGson;
   }
 
-  public AuthManager getAuthManager() {
+  AuthManager getAuthManager() {
     return mAuthManager;
   }
 
-  public ReactionDetectionManager getReactionDetectionManager() {
+  ReactionDetectionManager getReactionDetectionManager() {
     return mDetectionManager;
+  }
+
+  @SuppressWarnings("unused") @Inject void logInjection() {
+    Log.v(TAG, "INJECTED");
   }
 
   <T> T createApiInterface(final Class<T> service) {

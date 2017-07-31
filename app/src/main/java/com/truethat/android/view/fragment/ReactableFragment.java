@@ -1,6 +1,5 @@
 package com.truethat.android.view.fragment;
 
-import android.content.Context;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
@@ -27,7 +26,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     implements BaseFragmentViewInterface {
   private static final String ARG_REACTABLE = "reactable";
 
-  protected Model mReactable;
+  Model mReactable;
 
   public ReactableFragment() {
     // Required empty public constructor
@@ -40,7 +39,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
    * @param fragment  to prepare.
    * @param reactable to associate with this fragment.
    */
-  public static void prepareInstance(Fragment fragment, Reactable reactable) {
+  static void prepareInstance(Fragment fragment, Reactable reactable) {
     Bundle args = new Bundle();
     args.putSerializable(ARG_REACTABLE, reactable);
     fragment.setArguments(args);

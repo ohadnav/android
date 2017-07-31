@@ -12,22 +12,16 @@ import java.util.Set;
 
 public class BaseReactionDetectionManager implements ReactionDetectionManager {
    Set<ReactionDetectionListener> mReactionDetectionListeners;
-  State mState = State.IDLE;
   /**
    * For logging.
    */
   String TAG = this.getClass().getSimpleName();
+  private State mState = State.IDLE;
 
   @Override public void start() {
     Log.v(TAG, "Starting detection.");
     mReactionDetectionListeners = new HashSet<>();
     mState = State.DETECTING;
-  }
-
-  @Override public void stop() {
-    Log.v(TAG, "Stopping detection.");
-    mReactionDetectionListeners = null;
-    mState = State.IDLE;
   }
 
   @Override public void subscribe(ReactionDetectionListener reactionDetectionListener) {
@@ -55,6 +49,12 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
     }
   }
 
+  @Override public void stop() {
+    Log.v(TAG, "Stopping detection.");
+    mReactionDetectionListeners = null;
+    mState = State.IDLE;
+  }
+
   /**
    * @return Whether a detection is currently ongoing.
    */
@@ -68,7 +68,7 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
     }
   }
 
-  enum State {
+  private enum State {
     DETECTING,
     IDLE
   }

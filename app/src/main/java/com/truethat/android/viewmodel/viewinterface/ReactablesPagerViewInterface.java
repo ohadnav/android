@@ -10,7 +10,7 @@ import retrofit2.Retrofit;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-public interface ReatablesPagerViewInterface extends BaseFragmentViewInterface {
+public interface ReactablesPagerViewInterface extends BaseFragmentViewInterface {
   /**
    * Displays the {@code index}-th of {@link ReactablesPagerFragment#mPager} item to user.
    *

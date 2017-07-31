@@ -19,7 +19,6 @@ import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
-import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.ViewModelHelper;
 import javax.inject.Inject;
 
@@ -37,12 +36,12 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
    */
-  protected String TAG = this.getClass().getSimpleName();
+  String TAG = this.getClass().getSimpleName();
   /**
    * The fragment root view, that is inflated by
    * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
    */
-  protected View mRootView;
+  View mRootView;
   /**
    * Unbinds views, to prevent memory leaks.
    */
@@ -147,7 +146,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
-  @CallSuper public void onVisible() {
+  @SuppressWarnings("WeakerAccess") @CallSuper public void onVisible() {
     Log.v(TAG, "VISIBLE");
     getViewModel().onVisible();
   }
@@ -160,23 +159,11 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     getViewModel().onHidden();
   }
 
-  @SuppressWarnings("unused") @Inject void logInjection() {
-    Log.v(TAG, "INJECTED");
-  }
-
   /**
    * @return whether this fragment is resumed and visible to the user.
    */
   public boolean isReallyVisible() {
     return getUserVisibleHint() && isResumed();
-  }
-
-  public BaseActivity getBaseActivity() {
-    return (BaseActivity) getActivity();
-  }
-
-  public App getApp() {
-    return getBaseActivity().getApp();
   }
 
   @Override public void toast(String text) {
@@ -204,13 +191,25 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     mViewModelHelper.removeViewModel(getActivity());
   }
 
+  @SuppressWarnings("unused") @Inject void logInjection() {
+    Log.v(TAG, "INJECTED");
+  }
+
+  BaseActivity getBaseActivity() {
+    return (BaseActivity) getActivity();
+  }
+
+  App getApp() {
+    return getBaseActivity().getApp();
+  }
+
   /**
    * Call this after your view is ready - usually on the end of {@link
    * Fragment#onViewCreated(View, Bundle)}
    *
    * @param viewInterface view
    */
-  protected void setModelView(@NonNull final ViewInterface viewInterface) {
+  private void setModelView(@NonNull final ViewInterface viewInterface) {
     mViewModelHelper.setView(viewInterface);
   }
 }

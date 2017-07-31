@@ -1,15 +1,10 @@
 package com.truethat.android.viewmodel;
 
-import android.support.v4.content.ContextCompat;
-import android.widget.ImageView;
-import com.truethat.android.R;
-import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
-import com.truethat.android.model.User;
-import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +52,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
   @Override public void setUp() throws Exception {
     super.setUp();
     mViewModel = createViewModel(ReactablesPagerViewModel.class,
-        (ReatablesPagerViewInterface) new ViewInterface());
+        (ReactablesPagerViewInterface) new ViewInterface());
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -220,7 +215,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
   }
 
   private class ViewInterface extends ViewModelTestSuite.UnitTestViewInterface
-      implements ReatablesPagerViewInterface {
+      implements ReactablesPagerViewInterface {
     @Override public void displayItem(int index) {
 
     }

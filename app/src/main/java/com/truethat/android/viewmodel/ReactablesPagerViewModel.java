@@ -9,7 +9,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.truethat.android.R;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,7 +19,7 @@ import retrofit2.Response;
  * Proudly created by ohad on 21/07/2017 for TrueThat.
  */
 
-public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReatablesPagerViewInterface> {
+public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPagerViewInterface> {
   public final ObservableBoolean mNonFoundTextVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingLayoutVisibility = new ObservableBoolean();
   public final ObservableInt mLoadingImageResource = new ObservableInt();

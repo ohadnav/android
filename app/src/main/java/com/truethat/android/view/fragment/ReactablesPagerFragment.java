@@ -18,7 +18,7 @@ import com.truethat.android.model.Reactable;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.custom.ReactableFragmentAdapter;
 import com.truethat.android.viewmodel.ReactablesPagerViewModel;
-import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
 import retrofit2.Call;
@@ -28,12 +28,11 @@ import retrofit2.Call;
  */
 
 public class ReactablesPagerFragment extends
-    BaseFragment<ReatablesPagerViewInterface, ReactablesPagerViewModel, FragmentReactablesPagerBinding>
-    implements ReatablesPagerViewInterface {
+    BaseFragment<ReactablesPagerViewInterface, ReactablesPagerViewModel, FragmentReactablesPagerBinding>
+    implements ReactablesPagerViewInterface {
   private static final String ARG_DETECT_REACTIONS = "detectReactions";
-  private boolean mDetectReactions = false;
-
   @BindView(R.id.reactablesPager) ViewPager mPager;
+  private boolean mDetectReactions = false;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
   private ReactablePagerListener mListener;
 
@@ -46,28 +45,6 @@ public class ReactablesPagerFragment extends
           + " must implement "
           + ReactablePagerListener.class.getSimpleName());
     }
-  }
-
-  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
-    super.onInflate(context, attrs, savedInstanceState);
-    TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.ReactablesPagerFragment);
-    // Saved state trumps XML.
-    if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_DETECT_REACTIONS)) {
-      mDetectReactions = styledAttributes.getBoolean(R.styleable.ReactablesPagerFragment_detect_reactions, false);
-    }
-    styledAttributes.recycle();
-  }
-
-  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    if (savedInstanceState != null) {
-      mDetectReactions = savedInstanceState.getBoolean(ARG_DETECT_REACTIONS);
-    }
-  }
-
-  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -111,6 +88,30 @@ public class ReactablesPagerFragment extends
     // Initializes view model parameters.
     getViewModel().setDetectReactions(mDetectReactions);
     return mRootView;
+  }
+
+  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    super.onInflate(context, attrs, savedInstanceState);
+    TypedArray styledAttributes =
+        context.obtainStyledAttributes(attrs, R.styleable.ReactablesPagerFragment);
+    // Saved state trumps XML.
+    if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_DETECT_REACTIONS)) {
+      mDetectReactions =
+          styledAttributes.getBoolean(R.styleable.ReactablesPagerFragment_detect_reactions, false);
+    }
+    styledAttributes.recycle();
+  }
+
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    if (savedInstanceState != null) {
+      mDetectReactions = savedInstanceState.getBoolean(ARG_DETECT_REACTIONS);
+    }
+  }
+
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
   }
 
   @VisibleForTesting public ReactableFragment getDisplayedReactable() {

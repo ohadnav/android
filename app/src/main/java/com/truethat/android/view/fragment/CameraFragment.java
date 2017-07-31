@@ -3,7 +3,6 @@ package com.truethat.android.view.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -26,13 +25,11 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.View;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.permissions.Permission;
@@ -63,13 +60,9 @@ public class CameraFragment extends
     BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, FragmentCameraBinding>
     implements BaseViewInterface {
   /**
-   * Whether camera preview should be shown.
-   */
-  protected static final String ARG_SHOW_PREVIEW = "showPreview";
-  /**
    * Whether selfie camera or back camera should be used, as per {@link CameraUtil.Facing}.
    */
-  protected static final String ARG_FACING = "facing";
+  private static final String ARG_FACING = "facing";
   /**
    * Conversion from screen rotation to JPEG orientation.
    */
@@ -428,7 +421,7 @@ public class CameraFragment extends
   /**
    * Adjusts camera preview for emulator defects, so that it looks normal.
    */
-  public void adjustForEmulator() {
+  private void adjustForEmulator() {
     Matrix matrix = new Matrix();
     Point displaySize = AppUtil.realDisplaySize(getActivity());
     RectF viewRect = new RectF(0, 0, mCameraPreview.getWidth(), mCameraPreview.getHeight());
@@ -733,31 +726,6 @@ public class CameraFragment extends
     }
   }
 
-  private void prepareCaptureWithoutPreview() {
-    try {
-      // Ready to take a picture.
-      mState = CameraState.WAITING_FOR_CAPTURE;
-      // Initiate the capture session.
-      mCameraDevice.createCaptureSession(Collections.singletonList(mImageReader.getSurface()),
-          new CameraCaptureSession.StateCallback() {
-            @Override public void onConfigured(@NonNull CameraCaptureSession session) {
-              if (!canUseCamera()) {
-                Log.i(TAG, "Capturing still picture aborted, as view is no longer visible.");
-                return;
-              }
-              mCaptureSession = session;
-              captureStillPicture();
-            }
-
-            @Override public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-              Log.e(TAG, "Configuration failed for taking a picture.");
-            }
-          }, mBackgroundHandler.getHandler());
-    } catch (CameraAccessException e) {
-      e.printStackTrace();
-    }
-  }
-
   /**
    * Run the precapture sequence for capturing a still image. This method should be called when
    * we get a response in {@link #mCaptureCallback} from {@link #lockFocus()}.
@@ -778,7 +746,7 @@ public class CameraFragment extends
 
   /**
    * Capture a still picture. This method should be called when we get a response in
-   * {@link #mCaptureCallback} from {@link #lockFocus()} or {@link #prepareCaptureWithoutPreview()}.
+   * {@link #mCaptureCallback} from {@link #lockFocus()}.
    */
   private void captureStillPicture() {
     try {

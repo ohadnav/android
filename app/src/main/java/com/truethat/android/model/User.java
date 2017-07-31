@@ -8,7 +8,7 @@ import static com.truethat.android.common.util.StringUtil.toTitleCase;
 /**
  * Proudly created by ohad on 22/05/2017 for TrueThat.
  *
- * @backend https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/User.java
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/User.java</a>
  */
 
 public class User implements Serializable {

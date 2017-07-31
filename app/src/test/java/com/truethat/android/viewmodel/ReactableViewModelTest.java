@@ -1,7 +1,6 @@
 package com.truethat.android.viewmodel;
 
 import android.support.annotation.NonNull;
-import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.di.component.DaggerReactableInjectorComponent;
@@ -10,12 +9,7 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
-import java.util.Collections;
 import java.util.TreeMap;
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Test;
 

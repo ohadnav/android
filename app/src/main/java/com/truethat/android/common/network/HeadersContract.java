@@ -8,7 +8,7 @@ package com.truethat.android.common.network;
 public enum HeadersContract {
   VERSION_NAME("version-name");
 
-  public static final String PREFIX = "x-thuethat-";
+  private static final String PREFIX = "x-truethat-";
   private String mName;
 
   HeadersContract(String name) {

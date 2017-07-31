@@ -77,14 +77,6 @@ public abstract class Reactable implements Serializable {
     return mId;
   }
 
-  public void setId(long id) {
-    mId = id;
-  }
-
-  public boolean hasId() {
-    return mId != null;
-  }
-
   public boolean isViewed() {
     return mViewed;
   }

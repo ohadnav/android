@@ -21,8 +21,8 @@ import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     implements ReactionDetectionListener {
   @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
-  @VisibleForTesting @ColorRes public static final int ERROR_COLOR = R.color.error;
-  @VisibleForTesting @ColorRes public static final int VALID_NAME_COLOR = R.color.success;
+  @VisibleForTesting @ColorRes static final int ERROR_COLOR = R.color.error;
+  @VisibleForTesting @ColorRes static final int VALID_NAME_COLOR = R.color.success;
   public final ObservableField<String> mNameEditText = new ObservableField<>();
   public final ObservableInt mNameTextColor = new ObservableInt(R.color.primary);
   public final ObservableBoolean mNameEditCursorVisibility = new ObservableBoolean(true);
@@ -40,6 +40,12 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     });
   }
 
+  @Override public void onStop() {
+    super.onStop();
+    getReactionDetectionManager().unsubscribe(this);
+    getReactionDetectionManager().stop();
+  }
+
   @Override public void onStart() {
     super.onStart();
     if (isNameValid()) {
@@ -48,38 +54,6 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
       getView().requestNameEditFocus();
     }
     getReactionDetectionManager().start();
-  }
-
-  @Override public void onStop() {
-    super.onStop();
-    getReactionDetectionManager().unsubscribe(this);
-    getReactionDetectionManager().stop();
-  }
-
-  /**
-   * Updates the underline color of {@link #mNameEditText}.
-   */
-  void onTextChange() {
-    mNameEditCursorVisibility.set(true);
-    if (StringUtil.isValidFullName(mNameEditText.get())) {
-      mWarningTextVisibility.set(false);
-      mNameEditBackgroundTintColor.set(VALID_NAME_COLOR);
-    } else {
-      mNameEditBackgroundTintColor.set(ERROR_COLOR);
-    }
-  }
-
-  /**
-   * The final on-boarding stage, a.k.a asking the user for a real emotion, that is the on-
-   * boarding is completed as soon as {@link @REACTION_FOR_DONE} is detected.
-   * <p>
-   * This shows users the way things go around here.
-   */
-  private void finalStage() {
-    mCompletionTextVisibility.set(true);
-    mCompletionSubscriptTextVisibility.set(true);
-    // Subscribes to reaction detection.
-    getReactionDetectionManager().subscribe(this);
   }
 
   @Override public void onReactionDetected(Emotion reaction) {
@@ -109,6 +83,32 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     } else {
       getView().hideSoftKeyboard();
     }
+  }
+
+  /**
+   * Updates the underline color of {@link #mNameEditText}.
+   */
+  private void onTextChange() {
+    mNameEditCursorVisibility.set(true);
+    if (StringUtil.isValidFullName(mNameEditText.get())) {
+      mWarningTextVisibility.set(false);
+      mNameEditBackgroundTintColor.set(VALID_NAME_COLOR);
+    } else {
+      mNameEditBackgroundTintColor.set(ERROR_COLOR);
+    }
+  }
+
+  /**
+   * The final on-boarding stage, a.k.a asking the user for a real emotion, that is the on-
+   * boarding is completed as soon as {@link @REACTION_FOR_DONE} is detected.
+   * <p>
+   * This shows users the way things go around here.
+   */
+  private void finalStage() {
+    mCompletionTextVisibility.set(true);
+    mCompletionSubscriptTextVisibility.set(true);
+    // Subscribes to reaction detection.
+    getReactionDetectionManager().subscribe(this);
   }
 
   private boolean isNameValid() {

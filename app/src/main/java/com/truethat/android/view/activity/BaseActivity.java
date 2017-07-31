@@ -47,18 +47,17 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   @NonNull private final ViewModelHelper<ViewInterface, ViewModel> mViewModelHelper =
       new ViewModelHelper<>();
   /**
-   * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
-   */
-  protected String TAG = this.getClass().getSimpleName();
-  /**
-   * Whether to skip authentication.
-   */
-  protected boolean mSkipAuth = false;
-  /**
    * Root view layout of each activity.
    */
   @BindView(R.id.activityRootView) protected View mRootView;
-
+  /**
+   * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle)}.
+   */
+  String TAG = this.getClass().getSimpleName();
+  /**
+   * Whether to skip authentication.
+   */
+  boolean mSkipAuth = false;
   @Inject Retrofit mRetrofit;
 
   @Inject Gson mGson;
@@ -103,10 +102,6 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     });
   }
 
-  public <T> T createApiInterface(final Class<T> service) {
-    return mRetrofit.create(service);
-  }
-
   public ReactionDetectionManager getReactionDetectionManager() {
     return mReactionDetectionManager;
   }
@@ -131,7 +126,8 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     mViewModelHelper.setView(view);
   }
 
-  @Nullable public Class<ViewModel> getViewModelClass() {
+  @SuppressWarnings({ "WeakerAccess", "SameReturnValue" }) @Nullable
+  public Class<ViewModel> getViewModelClass() {
     return null;
   }
 
@@ -235,6 +231,10 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @Override public void toast(String text) {
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+  }
+
+  <T> T createApiInterface(final Class<T> service) {
+    return mRetrofit.create(service);
   }
 
   @Inject void logInjection() {
