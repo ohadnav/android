@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.truethat.android.R;
+import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.databinding.FragmentReactablesPagerBinding;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
@@ -88,6 +89,15 @@ public class ReactablesPagerFragment extends
     // Initializes view model parameters.
     getViewModel().setDetectReactions(mDetectReactions);
     return mRootView;
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    // Asks for camera permission if needed.
+    if (mDetectReactions) {
+      getBaseActivity().getPermissionsManager()
+          .requestIfNeeded(getBaseActivity(), Permission.CAMERA);
+    }
   }
 
   @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
