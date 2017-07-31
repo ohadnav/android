@@ -1,10 +1,13 @@
 package com.truethat.android.view.fragment;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +30,9 @@ import retrofit2.Call;
 public class ReactablesPagerFragment extends
     BaseFragment<ReatablesPagerViewInterface, ReactablesPagerViewModel, FragmentReactablesPagerBinding>
     implements ReatablesPagerViewInterface {
+  private static final String ARG_DETECT_REACTIONS = "detectReactions";
+  private boolean mDetectReactions = false;
+
   @BindView(R.id.reactablesPager) ViewPager mPager;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
   private ReactablePagerListener mListener;
@@ -42,13 +48,35 @@ public class ReactablesPagerFragment extends
     }
   }
 
+  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+    super.onInflate(context, attrs, savedInstanceState);
+    TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.ReactablesPagerFragment);
+    // Saved state trumps XML.
+    if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_DETECT_REACTIONS)) {
+      mDetectReactions = styledAttributes.getBoolean(R.styleable.ReactablesPagerFragment_detect_reactions, false);
+    }
+    styledAttributes.recycle();
+  }
+
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    if (savedInstanceState != null) {
+      mDetectReactions = savedInstanceState.getBoolean(ARG_DETECT_REACTIONS);
+    }
+  }
+
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
+  }
+
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
     // Navigation between reactables and activities.
     mRootView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
       @Override public void onSwipeLeft() {
-        getViewModel().onSwipeLeft();
+        getViewModel().next();
       }
 
       @Override public void onSwipeDown() {
@@ -61,11 +89,11 @@ public class ReactablesPagerFragment extends
     });
     mPager.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
       @Override public void onSwipeLeft() {
-        getViewModel().onSwipeLeft();
+        getViewModel().next();
       }
 
       @Override public void onSwipeRight() {
-        getViewModel().onSwipeRight();
+        getViewModel().previous();
       }
 
       @Override public void onSwipeDown() {
@@ -80,6 +108,8 @@ public class ReactablesPagerFragment extends
     mReactableFragmentAdapter =
         new ReactableFragmentAdapter(getActivity().getSupportFragmentManager());
     mPager.setAdapter(mReactableFragmentAdapter);
+    // Initializes view model parameters.
+    getViewModel().setDetectReactions(mDetectReactions);
     return mRootView;
   }
 

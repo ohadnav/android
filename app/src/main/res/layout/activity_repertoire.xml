@@ -26,6 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:detect_reactions="false"
         tools:layout="@layout/fragment_reactables_pager"
         />
 </android.support.constraint.ConstraintLayout>

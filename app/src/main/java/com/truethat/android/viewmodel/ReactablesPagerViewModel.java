@@ -27,8 +27,13 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReatablesPag
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
   private int mDisplayedIndex;
+  private boolean mDetectReactions = false;
 
-  public void onSwipeLeft() {
+  public void setDetectReactions(boolean detectReactions) {
+    mDetectReactions = detectReactions;
+  }
+
+  public void next() {
     // Fetch more reactables if we have none, or if we're at the last item.
     if (mItems.size() == 0 || mDisplayedIndex == mItems.size() - 1) {
       fetchReactables();
@@ -38,7 +43,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReatablesPag
     }
   }
 
-  public void onSwipeRight() {
+  public void previous() {
     if (mDisplayedIndex != 0) {
       mDisplayedIndex = mDisplayedIndex - 1;
       getView().displayItem(mDisplayedIndex);
@@ -48,11 +53,17 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReatablesPag
   @Override public void onStop() {
     super.onStop();
     if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
+    if (mDetectReactions) {
+      getReactionDetectionManager().stop();
+    }
   }
 
   @Override public void onStart() {
     super.onStart();
     mFetchReactablesCallback = buildFetchReactablesCallback();
+    if (mDetectReactions) {
+      getReactionDetectionManager().start();
+    }
   }
 
   /**
@@ -63,7 +74,6 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReatablesPag
     if (mItems.isEmpty()) {
       mLoadingLayoutVisibility.set(true);
       mNonFoundTextVisibility.set(false);
-      //Glide.with(this).load(R.drawable.anim_loading_elephant).into(mLoadingImage);
       mLoadingImageResource.set(R.drawable.anim_loading_elephant);
     }
     mFetchReactablesCall = getView().buildFetchReactablesCall();

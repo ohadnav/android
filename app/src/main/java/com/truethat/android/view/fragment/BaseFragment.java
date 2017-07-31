@@ -7,6 +7,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,9 @@ import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.ViewModelHelper;
+import javax.inject.Inject;
 
 /**
  * Proudly created by ohad on 22/06/2017 for TrueThat.
@@ -58,6 +61,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void onAttach(Context context) {
     TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
+    Log.v(TAG, "ATTACHED");
     super.onAttach(context);
   }
 
@@ -76,6 +80,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    Log.v(TAG, "VIEW CREATED");
     // Completes data binding.
     mViewModelHelper.performBinding(this);
     final ViewDataBinding binding = mViewModelHelper.getBinding();
@@ -85,11 +90,14 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
       throw new IllegalStateException(
           "Binding cannot be null. Perform binding before calling getBinding()");
     }
+    // Inject dependencies into the view model.
+    getApp().getInjector().inject((BaseFragmentViewModel<BaseFragmentViewInterface>) getViewModel());
+    getViewModel().onInjected();
     // Sets the view interface.
     setModelView((ViewInterface) this);
     // Binds views with butterknife.
     mViewUnbinder = ButterKnife.bind(this, mRootView);
-    // Injects dependencies.
+    // Injects dependencies to this fragment.
     getApp().getInjector()
         .inject(
             (BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, ViewDataBinding>) this);
@@ -97,6 +105,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   }
 
   @CallSuper @Override public void onStart() {
+    Log.v(TAG, "STARTED");
     super.onStart();
     mViewModelHelper.onStart();
   }
@@ -106,21 +115,25 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * and {@link #onHidden()} here as well.
    */
   @CallSuper @Override public void onResume() {
+    Log.v(TAG, "RESUMED");
     super.onResume();
     if (getUserVisibleHint()) onVisible();
   }
 
   @CallSuper @Override public void onPause() {
+    Log.v(TAG, "PAUSED");
     super.onPause();
     onHidden();
   }
 
   @CallSuper @Override public void onStop() {
+    Log.v(TAG, "STOPPED");
     super.onStop();
     mViewModelHelper.onStop();
   }
 
   @CallSuper @Override public void onDestroyView() {
+    Log.v(TAG, "VIEW DESTROYED");
     mViewModelHelper.onDestroyView(this);
     super.onDestroyView();
     mViewUnbinder.unbind();
@@ -135,6 +148,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * Should be invoked once this fragment is visible. Use with caution.
    */
   @CallSuper public void onVisible() {
+    Log.v(TAG, "VISIBLE");
     getViewModel().onVisible();
   }
 
@@ -142,7 +156,12 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * Should be invoked once this fragment is hidden. Use with caution.
    */
   @CallSuper public void onHidden() {
+    Log.v(TAG, "HIDDEN");
     getViewModel().onHidden();
+  }
+
+  @SuppressWarnings("unused") @Inject void logInjection() {
+    Log.v(TAG, "INJECTED");
   }
 
   /**

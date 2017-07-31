@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="affdexsdk-3.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.android/build-cache/46496cb8582e6760f51158f1269ef9a4fdf0881b/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/46496cb8582e6760f51158f1269ef9a4fdf0881b/output/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

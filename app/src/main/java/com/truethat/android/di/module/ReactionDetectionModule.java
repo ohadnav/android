@@ -2,8 +2,6 @@ package com.truethat.android.di.module;
 
 import com.truethat.android.di.scope.AppScope;
 import com.truethat.android.empathy.DefaultReactionDetectionManager;
-import com.truethat.android.empathy.EmotionDetectionClassifier;
-import com.truethat.android.empathy.NullEmotionDetectionClassifier;
 import com.truethat.android.empathy.ReactionDetectionManager;
 import dagger.Module;
 import dagger.Provides;
@@ -13,12 +11,7 @@ import dagger.Provides;
  */
 
 @Module public class ReactionDetectionModule {
-  @Provides @AppScope EmotionDetectionClassifier provideEmotionDetectionClassifier() {
-    return new NullEmotionDetectionClassifier();
-  }
-
-  @Provides @AppScope ReactionDetectionManager provideReactionDetectionManager(
-      EmotionDetectionClassifier detectionClassifier) {
-    return new DefaultReactionDetectionManager(detectionClassifier);
+  @Provides @AppScope ReactionDetectionManager provideReactionDetectionManager() {
+    return new DefaultReactionDetectionManager();
   }
 }

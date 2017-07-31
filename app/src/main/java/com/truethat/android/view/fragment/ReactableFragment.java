@@ -24,14 +24,10 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
  */
 public abstract class ReactableFragment<Model extends Reactable, ViewModel extends ReactableViewModel<Model>, DataBinding extends ViewDataBinding>
     extends BaseFragment<BaseFragmentViewInterface, ViewModel, DataBinding>
-    implements BaseFragmentViewInterface, ReactableViewModel.ReactionDetectionListener {
+    implements BaseFragmentViewInterface {
   private static final String ARG_REACTABLE = "reactable";
 
   protected Model mReactable;
-  /**
-   * Communication interface with parent activity.
-   */
-  private ReactableViewModel.ReactionDetectionListener mListener;
 
   public ReactableFragment() {
     // Required empty public constructor
@@ -48,13 +44,6 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     Bundle args = new Bundle();
     args.putSerializable(ARG_REACTABLE, reactable);
     fragment.setArguments(args);
-  }
-
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof ReactableViewModel.ReactionDetectionListener) {
-      mListener = (ReactableViewModel.ReactionDetectionListener) context;
-    }
   }
 
   @Override public void onCreate(Bundle savedInstanceState) {
@@ -80,26 +69,12 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     return mRootView;
   }
 
-  @Override public void onDetach() {
-    super.onDetach();
-    mListener = null;
-  }
-
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.fragment_reactable, getContext());
   }
 
   public Reactable getReactable() {
     return mReactable;
-  }
-
-  @Override public void requestDetectionInput() {
-    if (mListener == null) {
-      throw new RuntimeException(getActivity().getClass().getSimpleName()
-          + " must implement "
-          + ReactableViewModel.ReactionDetectionListener.class.getSimpleName());
-    }
-    mListener.requestDetectionInput();
   }
 
   /**

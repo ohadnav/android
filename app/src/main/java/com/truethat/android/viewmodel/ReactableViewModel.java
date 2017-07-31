@@ -12,8 +12,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
-import com.truethat.android.empathy.ReactionDetectionManager;
-import com.truethat.android.empathy.ReactionDetectionPubSub;
+import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.Reactable;
@@ -31,7 +30,7 @@ import retrofit2.Response;
  */
 
 public class ReactableViewModel<Model extends Reactable>
-    extends BaseFragmentViewModel<BaseFragmentViewInterface> {
+    extends BaseFragmentViewModel<BaseFragmentViewInterface> implements ReactionDetectionListener {
   /**
    * Default for reaction counter's image view.
    */
@@ -49,10 +48,6 @@ public class ReactableViewModel<Model extends Reactable>
   @Inject Model mReactable;
 
   /**
-   * Communication interface with parent activity.
-   */
-  private ReactionDetectionListener mListener;
-  /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * ReactableEvent}.
    */
@@ -66,10 +61,6 @@ public class ReactableViewModel<Model extends Reactable>
    */
   private Callback<ResponseBody> mPostEventCallback;
   /**
-   * Communication interface with {@link ReactionDetectionManager}.
-   */
-  private ReactionDetectionPubSub mDetectionPubSub;
-  /**
    * Whether the media resources to display this reactable had been downloaded.
    */
   private boolean mReadyForDisplay = false;
@@ -79,13 +70,10 @@ public class ReactableViewModel<Model extends Reactable>
     // Initializes the API
     mInteractionApi = createApiInterface(InteractionApi.class);
     mPostEventCallback = buildPostEventCallback();
-    mDetectionPubSub = buildDetectionPubSub();
   }
 
   @CallSuper @Override public void onStop() {
     super.onStop();
-    mReadyForDisplay = false;
-    mListener = null;
     if (mPostEventCall != null) mPostEventCall.cancel();
   }
 
@@ -101,8 +89,9 @@ public class ReactableViewModel<Model extends Reactable>
     }
   }
 
-  @CallSuper public void onHidden() {
-    mDetectionManager.stop();
+  @Override public void onHidden() {
+    super.onHidden();
+    getReactionDetectionManager().unsubscribe(this);
   }
 
   public Reactable getReactable() {
@@ -136,7 +125,7 @@ public class ReactableViewModel<Model extends Reactable>
     Log.v(TAG, "onDisplay");
     doView();
     if (mReactable.canReactTo(mCurrentUser.get())) {
-      mDetectionManager.detect(mDetectionPubSub);
+      getReactionDetectionManager().subscribe(this);
     }
   }
 
@@ -153,15 +142,17 @@ public class ReactableViewModel<Model extends Reactable>
     }
   }
 
-  @CallSuper private void onReaction(Emotion reaction) {
-    Log.v(TAG, "Reaction detected: " + reaction.name());
-    mReactable.doReaction(reaction);
-    // Post event of reactable reaction.
-    mPostEventCall = mInteractionApi.postEvent(
-        new ReactableEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
-            EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
-    mPostEventCall.enqueue(mPostEventCallback);
-    updateReactionCounters();
+  public void onReactionDetected(Emotion reaction) {
+    if (mReactable.canReactTo(mCurrentUser.get())) {
+      Log.v(TAG, "Reaction detected: " + reaction.name());
+      mReactable.doReaction(reaction);
+      // Post event of reactable reaction.
+      mPostEventCall = mInteractionApi.postEvent(
+          new ReactableEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
+              EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
+      mPostEventCall.enqueue(mPostEventCallback);
+      updateReactionCounters();
+    }
   }
 
   /**
@@ -220,30 +211,5 @@ public class ReactableViewModel<Model extends Reactable>
         Log.e(TAG, "Post event request to " + call.request().url() + " had failed.", t);
       }
     };
-  }
-
-  private ReactionDetectionPubSub buildDetectionPubSub() {
-    return new ReactionDetectionPubSub() {
-
-      @Override public void onReactionDetected(Emotion reaction) {
-        if (mReactable.getUserReaction() == null) {
-          // Triggers the reaction visual outcome.
-          ReactableViewModel.this.onReaction(reaction);
-        } else {
-          Log.v(TAG, "Non first reaction " + reaction.name() + " is ignored.");
-        }
-      }
-
-      @Override public void requestInput() {
-        mListener.requestDetectionInput();
-      }
-    };
-  }
-
-  public interface ReactionDetectionListener {
-    /**
-     * Request an image input for reaction detection.
-     */
-    void requestDetectionInput();
   }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <declare-styleable name="CameraFragment">
-    <attr format="boolean" name="show_preview"/>
+  <declare-styleable name="ReactablesPagerFragment">
+    <attr format="boolean" name="detect_reactions"/>
   </declare-styleable>
 </resources>

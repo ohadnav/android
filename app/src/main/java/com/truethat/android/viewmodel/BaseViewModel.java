@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import com.google.gson.Gson;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.auth.AuthManager;
@@ -38,17 +39,37 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   public final void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
     TAG = this.getClass().getSimpleName();
+    Log.v(TAG, "CREATED");
+  }
+
+  @Override public void onBindView(@NonNull ViewInterface view) {
+    super.onBindView(view);
+    TAG = this.getClass().getSimpleName() + "(" + getView().getClass().getSimpleName() + ")";
+    Log.v(TAG, "DATA-BOUND");
   }
 
   @SuppressWarnings("ConstantConditions") @NonNull @Override public ViewInterface getView() {
     return super.getView();
   }
 
+  @Override public void onStart() {
+    Log.v(TAG, "STARTED");
+    super.onStart();
+  }
+
+  @Override public void onStop() {
+    Log.v(TAG, "STOPPED");
+    super.onStop();
+  }
+
+  @SuppressWarnings("unused") @Inject void logInjection() {
+    Log.v(TAG, "INJECTED");
+  }
+
   /**
    * Called after dependencies are injected to this view model.
    */
   public void onInjected() {
-
   }
 
   public Provider<User> getCurrentUser() {
@@ -67,7 +88,7 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     return mAuthManager;
   }
 
-  ReactionDetectionManager getDetectionManager() {
+  public ReactionDetectionManager getReactionDetectionManager() {
     return mDetectionManager;
   }
 

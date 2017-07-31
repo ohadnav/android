@@ -30,4 +30,6 @@ import dagger.Component;
       ReactableFragment<Reactable, ReactableViewModel<Reactable>, ViewDataBinding> reactableFragment);
 
   void inject(BaseViewModel<BaseViewInterface> viewModel);
+
+  void inject(BaseFragmentViewModel<BaseFragmentViewInterface> viewModel);
 }

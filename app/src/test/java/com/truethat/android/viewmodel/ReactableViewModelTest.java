@@ -1,6 +1,7 @@
 package com.truethat.android.viewmodel;
 
 import android.support.annotation.NonNull;
+import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.di.component.DaggerReactableInjectorComponent;
@@ -9,8 +10,12 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
+import java.util.Collections;
 import java.util.TreeMap;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Test;
 
@@ -32,6 +37,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     put(Emotion.SAD, 20000L);
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
+  private static final Emotion REACTION_2 = Emotion.SAD;
   private ReactableViewModel<Reactable> mViewModel = new ReactableViewModel<>();
   private Scene mScene;
 
@@ -109,8 +115,13 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
             null);
     initReactableViewModel();
     mViewModel.onDisplay();
-    // Should not be detecting.
-    assertFalse(mFakeReactionDetectionManager.isDetecting());
+    // Should not be subscribed to reaction detection.
+    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+    // Fake a detection.
+    mFakeReactionDetectionManager.doDetection(REACTION);
+    // Should not have an effect
+    assertNull(mViewModel.getReactable().getUserReaction());
+    assertEquals(reactionCounters, mViewModel.getReactable().getReactionCounters());
   }
 
   @Test public void reactionNotDetectedOnHidden() throws Exception {
@@ -120,30 +131,29 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     // Hides view.
     mViewModel.onHidden();
     // Do a detection
-    try {
-      mFakeReactionDetectionManager.doDetection(REACTION);
-      // Should not reach here.
-      assertFalse(true);
-    } catch (Exception e) {
-      // Should not register the detection.
-      assertNull(mViewModel.getReactable().getUserReaction());
-    }
+    mFakeReactionDetectionManager.doDetection(REACTION);
+    // Should not register the detection.
+    assertNull(mViewModel.getReactable().getUserReaction());
+  }
+
+  @Test public void reactionCanNotBeDetectedTwice() throws Exception {
+    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
+    initReactableViewModel();
+    mViewModel.onDisplay();
+    // Do a detection
+    mFakeReactionDetectionManager.doDetection(REACTION_2);
+    // Should not register the detection.
+    assertEquals(REACTION, mViewModel.getReactable().getUserReaction());
   }
 
   private void initReactableViewModel() throws Exception {
-    mViewModel = createViewModel(mViewModel.getClass(), new ViewInterface());
+    mViewModel = createViewModel(mViewModel.getClass(), new UnitTestViewInterface());
     DaggerReactableInjectorComponent.builder()
         .appComponent(mUnitTestComponent)
         .reactableModule(new ReactableModule(mScene))
         .build()
         .inject(mViewModel);
+    mViewModel.getReactionDetectionManager().start();
     mViewModel.onStart();
-  }
-
-  private class ViewInterface extends ViewModelTestSuite.UnitTestViewInterface
-      implements ReactableViewModel.ReactionDetectionListener, BaseViewInterface {
-    @Override public void requestDetectionInput() {
-
-    }
   }
 }

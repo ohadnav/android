@@ -7,7 +7,7 @@
     <import type="android.view.View"/>
     <variable
         name="viewModel"
-        type="com.truethat.android.viewmodel.BaseViewModel"
+        type="com.truethat.android.viewmodel.OnBoardingViewModel"
         />
   </data>
   <android.support.constraint.ConstraintLayout
@@ -18,19 +18,6 @@
     android:focusableInTouchMode="true"
     tools:context=".view.activity.OnBoardingActivity"
     >
-
-  <fragment
-      android:id="@+id/cameraFragment"
-      android:name="com.truethat.android.view.fragment.CameraFragment"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:show_preview="false"
-      tools:layout="@layout/fragment_camera"
-      />
 
   <TextView
       android:id="@+id/newAccountText"
@@ -68,14 +55,15 @@
       android:id="@+id/nameEditText"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:backgroundTint="@color/hint"
+      android:backgroundTint="@{viewModel.mNameEditBackgroundTintColor}"
       android:ems="10"
       android:hint="@string/john_doe"
       android:imeOptions="actionDone"
       android:inputType="textPersonName"
-      android:textColor="@color/primary"
+      android:textColor="@{viewModel.mNameTextColor}"
       android:textColorHint="@color/hint"
       android:textCursorDrawable="@drawable/cursor_primary"
+      android:cursorVisible="@{viewModel.mNameEditCursorVisibility}"
       app:layout_constraintBottom_toTopOf="@+id/warningText"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +79,7 @@
       android:textAlignment="center"
       android:textColor="@color/error"
       android:textSize="15sp"
-      android:visibility="invisible"
+      android:visibility="@{viewModel.mWarningTextVisibility ? View.VISIBLE : View.INVISIBLE}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -99,7 +87,7 @@
       />
 
   <TextView
-      android:id="@+id/smileText"
+      android:id="@+id/completionText"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:paddingEnd="50dp"
@@ -108,8 +96,8 @@
       android:textAlignment="center"
       android:textColor="@color/primary"
       android:textSize="30sp"
-      android:visibility="invisible"
-      app:layout_constraintBottom_toTopOf="@+id/realLifeText"
+      android:visibility="@{viewModel.mCompletionTextVisibility ? View.VISIBLE : View.INVISIBLE}"
+      app:layout_constraintBottom_toTopOf="@+id/completionSubscriptText"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
@@ -118,18 +106,18 @@
       />
 
   <TextView
-      android:id="@+id/realLifeText"
+      android:id="@+id/completionSubscriptText"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@string/real_life_smile"
       android:textAlignment="center"
       android:textColor="@color/primary"
       android:textSize="20sp"
-      android:visibility="invisible"
+      android:visibility="@{viewModel.mCompletionSubscriptTextVisibility ? View.VISIBLE : View.INVISIBLE}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/smileText"
+      app:layout_constraintTop_toBottomOf="@id/completionText"
       />
 
 </android.support.constraint.ConstraintLayout>

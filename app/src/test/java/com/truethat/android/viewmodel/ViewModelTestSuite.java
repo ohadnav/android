@@ -91,7 +91,7 @@ import org.junit.Before;
     // Updates modules
     mFakeAuthManager = (FakeAuthManager) viewModel.getAuthManager();
     FakeDeviceManager fakeDeviceManager = (FakeDeviceManager) viewModel.getDeviceManager();
-    mFakeReactionDetectionManager = (FakeReactionDetectionManager) viewModel.getDetectionManager();
+    mFakeReactionDetectionManager = (FakeReactionDetectionManager) viewModel.getReactionDetectionManager();
     mGson = viewModel.getGson();
     // Sign up
     mFakeAuthManager.signUp(new UnitTestViewInterface(),

@@ -1,9 +1,14 @@
 package com.truethat.android.viewmodel;
 
+import android.support.v4.content.ContextCompat;
+import android.widget.ImageView;
+import com.truethat.android.R;
+import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
+import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.ReatablesPagerViewInterface;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -96,7 +101,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
             HOUR_AGO, Emotion.HAPPY);
     // Explicitly load more reactables.
     mRespondedScenes = Collections.singletonList(scene);
-    mViewModel.onSwipeLeft();
+    mViewModel.next();
     // Not found text should be hidden.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -153,7 +158,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
       }
     });
     // Triggers navigation to next reactable.
-    mViewModel.onSwipeLeft();
+    mViewModel.next();
     // Second reactable should be displayed.
     assertEquals(scene2, mViewModel.getDisplayedReactable());
   }
@@ -174,15 +179,15 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
       }
     });
     // Triggers navigation to next reactable.
-    mViewModel.onSwipeLeft();
+    mViewModel.next();
     // Second reactable should be displayed.
     assertEquals(scene2, mViewModel.getDisplayedReactable());
     // Triggers navigation to previous reactable.
-    mViewModel.onSwipeRight();
+    mViewModel.previous();
     // First reactable should be displayed.
     assertEquals(scene1, mViewModel.getDisplayedReactable());
     // Triggers navigation to previous reactable.
-    mViewModel.onSwipeRight();
+    mViewModel.previous();
     // First reactable should still be displayed.
     assertEquals(scene1, mViewModel.getDisplayedReactable());
   }
@@ -205,7 +210,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     // Updates responded scenes.
     mRespondedScenes = Collections.singletonList(scene2);
     // Triggers navigation to next reactable.
-    mViewModel.onSwipeLeft();
+    mViewModel.next();
     // Second reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

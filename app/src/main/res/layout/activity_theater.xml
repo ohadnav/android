@@ -17,19 +17,6 @@
     tools:context=".view.activity.TheaterActivity"
     >
 
-  <fragment
-      android:id="@+id/cameraFragment"
-      android:name="com.truethat.android.view.fragment.CameraFragment"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:show_preview="false"
-      tools:layout="@layout/fragment_camera"
-      />
-
     <fragment
         android:id="@+id/reactablesPagerFragment"
         android:name="com.truethat.android.view.fragment.ReactablesPagerFragment"
@@ -39,6 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:detect_reactions="true"
         tools:layout="@layout/fragment_reactables_pager"
         />
 

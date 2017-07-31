@@ -87,8 +87,7 @@ public class CameraFragment extends
   }
 
   /**
-   * A {@link FullscreenTextureView} for camera preview. To remove camera preview set {@link
-   * #mShowPreview} to false.
+   * A {@link FullscreenTextureView} for camera preview.
    */
   @BindView(R.id.cameraPreview) FullscreenTextureView mCameraPreview;
   private OnPictureTakenListener mOnPictureTakenListener;
@@ -130,10 +129,6 @@ public class CameraFragment extends
    * An {@link ImageReader} that handles still image capture.
    */
   private ImageReader mImageReader;
-  /**
-   * Whether to show camera preview.
-   */
-  private boolean mShowPreview = true;
   /**
    * The {@link Size} of camera preview.
    */
@@ -307,12 +302,10 @@ public class CameraFragment extends
     }
   };
 
-  @VisibleForTesting static CameraFragment newInstance(boolean showPreview) {
+  @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
     Bundle args = new Bundle();
-    args.putBoolean(ARG_SHOW_PREVIEW, showPreview);
     fragment.setArguments(args);
-    fragment.mShowPreview = showPreview;
     return fragment;
   }
 
@@ -321,27 +314,12 @@ public class CameraFragment extends
    */
   public void takePicture() {
     Log.v(TAG, "takePicture");
-    if (mShowPreview) {
       lockFocus();
-    } else {
-      prepareCaptureWithoutPreview();
-    }
-  }
-
-  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
-    super.onInflate(context, attrs, savedInstanceState);
-    TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.CameraFragment);
-    // Saved state trumps XML.
-    if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_SHOW_PREVIEW)) {
-      mShowPreview = styledAttributes.getBoolean(R.styleable.CameraFragment_show_preview, false);
-    }
-    styledAttributes.recycle();
   }
 
   @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
     super.onViewStateRestored(savedInstanceState);
     if (savedInstanceState != null) {
-      mShowPreview = savedInstanceState.getBoolean(ARG_SHOW_PREVIEW);
       if (savedInstanceState.getSerializable(ARG_FACING) != null) {
         mFacing = (CameraUtil.Facing) savedInstanceState.getSerializable(ARG_FACING);
       } else {
@@ -353,7 +331,6 @@ public class CameraFragment extends
 
   @Override public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_SHOW_PREVIEW, mShowPreview);
     outState.putSerializable(ARG_FACING, mFacing);
   }
 
@@ -372,15 +349,6 @@ public class CameraFragment extends
     }
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    if (mShowPreview) {
-      mCameraPreview.setVisibility(View.VISIBLE);
-    } else {
-      mCameraPreview.setVisibility(GONE);
-    }
-  }
-
   /**
    * When the screen is turned off and turned back on, the SurfaceTexture is already available, and
    * "onSurfaceTextureAvailable" will not be called. In that case, we can open a camera and start
@@ -395,7 +363,7 @@ public class CameraFragment extends
     mBackgroundHandler.start();
     if (!isCameraOpen()) {
       // Open camera
-      if (!mShowPreview || mCameraPreview.isAvailable()) {
+      if (mCameraPreview.isAvailable()) {
         openCamera();
       } else {
         mCameraPreview.setSurfaceTextureListener(mSurfaceTextureListener);
@@ -726,7 +694,7 @@ public class CameraFragment extends
    */
   private void configureTransform(int viewWidth, int viewHeight) {
     Activity activity = getActivity();
-    if (null == mCameraPreview || !mShowPreview || null == mPreviewSize || null == activity) {
+    if (null == mCameraPreview || null == mPreviewSize || null == activity) {
       throw new IllegalStateException("Camera preview is not ready");
     }
     int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();

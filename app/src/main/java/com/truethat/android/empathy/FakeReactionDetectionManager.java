@@ -1,56 +1,29 @@
 package com.truethat.android.empathy;
 
 import android.media.Image;
+import android.util.Log;
 import com.truethat.android.model.Emotion;
 
 /**
  * Proudly created by ohad on 18/06/2017 for TrueThat.
  */
 
-public class FakeReactionDetectionManager implements ReactionDetectionManager {
-  private ReactionDetectionPubSub mDetectionPubSub;
-
-  @Override public void detect(ReactionDetectionPubSub detectionPubSub) {
-    mDetectionPubSub = detectionPubSub;
-  }
-
-  @Override public void attempt(Image image) {
-
-  }
-
-  @Override public void stop() {
-    mDetectionPubSub = null;
-  }
-
+public class FakeReactionDetectionManager extends BaseReactionDetectionManager {
   /**
    * Mocks a reaction detection.
    *
    * @param reaction of the detected emotion.
    */
   public void doDetection(Emotion reaction) {
-    if (mDetectionPubSub != null) {
-      mDetectionPubSub.onReactionDetected(reaction);
-      mDetectionPubSub = null;
-    } else {
-      throw new IllegalStateException("Detection was stopped or was not started.");
-    }
+    Log.v(TAG, "Faking detection of " + reaction.name() + ".");
+    onReactionDetected(reaction);
   }
 
   /**
-   * @return Whether a detection is currently ongoing.
+   * @param listener to check for
+   * @return whether to given listener is subscribed to this detection manager.
    */
-  public boolean isDetecting() {
-    return mDetectionPubSub != null;
-  }
-
-  /**
-   * Requests an input to initiate an iteration of reaction detection.
-   */
-  public void next() {
-    if (mDetectionPubSub != null) {
-      mDetectionPubSub.requestInput();
-    } else {
-      throw new IllegalStateException("Detection was stopped or was not started.");
-    }
+  public boolean isSubscribed(ReactionDetectionListener listener) {
+    return isDetecting() && mReactionDetectionListeners.contains(listener);
   }
 }

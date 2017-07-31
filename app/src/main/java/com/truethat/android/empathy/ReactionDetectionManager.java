@@ -9,22 +9,21 @@ import com.truethat.android.model.User;
  */
 public interface ReactionDetectionManager {
   /**
-   * Initiates an emotional reaction detection task. The keyword here is <b>reaction</b>. As the
-   * reaction timing varies, we have to capture images continuously until {@link
-   * EmotionDetectionClassifier} can determine the most probable {@link Emotion} reaction.
-   *
-   * @param detectionPubSub communication interface through which the detection module publishes
-   *                        its
-   *                        classification and subscribes to requests input.
+   * Initiates an emotional reaction detection task, that publishes detection reaction to subscribers.
    */
-  void detect(ReactionDetectionPubSub detectionPubSub);
+  void start();
 
   /**
-   * Attempts to classify the current {@link User}'s {@link Emotion} in {@code image}.
-   *
-   * @param image input for {@link EmotionDetectionClassifier}.
+   * Subscribes a listener so that detected reactions will be published to it. Multiple subscribers are allowed.
+   * @param reactionDetectionListener to subscribe.
    */
-  void attempt(Image image);
+  void subscribe(ReactionDetectionListener reactionDetectionListener);
+
+  /**
+   * Removes a listener from the subscribers collections, so that it is no longer notified of detected reactions.
+   * @param reactionDetectionListener to unsubscribe.
+   */
+  void unsubscribe(ReactionDetectionListener reactionDetectionListener);
 
   /**
    * Stops the current detection task.

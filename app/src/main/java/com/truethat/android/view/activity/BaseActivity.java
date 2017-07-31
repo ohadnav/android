@@ -238,8 +238,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   }
 
   @Inject void logInjection() {
-    Log.v(TAG, "Injecting " + getClass().getSimpleName() + " for " + getApplication().getClass()
-        .getSimpleName() + "(" + getApplication().hashCode() + ")");
+    Log.v(TAG, "INJECTED");
   }
 
   /**
