@@ -8,10 +8,10 @@ import java.util.Date;
  * <p>
  * Encapsulates event of user interaction with a reactable.
  *
- * @backend <a>https://goo.gl/s9o2rt</a>
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/InteractionEvent.java</a>
  */
 
-@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class ReactableEvent {
+@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent {
   /**
    * Client UTC timestamp
    */
@@ -39,7 +39,7 @@ import java.util.Date;
    */
   private long mReactableId;
 
-  public ReactableEvent(long userId, long reactableId, Date timestamp, EventType eventType,
+  public InteractionEvent(long userId, long reactableId, Date timestamp, EventType eventType,
       @Nullable Emotion reaction) {
     mTimestamp = timestamp;
     mUserId = userId;

@@ -1,6 +1,6 @@
 package com.truethat.android.common.network;
 
-import com.truethat.android.model.ReactableEvent;
+import com.truethat.android.model.InteractionEvent;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -16,9 +16,9 @@ public interface InteractionApi {
   String PATH = "interaction";
 
   /**
-   * Informs our backend of the the current user interaction with reactables.
+   * Informs our backend of the the current user interactionEvent with reactables.
    *
-   * @param reactableEvent the encapsulates all the event information.
+   * @param interactionEvent the encapsulates all the event information.
    */
-  @POST(PATH) Call<ResponseBody> postEvent(@Body ReactableEvent reactableEvent);
+  @POST(PATH) Call<ResponseBody> postEvent(@Body InteractionEvent interactionEvent);
 }

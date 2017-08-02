@@ -50,8 +50,6 @@ dependencies {
   compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
   compile "eu.inloop:androidviewmodel:$rootProject.inloopMvvmVersion"
   compile "com.google.dagger:dagger:$rootProject.daggerVersion"
-  compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-  compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
   annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
   annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
   compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"

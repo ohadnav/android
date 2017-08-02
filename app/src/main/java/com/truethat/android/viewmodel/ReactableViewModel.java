@@ -15,8 +15,8 @@ import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
+import com.truethat.android.model.InteractionEvent;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.ReactableEvent;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import java.util.Date;
 import javax.inject.Inject;
@@ -49,7 +49,7 @@ public class ReactableViewModel<Model extends Reactable>
 
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
-   * ReactableEvent}.
+   * InteractionEvent}.
    */
   private InteractionApi mInteractionApi;
   /**
@@ -65,13 +65,6 @@ public class ReactableViewModel<Model extends Reactable>
    */
   private boolean mReadyForDisplay = false;
 
-  @CallSuper @Override public void onInjected() {
-    super.onInjected();
-    // Initializes the API
-    mInteractionApi = createApiInterface(InteractionApi.class);
-    mPostEventCallback = buildPostEventCallback();
-  }
-
   @CallSuper @Override public void onStop() {
     super.onStop();
     if (mPostEventCall != null) mPostEventCall.cancel();
@@ -81,6 +74,13 @@ public class ReactableViewModel<Model extends Reactable>
     super.onStart();
     updateInfoLayout();
     updateReactionCounters();
+  }
+
+  @CallSuper @Override public void onInjected() {
+    super.onInjected();
+    // Initializes the API
+    mInteractionApi = createApiInterface(InteractionApi.class);
+    mPostEventCallback = buildPostEventCallback();
   }
 
   @CallSuper public void onVisible() {
@@ -118,6 +118,19 @@ public class ReactableViewModel<Model extends Reactable>
     return TAG + " {" + mReactable + "}";
   }
 
+  public void onReactionDetected(Emotion reaction) {
+    if (mReactable.canReactTo(mCurrentUser.get())) {
+      Log.v(TAG, "Reaction detected: " + reaction.name());
+      mReactable.doReaction(reaction);
+      // Post event of reactable reaction.
+      mPostEventCall = mInteractionApi.postEvent(
+          new InteractionEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
+              EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
+      mPostEventCall.enqueue(mPostEventCallback);
+      updateReactionCounters();
+    }
+  }
+
   /**
    * Run once the media resources of the {@link #mReactable} are ready and the view is visible.
    */
@@ -137,21 +150,8 @@ public class ReactableViewModel<Model extends Reactable>
     if (!mReactable.isViewed() && !mReactable.getDirector().equals(mCurrentUser.get())) {
       mReactable.doView();
       mInteractionApi.postEvent(
-          new ReactableEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
+          new InteractionEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
               EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
-    }
-  }
-
-  public void onReactionDetected(Emotion reaction) {
-    if (mReactable.canReactTo(mCurrentUser.get())) {
-      Log.v(TAG, "Reaction detected: " + reaction.name());
-      mReactable.doReaction(reaction);
-      // Post event of reactable reaction.
-      mPostEventCall = mInteractionApi.postEvent(
-          new ReactableEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
-              EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
-      mPostEventCall.enqueue(mPostEventCallback);
-      updateReactionCounters();
     }
   }
 

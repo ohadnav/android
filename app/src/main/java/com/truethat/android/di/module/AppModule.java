@@ -11,7 +11,6 @@ import javax.inject.Singleton;
  */
 
 @Module public class AppModule {
-
   private Application mApplication;
 
   public AppModule(Application application) {
