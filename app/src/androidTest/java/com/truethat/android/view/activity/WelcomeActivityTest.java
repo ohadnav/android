@@ -1,6 +1,5 @@
 package com.truethat.android.view.activity;
 
-import android.support.test.filters.FlakyTest;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import org.awaitility.core.ThrowingRunnable;
@@ -33,7 +32,7 @@ public class WelcomeActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.errorText)).check(matches(isDisplayed()));
   }
 
-  @Test @FlakyTest public void onBoarding() throws Exception {
+  @Test public void onBoarding() throws Exception {
     onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
     waitForActivity(OnBoardingActivity.class);

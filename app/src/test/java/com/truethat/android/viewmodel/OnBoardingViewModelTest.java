@@ -1,6 +1,5 @@
 package com.truethat.android.viewmodel;
 
-import com.truethat.android.R;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import java.util.concurrent.Callable;
 import org.awaitility.core.ThrowingRunnable;
@@ -20,31 +19,6 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   
   private OnBoardingViewModel mViewModel;
   private OnBoardingViewModelTest.ViewInterface mView;
-
-  /**
-   * Programmatically completes the on boarding process as if a user completed it.
-   *  @param name                        of the new user.
-   */
-  private void doOnBoarding(String name) {
-    // Type name
-    mViewModel.mNameEditText.set(name);
-    // Hit done
-    mViewModel.onNameDone();
-    // Wait until detection had started.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mFakeReactionDetectionManager.isDetecting();
-      }
-    });
-    // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
-    // Wait until Auth OK.
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(mFakeAuthManager.isAuthOk());
-      }
-    });
-  }
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -83,13 +57,13 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertInvalidName();
     // Lose focus, keyboard and cursor should be hidden.
     mViewModel.onNameFocusChange(false);
-    assertTrue(mView.mKeyboardHidden);
+    assertFalse(mView.mKeyboardVisibility);
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
-    // Reset keyboard hidden hint.
-    mView.mKeyboardHidden = false;
     // Type again, and assert cursor is visible again.
+    mViewModel.onNameFocusChange(true);
     mViewModel.mNameEditText.set(NAME.split(" ")[0] + " ");
     assertTrue(mViewModel.mNameEditCursorVisibility.get());
+    assertTrue(mView.mKeyboardVisibility);
     // Hit done
     mViewModel.onNameDone();
     // Should not be moving to next stage
@@ -99,7 +73,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
-    assertTrue(mView.mKeyboardHidden);
+    assertFalse(mView.mKeyboardVisibility);
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
     // Warning text visible.
     assertTrue(mViewModel.mWarningTextVisibility.get());
@@ -111,6 +85,32 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertFinalStage();
     // Cursor should be hidden after hitting ime button.
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
+  }
+
+  /**
+   * Programmatically completes the on boarding process as if a user completed it.
+   *
+   * @param name of the new user.
+   */
+  private void doOnBoarding(String name) {
+    // Type name
+    mViewModel.mNameEditText.set(name);
+    // Hit done
+    mViewModel.onNameDone();
+    // Wait until detection had started.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mFakeReactionDetectionManager.isDetecting();
+      }
+    });
+    // Detect smile.
+    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
+    // Wait until Auth OK.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeAuthManager.isAuthOk());
+      }
+    });
   }
 
   private void assertOnBoardingSuccessful() {
@@ -147,22 +147,26 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertTrue(mFakeReactionDetectionManager.isDetecting());
     assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Keyboard should be hidden.
-    assertTrue(mView.mKeyboardHidden);
+    assertFalse(mView.mKeyboardVisibility);
   }
 
   private class ViewInterface extends UnitTestViewInterface implements OnBoardingViewInterface {
     private boolean mFinished = false;
-    private boolean mKeyboardHidden = false;
-    
-    @Override public void finishOnBoarding() {
-      mFinished = true;
-    }
+    private boolean mKeyboardVisibility = false;
 
     @Override public void requestNameEditFocus() {
     }
 
     @Override public void hideSoftKeyboard() {
-      mKeyboardHidden = true;
+      mKeyboardVisibility = false;
+    }
+
+    @Override public void showSoftKeyboard() {
+      mKeyboardVisibility = true;
+    }
+
+    @Override public void finishOnBoarding() {
+      mFinished = true;
     }
   }
 }

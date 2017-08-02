@@ -30,14 +30,15 @@
         app:layout_constraintTop_toTopOf="parent"
         >
       <TextView
-          android:id="@+id/welcomeText"
+          android:id="@+id/joinText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="@string/welcome_text"
           android:textAlignment="center"
           android:textColor="@color/primary"
           android:textSize="40sp"
-          app:layout_constraintBottom_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/logoImage"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent"
           />
@@ -48,9 +49,10 @@
           android:layout_marginStart="10dp"
           android:contentDescription="@string/image_content_description"
           android:scaleType="centerCrop"
-          app:layout_constraintBottom_toBottomOf="@id/welcomeText"
-          app:layout_constraintStart_toEndOf="@id/welcomeText"
-          app:layout_constraintTop_toTopOf="@id/welcomeText"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toEndOf="@id/joinText"
+          app:layout_constraintTop_toTopOf="parent"
           app:srcCompat="@drawable/logo"
           />
     </android.support.constraint.ConstraintLayout>

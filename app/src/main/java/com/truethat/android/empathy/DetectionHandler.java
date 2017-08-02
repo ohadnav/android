@@ -117,7 +117,6 @@ class DetectionHandler extends Handler {
 
     @Override
     public void onFrameAvailable(byte[] frame, int width, int height, Frame.ROTATE rotation) {
-      Log.d(TAG, "received frame");
       Date timeStamp = new Date();
       if (timeStamp.getTime() > lastTimestamp.getTime() + TIMESTAMP_DELTA_MILLIS) {
         lastTimestamp = timeStamp;

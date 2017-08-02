@@ -16,6 +16,11 @@ public interface OnBoardingViewInterface extends BaseViewInterface {
   void hideSoftKeyboard();
 
   /**
+   * Shows soft keyboard.
+   */
+  void showSoftKeyboard();
+
+  /**
    * Finishes the on boarding flow.
    */
   void finishOnBoarding();

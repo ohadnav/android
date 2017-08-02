@@ -1,7 +1,6 @@
 package com.truethat.android.view.activity;
 
 import android.content.Intent;
-import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
@@ -15,18 +14,12 @@ import static android.support.test.espresso.action.ViewActions.pressImeActionBut
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isKeyboardVisible;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
-import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
-import static com.truethat.android.application.ApplicationTestUtil.withBackgroundColor;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -36,10 +29,44 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   private static final String NAME = "Matt Damon";
   private OnBoardingViewModel mViewModel;
 
+  @Before public void setUp() throws Exception {
+    super.setUp();
+    // Signs out
+    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    getCurrentActivity().startActivity(
+        new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
+    waitForActivity(OnBoardingActivity.class);
+    OnBoardingActivity activity = (OnBoardingActivity) getCurrentActivity();
+    mViewModel = activity.getViewModel();
+  }
+
+  @Test public void successfulOnBoarding() throws Exception {
+    // EditText should be auto focused.
+    onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
+    // Keyboard should be exposed
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(isKeyboardVisible());
+      }
+    });
+    doOnBoarding(NAME);
+    assertOnBoardingSuccessful();
+  }
+
+  @Test public void alreadyAuthOk() throws Exception {
+    doOnBoarding(NAME);
+    assertOnBoardingSuccessful();
+    // Go to on boarding by mistake.
+    mActivityTestRule.getActivity()
+        .startActivity(new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
+    // Should navigate back to test activity.
+    waitForActivity(TestActivity.class);
+  }
+
   /**
    * Programmatically completes the on boarding process as if a user completed it.
-   *  @param name                     of the new user.
    *
+   * @param name of the new user.
    */
   private void doOnBoarding(String name) {
     // Should navigate to On-Boarding
@@ -60,34 +87,6 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
         assertTrue(mFakeAuthManager.isAuthOk());
       }
     });
-  }
-
-  @Before public void setUp() throws Exception {
-    super.setUp();
-    // Signs out
-    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
-    getCurrentActivity().startActivity(
-        new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
-    waitForActivity(OnBoardingActivity.class);
-    OnBoardingActivity activity = (OnBoardingActivity) getCurrentActivity();
-    mViewModel = activity.getViewModel();
-  }
-
-  @Test public void successfulOnBoarding() throws Exception {
-    // EditText should be auto focused.
-    onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
-    doOnBoarding(NAME);
-    assertOnBoardingSuccessful();
-  }
-
-  @Test public void alreadyAuthOk() throws Exception {
-    doOnBoarding(NAME);
-    assertOnBoardingSuccessful();
-    // Go to on boarding by mistake.
-    mActivityTestRule.getActivity()
-        .startActivity(new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
-    // Should navigate back to test activity.
-    waitForActivity(TestActivity.class);
   }
 
   private void assertOnBoardingSuccessful() {

@@ -52,7 +52,9 @@
     </activity>
     <activity android:name=".view.activity.WelcomeActivity">
     </activity>
-    <activity android:name=".view.activity.OnBoardingActivity">
+    <activity
+        android:name=".view.activity.OnBoardingActivity"
+        android:windowSoftInputMode="stateVisible">
     </activity>
     <activity
         android:name=".view.activity.RepertoireActivity"

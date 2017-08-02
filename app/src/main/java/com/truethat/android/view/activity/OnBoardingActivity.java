@@ -60,6 +60,12 @@ public class OnBoardingActivity extends
     imm.hideSoftInputFromWindow(mNameEditText.getWindowToken(), 0);
   }
 
+  @Override public void showSoftKeyboard() {
+    InputMethodManager inputMethodManager =
+        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    inputMethodManager.showSoftInput(mNameEditText, InputMethodManager.SHOW_FORCED);
+  }
+
   /**
    * Finishes the on boarding flow.
    */

@@ -51,7 +51,7 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
 
   @Override public void stop() {
     Log.v(TAG, "Stopping detection.");
-    mReactionDetectionListeners = null;
+    mReactionDetectionListeners = new HashSet<>();
     mState = State.IDLE;
   }
 

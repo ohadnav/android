@@ -78,8 +78,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
       // Undo final stage.
       mCompletionTextVisibility.set(false);
       mCompletionSubscriptTextVisibility.set(false);
-      mNameEditCursorVisibility.set(true);
       getReactionDetectionManager().unsubscribe(this);
+      getView().showSoftKeyboard();
     } else {
       getView().hideSoftKeyboard();
     }
