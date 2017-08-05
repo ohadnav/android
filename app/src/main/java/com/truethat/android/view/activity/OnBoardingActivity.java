@@ -11,7 +11,6 @@ import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
-import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
 import com.truethat.android.model.User;
@@ -29,11 +28,6 @@ public class OnBoardingActivity extends
     finish();
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    mPermissionsManager.requestIfNeeded(this, Permission.CAMERA);
-  }
-
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.activity_on_boarding, this);
   }
@@ -49,6 +43,7 @@ public class OnBoardingActivity extends
     if (mAuthManager.isAuthOk()) {
       finish();
     }
+    getReactionDetectionManager().start(this);
   }
 
   @Override public void requestNameEditFocus() {

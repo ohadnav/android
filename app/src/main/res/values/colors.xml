@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="primary">#c21f5b</color>
-  <color name="primaryDark">#A2122b</color>
+  <color name="primary">#ff5500</color>
+  <color name="primaryDark">#e44400</color>
   <color name="light">#f8e6f2</color>
   <color name="error">#ffff4444</color>
   <color name="success">#dd22aa66</color>

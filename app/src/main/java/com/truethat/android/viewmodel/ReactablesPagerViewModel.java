@@ -61,9 +61,6 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
   @Override public void onStart() {
     super.onStart();
     mFetchReactablesCallback = buildFetchReactablesCallback();
-    if (mDetectReactions) {
-      getReactionDetectionManager().start();
-    }
   }
 
   /**

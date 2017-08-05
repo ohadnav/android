@@ -17,6 +17,8 @@ import com.truethat.android.di.module.NetModule;
 import com.truethat.android.di.module.PermissionsModule;
 import com.truethat.android.view.activity.BaseActivity;
 
+import static com.truethat.android.common.util.AppUtil.isEmulator;
+
 /**
  * Proudly created by ohad on 14/07/2017 for TrueThat.
  */
@@ -40,9 +42,10 @@ public class App extends Application {
 
   @Override public void onCreate() {
     Log.v(TAG, this.getClass().getSimpleName() + " has been created.");
+    NetModule netModule = new NetModule(
+        isEmulator() ? BuildConfig.EMULATOR_BASE_BACKEND_URL : BuildConfig.BASE_BACKEND_URL);
     updateComponents(DaggerAppComponent.builder()
-        .appModule(new AppModule(this))
-        .netModule(new NetModule(BuildConfig.BASE_BACKEND_URL))
+        .appModule(new AppModule(this)).netModule(netModule)
         .permissionsModule(new PermissionsModule())
         .authModule(new AuthModule())
         .defaultAuthModule(new DefaultAuthModule())

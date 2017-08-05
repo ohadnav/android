@@ -23,7 +23,8 @@ android {
     debug {
       // Using 10.0.2.2 (the desktop"s localhost), as the app normally runs on an Emulator
       // in debug mode.
-      buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
+      buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.0.27:8080/"'
+      buildConfigField "String", "EMULATOR_BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
       buildConfigField "String", "TEST_BASE_BACKEND_URL", '"http://localhost:8080/"'
       applicationIdSuffix ".debug"
     }

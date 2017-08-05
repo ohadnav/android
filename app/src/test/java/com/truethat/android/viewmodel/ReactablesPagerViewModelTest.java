@@ -114,7 +114,6 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mViewModel.mLoadingLayoutVisibility.get());
         assertTrue(mViewModel.mNonFoundTextVisibility.get());
       }
     });

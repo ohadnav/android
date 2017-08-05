@@ -147,7 +147,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
         .reactableModule(new ReactableModule(mScene))
         .build()
         .inject(mViewModel);
-    mViewModel.getReactionDetectionManager().start();
+    mViewModel.getReactionDetectionManager().start(null);
     mViewModel.onStart();
   }
 }

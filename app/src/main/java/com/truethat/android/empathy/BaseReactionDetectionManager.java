@@ -1,8 +1,10 @@
 package com.truethat.android.empathy;
 
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.view.activity.BaseActivity;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,16 +13,15 @@ import java.util.Set;
  */
 
 public class BaseReactionDetectionManager implements ReactionDetectionManager {
-   Set<ReactionDetectionListener> mReactionDetectionListeners;
+  Set<ReactionDetectionListener> mReactionDetectionListeners = new HashSet<>();
   /**
    * For logging.
    */
   String TAG = this.getClass().getSimpleName();
   private State mState = State.IDLE;
 
-  @Override public void start() {
+  @Override public void start(@Nullable BaseActivity baseActivity) {
     Log.v(TAG, "Starting detection.");
-    mReactionDetectionListeners = new HashSet<>();
     mState = State.DETECTING;
   }
 
@@ -51,7 +52,6 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
 
   @Override public void stop() {
     Log.v(TAG, "Stopping detection.");
-    mReactionDetectionListeners = new HashSet<>();
     mState = State.IDLE;
   }
 
@@ -63,6 +63,7 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   }
 
   @CallSuper void onReactionDetected(Emotion reaction) {
+    Log.v(TAG, "Detected " + reaction.name());
     for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
       reactionDetectionListener.onReactionDetected(reaction);
     }

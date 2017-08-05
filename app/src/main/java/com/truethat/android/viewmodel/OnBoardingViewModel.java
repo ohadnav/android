@@ -53,7 +53,6 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     } else {
       getView().requestNameEditFocus();
     }
-    getReactionDetectionManager().start();
   }
 
   @Override public void onReactionDetected(Emotion reaction) {

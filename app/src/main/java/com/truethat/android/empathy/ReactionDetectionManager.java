@@ -1,8 +1,6 @@
 package com.truethat.android.empathy;
 
-import android.media.Image;
-import com.truethat.android.model.Emotion;
-import com.truethat.android.model.User;
+import com.truethat.android.view.activity.BaseActivity;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
@@ -10,8 +8,10 @@ import com.truethat.android.model.User;
 public interface ReactionDetectionManager {
   /**
    * Initiates an emotional reaction detection task, that publishes detection reaction to subscribers.
+   *
+   * @param activity to ask for permissions from.
    */
-  void start();
+  void start(BaseActivity activity);
 
   /**
    * Subscribes a listener so that detected reactions will be published to it. Multiple subscribers are allowed.

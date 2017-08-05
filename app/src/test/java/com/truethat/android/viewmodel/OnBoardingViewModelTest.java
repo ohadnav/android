@@ -24,7 +24,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     super.setUp();
     mView = new OnBoardingViewModelTest.ViewInterface();
     mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
-    mViewModel.getReactionDetectionManager().start();
+    mViewModel.getReactionDetectionManager().start(null);
   }
 
   @Test public void successfulOnBoarding() throws Exception {
