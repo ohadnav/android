@@ -4,7 +4,7 @@
   <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/primary</item>
-    <item name="colorPrimaryDark">@color/primaryDark</item>
+    <item name="colorPrimaryDark">@color/secondary</item>
     <item name="colorAccent">@color/light</item>
     <!-- Hides status bar -->
     <item name="android:windowTranslucentStatus">true</item>
