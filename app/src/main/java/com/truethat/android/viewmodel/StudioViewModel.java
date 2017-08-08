@@ -1,11 +1,14 @@
 package com.truethat.android.viewmodel;
 
 import android.databinding.ObservableBoolean;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import butterknife.BindString;
 import com.truethat.android.R;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
@@ -58,9 +61,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
     }
   };
 
-  @Override public void onInjected() {
-    super.onInjected();
-    mStudioApi = createApiInterface(StudioApi.class);
+  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
+    super.onCreate(arguments, savedInstanceState);
+    mStudioApi = NetworkUtil.createApi(StudioApi.class);
   }
 
   @Override public void onStop() {
@@ -87,7 +90,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
   public void onSent() {
     Log.v(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
-    mSaveReactableCall = mDirectedReactable.createApiCall(mStudioApi, mGson);
+    mSaveReactableCall = mDirectedReactable.createApiCall();
     mSaveReactableCall.enqueue(mSaveReactableCallback);
     // Hides buttons.
     mCaptureButtonVisibility.set(false);

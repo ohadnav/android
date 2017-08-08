@@ -1,8 +1,10 @@
 package com.truethat.android.application.auth;
 
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.FakeDeviceManager;
 import com.truethat.android.application.storage.internal.FakeInternalStorageManager;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
 import java.io.IOException;
 import org.junit.Before;
@@ -27,6 +29,7 @@ import static org.junit.Assert.assertTrue;
   User mUser;
 
   @Before public void setUp() throws Exception {
+    NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
     mListener = new TestAuthListener();
     mUser = new User(FIRST_NAME, LAST_NAME, DEVICE_MANAGER.getDeviceId(),
         DEVICE_MANAGER.getPhoneNumber());
@@ -49,7 +52,7 @@ import static org.junit.Assert.assertTrue;
     // Assert the user was is saved onto internal storage.
     assertEquals(mUser, mInternalStorage.read(AuthManager.LAST_USER_PATH));
     // Assert the current user now has an ID.
-    assertEquals(USER_ID, mAuthManager.currentUser().getId());
+    assertEquals(USER_ID, mAuthManager.getCurrentUser().getId());
     // Assert auth-OK
     assertTrue(mAuthManager.isAuthOk());
     // Assert result is ok.
@@ -58,7 +61,7 @@ import static org.junit.Assert.assertTrue;
 
   void assertAuthFailed() {
     // Current user should be null.
-    assertNull(mAuthManager.currentUser());
+    assertNull(mAuthManager.getCurrentUser());
     // Should not be auth-ok
     assertFalse(mAuthManager.isAuthOk());
     // Should have failed result.

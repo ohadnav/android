@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import butterknife.OnClick;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import com.truethat.android.databinding.ActivityWelcomeBinding;
@@ -17,11 +18,6 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 public class WelcomeActivity extends
     BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding> {
   public static final String EXTRA_AUTH_FAILED = "authFailed";
-
-  @Override public void onAuthOk() {
-    super.onAuthOk();
-    finish();
-  }
 
   @Override public void onAuthFailed() {
     // Display error message to the user.
@@ -40,10 +36,10 @@ public class WelcomeActivity extends
   @Override public void onResume() {
     super.onResume();
     // If the user is initialized, then finish activity.
-    if (mAuthManager.isAuthOk()) {
-      finish();
+    if (AppContainer.getAuthManager().isAuthOk()) {
+      startActivity(new Intent(this, TheaterActivity.class));
     }
-    if (getIntent().getExtras().getBoolean(EXTRA_AUTH_FAILED)) {
+    if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean(EXTRA_AUTH_FAILED)) {
       onAuthFailed();
     }
   }
@@ -52,7 +48,7 @@ public class WelcomeActivity extends
    * Auth that is initiated by the user.
    */
   @OnClick(R.id.signInText) public void userInitiatedAuth(View view) {
-    mAuthManager.signIn(this);
+    AppContainer.getAuthManager().signIn(this);
   }
 
   /**
@@ -60,8 +56,8 @@ public class WelcomeActivity extends
    */
   @OnClick(R.id.joinLayout) public void onBoarding() {
     Log.v(TAG, "New user, yay!");
-    mPermissionsManager.requestIfNeeded(this, Permission.PHONE);
-    if (!mPermissionsManager.isPermissionGranted(Permission.PHONE)) {
+    AppContainer.getPermissionsManager().requestIfNeeded(this, Permission.PHONE);
+    if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.PHONE)) {
       Log.i(TAG, "No phone permission, stopping on boarding.");
       // No phone permission, stop here, to let ask for permission activity gain control.
       return;

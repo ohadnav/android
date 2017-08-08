@@ -1,10 +1,9 @@
 package com.truethat.android.viewmodel;
 
 import android.support.annotation.NonNull;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
-import com.truethat.android.di.component.DaggerReactableInjectorComponent;
-import com.truethat.android.di.module.ReactableModule;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
@@ -61,7 +60,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   @Test public void properDisplay() throws Exception {
     mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
     initReactableViewModel();
-    assertReactableDisplayed(mViewModel, mScene, mViewModel.getCurrentUser().get());
+    assertReactableDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
   }
 
   @Test public void doView() throws Exception {
@@ -104,8 +103,8 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mScene =
-        new Scene(REACTABLE_ID, IMAGE_URL, mFakeAuthManager.currentUser(), reactionCounters, mNow,
+    mScene = new Scene(REACTABLE_ID, IMAGE_URL, mFakeAuthManager.getCurrentUser(), reactionCounters,
+        mNow,
             null);
     initReactableViewModel();
     mViewModel.onDisplay();
@@ -142,12 +141,8 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
 
   private void initReactableViewModel() throws Exception {
     mViewModel = createViewModel(mViewModel.getClass(), new UnitTestViewInterface());
-    DaggerReactableInjectorComponent.builder()
-        .appComponent(mUnitTestComponent)
-        .reactableModule(new ReactableModule(mScene))
-        .build()
-        .inject(mViewModel);
-    mViewModel.getReactionDetectionManager().start(null);
+    mViewModel.setReactable(mScene);
+    AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();
   }
 }

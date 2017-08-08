@@ -30,6 +30,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
+import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
@@ -64,7 +65,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        return new MockResponse().setBody(mGson.toJson(
+        return new MockResponse().setBody(GSON.toJson(
             new Scene(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
       }
     });

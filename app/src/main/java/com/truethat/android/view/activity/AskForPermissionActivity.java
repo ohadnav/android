@@ -9,6 +9,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.databinding.ActivityAskForPermissionBinding;
 import com.truethat.android.viewmodel.BaseViewModel;
@@ -29,7 +30,8 @@ public class AskForPermissionActivity extends
    */
   @OnClick(R.id.askPermissionButton) public void askForPermission() {
     Log.v(TAG, "Asking for " + mPermission.name() + " again.");
-    mPermissionsManager.requestIfNeeded(AskForPermissionActivity.this, mPermission);
+    AppContainer.getPermissionsManager()
+        .requestIfNeeded(AskForPermissionActivity.this, mPermission);
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -55,7 +57,7 @@ public class AskForPermissionActivity extends
     // Ensure the button is revealed.
     mAskPermissionButton.bringToFront();
     // Check if permission is granted, and if so, finishes activity.
-    if (mPermissionsManager.isPermissionGranted(mPermission)) {
+    if (AppContainer.getPermissionsManager().isPermissionGranted(mPermission)) {
       finish();
     }
   }

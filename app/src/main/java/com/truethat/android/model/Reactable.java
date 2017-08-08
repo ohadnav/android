@@ -2,9 +2,7 @@ package com.truethat.android.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.google.gson.Gson;
-import com.truethat.android.common.network.StudioApi;
-import com.truethat.android.di.module.NetModule;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.view.activity.TheaterActivity;
 import com.truethat.android.view.fragment.ReactableFragment;
 import java.io.Serializable;
@@ -18,7 +16,7 @@ import retrofit2.Call;
  * <p>
  * A media item that the user can have an emotional reaction to, such as {@link Scene}.
  * <p>
- * Each implementation should register at {@link NetModule#provideGson()}.
+ * Each implementation should register at {@link NetworkUtil#GSON}.
  */
 public abstract class Reactable implements Serializable {
   /**
@@ -123,7 +121,7 @@ public abstract class Reactable implements Serializable {
    */
   public abstract ReactableFragment createFragment();
 
-  public abstract Call<Reactable> createApiCall(StudioApi studioApi, Gson gson);
+  public abstract Call<Reactable> createApiCall();
 
   /**
    * @param user that should react to this reactable.

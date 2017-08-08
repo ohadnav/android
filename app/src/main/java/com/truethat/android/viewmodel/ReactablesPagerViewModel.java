@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import java.util.List;
@@ -54,7 +55,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
     super.onStop();
     if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
     if (mDetectReactions) {
-      getReactionDetectionManager().stop();
+      AppContainer.getReactionDetectionManager().stop();
     }
   }
 

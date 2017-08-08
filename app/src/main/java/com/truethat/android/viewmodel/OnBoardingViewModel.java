@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
@@ -42,8 +43,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
 
   @Override public void onStop() {
     super.onStop();
-    getReactionDetectionManager().unsubscribe(this);
-    getReactionDetectionManager().stop();
+    AppContainer.getReactionDetectionManager().unsubscribe(this);
+    AppContainer.getReactionDetectionManager().stop();
   }
 
   @Override public void onStart() {
@@ -77,7 +78,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
       // Undo final stage.
       mCompletionTextVisibility.set(false);
       mCompletionSubscriptTextVisibility.set(false);
-      getReactionDetectionManager().unsubscribe(this);
+      AppContainer.getReactionDetectionManager().unsubscribe(this);
       getView().showSoftKeyboard();
     } else {
       getView().hideSoftKeyboard();
@@ -107,7 +108,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     mCompletionTextVisibility.set(true);
     mCompletionSubscriptTextVisibility.set(true);
     // Subscribes to reaction detection.
-    getReactionDetectionManager().subscribe(this);
+    AppContainer.getReactionDetectionManager().subscribe(this);
   }
 
   private boolean isNameValid() {

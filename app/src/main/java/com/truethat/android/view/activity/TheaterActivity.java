@@ -1,19 +1,16 @@
 package com.truethat.android.view.activity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.databinding.ActivityTheaterBinding;
-import com.truethat.android.empathy.ReactionDetectionListener;
-import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.view.fragment.ReactablesPagerFragment;
 import com.truethat.android.viewmodel.BaseViewModel;
-import com.truethat.android.viewmodel.ReactableViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
@@ -45,7 +42,7 @@ public class TheaterActivity extends
     mPagerFragment = (ReactablesPagerFragment) getSupportFragmentManager().findFragmentById(
         R.id.reactablesPagerFragment);
     // Initializes the Theater API
-    mTheaterApi = createApiInterface(TheaterApi.class);
+    mTheaterApi = NetworkUtil.createApi(TheaterApi.class);
   }
 
   @Override public void onSwipeUp() {
@@ -56,7 +53,7 @@ public class TheaterActivity extends
   }
 
   @Override public Call<List<Reactable>> buildFetchReactablesCall() {
-    return mTheaterApi.fetchReactables(mAuthManager.currentUser());
+    return mTheaterApi.fetchReactables(AppContainer.getAuthManager().getCurrentUser());
   }
 }
 

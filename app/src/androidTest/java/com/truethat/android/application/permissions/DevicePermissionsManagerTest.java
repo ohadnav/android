@@ -8,6 +8,7 @@ import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.Until;
 import android.support.v4.app.ActivityCompat;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.ApplicationTestUtil;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import org.hamcrest.MatcherAssert;
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class) @MediumTest @Ignore
 // Test fails since shell commands take time to take effect.
-public class DefaultPermissionsManagerTest extends BaseApplicationTestSuite {
+public class DevicePermissionsManagerTest extends BaseApplicationTestSuite {
   private static final Permission PERMISSION = Permission.CAMERA;
   private PermissionsManager mPermissionsManager;
   private UiDevice mDevice;
@@ -39,7 +40,8 @@ public class DefaultPermissionsManagerTest extends BaseApplicationTestSuite {
     mDevice = UiDevice.getInstance(getInstrumentation());
     // Resets all permissions
     PermissionsTestUtil.revokeAllPermissions();// Set up real device permission module.
-    //App.setPermissionsManager(mPermissionsManager = new DefaultPermissionsManager(mActivityTestRule.getActivity()));
+    AppContainer.setPermissionsManager(
+        mPermissionsManager = new DevicePermissionsManager(mActivityTestRule.getActivity()));
   }
 
   @Test public void isPermissionGranted_shouldBeGranted() throws Exception {

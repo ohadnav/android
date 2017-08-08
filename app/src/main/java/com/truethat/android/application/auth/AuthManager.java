@@ -15,7 +15,7 @@ public interface AuthManager {
    */
   String LAST_USER_PATH = "users/last.user";
 
-  User currentUser();
+  User getCurrentUser();
 
   /**
    * Retrieve last session from internal storage.
@@ -25,7 +25,7 @@ public interface AuthManager {
   void auth(AuthListener listener);
 
   /**
-   * Authenticates against our backend, based on {@link DeviceManager} and {@link #currentUser()}.
+   * Authenticates against our backend, based on {@link DeviceManager} and {@link #getCurrentUser()}.
    *
    * @param listener to apply auth callbacks.
    */
@@ -41,12 +41,12 @@ public interface AuthManager {
   void signUp(AuthListener listener, User newUser);
 
   /**
-   * @return Whether the {@link #currentUser()} is authorized.
+   * @return Whether the {@link #getCurrentUser()} is authorized.
    */
   boolean isAuthOk();
 
   /**
-   * Signing {@link #currentUser()} out.
+   * Signing {@link #getCurrentUser()} out.
    * @param listener to apply auth callbacks.
    */
   void signOut(AuthListener listener);

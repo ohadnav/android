@@ -50,9 +50,6 @@ dependencies {
   compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
   compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
   compile "eu.inloop:androidviewmodel:$rootProject.inloopMvvmVersion"
-  compile "com.google.dagger:dagger:$rootProject.daggerVersion"
-  annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-  annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
   compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
   annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
   testCompile "junit:junit:$rootProject.junitVersion"
@@ -60,8 +57,6 @@ dependencies {
     exclude module: "okhttp"
   }
   testCompile "org.awaitility:awaitility:$rootProject.awaitilityVersion"
-  testAnnotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-  testAnnotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
   androidTestCompile("com.squareup.okhttp3:mockwebserver:$rootProject.mockWebServerVersion") {
     exclude module: "okhttp"
   }
@@ -79,8 +74,6 @@ dependencies {
     exclude group: "com.android.support", module: "support-annotations"
     exclude group: "com.google.code.findbugs", module: "jsr305"
   })
-  androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-  androidTestAnnotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
 
   compile "com.affectiva.android:affdexsdk:$rootProject.affectivaVersion"
 }

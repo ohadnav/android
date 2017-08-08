@@ -1,8 +1,10 @@
 package com.truethat.android.view.activity;
 
+import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import org.awaitility.core.ThrowingRunnable;
+import org.junit.Rule;
 import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -12,33 +14,44 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 16/06/2017 for TrueThat.
  */
 public class WelcomeActivityTest extends BaseApplicationTestSuite {
-
-  @Override public void setUp() throws Exception {
-    super.setUp();
-    // Signs out
-    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
-    // Should navigate to welcome activity
-    waitForActivity(WelcomeActivity.class);
-  }
+  @Rule public ActivityTestRule<WelcomeActivity> mWelcomeActivityTestRule =
+      new ActivityTestRule<>(WelcomeActivity.class, true, false);
 
   @Test public void onAuthFailed() throws Exception {
+    // Sign out
+    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    mWelcomeActivityTestRule.launchActivity(null);
     // Error text is visible
-    onView(withId(R.id.errorText)).check(matches(isDisplayed()));
+    onView(withId(R.id.errorText)).check(matches(not(isDisplayed())));
+  }
+
+  @Test public void alreadyAuthOk() throws Exception {
+    // Launch Welcome activity with auth ok.
+    mWelcomeActivityTestRule.launchActivity(null);
+    // Should navigate to theater
+    waitForActivity(TheaterActivity.class);
   }
 
   @Test public void onBoarding() throws Exception {
+    // Sign out
+    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    mWelcomeActivityTestRule.launchActivity(null);
     onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
     waitForActivity(OnBoardingActivity.class);
   }
 
   @Test public void userInitiatedAuth() throws Exception {
+    // Sign out
+    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    mWelcomeActivityTestRule.launchActivity(null);
     // Try again by clicking on sign in text
     onView(withId(R.id.signInText)).check(matches(isDisplayed())).perform(click());
     // Should be signed in.

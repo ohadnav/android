@@ -1,22 +1,16 @@
 package com.truethat.android.viewmodel;
 
+import android.app.Activity;
 import android.support.annotation.Nullable;
-import android.test.mock.MockContext;
-import com.google.gson.Gson;
 import com.truethat.android.BuildConfig;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.FakeDeviceManager;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.FakeAuthManager;
-import com.truethat.android.di.component.AppInjectorComponent;
-import com.truethat.android.di.component.DaggerAppInjectorComponent;
-import com.truethat.android.di.component.DaggerUnitTestComponent;
-import com.truethat.android.di.component.UnitTestComponent;
-import com.truethat.android.di.module.NetModule;
-import com.truethat.android.di.module.fake.FakeAuthModule;
-import com.truethat.android.di.module.fake.FakeDeviceModule;
-import com.truethat.android.di.module.fake.FakeInternalStorageModule;
-import com.truethat.android.di.module.fake.FakeReactionDetectionModule;
-import com.truethat.android.di.module.fake.MockAppModule;
+import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.application.permissions.PermissionsManager;
+import com.truethat.android.application.storage.internal.FakeInternalStorageManager;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
@@ -29,8 +23,12 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.After;
 import org.junit.Before;
+
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 20/07/2017 for TrueThat.
@@ -38,12 +36,11 @@ import org.junit.Before;
 
 @SuppressWarnings("WeakerAccess") public class ViewModelTestSuite {
   final MockWebServer mMockWebServer = new MockWebServer();
-  public FakeAuthManager mFakeAuthManager;
-  FakeReactionDetectionManager mFakeReactionDetectionManager;
-  Gson mGson;
-  UnitTestComponent mUnitTestComponent;
+  protected FakeAuthManager mFakeAuthManager;
+  protected FakeInternalStorageManager mFakeInternalStorageManager;
+  protected FakeReactionDetectionManager mFakeReactionDetectionManager;
+  protected FakeDeviceManager mFakeDeviceManager;
   Date mNow;
-  private AppInjectorComponent mInjector;
 
   @SuppressWarnings("unchecked") @Before public void setUp() throws Exception {
     mNow = new Date();
@@ -59,21 +56,34 @@ import org.junit.Before;
         return new MockResponse();
       }
     });
-    // Initializes app component for future injections.
-    mUnitTestComponent =
-        DaggerUnitTestComponent.builder()
-            .mockAppModule(new MockAppModule(new MockContext()))
-            // Sets the backend URL, for MockWebServer.
-            .netModule(new NetModule(BuildConfig.TEST_BASE_BACKEND_URL))
-            .fakeAuthModule(new FakeAuthModule())
-            .fakeDeviceModule(new FakeDeviceModule())
-            .fakeInternalStorageModule(new FakeInternalStorageModule())
-            .fakeReactionDetectionModule(new FakeReactionDetectionModule())
-            .build();
-    // Initializes injected dependencies.
-    mInjector = DaggerAppInjectorComponent.builder().appComponent(mUnitTestComponent).build();
-    // Initialize fakes by creating a view model.
-    createViewModel(BaseViewModel.class, new UnitTestViewInterface());
+    NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
+
+    // Sets up mocks
+    AppContainer.setPermissionsManager(new PermissionsManager() {
+      @Override public boolean isPermissionGranted(Permission permission) {
+        return true;
+      }
+
+      @Override public void requestIfNeeded(Activity activity, Permission permission) {
+
+      }
+    });
+    mFakeDeviceManager = new FakeDeviceManager("android-unit-test", "911");
+    AppContainer.setDeviceManager(mFakeDeviceManager);
+    mFakeInternalStorageManager = new FakeInternalStorageManager();
+    AppContainer.setInternalStorageManager(mFakeInternalStorageManager);
+    mFakeAuthManager = new FakeAuthManager(mFakeDeviceManager, mFakeInternalStorageManager);
+    AppContainer.setAuthManager(mFakeAuthManager);
+    mFakeReactionDetectionManager = new FakeReactionDetectionManager();
+    AppContainer.setReactionDetectionManager(mFakeReactionDetectionManager);
+    // Signs a user up.
+    mFakeAuthManager.signUp(new UnitTestViewInterface(),
+        new User(mFakeDeviceManager.getDeviceId(), mFakeDeviceManager.getPhoneNumber()));
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeAuthManager.isAuthOk());
+      }
+    });
   }
 
   @After public void tearDown() throws Exception {
@@ -86,16 +96,6 @@ import org.junit.Before;
     ViewModel viewModel = viewModelTypeClass.newInstance();
     viewModel.onCreate(null, null);
     viewModel.onBindView(viewInterface);
-    mInjector.inject((BaseViewModel<BaseViewInterface>) viewModel);
-    viewModel.onInjected();
-    // Updates modules
-    mFakeAuthManager = (FakeAuthManager) viewModel.getAuthManager();
-    FakeDeviceManager fakeDeviceManager = (FakeDeviceManager) viewModel.getDeviceManager();
-    mFakeReactionDetectionManager = (FakeReactionDetectionManager) viewModel.getReactionDetectionManager();
-    mGson = viewModel.getGson();
-    // Sign up
-    mFakeAuthManager.signUp(new UnitTestViewInterface(),
-        new User(fakeDeviceManager.getDeviceId(), fakeDeviceManager.getPhoneNumber()));
     return viewModel;
   }
 

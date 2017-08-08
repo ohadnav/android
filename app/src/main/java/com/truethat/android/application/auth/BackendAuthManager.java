@@ -5,28 +5,27 @@ import android.util.Log;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.storage.internal.InternalStorageManager;
 import com.truethat.android.common.network.AuthApi;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
 import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * Proudly created by ohad on 18/07/2017 for TrueThat.
  */
 
-public class DefaultAuthManager extends BaseAuthManager {
+public class BackendAuthManager extends BaseAuthManager {
   /**
    * Auth API interface.
    */
   private AuthApi mAuthApi;
   private Call<User> mAuthCall;
 
-  public DefaultAuthManager(DeviceManager deviceManager, InternalStorageManager internalStorage,
-      Retrofit retrofit) {
+  public BackendAuthManager(DeviceManager deviceManager, InternalStorageManager internalStorage) {
     super(deviceManager, internalStorage);
-    mAuthApi = retrofit.create(AuthApi.class);
+    mAuthApi = NetworkUtil.createApi(AuthApi.class);
   }
 
   @Override protected void requestAuth(final AuthListener listener, User user) {

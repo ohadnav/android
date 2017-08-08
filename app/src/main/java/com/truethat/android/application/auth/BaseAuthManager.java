@@ -26,13 +26,13 @@ abstract class BaseAuthManager implements AuthManager {
     mInternalStorage = internalStorage;
   }
 
-  public User currentUser() {
+  public User getCurrentUser() {
     return mCurrentUser;
   }
 
   /**
    * Authenticate user synchronously, to ensure a {@link User} can be retrieved from {@link
-   * #currentUser()}
+   * #getCurrentUser()}
    * <p>
    * If {@link Permission#PHONE} is not granted then the authentication will terminate and will be
    * run again on {@link BaseActivity#onResume()}

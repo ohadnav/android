@@ -8,10 +8,10 @@ import android.telephony.TelephonyManager;
  * Proudly created by ohad on 02/07/2017 for TrueThat.
  */
 
-public class DefaultDeviceManager implements DeviceManager {
+class HardwareDeviceManager implements DeviceManager {
   private Context mContext;
 
-  public DefaultDeviceManager(Context context) {
+  HardwareDeviceManager(Context context) {
     mContext = context;
   }
 

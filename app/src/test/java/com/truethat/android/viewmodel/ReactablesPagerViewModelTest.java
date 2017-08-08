@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel;
 
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Reactable;
@@ -56,7 +57,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        String responseBody = mGson.toJson(mRespondedScenes);
+        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
@@ -64,12 +65,12 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
     // Initialize api
-    mApi = mViewModel.createApiInterface(TheaterApi.class);
+    mApi = NetworkUtil.createApi(TheaterApi.class);
   }
 
   @Test public void displayReactable() throws Exception {
     final Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     mRespondedScenes = Collections.singletonList(scene);
     mViewModel.fetchReactables();
@@ -91,8 +92,8 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
         assertTrue(mViewModel.mNonFoundTextVisibility.get());
       }
     });
-    Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(),
+    Scene scene = new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(),
+        new TreeMap<Emotion, Long>(),
             HOUR_AGO, Emotion.HAPPY);
     // Explicitly load more reactables.
     mRespondedScenes = Collections.singletonList(scene);
@@ -138,10 +139,11 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
 
   @Test public void nextReactable() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
+            YESTERDAY,
             null);
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mViewModel.fetchReactables();
@@ -159,10 +161,11 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
 
   @Test public void previousReactable() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     final Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
+            YESTERDAY,
             null);
     mRespondedScenes = Arrays.asList(scene1, scene2);
     mViewModel.fetchReactables();
@@ -188,10 +191,11 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
 
   @Test public void nextReactableFetchesNewReactables() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     final Scene scene2 =
-        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.currentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
+        new Scene(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
+            YESTERDAY,
             null);
     mRespondedScenes = Collections.singletonList(scene1);
     mViewModel.fetchReactables();
@@ -220,7 +224,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     }
 
     @Override public Call<List<Reactable>> buildFetchReactablesCall() {
-      return mApi.fetchReactables(mFakeAuthManager.currentUser());
+      return mApi.fetchReactables(mFakeAuthManager.getCurrentUser());
     }
 
     @Override public boolean isReallyVisible() {

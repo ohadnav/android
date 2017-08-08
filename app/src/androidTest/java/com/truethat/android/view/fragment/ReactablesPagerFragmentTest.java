@@ -38,6 +38,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isFullscreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
+import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.AllOf.allOf;
@@ -53,18 +54,10 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final long ID_2 = 2;
   private static final String IMAGE_URL_1 =
       "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg";
-  private static final String IMAGE_URL_2 =
-      "http://s.hswstatic.com/gif/laughing-bonobo-360x240.jpg";
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
-  private static final Date YESTERDAY = new Date(new Date().getTime() - TimeUnit.DAYS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
-  private static final long SAD_COUNT = HAPPY_COUNT + 1;
   private static final TreeMap<Emotion, Long> HAPPY_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
-  }};
-  private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
-    put(Emotion.HAPPY, HAPPY_COUNT);
-    put(Emotion.SAD, SAD_COUNT);
   }};
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
@@ -88,14 +81,16 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     @SuppressWarnings("unchecked")
     final ReactableFragment<Reactable, ReactableViewModel<Reactable>, FragmentReactableBinding>
         currentFragment = pagerFragment.getDisplayedReactable();
-    // Wait until the fragment is really visible.
+    // Wait until the fragment is ready
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(currentFragment.getViewModel().isReady());
       }
     });
-    // Asserting the scene image is displayed fullscreen.
-    assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
+    if (reactable instanceof Scene) {
+      // Asserting the scene image is displayed fullscreen.
+      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
+    }
     // Loading layout should be hidden.
     onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
     // Asserting the reactions count is abbreviated.
@@ -139,7 +134,7 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     // Resets the post event counter.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = mGson.toJson(mRespondedScenes);
+        String responseBody = GSON.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
@@ -150,11 +145,11 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
 
   @Test public void displayReactable() throws Exception {
     Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.currentUser(), HAPPY_REACTIONS, HOUR_AGO,
+        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityRule.launchActivity(null);
-    assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
     // Should not be detecting reaction
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Let a post event to maybe be sent.

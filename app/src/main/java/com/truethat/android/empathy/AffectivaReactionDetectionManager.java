@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.HandlerThread;
 import android.util.Log;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.application.permissions.PermissionsManager;
 import com.truethat.android.view.activity.BaseActivity;
 
 /**
@@ -11,19 +12,21 @@ import com.truethat.android.view.activity.BaseActivity;
  * <p>
  * A wrapper for Affectiva emotion detection engine.
  */
-public class DefaultReactionDetectionManager extends BaseReactionDetectionManager {
+public class AffectivaReactionDetectionManager extends BaseReactionDetectionManager {
   private Context mContext;
+  private PermissionsManager mPermissionsManager;
   private HandlerThread detectionThread;
   private DetectionHandler detectionHandler;
 
-  public DefaultReactionDetectionManager(Context context) {
+  public AffectivaReactionDetectionManager(Context context, PermissionsManager permissionsManager) {
+    mPermissionsManager = permissionsManager;
     mContext = context;
   }
 
   @Override public void start(BaseActivity activity) {
     super.start(activity);
-    activity.getPermissionsManager().requestIfNeeded(activity, Permission.CAMERA);
-    if (!activity.getPermissionsManager().isPermissionGranted(Permission.CAMERA)) {
+    mPermissionsManager.requestIfNeeded(activity, Permission.CAMERA);
+    if (!mPermissionsManager.isPermissionGranted(Permission.CAMERA)) {
       Log.w(TAG, "Started without camera permissions.");
       stop();
     } else if (detectionThread == null) {

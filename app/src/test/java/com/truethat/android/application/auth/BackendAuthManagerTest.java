@@ -1,9 +1,7 @@
 package com.truethat.android.application.auth;
 
-import com.google.gson.Gson;
-import com.truethat.android.BuildConfig;
-import com.truethat.android.di.module.NetModule;
 import java.net.HttpURLConnection;
+import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -14,25 +12,22 @@ import org.awaitility.core.ThrowingRunnable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import retrofit2.Retrofit;
 
+import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static org.awaitility.Awaitility.await;
 
 /**
  * Proudly created by ohad on 19/07/2017 for TrueThat.
  */
-public class DefaultAuthManagerTest extends AuthManagerTest {
-  private static final NetModule NET_MODULE = new NetModule(BuildConfig.TEST_BASE_BACKEND_URL);
-  private static final Gson GSON = NET_MODULE.provideGson();
-  private static final Retrofit RETROFIT =
-      NET_MODULE.provideRetrofit(GSON, NET_MODULE.provideOkHttpClient());
+public class BackendAuthManagerTest extends AuthManagerTest {
   private final MockWebServer mMockWebServer = new MockWebServer();
 
   @Before public void setUp() throws Exception {
     super.setUp();
     // Initialize async helper.
     Awaitility.reset();
-    Awaitility.setDefaultTimeout(Duration.ONE_SECOND);
+    Awaitility.setDefaultTimeout(Duration.ONE_MINUTE);
+    Awaitility.setDefaultPollInterval(new Duration(10, TimeUnit.MILLISECONDS));
     // Starts mock server
     mMockWebServer.start(8080);
     mMockWebServer.setDispatcher(new Dispatcher() {
@@ -41,7 +36,7 @@ public class DefaultAuthManagerTest extends AuthManagerTest {
         return new MockResponse().setBody(GSON.toJson(mUser));
       }
     });
-    mAuthManager = new DefaultAuthManager(DEVICE_MANAGER, mInternalStorage, RETROFIT);
+    mAuthManager = new BackendAuthManager(DEVICE_MANAGER, mInternalStorage);
   }
 
   @After public void tearDown() throws Exception {

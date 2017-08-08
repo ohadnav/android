@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel;
 
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import java.util.concurrent.Callable;
 import org.awaitility.core.ThrowingRunnable;
@@ -24,7 +25,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     super.setUp();
     mView = new OnBoardingViewModelTest.ViewInterface();
     mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
-    mViewModel.getReactionDetectionManager().start(null);
+    AppContainer.getReactionDetectionManager().start(null);
   }
 
   @Test public void successfulOnBoarding() throws Exception {

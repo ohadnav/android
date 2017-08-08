@@ -1,6 +1,5 @@
-package com.truethat.android.di.module;
+package com.truethat.android.common.network;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.truethat.android.model.Emotion;
@@ -11,13 +10,14 @@ import java.util.Date;
 import java.util.TreeMap;
 import org.junit.Test;
 
+import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static com.truethat.android.external.RuntimeTypeAdapterFactory.TYPE_FIELD_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Proudly created by ohad on 17/07/2017 for TrueThat.
+ * Proudly created by ohad on 08/08/2017 for TrueThat.
  */
-public class NetModuleTest {
+public class NetworkUtilTest {
   private static final int NUM = 5;
   private static final Date DATE = new Date(0);
   private static final String UTC_DATE = "\"1970-01-01T00:00:00.000+0000\"";
@@ -27,7 +27,6 @@ public class NetModuleTest {
   private static final Reactable SCENE =
       new Scene(1, "url", new User("elon", "musk", null, null), EMOTIONAL_REACTIONS, DATE,
           Emotion.HAPPY);
-  private static final Gson GSON = new NetModule("test").provideGson();
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {
     String actual = GSON.toJson(new MyAndroidClass(NUM));

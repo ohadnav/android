@@ -99,6 +99,6 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
       }
     });
     // Assert the current user now the proper name.
-    assertEquals(NAME, mFakeAuthManager.currentUser().getDisplayName());
+    assertEquals(NAME, mFakeAuthManager.getCurrentUser().getDisplayName());
   }
 }

@@ -11,6 +11,7 @@ import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
 import com.truethat.android.model.User;
@@ -40,10 +41,10 @@ public class OnBoardingActivity extends
   @Override public void onResume() {
     super.onResume();
     // Maybe we are here by mistake.
-    if (mAuthManager.isAuthOk()) {
+    if (AppContainer.getAuthManager().isAuthOk()) {
       finish();
     }
-    getReactionDetectionManager().start(this);
+    AppContainer.getReactionDetectionManager().start(this);
   }
 
   @Override public void requestNameEditFocus() {
@@ -67,9 +68,9 @@ public class OnBoardingActivity extends
   public void finishOnBoarding() {
     String userFullName = mNameEditText.getText().toString();
     User newUser = new User(StringUtil.extractFirstName(userFullName),
-        StringUtil.extractLastName(userFullName), mDeviceManager.getDeviceId(),
-        mDeviceManager.getPhoneNumber());
-    mAuthManager.signUp(this, newUser);
+        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId(),
+        AppContainer.getDeviceManager().getPhoneNumber());
+    AppContainer.getAuthManager().signUp(this, newUser);
   }
 
   @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {

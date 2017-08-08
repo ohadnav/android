@@ -12,13 +12,13 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
-public class DefaultInternalStorageManagerTest extends BaseApplicationTestSuite {
+public class DeviceInternalStorageManagerTest extends BaseApplicationTestSuite {
   private static final String FILE_NAME =
       "DefaultInternalStorageTest_" + new Date().getTime() + ".txt";
   private static final String ROOT_DIR =
       "DefaultInternalStorageTest_nested_" + new Date().getTime();
   private static final String NESTED_FILE = ROOT_DIR + "/asta/la/vista.baby";
-  private InternalStorageManager mInternalStorage = new DefaultInternalStorageManager(getApp());
+  private InternalStorageManager mInternalStorage = new DeviceInternalStorageManager(getApp());
 
   @Test public void writeReadAndDelete() throws Exception {
     Date expected = new Date();

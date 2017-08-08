@@ -9,8 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.truethat.android.R;
-import com.truethat.android.di.component.DaggerReactableInjectorComponent;
-import com.truethat.android.di.module.ReactableModule;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.ReactableViewModel;
@@ -49,6 +47,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     super.onCreate(savedInstanceState);
     //noinspection unchecked
     mReactable = (Model) getArguments().getSerializable(ARG_REACTABLE);
+    getViewModel().setReactable(mReactable);
   }
 
   /**
@@ -58,12 +57,6 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    DaggerReactableInjectorComponent.builder()
-        .appComponent(getApp().getAppComponent())
-        .reactableModule(new ReactableModule(mReactable))
-        .build()
-        .inject((ReactableViewModel<Reactable>) getViewModel());
-    getViewModel().onInjected();
     createMedia(inflater);
     return mRootView;
   }

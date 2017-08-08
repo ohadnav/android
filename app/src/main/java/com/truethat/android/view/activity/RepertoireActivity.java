@@ -3,6 +3,8 @@ package com.truethat.android.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.RepertoireApi;
 import com.truethat.android.databinding.ActivityRepertoireBinding;
 import com.truethat.android.model.Reactable;
@@ -39,7 +41,7 @@ public class RepertoireActivity extends
     mPagerFragment = (ReactablesPagerFragment) getSupportFragmentManager().findFragmentById(
         R.id.reactablesPagerFragment);
     // Initialize API
-    mRepertoireApi = createApiInterface(RepertoireApi.class);
+    mRepertoireApi = NetworkUtil.createApi(RepertoireApi.class);
   }
 
   @Override public void onSwipeUp() {
@@ -53,6 +55,6 @@ public class RepertoireActivity extends
   }
 
   @Override public Call<List<Reactable>> buildFetchReactablesCall() {
-    return mRepertoireApi.fetchRepertoire(mAuthManager.currentUser());
+    return mRepertoireApi.fetchRepertoire(AppContainer.getAuthManager().getCurrentUser());
   }
 }

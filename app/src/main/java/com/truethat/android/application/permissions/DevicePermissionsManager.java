@@ -9,10 +9,10 @@ import android.support.v4.app.ActivityCompat;
  * Proudly created by ohad on 24/05/2017 for TrueThat.
  */
 
-public class DefaultPermissionsManager implements PermissionsManager {
+public class DevicePermissionsManager implements PermissionsManager {
   private Context mContext;
 
-  public DefaultPermissionsManager(Context context) {
+  public DevicePermissionsManager(Context context) {
     mContext = context;
   }
 

@@ -11,6 +11,7 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.databinding.ActivityStudioBinding;
 import com.truethat.android.model.Scene;
@@ -34,7 +35,7 @@ public class StudioActivity
    * UI initiated picture taking.
    */
   @OnClick(R.id.captureButton) public void captureImage() {
-    if (mAuthManager.isAuthOk() && mCameraFragment.isCameraOpen()) {
+    if (AppContainer.getAuthManager().isAuthOk() && mCameraFragment.isCameraOpen()) {
       mCameraFragment.takePicture();
     } else {
       Toast.makeText(this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
@@ -42,7 +43,8 @@ public class StudioActivity
   }
 
   @Override public void processImage(Image image) {
-    getViewModel().onApproval(new Scene(mAuthManager.currentUser(), CameraUtil.toByteArray(image)));
+    getViewModel().onApproval(
+        new Scene(AppContainer.getAuthManager().getCurrentUser(), CameraUtil.toByteArray(image)));
   }
 
   @OnClick(R.id.switchCameraButton) public void switchCamera() {

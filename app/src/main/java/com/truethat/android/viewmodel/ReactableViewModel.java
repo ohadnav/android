@@ -3,13 +3,17 @@ package com.truethat.android.viewmodel;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
+import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import butterknife.BindString;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.network.InteractionApi;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.empathy.ReactionDetectionListener;
@@ -19,7 +23,6 @@ import com.truethat.android.model.InteractionEvent;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import java.util.Date;
-import javax.inject.Inject;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,8 +48,7 @@ public class ReactableViewModel<Model extends Reactable>
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
-  @Inject Model mReactable;
-
+  private Model mReactable;
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * InteractionEvent}.
@@ -65,6 +67,13 @@ public class ReactableViewModel<Model extends Reactable>
    */
   private boolean mReadyForDisplay = false;
 
+  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
+    super.onCreate(arguments, savedInstanceState);
+    // Initializes the API
+    mInteractionApi = NetworkUtil.createApi(InteractionApi.class);
+    mPostEventCallback = buildPostEventCallback();
+  }
+
   @CallSuper @Override public void onStop() {
     super.onStop();
     if (mPostEventCall != null) mPostEventCall.cancel();
@@ -76,13 +85,6 @@ public class ReactableViewModel<Model extends Reactable>
     updateReactionCounters();
   }
 
-  @CallSuper @Override public void onInjected() {
-    super.onInjected();
-    // Initializes the API
-    mInteractionApi = createApiInterface(InteractionApi.class);
-    mPostEventCallback = buildPostEventCallback();
-  }
-
   @CallSuper public void onVisible() {
     if (mReadyForDisplay) {
       onDisplay();
@@ -91,11 +93,15 @@ public class ReactableViewModel<Model extends Reactable>
 
   @Override public void onHidden() {
     super.onHidden();
-    getReactionDetectionManager().unsubscribe(this);
+    AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
 
   public Reactable getReactable() {
     return mReactable;
+  }
+
+  public void setReactable(Model reactable) {
+    mReactable = reactable;
   }
 
   /**
@@ -119,12 +125,13 @@ public class ReactableViewModel<Model extends Reactable>
   }
 
   public void onReactionDetected(Emotion reaction) {
-    if (mReactable.canReactTo(mCurrentUser.get())) {
+    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mReactable.doReaction(reaction);
       // Post event of reactable reaction.
       mPostEventCall = mInteractionApi.postEvent(
-          new InteractionEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
+          new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
+              mReactable.getId(), new Date(),
               EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
       mPostEventCall.enqueue(mPostEventCallback);
       updateReactionCounters();
@@ -137,8 +144,8 @@ public class ReactableViewModel<Model extends Reactable>
   @CallSuper void onDisplay() {
     Log.v(TAG, "onDisplay");
     doView();
-    if (mReactable.canReactTo(mCurrentUser.get())) {
-      getReactionDetectionManager().subscribe(this);
+    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+      AppContainer.getReactionDetectionManager().subscribe(this);
     }
   }
 
@@ -147,10 +154,12 @@ public class ReactableViewModel<Model extends Reactable>
    */
   private void doView() {
     // Don't record view of the user's own reactables.
-    if (!mReactable.isViewed() && !mReactable.getDirector().equals(mCurrentUser.get())) {
+    if (!mReactable.isViewed() && !mReactable.getDirector()
+        .equals(AppContainer.getAuthManager().getCurrentUser())) {
       mReactable.doView();
       mInteractionApi.postEvent(
-          new InteractionEvent(mCurrentUser.get().getId(), mReactable.getId(), new Date(),
+          new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
+              mReactable.getId(), new Date(),
               EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
     }
   }
@@ -162,7 +171,7 @@ public class ReactableViewModel<Model extends Reactable>
     // Sets director name.
     mDirectorName.set(mReactable.getDirector().getDisplayName());
     // Hide the director name if it is the user.
-    if (mReactable.getDirector().equals(mCurrentUser.get())) {
+    if (mReactable.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
       mDirectorNameVisibility.set(false);
     }
     // Sets time ago

@@ -7,7 +7,6 @@ import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Scene;
-import com.truethat.android.view.fragment.ReactablesPagerFragmentTest;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +20,8 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static com.truethat.android.common.network.NetworkUtil.GSON;
+import static com.truethat.android.view.fragment.ReactablesPagerFragmentTest.assertReactableDisplayed;
 
 /**
  * Proudly created by ohad on 03/07/2017 for TrueThat.
@@ -34,7 +35,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = mGson.toJson(mRespondedScenes);
+        String responseBody = GSON.toJson(mRespondedScenes);
         mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
@@ -51,26 +52,26 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
     Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+        mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
   }
 
   @Test public void singleInstance() throws Exception {
     Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        mFakeAuthManager.currentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+        mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
     mRespondedScenes = Collections.singletonList(scene);
     mRepertoireActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
     // Navigate out of Repertoire activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
     // Navigate back to Repertoire activity
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.currentUser());
+    assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
   }
 }

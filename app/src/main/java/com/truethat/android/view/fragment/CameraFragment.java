@@ -32,6 +32,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import butterknife.BindView;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.BackgroundHandler;
@@ -557,9 +558,9 @@ public class CameraFragment extends
    * Opens the camera specified by {@link #mCameraId}.
    */
   @SuppressWarnings("MissingPermission") private void openCamera() {
-    getBaseActivity().getPermissionsManager()
+    AppContainer.getPermissionsManager()
         .requestIfNeeded(getActivity(), Permission.CAMERA);
-    if (!getBaseActivity().getPermissionsManager()
+    if (!AppContainer.getPermissionsManager()
         .isPermissionGranted(Permission.CAMERA)) {
       return;
     }

@@ -61,7 +61,7 @@ import java.util.Map;
       grant(permission);
       // Grants it for real, if needed.
       try {
-        PermissionsManager devicePermissionsManager = new DefaultPermissionsManager(activity);
+        PermissionsManager devicePermissionsManager = new DevicePermissionsManager(activity);
         if (activity != null && !devicePermissionsManager.isPermissionGranted(permission)) {
           PermissionsTestUtil.grantPermission(permission);
         }

@@ -14,15 +14,11 @@ import android.view.View;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.google.gson.Gson;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
-import com.truethat.android.application.DeviceManager;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.auth.AuthListener;
-import com.truethat.android.application.auth.AuthManager;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.application.permissions.PermissionsManager;
-import com.truethat.android.empathy.ReactionDetectionManager;
 import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
@@ -30,8 +26,6 @@ import eu.inloop.viewmodel.AbstractViewModel;
 import eu.inloop.viewmodel.ViewModelHelper;
 import eu.inloop.viewmodel.base.ViewModelBaseEmptyActivity;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
-import javax.inject.Inject;
-import retrofit2.Retrofit;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -58,17 +52,6 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    * Whether to skip authentication.
    */
   boolean mSkipAuth = false;
-  @Inject Retrofit mRetrofit;
-
-  @Inject Gson mGson;
-
-  @Inject PermissionsManager mPermissionsManager;
-
-  @Inject AuthManager mAuthManager;
-
-  @Inject DeviceManager mDeviceManager;
-
-  @Inject ReactionDetectionManager mReactionDetectionManager;
 
   /**
    * Permission not granted callback.
@@ -100,14 +83,6 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
         startActivity(authFailed);
       }
     });
-  }
-
-  public ReactionDetectionManager getReactionDetectionManager() {
-    return mReactionDetectionManager;
-  }
-
-  public PermissionsManager getPermissionsManager() {
-    return mPermissionsManager;
   }
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState,
@@ -175,10 +150,6 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @SuppressWarnings("unchecked") @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
-    // Injects dependencies.
-    getApp().getInjector()
-        .inject(
-            (BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ViewDataBinding>) this);
     // Initializes activity class.
     super.onCreate(savedInstanceState);
     // Disable landscape orientation.
@@ -214,7 +185,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   @CallSuper @Override public void onResume() {
     super.onResume();
     if (!mSkipAuth) {
-      mAuthManager.auth(this);
+      AppContainer.getAuthManager().auth(this);
     }
   }
 
@@ -233,22 +204,11 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
 
-  <T> T createApiInterface(final Class<T> service) {
-    return mRetrofit.create(service);
-  }
-
-  @Inject void logInjection() {
-    Log.v(TAG, "INJECTED");
-  }
-
   /**
    * Initialize data-view binding for this activity, and injects dependencies to the view model.
    */
   @SuppressWarnings("unchecked") private void initializeViewModel() {
     mViewModelHelper.performBinding(this);
-    // Injects dependencies
-    getApp().getInjector().inject((BaseViewModel<BaseViewInterface>) getViewModel());
-    getViewModel().onInjected();
     mViewModelHelper.setView((ViewInterface) this);
     // Ensures data binding was made.
     if (mViewModelHelper.getBinding() == null) {

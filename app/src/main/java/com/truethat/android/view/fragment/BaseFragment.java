@@ -20,7 +20,6 @@ import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import eu.inloop.viewmodel.ViewModelHelper;
-import javax.inject.Inject;
 
 /**
  * Proudly created by ohad on 22/06/2017 for TrueThat.
@@ -89,17 +88,10 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
       throw new IllegalStateException(
           "Binding cannot be null. Perform binding before calling getBinding()");
     }
-    // Inject dependencies into the view model.
-    getApp().getInjector().inject((BaseFragmentViewModel<BaseFragmentViewInterface>) getViewModel());
-    getViewModel().onInjected();
     // Sets the view interface.
     setModelView((ViewInterface) this);
     // Binds views with butterknife.
     mViewUnbinder = ButterKnife.bind(this, mRootView);
-    // Injects dependencies to this fragment.
-    getApp().getInjector()
-        .inject(
-            (BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, ViewDataBinding>) this);
     return mRootView;
   }
 
@@ -189,10 +181,6 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void removeViewModel() {
     mViewModelHelper.removeViewModel(getActivity());
-  }
-
-  @SuppressWarnings("unused") @Inject void logInjection() {
-    Log.v(TAG, "INJECTED");
   }
 
   BaseActivity getBaseActivity() {

@@ -18,11 +18,11 @@ import java.util.Objects;
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
 
-@SuppressWarnings("unchecked") public class DefaultInternalStorageManager
+@SuppressWarnings("unchecked") public class DeviceInternalStorageManager
     implements InternalStorageManager {
   private Context mContext;
 
-  public DefaultInternalStorageManager(Context context) {
+  public DeviceInternalStorageManager(Context context) {
     mContext = context;
   }
 

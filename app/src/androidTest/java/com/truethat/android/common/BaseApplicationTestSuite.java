@@ -1,21 +1,15 @@
 package com.truethat.android.common;
 
 import android.support.test.rule.ActivityTestRule;
-import com.google.gson.Gson;
 import com.truethat.android.BuildConfig;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.ApplicationTestUtil;
 import com.truethat.android.application.FakeDeviceManager;
 import com.truethat.android.application.auth.FakeAuthManager;
 import com.truethat.android.application.permissions.FakePermissionsManager;
+import com.truethat.android.application.storage.internal.FakeInternalStorageManager;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.di.component.DaggerTestAppComponent;
-import com.truethat.android.di.module.AppModule;
-import com.truethat.android.di.module.NetModule;
-import com.truethat.android.di.module.fake.FakeAuthModule;
-import com.truethat.android.di.module.fake.FakeDeviceModule;
-import com.truethat.android.di.module.fake.FakeInternalStorageModule;
-import com.truethat.android.di.module.fake.FakePermissionsModule;
-import com.truethat.android.di.module.fake.FakeReactionDetectionModule;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.TestActivity;
@@ -27,7 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
-import static com.truethat.android.application.ApplicationTestUtil.getApp;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertTrue;
 
@@ -48,9 +41,9 @@ import static org.junit.Assert.assertTrue;
       new ActivityTestRule<>(TestActivity.class, true, false);
   protected FakePermissionsManager mFakePermissionsManager;
   protected FakeAuthManager mFakeAuthManager;
+  protected FakeInternalStorageManager mFakeInternalStorageManager;
   protected FakeReactionDetectionManager mFakeReactionDetectionManager;
   protected FakeDeviceManager mFakeDeviceManager;
-  protected Gson mGson;
   protected CountingDispatcher mDispatcher;
 
   @Before public void setUp() throws Exception {
@@ -60,29 +53,23 @@ import static org.junit.Assert.assertTrue;
     // Starts mock server
     mMockWebServer.start(8080);
     setDispatcher(new CountingDispatcher());
-    // Injects mock dependencies.
-    getApp().updateComponents(DaggerTestAppComponent.builder().appModule(new AppModule(getApp()))
-        // Sets the backend URL, for MockWebServer.
-        .netModule(new NetModule(BuildConfig.TEST_BASE_BACKEND_URL))
-        .fakePermissionsModule(new FakePermissionsModule())
-        .fakeAuthModule(new FakeAuthModule())
-        .fakeDeviceModule(new FakeDeviceModule())
-        .fakeInternalStorageModule(new FakeInternalStorageModule())
-        .fakeReactionDetectionModule(new FakeReactionDetectionModule())
-        .build());
+    NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
+    // Set up mocks
+    mFakePermissionsManager = new FakePermissionsManager();
+    AppContainer.setPermissionsManager(mFakePermissionsManager);
+    mFakeDeviceManager = new FakeDeviceManager("android-1", "911");
+    AppContainer.setDeviceManager(mFakeDeviceManager);
+    mFakeInternalStorageManager = new FakeInternalStorageManager();
+    AppContainer.setInternalStorageManager(mFakeInternalStorageManager);
+    mFakeAuthManager = new FakeAuthManager(mFakeDeviceManager, mFakeInternalStorageManager);
+    AppContainer.setAuthManager(mFakeAuthManager);
+    mFakeReactionDetectionManager = new FakeReactionDetectionManager();
+    AppContainer.setReactionDetectionManager(mFakeReactionDetectionManager);
     // Launches activity
     mActivityTestRule.launchActivity(null);
-    // Initializes fakes
-    mFakeAuthManager = (FakeAuthManager) mActivityTestRule.getActivity().getAuthManager();
-    mFakeDeviceManager = (FakeDeviceManager) mActivityTestRule.getActivity().getDeviceManager();
-    mFakePermissionsManager =
-        (FakePermissionsManager) mActivityTestRule.getActivity().getPermissionsManager();
     // Sign up
     mFakeAuthManager.signUp(mActivityTestRule.getActivity(),
         new User(mFakeDeviceManager.getDeviceId(), mFakeDeviceManager.getPhoneNumber()));
-    mFakeReactionDetectionManager = (FakeReactionDetectionManager) mActivityTestRule.getActivity()
-        .getReactionDetectionManager();
-    mGson = mActivityTestRule.getActivity().getGson();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeAuthManager.isAuthOk());
