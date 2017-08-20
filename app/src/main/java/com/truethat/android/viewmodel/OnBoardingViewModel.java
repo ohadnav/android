@@ -59,6 +59,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   @Override public void onReactionDetected(Emotion reaction) {
     if (reaction == REACTION_FOR_DONE && StringUtil.isValidFullName(mNameEditText.get())) {
       getView().finishOnBoarding();
+      // Unsubscribes to reaction detection, to avoid multiple sign ups
+      AppContainer.getReactionDetectionManager().unsubscribe(this);
     }
   }
 

@@ -40,7 +40,7 @@ public class AffectivaReactionDetectionManager extends BaseReactionDetectionMana
 
   @Override public void stop() {
     super.stop();
-    if (detectionHandler != null) {
+    if (detectionHandler != null && mReactionDetectionListeners.isEmpty()) {
       detectionHandler.sendStopMessage();
       try {
         detectionThread.join();

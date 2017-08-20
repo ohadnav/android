@@ -39,7 +39,7 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   }
 
   @Override public void unsubscribe(ReactionDetectionListener reactionDetectionListener) {
-    if (isDetecting()) {
+    if (mReactionDetectionListeners.contains(reactionDetectionListener)) {
       Log.v(TAG, "Unsubscribing "
           + reactionDetectionListener.getClass().getSimpleName()
           + "("
@@ -51,8 +51,16 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   }
 
   @Override public void stop() {
-    Log.v(TAG, "Stopping detection.");
-    mState = State.IDLE;
+    if (mReactionDetectionListeners.isEmpty()) {
+      Log.v(TAG, "Stopping detection.");
+      mState = State.IDLE;
+    } else {
+      Log.v(TAG, "Not stopping: "
+          + mReactionDetectionListeners.size()
+          + " listeners left (such as "
+          + mReactionDetectionListeners.iterator().next().getClass().getSimpleName()
+          + ")");
+    }
   }
 
   /**
@@ -63,14 +71,15 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   }
 
   @CallSuper void onReactionDetected(Emotion reaction) {
-    Log.v(TAG, "Detected " + reaction.name());
+    if (!mReactionDetectionListeners.isEmpty()) {
+      Log.v(TAG, "Detected " + reaction.name());
+    }
     for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
       reactionDetectionListener.onReactionDetected(reaction);
     }
   }
 
   private enum State {
-    DETECTING,
-    IDLE
+    DETECTING, IDLE
   }
 }

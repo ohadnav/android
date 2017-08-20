@@ -29,7 +29,6 @@ public class BackendAuthManager extends BaseAuthManager {
   }
 
   @Override protected void requestAuth(final AuthListener listener, User user) {
-    //mNetworkHandler.start();
     if (mAuthCall != null) {
       mAuthCall.cancel();
     }
