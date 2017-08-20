@@ -59,8 +59,8 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Go to on boarding by mistake.
     mActivityTestRule.getActivity()
         .startActivity(new Intent(mActivityTestRule.getActivity(), OnBoardingActivity.class));
-    // Should navigate back to test activity.
-    waitForActivity(TestActivity.class);
+    // Should navigate back to theater activity.
+    waitForActivity(TheaterActivity.class);
   }
 
   /**
@@ -91,7 +91,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
 
   private void assertOnBoardingSuccessful() {
     // Should navigate back to Test activity.
-    waitForActivity(TestActivity.class);
+    waitForActivity(TheaterActivity.class);
     // Wait until Auth OK.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

@@ -29,7 +29,7 @@ public class BackendAuthManagerTest extends AuthManagerTest {
     Awaitility.setDefaultTimeout(Duration.ONE_MINUTE);
     Awaitility.setDefaultPollInterval(new Duration(10, TimeUnit.MILLISECONDS));
     // Starts mock server
-    mMockWebServer.start(8080);
+    mMockWebServer.start(8070);
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         mUser.setId(USER_ID);

@@ -50,7 +50,7 @@ import static org.junit.Assert.assertTrue;
     Awaitility.setDefaultPollDelay(new Duration(10, TimeUnit.MILLISECONDS));
     Awaitility.setDefaultPollInterval(new Duration(10, TimeUnit.MILLISECONDS));
     // Starts mock server
-    mMockWebServer.start(8080);
+    mMockWebServer.start(8070);
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         return new MockResponse();

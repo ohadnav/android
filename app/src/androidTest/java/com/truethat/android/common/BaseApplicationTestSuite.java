@@ -51,7 +51,7 @@ import static org.junit.Assert.assertTrue;
     Awaitility.reset();
     Awaitility.setDefaultTimeout(TIMEOUT);
     // Starts mock server
-    mMockWebServer.start(8080);
+    mMockWebServer.start(8070);
     setDispatcher(new CountingDispatcher());
     NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
     // Set up mocks
