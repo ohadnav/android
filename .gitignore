@@ -4,7 +4,7 @@
 /.idea/workspace.xml
 /app/.idea/workspace.xml
 /.idea/libraries
-app/.idea/libraries/
+/app/.idea/libraries/
 
 # Gradle
 .gradle
@@ -14,7 +14,7 @@ app/.idea/libraries/
 /app/build/
 
 # generated APKs for PlayStore
-signed-apk/
+/signed-apk/
 
 # Mac OS files
 .DS_Store
