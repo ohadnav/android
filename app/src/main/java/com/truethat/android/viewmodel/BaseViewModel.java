@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,11 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle, Bundle)}.
    */
   String TAG = this.getClass().getSimpleName();
+  Context mContext;
+
+  public void setContext(Context context) {
+    mContext = context;
+  }
 
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);

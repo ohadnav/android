@@ -214,5 +214,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     if (mViewModelHelper.getBinding() == null) {
       throw new IllegalStateException("Binding cannot be null.");
     }
+    // Sets up context
+    mViewModelHelper.getViewModel().setContext(this);
   }
 }

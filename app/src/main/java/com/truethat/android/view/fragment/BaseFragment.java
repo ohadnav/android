@@ -92,6 +92,8 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     setModelView((ViewInterface) this);
     // Binds views with butterknife.
     mViewUnbinder = ButterKnife.bind(this, mRootView);
+    // Sets up context
+    mViewModelHelper.getViewModel().setContext(this.getActivity());
     return mRootView;
   }
 

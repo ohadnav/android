@@ -136,6 +136,7 @@ public class ReactableViewModel<Model extends Reactable>
       mPostEventCall.enqueue(mPostEventCallback);
       updateReactionCounters();
     }
+    AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
 
   /**
@@ -154,8 +155,9 @@ public class ReactableViewModel<Model extends Reactable>
    */
   private void doView() {
     // Don't record view of the user's own reactables.
-    if (!mReactable.isViewed() && !mReactable.getDirector()
-        .equals(AppContainer.getAuthManager().getCurrentUser())) {
+    if (!mReactable.isViewed() && !AppContainer.getAuthManager()
+        .getCurrentUser()
+        .equals(mReactable.getDirector())) {
       mReactable.doView();
       mInteractionApi.postEvent(
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
@@ -168,11 +170,13 @@ public class ReactableViewModel<Model extends Reactable>
    * Updates the director layout with data from {@link #mReactable}.
    */
   private void updateInfoLayout() {
-    // Sets director name.
-    mDirectorName.set(mReactable.getDirector().getDisplayName());
-    // Hide the director name if it is the user.
-    if (mReactable.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
-      mDirectorNameVisibility.set(false);
+    if (mReactable.getDirector() != null) {
+      // Sets director name.
+      mDirectorName.set(mReactable.getDirector().getDisplayName());
+      // Hide the director name if it is the user.
+      if (mReactable.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
+        mDirectorNameVisibility.set(false);
+      }
     }
     // Sets time ago
     mTimeAgoText.set(DateUtil.formatTimeAgo(mReactable.getCreated()));

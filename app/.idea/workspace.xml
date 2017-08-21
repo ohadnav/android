@@ -11,7 +11,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="30c4291a-80f7-4813-be19-bfeb39438a14" name="Default" comment="gitignore">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../.gitignore" afterPath="$PROJECT_DIR$/../.gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" />
     </list>
     <ignored path="app.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -54,108 +60,151 @@
     <favorites_list name="app" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="BaseAuthManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BaseAuthManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="557">
-              <caret line="79" column="37" selection-start-line="79" selection-start-column="37" selection-end-line="79" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OnBoardingActivity.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/OnBoardingActivity.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="22" column="52" selection-start-line="22" selection-start-column="52" selection-end-line="22" selection-end-column="52" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OnBoardingViewModel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/OnBoardingViewModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="45" column="65" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="65" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReactablesPagerViewModel.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="600">
-              <caret line="56" column="27" selection-start-line="56" selection-start-column="27" selection-end-line="56" selection-end-column="27" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AuthManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/AuthManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BackendAuthManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BackendAuthManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReactionDetectionManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/ReactionDetectionManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BaseReactionDetectionManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/BaseReactionDetectionManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="63" column="3" selection-start-line="63" selection-start-column="3" selection-end-line="63" selection-end-column="3" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AffectivaReactionDetectionManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/AffectivaReactionDetectionManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="41" column="17" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/build.gradle">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="360">
+                  <caret line="24" column="64" selection-start-line="24" selection-start-column="64" selection-end-line="24" selection-end-column="64" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ReactableViewModel.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="255">
+                  <caret line="128" column="57" selection-start-line="128" selection-start-column="57" selection-end-line="128" selection-end-column="57" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="StudioViewModel.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="499">
+                  <caret line="155" column="57" selection-start-line="155" selection-start-column="57" selection-end-line="155" selection-end-column="57" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="BaseFragment.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="204">
+                  <caret line="84" column="26" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="SceneFragment.java" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="285">
+                  <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="App.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/App.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="225">
+                  <caret line="20" column="25" selection-start-line="20" selection-start-column="25" selection-end-line="20" selection-end-column="25" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="BaseViewModel.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="210">
+                  <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+                  <folding>
+                    <element signature="e#719#720#0" expanded="true" />
+                    <element signature="e#747#748#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="TheaterActivity.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/TheaterActivity.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="105">
+                  <caret line="29" column="25" selection-start-line="29" selection-start-column="25" selection-end-line="29" selection-end-column="25" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="BaseAuthManager.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BaseAuthManager.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="464">
+                  <caret line="60" column="0" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="AppContainer.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/AppContainer.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="240">
+                  <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#765#766#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file leaf-file-name="ReactablesPagerFragment.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1440">
+                  <caret line="134" column="54" selection-start-line="134" selection-start-column="54" selection-end-line="134" selection-end-column="54" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ReactablesPagerViewModel.java" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1680">
+                  <caret line="128" column="26" selection-start-line="128" selection-start-column="26" selection-end-line="128" selection-end-column="26" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="BaseActivity.java" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="763">
+                  <caret line="214" column="36" selection-start-line="214" selection-start-column="36" selection-end-line="214" selection-end-column="36" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -2147,10 +2196,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/common/network/NetworkUtil.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/AppContainer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/AskForPermissionActivity.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/OnBoardingActivity.java" />
@@ -2161,9 +2207,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/CameraFragment.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/OnBoardingViewModel.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/AuthManager.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/model/Scene.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/common/network/NetworkUtilTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BackendAuthManager.java" />
@@ -2172,32 +2216,37 @@
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/AffectivaReactionDetectionManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/di/module/ReactionDetectionModule.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/OnBoardingViewModelTest.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactablesPagerViewModelTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactableViewModelTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/ReactableFragment.java" />
-        <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ViewModelTestSuite.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/application/auth/BackendAuthManagerTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/application/auth/AuthManagerTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/application/App.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/model/Reactable.java" />
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/fragment/ReactablesPagerFragmentTest.java" />
         <option value="$PROJECT_DIR$/../build.gradle" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" />
         <option value="$PROJECT_DIR$/src/main/res/layout/fragment_scene.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/custom/DataBindingAdapters.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java" />
-        <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/RepertoireActivityTest.java" />
         <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/di/module/NetModuleTest.java" />
-        <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/common/BaseApplicationTestSuite.java" />
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/StudioActivityTest.java" />
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/TheaterActivityTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/WelcomeActivity.java" />
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/WelcomeActivityTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/application/HardwareDeviceManager.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/application/AppContainer.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" />
         <option value="$PROJECT_DIR$/../.gitignore" />
+        <option value="$PROJECT_DIR$/src/main/AndroidManifest.xml" />
+        <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/OnBoardingActivityTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactablesPagerViewModelTest.java" />
+        <option value="$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ViewModelTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/common/BaseApplicationTestSuite.java" />
+        <option value="$PROJECT_DIR$/build.gradle" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" />
       </list>
     </option>
   </component>
@@ -2236,7 +2285,7 @@
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator currentView="AndroidView" proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -2250,191 +2299,23 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="AndroidView">
+        <subPane />
+      </pane>
+      <pane id="ProjectPane">
+        <subPane />
+      </pane>
+      <pane id="Scope" />
       <pane id="Scratches">
         <subPane />
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="AndroidView">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Gradle Scripts" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidBuildScriptsGroupNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="network" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="TrueThat" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidSourceTypeNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../signed-apk" />
     <property name="device.picker.selection" value="064024c20b2c082e" />
-    <property name="SearchEverywhereHistoryKey" value="welcom&#9;PSI&#9;JAVA://com.truethat.android.view.activity.WelcomeActivity&#10;welat&#9;PSI&#9;JAVA://com.truethat.android.view.activity.WelcomeActivityTest&#10;basefra&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/BaseFragment.java&#10;baseviemo&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java&#10;gradle.pro&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/gradle.properties&#10;scene&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/SceneFragment.java&#10;net&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/common/network/NetworkUtil.java&#10;netmod&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/di/module/NetModuleTest.java&#10;netmodt&#9;PSI&#9;JAVA://com.truethat.android.di.module.NetModuleTest&#10;backa&#9;PSI&#9;JAVA://com.truethat.android.application.auth.BackendAuthManager&#10;stringut&#9;PSI&#9;JAVA://com.truethat.android.common.util.StringUtil&#10;oba&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/OnBoardingActivity.java&#10;rpf&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java&#10;proper&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/gradle.properties&#10;rdm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/empathy/BaseReactionDetectionManager.java&#10;rp&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java&#10;the&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivity&#10;netmodul&#9;PSI&#9;JAVA://com.truethat.android.di.module.NetModule&#10;reacta&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/model/Reactable.java&#10;compo&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/di/component/AppComponent.java&#10;drdm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/empathy/DefaultReactionDetectionManager.java&#10;reev&#9;PSI&#9;JAVA://com.truethat.android.model.ReactableEvent&#10;thapi&#9;PSI&#9;JAVA://com.truethat.android.common.network.TheaterApi&#10;camera&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/androidTest/java/com/truethat/android/view/fragment/CameraFragmentTest.java&#10;rvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/ReactableViewModelTest.java&#10;rpvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java&#10;obvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/OnBoardingViewModel.java&#10;adap&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/custom/DataBindingAdapters.java&#10;frdm&#9;PSI&#9;JAVA://com.truethat.android.empathy.FakeReactionDetectionManager&#10;svmt&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/StudioViewModelTest.java&#10;baseac&#9;PSI&#9;JAVA://com.truethat.android.view.activity.BaseActivity&#10;onb&#9;PSI&#9;JAVA://com.truethat.android.view.activity.OnBoardingActivity&#10;camfra&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/CameraFragment.java&#10;tact&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivity&#10;tate&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivityTest&#10;bas&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/BaseActivity.java&#10;askforpe&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/AskForPermissionActivity.java&#10;base&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/BaseActivity.java&#10;refra&#9;PSI&#9;JAVA://com.truethat.android.view.fragment.ReactableFragment&#10;revm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java&#10;camerav&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/CameraViewModel.java&#10;rpt&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/androidTest/java/com/truethat/android/view/activity/ReactablesPagerFragmentTest.java&#10;baseFragm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/BaseFragment.java&#10;stud&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/StudioViewModelTest.java&#10;refrag&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactableFragment.java&#10;reacfrag&#9;PSI&#9;JAVA://com.truethat.android.view.fragment.ReactableFragment&#10;studac&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/StudioActivity.java&#10;permissionM&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/androidTest/java/com/truethat/android/di/module/fake/FakePermissionsModule.java&#10;appmodul&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/di/module/AppModule.java&#10;basevi&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
+    <property name="SearchEverywhereHistoryKey" value="דב&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/SceneFragment.java&#10;basefrag&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/BaseFragment.java&#10;baseac&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/BaseActivity.java&#10;studviemo&#9;PSI&#9;JAVA://com.truethat.android.viewmodel.StudioViewModel&#10;the&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivity&#10;reacta&#9;PSI&#9;JAVA://com.truethat.android.view.fragment.ReactablesPagerFragment&#10;welcom&#9;PSI&#9;JAVA://com.truethat.android.view.activity.WelcomeActivity&#10;welat&#9;PSI&#9;JAVA://com.truethat.android.view.activity.WelcomeActivityTest&#10;basefra&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/BaseFragment.java&#10;baseviemo&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java&#10;gradle.pro&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/gradle.properties&#10;scene&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/SceneFragment.java&#10;net&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/common/network/NetworkUtil.java&#10;netmod&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/di/module/NetModuleTest.java&#10;netmodt&#9;PSI&#9;JAVA://com.truethat.android.di.module.NetModuleTest&#10;backa&#9;PSI&#9;JAVA://com.truethat.android.application.auth.BackendAuthManager&#10;stringut&#9;PSI&#9;JAVA://com.truethat.android.common.util.StringUtil&#10;oba&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/OnBoardingActivity.java&#10;rpf&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java&#10;proper&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/gradle.properties&#10;rdm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/empathy/BaseReactionDetectionManager.java&#10;rp&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java&#10;netmodul&#9;PSI&#9;JAVA://com.truethat.android.di.module.NetModule&#10;compo&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/di/component/AppComponent.java&#10;drdm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/empathy/DefaultReactionDetectionManager.java&#10;reev&#9;PSI&#9;JAVA://com.truethat.android.model.ReactableEvent&#10;thapi&#9;PSI&#9;JAVA://com.truethat.android.common.network.TheaterApi&#10;camera&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/androidTest/java/com/truethat/android/view/fragment/CameraFragmentTest.java&#10;rvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/ReactableViewModelTest.java&#10;rpvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java&#10;obvm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/OnBoardingViewModel.java&#10;adap&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/custom/DataBindingAdapters.java&#10;frdm&#9;PSI&#9;JAVA://com.truethat.android.empathy.FakeReactionDetectionManager&#10;svmt&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/StudioViewModelTest.java&#10;onb&#9;PSI&#9;JAVA://com.truethat.android.view.activity.OnBoardingActivity&#10;camfra&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/CameraFragment.java&#10;tact&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivity&#10;tate&#9;PSI&#9;JAVA://com.truethat.android.view.activity.TheaterActivityTest&#10;bas&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/BaseActivity.java&#10;askforpe&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/AskForPermissionActivity.java&#10;base&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/BaseActivity.java&#10;refra&#9;PSI&#9;JAVA://com.truethat.android.view.fragment.ReactableFragment&#10;revm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java&#10;camerav&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/viewmodel/CameraViewModel.java&#10;rpt&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/androidTest/java/com/truethat/android/view/activity/ReactablesPagerFragmentTest.java&#10;baseFragm&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/BaseFragment.java&#10;stud&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/test/java/com/truethat/android/viewmodel/StudioViewModelTest.java&#10;refrag&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/fragment/ReactableFragment.java&#10;reacfrag&#9;PSI&#9;JAVA://com.truethat.android.view.fragment.ReactableFragment&#10;studac&#9;FILE&#9;file:///Users/ohad/AndroidStudioProjects/TrueThat/app/src/main/java/com/truethat/android/view/activity/StudioActivity.java" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/src/test/java/com/truethat/android/common" />
@@ -2485,245 +2366,133 @@
       <recent name="com.truethat.android.di.component" />
     </key>
   </component>
-  <component name="RunManager" selected="Android Instrumented Tests.WelcomeActivityTest">
-    <configuration default="false" name="Tests in 'com.truethat.android'" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Android App.app">
+    <configuration default="false" name="android in app" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="app" />
-      <option name="TESTING_TYPE" value="1" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
-      <option name="METHOD_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="PACKAGE_NAME" value="com.truethat.android" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="true" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
-      </Profilers>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="directory" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <dir value="$PROJECT_DIR$/src/test/java/com/truethat/android" />
+      <patterns />
       <method />
     </configuration>
-    <configuration default="false" name="displayReactable()" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="ReactablesPagerViewModelTest.noReactablesFound_failedRequest" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.truethat.android.viewmodel.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <module name="app" />
-      <option name="TESTING_TYPE" value="3" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
-      <option name="METHOD_NAME" value="displayReactable" />
-      <option name="CLASS_NAME" value="com.truethat.android.view.fragment.ReactablesPagerFragmentTest" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="true" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
-      </Profilers>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.truethat.android.viewmodel" />
+      <option name="MAIN_CLASS_NAME" value="com.truethat.android.viewmodel.ReactablesPagerViewModelTest" />
+      <option name="METHOD_NAME" value="noReactablesFound_failedRequest" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
       <method />
     </configuration>
-    <configuration default="false" name="navigationToRepert...()" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="NumberUtilTest and 4 more" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="app" />
-      <option name="TESTING_TYPE" value="3" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
-      <option name="METHOD_NAME" value="navigationToRepertoire" />
-      <option name="CLASS_NAME" value="com.truethat.android.view.activity.StudioActivityTest" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
-      </Profilers>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="pattern" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <dir value="$PROJECT_DIR$/src/test/java/com/truethat/android" />
+      <patterns>
+        <pattern testClass="com.truethat.android.common.util.NumberUtilTest" />
+        <pattern testClass="com.truethat.android.application.auth.BaseAuthManagerTest" />
+        <pattern testClass="com.truethat.android.application.auth.FakeAuthManagerTest" />
+        <pattern testClass="com.truethat.android.common.network.NetworkUtilTest" />
+        <pattern testClass="com.truethat.android.viewmodel.StudioViewModelTest" />
+      </patterns>
       <method />
     </configuration>
-    <configuration default="false" name="alreadyAuthOk()" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="ReactablesPagerViewModelTest" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.truethat.android.viewmodel.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <module name="app" />
-      <option name="TESTING_TYPE" value="3" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
-      <option name="METHOD_NAME" value="alreadyAuthOk" />
-      <option name="CLASS_NAME" value="com.truethat.android.view.activity.WelcomeActivityTest" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
-      </Profilers>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.truethat.android.viewmodel" />
+      <option name="MAIN_CLASS_NAME" value="com.truethat.android.viewmodel.ReactablesPagerViewModelTest" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
       <method />
     </configuration>
-    <configuration default="false" name="WelcomeActivityTest" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="ReactableViewModelTest.doView" type="AndroidJUnit" factoryName="Android JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.truethat.android.viewmodel.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <module name="app" />
-      <option name="TESTING_TYPE" value="2" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="android.support.test.runner.AndroidJUnitRunner" />
-      <option name="METHOD_NAME" value="" />
-      <option name="CLASS_NAME" value="com.truethat.android.view.activity.WelcomeActivityTest" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="EXTRA_OPTIONS" value="" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
-      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
-      <option name="FORCE_STOP_RUNNING_APP" value="true" />
-      <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
-      <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
-      <option name="DEBUGGER_TYPE" value="Auto" />
-      <Auto>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Auto>
-      <Hybrid>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Hybrid>
-      <Java />
-      <Native>
-        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
-        <option name="SHOW_STATIC_VARS" value="true" />
-        <option name="WORKING_DIR" value="" />
-        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
-        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
-      </Native>
-      <Profilers>
-        <option name="ENABLE_ADVANCED_PROFILING" value="true" />
-        <option name="SUPPORT_LIB_ENABLED" value="true" />
-        <option name="INSTRUMENTATION_ENABLED" value="true" />
-      </Profilers>
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="com.truethat.android.viewmodel" />
+      <option name="MAIN_CLASS_NAME" value="com.truethat.android.viewmodel.ReactableViewModelTest" />
+      <option name="METHOD_NAME" value="doView" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
       <method />
     </configuration>
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
@@ -2976,7 +2745,7 @@
       <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
       <option name="FORCE_STOP_RUNNING_APP" value="true" />
       <option name="TARGET_SELECTION_MODE" value="SHOW_DIALOG" />
-      <option name="USE_LAST_SELECTED_DEVICE" value="false" />
+      <option name="USE_LAST_SELECTED_DEVICE" value="true" />
       <option name="PREFERRED_AVD" value="" />
       <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" />
       <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" />
@@ -3014,19 +2783,19 @@
     </configuration>
     <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Android App.app" />
-      <item index="1" class="java.lang.String" itemvalue="Android Instrumented Tests.Tests in 'com.truethat.android'" />
-      <item index="2" class="java.lang.String" itemvalue="Android Instrumented Tests.displayReactable()" />
-      <item index="3" class="java.lang.String" itemvalue="Android Instrumented Tests.navigationToRepert...()" />
-      <item index="4" class="java.lang.String" itemvalue="Android Instrumented Tests.alreadyAuthOk()" />
-      <item index="5" class="java.lang.String" itemvalue="Android Instrumented Tests.WelcomeActivityTest" />
+      <item index="1" class="java.lang.String" itemvalue="Android JUnit.android in app" />
+      <item index="2" class="java.lang.String" itemvalue="Android JUnit.ReactablesPagerViewModelTest.noReactablesFound_failedRequest" />
+      <item index="3" class="java.lang.String" itemvalue="Android JUnit.NumberUtilTest and 4 more" />
+      <item index="4" class="java.lang.String" itemvalue="Android JUnit.ReactablesPagerViewModelTest" />
+      <item index="5" class="java.lang.String" itemvalue="Android JUnit.ReactableViewModelTest.doView" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Android Instrumented Tests.WelcomeActivityTest" />
-        <item index="1" class="java.lang.String" itemvalue="Android Instrumented Tests.alreadyAuthOk()" />
-        <item index="2" class="java.lang.String" itemvalue="Android Instrumented Tests.navigationToRepert...()" />
-        <item index="3" class="java.lang.String" itemvalue="Android Instrumented Tests.Tests in 'com.truethat.android'" />
-        <item index="4" class="java.lang.String" itemvalue="Android Instrumented Tests.displayReactable()" />
+        <item index="0" class="java.lang.String" itemvalue="Android JUnit.android in app" />
+        <item index="1" class="java.lang.String" itemvalue="Android JUnit.ReactableViewModelTest.doView" />
+        <item index="2" class="java.lang.String" itemvalue="Android JUnit.ReactablesPagerViewModelTest" />
+        <item index="3" class="java.lang.String" itemvalue="Android JUnit.NumberUtilTest and 4 more" />
+        <item index="4" class="java.lang.String" itemvalue="Android JUnit.ReactablesPagerViewModelTest.noReactablesFound_failedRequest" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="Applet" default="true" selected="false">
@@ -3349,39 +3118,60 @@
       <option name="project" value="LOCAL" />
       <updated>1503234582742</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="gitignore">
+      <created>1503234598325</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1503234598325</updated>
+    </task>
+    <task id="LOCAL-00043" summary="gitignore">
+      <created>1503234609580</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1503234609580</updated>
+    </task>
+    <task id="LOCAL-00044" summary="bug fixes">
+      <created>1503257037333</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1503257037333</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Tests_in_'com_truethat_android' - 2017.08.08 at 23h 54m 31s.xml">
-      <configuration name="Tests in 'com.truethat.android'" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="NumberUtilTest_and_4_more - 2017.08.20 at 22h 21m 24s.xml">
+      <configuration name="NumberUtilTest and 4 more" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="Tests_in_'com_truethat_android' - 2017.08.09 at 00h 00m 36s.xml">
-      <configuration name="Tests in 'com.truethat.android'" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="ReactableViewModelTest_doView - 2017.08.20 at 22h 22m 15s.xml">
+      <configuration name="ReactableViewModelTest.doView" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="WelcomeActivityTest - 2017.08.09 at 00h 12m 32s.xml">
-      <configuration name="WelcomeActivityTest" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="ReactablesPagerViewModelTest - 2017.08.20 at 22h 21m 44s.xml">
+      <configuration name="ReactablesPagerViewModelTest" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="WelcomeActivityTest - 2017.08.09 at 00h 14m 58s.xml">
-      <configuration name="WelcomeActivityTest" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="ReactablesPagerViewModelTest_noReactablesFound_failedRequest - 2017.08.20 at 22h 18m 47s.xml">
+      <configuration name="ReactablesPagerViewModelTest.noReactablesFound_failedRequest" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="alreadyAuthOk() - 2017.08.09 at 00h 08m 35s.xml">
-      <configuration name="alreadyAuthOk()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="Tests_in_'com_truethat_android_view_fragment' - 2017.08.20 at 22h 16m 11s.xml">
+      <configuration name="Tests in 'com.truethat.android.view.fragment'" configurationId="AndroidTestRunConfigurationType" />
     </history-entry>
-    <history-entry file="alreadyAuthOk() - 2017.08.09 at 00h 10m 03s.xml">
-      <configuration name="alreadyAuthOk()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="android_in_app - 2017.08.20 at 22h 16m 27s.xml">
+      <configuration name="android in app" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="displayReactable() - 2017.08.08 at 23h 51m 15s.xml">
-      <configuration name="displayReactable()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="android_in_app - 2017.08.20 at 22h 19m 57s.xml">
+      <configuration name="android in app" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="displayReactable() - 2017.08.08 at 23h 52m 38s.xml">
-      <configuration name="displayReactable()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="android_in_app - 2017.08.20 at 22h 21m 09s.xml">
+      <configuration name="android in app" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="displayReactable() - 2017.08.08 at 23h 53m 07s.xml">
-      <configuration name="displayReactable()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="android_in_app - 2017.08.20 at 22h 23m 26s.xml">
+      <configuration name="android in app" configurationId="AndroidJUnit" />
     </history-entry>
-    <history-entry file="navigationToRepert___() - 2017.08.09 at 00h 01m 05s.xml">
-      <configuration name="navigationToRepert...()" configurationId="AndroidTestRunConfigurationType" />
+    <history-entry file="android_in_app - 2017.08.20 at 22h 24m 03s.xml">
+      <configuration name="android in app" configurationId="AndroidJUnit" />
     </history-entry>
   </component>
   <component name="TodoView" selected-index="4">
@@ -3403,21 +3193,21 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.5095314" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.49046862" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4548353" sideWeight="0.49046862" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.49682286" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.4793487" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3299923" sideWeight="0.4892772" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.4892772" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12311358" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.49205717" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12311358" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2390131" sideWeight="0.49205717" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32962668" sideWeight="0.4959724" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3993832" sideWeight="0.49205717" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3985122" sideWeight="0.49205717" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -3478,7 +3268,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <MESSAGE value="Camera 2 Fragment - from Google example&#10;Back camera" />
     <MESSAGE value="Repertoire activity - users can see their own scenes" />
     <MESSAGE value="Studio activity makeover&#10;added:&#10;switch cameras&#10;approval stage&#10;better flow" />
     <MESSAGE value="onDisplay state for ReactableFragment" />
@@ -3503,7 +3292,8 @@
     <MESSAGE value="remove dagger2" />
     <MESSAGE value="bug fix" />
     <MESSAGE value="gitignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="gitignore" />
+    <MESSAGE value="bug fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug fixes" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -3536,159 +3326,11 @@
           <option name="timeStamp" value="259" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="272" />
+      <option name="time" value="273" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/di/module/ReactionDetectionModule.java" />
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/OnBoardingViewModelTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="27" column="16" selection-start-line="27" selection-start-column="16" selection-end-line="27" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactablesPagerViewModelTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="59" column="46" selection-start-line="59" selection-start-column="46" selection-end-line="59" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactableViewModelTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="25" column="18" selection-start-line="25" selection-start-column="18" selection-end-line="25" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/storage/internal/FakeInternalStorageManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
-          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ViewModelTestSuite.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="55" column="31" selection-start-line="55" selection-start-column="31" selection-end-line="55" selection-end-column="31" />
-          <folding>
-            <element signature="e#2702#2703#0" expanded="false" />
-            <element signature="e#2731#2732#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/common/network/NetworkUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-555">
-          <caret line="15" column="29" selection-start-line="15" selection-start-column="29" selection-end-line="15" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BackendAuthManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/AuthManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BaseAuthManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="557">
-          <caret line="79" column="37" selection-start-line="79" selection-start-column="37" selection-end-line="79" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/application/auth/BackendAuthManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="97">
-          <caret line="26" column="50" selection-start-line="26" selection-start-column="50" selection-end-line="26" selection-end-column="50" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1717#1832#0" expanded="true" />
-            <element signature="e#1831#1832#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/application/auth/AuthManagerTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="31" column="65" selection-start-line="31" selection-start-column="65" selection-end-line="31" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/application/permissions/AskForPermissionActivityTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/AuthListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="22" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/App.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="26" column="1" selection-start-line="26" selection-start-column="1" selection-end-line="26" selection-end-column="1" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/RepertoireActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="27" column="25" selection-start-line="27" selection-start-column="25" selection-end-line="27" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/di/component/TestAppComponent.java" />
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/model/Reactable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1500">
-          <caret line="123" column="36" selection-start-line="123" selection-start-column="36" selection-end-line="123" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/model/Scene.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/custom/ReactableFragmentAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -3703,24 +3345,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="29" selection-start-line="22" selection-start-column="29" selection-end-line="22" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/eu.inloop/androidviewmodel/1.3.1/868b64b30056e116377261e3efe488dd0b7168c1/androidviewmodel-1.3.1-sources.jar!/eu/inloop/viewmodel/AbstractViewModel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="645">
           <caret line="54" column="16" selection-start-line="54" selection-start-column="16" selection-end-line="54" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="54" column="3" selection-start-line="54" selection-start-column="3" selection-end-line="54" selection-end-column="3" />
         </state>
       </provider>
     </entry>
@@ -3731,17 +3359,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="72" column="25" selection-start-line="72" selection-start-column="25" selection-end-line="72" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/ReactableFragment.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="412">
           <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2064#2094#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -3793,32 +3418,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/AndroidManifest.xml">
-      <provider editor-type-id="android-manifest">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="61" column="10" selection-start-line="61" selection-start-column="10" selection-end-line="61" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="21" column="14" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/RepertoireActivityTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -3839,7 +3438,7 @@
         <state relative-caret-position="330">
           <caret line="101" column="79" selection-start-line="101" selection-start-column="79" selection-end-line="101" selection-end-column="79" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -3848,13 +3447,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="422">
           <caret line="85" column="0" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/common/BaseApplicationTestSuite.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="57" column="24" selection-start-line="57" selection-start-column="24" selection-end-line="57" selection-end-column="24" />
         </state>
       </provider>
     </entry>
@@ -3872,24 +3464,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="69" column="24" selection-start-line="69" selection-start-column="24" selection-end-line="69" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/WelcomeActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="390">
           <caret line="39" column="61" selection-start-line="39" selection-start-column="61" selection-end-line="39" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/WelcomeActivityTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="47" column="46" selection-start-line="47" selection-start-column="46" selection-end-line="47" selection-end-column="46" />
         </state>
       </provider>
     </entry>
@@ -3900,17 +3478,255 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/OnBoardingActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="22" column="52" selection-start-line="22" selection-start-column="52" selection-end-line="22" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="29" selection-start-line="22" selection-start-column="29" selection-end-line="22" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/OnBoardingViewModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="257">
+          <caret line="45" column="65" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/ReactionDetectionManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-manifest">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/BaseReactionDetectionManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="63" column="3" selection-start-line="63" selection-start-column="3" selection-end-line="63" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/empathy/AffectivaReactionDetectionManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="41" column="17" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/WelcomeActivityTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="55" column="13" selection-start-line="55" selection-start-column="13" selection-end-line="55" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/AuthManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BackendAuthManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/common/BaseApplicationTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="53" column="31" selection-start-line="53" selection-start-column="31" selection-end-line="53" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/fragment/CameraFragmentTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2850">
+          <caret line="212" column="20" selection-start-line="212" selection-start-column="20" selection-end-line="212" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/CameraFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9810">
+          <caret line="720" column="51" selection-start-line="720" selection-start-column="51" selection-end-line="720" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactablesPagerViewModelTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1380">
+          <caret line="115" column="0" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ReactableViewModelTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="825">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/com/truethat/android/viewmodel/ViewModelTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="52" column="31" selection-start-line="52" selection-start-column="4" selection-end-line="52" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/application/ApplicationTestUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/androidTest/java/com/truethat/android/view/activity/OnBoardingActivityTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="62" column="26" selection-start-line="62" selection-start-column="26" selection-end-line="62" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/ReactablesPagerFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1440">
+          <caret line="134" column="54" selection-start-line="134" selection-start-column="54" selection-end-line="134" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactablesPagerViewModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1680">
+          <caret line="128" column="26" selection-start-line="128" selection-start-column="26" selection-end-line="128" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/TheaterActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="29" column="25" selection-start-line="29" selection-start-column="25" selection-end-line="29" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/AppContainer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="34" column="2" selection-start-line="34" selection-start-column="2" selection-end-line="34" selection-end-column="2" />
+        <state relative-caret-position="240">
+          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#765#766#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/auth/BaseAuthManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="60" column="0" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="50" column="16" selection-start-line="50" selection-start-column="16" selection-end-line="50" selection-end-column="16" />
+        <state relative-caret-position="255">
+          <caret line="128" column="57" selection-start-line="128" selection-start-column="57" selection-end-line="128" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/application/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="20" column="25" selection-start-line="20" selection-start-column="25" selection-end-line="20" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="24" column="64" selection-start-line="24" selection-start-column="64" selection-end-line="24" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="20" column="19" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+          <folding>
+            <element signature="e#719#720#0" expanded="true" />
+            <element signature="e#747#748#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="499">
+          <caret line="155" column="57" selection-start-line="155" selection-start-column="57" selection-end-line="155" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="84" column="26" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="763">
+          <caret line="214" column="36" selection-start-line="214" selection-start-column="36" selection-end-line="214" selection-end-column="36" />
+          <folding />
         </state>
       </provider>
     </entry>

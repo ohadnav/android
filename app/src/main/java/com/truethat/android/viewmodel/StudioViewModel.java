@@ -6,10 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import butterknife.BindString;
 import com.truethat.android.R;
-import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import retrofit2.Call;
@@ -26,13 +23,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
   public final ObservableBoolean mSwitchCameraButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSendButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
-  @BindString(R.string.sent_failed) String SENT_FAILED;
   private DirectingState mDirectingState = DirectingState.DIRECTING;
   private Reactable mDirectedReactable;
-  /**
-   * API interface for saving reactables.
-   */
-  private StudioApi mStudioApi;
   /**
    * Api call to save {@link #mDirectedReactable}.
    */
@@ -63,7 +55,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
 
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
-    mStudioApi = NetworkUtil.createApi(StudioApi.class);
   }
 
   @Override public void onStop() {
@@ -159,7 +150,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
   }
 
   private void onPublishError() {
-    getView().toast(SENT_FAILED);
+    getView().toast(mContext.getResources().getString(R.string.sent_failed));
     onApproval();
   }
 
