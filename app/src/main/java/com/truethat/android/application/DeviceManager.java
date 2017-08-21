@@ -9,9 +9,4 @@ public interface DeviceManager {
    * @return a pseudo-unique identifier for the device.
    */
   String getDeviceId();
-
-  /**
-   * @return device line number. Usually given to it by its SIM card via mobile carriers.
-   */
-  String getPhoneNumber();
 }

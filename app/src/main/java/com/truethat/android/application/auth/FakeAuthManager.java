@@ -30,7 +30,7 @@ public class FakeAuthManager extends BaseAuthManager {
 
   @Override protected void requestAuth(AuthListener listener, User user) {
     if (!user.onBoarded()) {
-      user = new User(FIRST_NAME, LAST_NAME, user.getDeviceId(), user.getPhoneNumber());
+      user = new User(FIRST_NAME, LAST_NAME, user.getDeviceId());
     }
     user.setId(USER_ID);
     try {

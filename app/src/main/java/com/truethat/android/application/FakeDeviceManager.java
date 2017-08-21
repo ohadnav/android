@@ -8,18 +8,12 @@ import java.util.Date;
 
 public class FakeDeviceManager implements DeviceManager {
   private String mDeviceId = "android-" + new Date().getTime();
-  private String mPhoneNumber = "+" + new Date().getTime();
 
-  public FakeDeviceManager(String deviceId, String phoneNumber) {
+  public FakeDeviceManager(String deviceId) {
     mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
   }
 
   @Override public String getDeviceId() {
     return mDeviceId;
-  }
-
-  @Override public String getPhoneNumber() {
-    return mPhoneNumber;
   }
 }

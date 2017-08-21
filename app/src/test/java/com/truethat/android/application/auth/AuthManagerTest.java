@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("WeakerAccess") public class AuthManagerTest {
   static final long USER_ID = 1;
-  static final DeviceManager DEVICE_MANAGER = new FakeDeviceManager("android1", "911-kapara");
+  static final DeviceManager DEVICE_MANAGER = new FakeDeviceManager("android1");
   private static final String FIRST_NAME = "Brad";
   private static final String LAST_NAME = "Pitt";
   AuthManager mAuthManager;
@@ -31,12 +31,11 @@ import static org.junit.Assert.assertTrue;
   @Before public void setUp() throws Exception {
     NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
     mListener = new TestAuthListener();
-    mUser = new User(FIRST_NAME, LAST_NAME, DEVICE_MANAGER.getDeviceId(),
-        DEVICE_MANAGER.getPhoneNumber());
+    mUser = new User(FIRST_NAME, LAST_NAME, DEVICE_MANAGER.getDeviceId());
     mInternalStorage = new FakeInternalStorageManager();
   }
 
-  void signIn() throws Exception {
+  void performAuth() throws Exception {
     prepareAuth();
     // Authenticate user;
     mAuthManager.auth(mListener);

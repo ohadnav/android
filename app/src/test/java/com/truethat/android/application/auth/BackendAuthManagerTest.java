@@ -44,7 +44,7 @@ public class BackendAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void authOk() throws Exception {
-    signIn();
+    performAuth();
   }
 
   @Test public void signUp() throws Exception {

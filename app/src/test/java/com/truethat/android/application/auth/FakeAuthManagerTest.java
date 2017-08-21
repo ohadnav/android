@@ -15,7 +15,7 @@ public class FakeAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void authOkFake() throws Exception {
-    signIn();
+    performAuth();
   }
 
   @Test public void signUpFake() throws Exception {

@@ -59,8 +59,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     // By default the scenes list is empty.
     mRespondedScenes = Collections.emptyList();
     // Initialize director
-    mDirector = new User(99L, "James", "Cameron", mFakeDeviceManager.getDeviceId(),
-        mFakeDeviceManager.getPhoneNumber());
+    mDirector = new User(99L, "James", "Cameron", mFakeDeviceManager.getDeviceId());
   }
 
   @Test public void navigation() throws Exception {

@@ -45,14 +45,16 @@ abstract class BaseAuthManager implements AuthManager {
       if (mCurrentUser == null) {
         // Tries to retrieve last session
         mCurrentUser = mInternalStorage.read(AuthManager.LAST_USER_PATH);
-      }
-      // TODO(ohad): Validate current user against our backend.
-      if (isAuthOk()) {
-        // Already authenticated
-        listener.onAuthOk();
+        // Auth against backend
+        requestAuth(listener, mCurrentUser);
       } else {
-        // Signed out
-        listener.onAuthFailed();
+        if (isAuthOk()) {
+          // Already authenticated
+          listener.onAuthOk();
+        } else {
+          // Signed out
+          listener.onAuthFailed();
+        }
       }
     } catch (Exception e) {
       Log.e(TAG, "Could not auth. Sad story.. but it's true.", e);
@@ -66,7 +68,7 @@ abstract class BaseAuthManager implements AuthManager {
       Log.v(TAG, "Trying to sign in when already logged in. Bad logic flow?");
       listener.onAuthOk();
     } else {
-      User userByDevice = new User(mDeviceManager.getDeviceId(), mDeviceManager.getPhoneNumber());
+      User userByDevice = new User(mDeviceManager.getDeviceId());
       requestAuth(listener, userByDevice);
     }
   }

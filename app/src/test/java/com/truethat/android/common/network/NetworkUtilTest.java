@@ -25,7 +25,7 @@ public class NetworkUtilTest {
     put(Emotion.HAPPY, 10L);
   }};
   private static final Reactable SCENE =
-      new Scene(1, "url", new User("elon", "musk", null, null), EMOTIONAL_REACTIONS, DATE,
+      new Scene(1, "url", new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE,
           Emotion.HAPPY);
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {

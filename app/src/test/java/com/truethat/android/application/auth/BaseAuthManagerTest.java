@@ -3,15 +3,21 @@ package com.truethat.android.application.auth;
 import com.truethat.android.model.User;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Proudly created by ohad on 14/06/2017 for TrueThat.
  */
 public class BaseAuthManagerTest extends AuthManagerTest {
+  private boolean mPerformedBackendCall;
 
   @Override public void setUp() throws Exception {
     super.setUp();
+    mPerformedBackendCall = false;
     mAuthManager = new BaseAuthManager(DEVICE_MANAGER, mInternalStorage) {
       @Override protected void requestAuth(AuthListener listener, User user) {
+        mPerformedBackendCall = true;
         try {
           mUser.setId(USER_ID);
           handleSuccessfulResponse(mUser);
@@ -23,8 +29,23 @@ public class BaseAuthManagerTest extends AuthManagerTest {
     };
   }
 
-  @Test public void authOk() throws Exception {
-    signIn();
+  @Test public void alreadyAuthOk() throws Exception {
+    performAuth();
+    mPerformedBackendCall = false;
+    // Authenticate user;
+    mAuthManager.auth(mListener);
+    assertAuthOk();
+    // Should not authenticate against backend
+    assertFalse(mPerformedBackendCall);
+  }
+
+  @Test public void authFromStorage() throws Exception {
+    prepareAuth();
+    // Authenticate user;
+    mAuthManager.auth(mListener);
+    assertAuthOk();
+    // Should authenticate against backend
+    assertTrue(mPerformedBackendCall);
   }
 
   @Test public void authFailed() throws Exception {
@@ -40,19 +61,24 @@ public class BaseAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void signInAlreadyAuthOk() throws Exception {
-    signIn();
+    performAuth();
+    mPerformedBackendCall = false;
     mListener.resetResult();
     mAuthManager.signIn(mListener);
+    // Should not authenticate against backend
+    assertFalse(mPerformedBackendCall);
     assertAuthOk();
   }
 
   @Test public void signInByDevice() throws Exception {
     mAuthManager.signIn(mListener);
+    // Should make authentication against backend
+    assertTrue(mPerformedBackendCall);
     assertAuthOk();
   }
 
   @Test public void signUpAlreadyAuthOk() throws Exception {
-    signIn();
+    performAuth();
     mListener.resetResult();
     mAuthManager.signUp(mListener, mUser);
     assertAuthOk();
@@ -60,11 +86,13 @@ public class BaseAuthManagerTest extends AuthManagerTest {
 
   @Test public void signUp() throws Exception {
     mAuthManager.signUp(mListener, mUser);
+    // Should make authentication against backend
+    assertTrue(mPerformedBackendCall);
     assertAuthOk();
   }
 
   @Test public void signOut() throws Exception {
-    signIn();
+    performAuth();
     mAuthManager.signOut(mListener);
     assertAuthFailed();
   }

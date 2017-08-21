@@ -18,9 +18,4 @@ class HardwareDeviceManager implements DeviceManager {
   @SuppressLint("HardwareIds") @Override public String getDeviceId() {
     return ((TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
   }
-
-  @SuppressLint("HardwareIds") @Override public String getPhoneNumber() {
-    return ((TelephonyManager) mContext.getSystemService(
-        Context.TELEPHONY_SERVICE)).getLine1Number();
-  }
 }

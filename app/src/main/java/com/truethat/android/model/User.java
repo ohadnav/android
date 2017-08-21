@@ -28,30 +28,22 @@ public class User implements Serializable {
    * Android ID.
    */
   @SuppressWarnings("unused") private String mDeviceId;
-  /**
-   * Current phone number.
-   */
-  @SuppressWarnings("unused") private String mPhoneNumber;
 
-  public User(String deviceId, String phoneNumber) {
+  public User(String deviceId) {
     mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
   }
 
-  public User(String firstName, String lastName, String deviceId, String phoneNumber) {
+  public User(String firstName, String lastName, String deviceId) {
     mFirstName = firstName;
     mLastName = lastName;
     mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
   }
 
-  @VisibleForTesting
-  public User(Long id, String firstName, String lastName, String deviceId, String phoneNumber) {
+  @VisibleForTesting public User(Long id, String firstName, String lastName, String deviceId) {
     mId = id;
     mFirstName = firstName;
     mLastName = lastName;
     mDeviceId = deviceId;
-    mPhoneNumber = phoneNumber;
   }
 
   @VisibleForTesting public User(Long id, String firstName, String lastName) {
@@ -91,10 +83,6 @@ public class User implements Serializable {
     return mDeviceId;
   }
 
-  public String getPhoneNumber() {
-    return mPhoneNumber;
-  }
-
   /**
    * @return whether the user had been through on boarding.
    */
@@ -107,7 +95,6 @@ public class User implements Serializable {
     result = 31 * result + (mFirstName != null ? mFirstName.hashCode() : 0);
     result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
     result = 31 * result + (mDeviceId != null ? mDeviceId.hashCode() : 0);
-    result = 31 * result + (mPhoneNumber != null ? mPhoneNumber.hashCode() : 0);
     return result;
   }
 
@@ -124,11 +111,7 @@ public class User implements Serializable {
     if (mLastName != null ? !mLastName.equals(user.mLastName) : user.mLastName != null) {
       return false;
     }
-    if (mDeviceId != null ? !mDeviceId.equals(user.mDeviceId) : user.mDeviceId != null) {
-      return false;
-    }
-    return mPhoneNumber != null ? mPhoneNumber.equals(user.mPhoneNumber)
-        : user.mPhoneNumber == null;
+    return mDeviceId != null ? mDeviceId.equals(user.mDeviceId) : user.mDeviceId == null;
   }
 
   @Override public String toString() {

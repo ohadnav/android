@@ -68,8 +68,7 @@ public class OnBoardingActivity extends
   public void finishOnBoarding() {
     String userFullName = mNameEditText.getText().toString();
     User newUser = new User(StringUtil.extractFirstName(userFullName),
-        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId(),
-        AppContainer.getDeviceManager().getPhoneNumber());
+        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId());
     AppContainer.getAuthManager().signUp(this, newUser);
   }
 
