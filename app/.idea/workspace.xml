@@ -10,14 +10,8 @@
     <option name="TOOL_WINDOW_REGEXP_FILTER" value="false" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30c4291a-80f7-4813-be19-bfeb39438a14" name="Default" comment="gitignore">
+    <list default="true" id="30c4291a-80f7-4813-be19-bfeb39438a14" name="Default" comment="bug fixes">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" afterPath="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" />
     </list>
     <ignored path="app.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -87,8 +81,10 @@
             <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="499">
-                  <caret line="155" column="57" selection-start-line="155" selection-start-column="57" selection-end-line="155" selection-end-column="57" />
-                  <folding />
+                  <caret line="152" column="57" selection-start-line="152" selection-start-column="57" selection-end-line="152" selection-end-column="57" />
+                  <folding>
+                    <element signature="imports" expanded="false" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -106,8 +102,8 @@
           <file leaf-file-name="SceneFragment.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="285">
-                  <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+                <state relative-caret-position="525">
+                  <caret line="47" column="65" selection-start-line="47" selection-start-column="65" selection-end-line="47" selection-end-column="65" />
                   <folding />
                 </state>
               </provider>
@@ -195,7 +191,7 @@
           <file leaf-file-name="BaseActivity.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="763">
+                <state relative-caret-position="1065">
                   <caret line="214" column="36" selection-start-line="214" selection-start-column="36" selection-end-line="214" selection-end-column="36" />
                   <folding />
                 </state>
@@ -2243,10 +2239,10 @@
         <option value="$PROJECT_DIR$/src/androidTest/java/com/truethat/android/common/BaseApplicationTestSuite.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/ReactableViewModel.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/BaseViewModel.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/BaseFragment.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java" />
       </list>
     </option>
   </component>
@@ -3139,7 +3135,14 @@
       <option name="project" value="LOCAL" />
       <updated>1503257037333</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="bug fixes">
+      <created>1503316496826</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1503316496826</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -3196,12 +3199,12 @@
       <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4548353" sideWeight="0.49046862" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.49682286" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.4793487" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299923" sideWeight="0.4892772" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3299923" sideWeight="0.4892772" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12311358" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2390131" sideWeight="0.49205717" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2390131" sideWeight="0.49205717" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32962668" sideWeight="0.4959724" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
@@ -3701,8 +3704,10 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/viewmodel/StudioViewModel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="499">
-          <caret line="155" column="57" selection-start-line="155" selection-start-column="57" selection-end-line="155" selection-end-column="57" />
-          <folding />
+          <caret line="152" column="57" selection-start-line="152" selection-start-column="57" selection-end-line="152" selection-end-column="57" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -3714,18 +3719,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+        <state relative-caret-position="1065">
+          <caret line="214" column="36" selection-start-line="214" selection-start-column="36" selection-end-line="214" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/activity/BaseActivity.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/truethat/android/view/fragment/SceneFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="763">
-          <caret line="214" column="36" selection-start-line="214" selection-start-column="36" selection-end-line="214" selection-end-column="36" />
+        <state relative-caret-position="525">
+          <caret line="47" column="65" selection-start-line="47" selection-start-column="65" selection-end-line="47" selection-end-column="65" />
           <folding />
         </state>
       </provider>
