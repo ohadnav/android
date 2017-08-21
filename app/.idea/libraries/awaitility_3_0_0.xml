@@ -5,7 +5,7 @@
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/.ideaLibSources/awaitility-3.0.0-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.awaitility/awaitility/3.0.0/e90e071621cc7f23a132acc09271ca586e389633/awaitility-3.0.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
