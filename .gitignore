@@ -14,7 +14,7 @@
 /app/build/
 
 # generated APKs for PlayStore
-signed-apk/
+/signed-apk/
 
 # Mac OS files
 .DS_Store
