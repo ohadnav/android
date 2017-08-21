@@ -3,11 +3,11 @@
 /local.properties
 /.idea/workspace.xml
 /app/.idea/workspace.xml
-/.idea/libraries
-app/.idea/libraries/
 
 # Gradle
 .gradle
+/.idea/libraries/
+/app/.idea/libraries/
 
 # Generated build files
 /build
