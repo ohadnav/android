@@ -93,7 +93,6 @@ public class ReactablesPagerFragment extends
 
   @Override public void onStart() {
     super.onStart();
-    // Asks for camera permission if needed.
     if (mDetectReactions) {
       AppContainer.getReactionDetectionManager().start(getBaseActivity());
     }

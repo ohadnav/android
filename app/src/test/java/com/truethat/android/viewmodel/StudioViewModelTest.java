@@ -1,5 +1,8 @@
 package com.truethat.android.viewmodel;
 
+import android.content.Context;
+import android.content.res.Resources;
+import com.truethat.android.R;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
@@ -18,6 +21,8 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Proudly created by ohad on 20/07/2017 for TrueThat.
@@ -31,7 +36,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     super.setUp();
     mCurrentState = DIRECTING;
     mPublishedToBackend = false;
+    Context mockedContext = mock(Context.class);
+    Resources mockedResources = mock(Resources.class);
+    when(mockedContext.getResources()).thenReturn(mockedResources);
+    when(mockedResources.getString(R.string.sent_failed)).thenReturn("TEST FAILED");
     mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) new ViewInterface());
+    mViewModel.setContext(mockedContext);
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {

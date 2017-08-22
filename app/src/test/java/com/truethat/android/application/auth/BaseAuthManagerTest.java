@@ -39,7 +39,7 @@ public class BaseAuthManagerTest extends AuthManagerTest {
     assertFalse(mPerformedBackendCall);
   }
 
-  @Test public void authFromStorage() throws Exception {
+  @Test public void authFromLastSession() throws Exception {
     prepareAuth();
     // Authenticate user;
     mAuthManager.auth(mListener);
@@ -71,6 +71,23 @@ public class BaseAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void signInByDevice() throws Exception {
+    mAuthManager.signIn(mListener);
+    // Should make authentication against backend
+    assertTrue(mPerformedBackendCall);
+    assertAuthOk();
+  }
+
+  @Test public void signInByLastSession() throws Exception {
+    prepareAuth();
+    mAuthManager.signIn(mListener);
+    // Should make authentication against backend
+    assertTrue(mPerformedBackendCall);
+    assertAuthOk();
+  }
+
+  @Test public void signInWithStorageFailure() throws Exception {
+    prepareAuth();
+    mInternalStorage.setShouldFail(true);
     mAuthManager.signIn(mListener);
     // Should make authentication against backend
     assertTrue(mPerformedBackendCall);

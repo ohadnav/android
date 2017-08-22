@@ -43,8 +43,20 @@ public class BackendAuthManagerTest extends AuthManagerTest {
     mMockWebServer.close();
   }
 
-  @Test public void authOk() throws Exception {
+  @Test public void authFromLastSession() throws Exception {
     performAuth();
+  }
+
+  @Test public void authFromLastSessionFailed() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED);
+      }
+    });
+    prepareAuth();
+    // Authenticate user;
+    mAuthManager.auth(mListener);
+    assertAuthFailed();
   }
 
   @Test public void signUp() throws Exception {

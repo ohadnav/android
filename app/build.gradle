@@ -55,10 +55,11 @@ dependencies {
     exclude module: "okhttp"
   }
   testCompile "org.awaitility:awaitility:$rootProject.awaitilityVersion"
+  testCompile "org.mockito:mockito-core:$rootProject.mockitoVersion"
   androidTestCompile("com.squareup.okhttp3:mockwebserver:$rootProject.mockWebServerVersion") {
     exclude module: "okhttp"
   }
-  androidTestCompile "org.mockito:mockito-android:$rootProject.mockitoVersion"
+  androidTestCompile "org.mockito:mockito-android:$rootProject.mockitoAndroidVersion"
   androidTestCompile "com.android.support.test.uiautomator:uiautomator-v18:$rootProject.uiAutomatorVersion"
   androidTestCompile "org.awaitility:awaitility:$rootProject.awaitilityVersion"
   androidTestCompile("com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion",

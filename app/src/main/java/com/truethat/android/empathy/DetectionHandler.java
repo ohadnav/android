@@ -75,6 +75,7 @@ class DetectionHandler extends Handler {
           mCameraHelper.start(mSurfaceTexture); // initiates previewing
         } catch (IllegalStateException e) {
           Log.d(TAG, "couldn't open camera: " + e.getMessage());
+          // TODO(ohad): Let user know via UI
           return;
         }
         break;

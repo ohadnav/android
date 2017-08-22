@@ -16,7 +16,7 @@ abstract class BaseAuthManager implements AuthManager {
   /**
    * Currently logged in user.
    */
-  private User mCurrentUser;
+  User mCurrentUser;
 
   private DeviceManager mDeviceManager;
   private InternalStorageManager mInternalStorage;
@@ -42,22 +42,22 @@ abstract class BaseAuthManager implements AuthManager {
   @Override public void auth(final AuthListener listener) {
     // TODO(ohad): handle device id/ phone-number replacement.
     try {
-      if (mCurrentUser == null) {
-        // Tries to retrieve last session
-        mCurrentUser = mInternalStorage.read(AuthManager.LAST_USER_PATH);
-        // Auth against backend
-        requestAuth(listener, mCurrentUser);
+      if (mCurrentUser == null && mInternalStorage.read(AuthManager.LAST_USER_PATH) != null) {
+        // Retrieves last session, and auth against backend
+        requestAuth(listener, (User) mInternalStorage.read(AuthManager.LAST_USER_PATH));
       } else {
         if (isAuthOk()) {
           // Already authenticated
           listener.onAuthOk();
         } else {
           // Signed out
+          mCurrentUser = null;
           listener.onAuthFailed();
         }
       }
     } catch (Exception e) {
       Log.e(TAG, "Could not auth. Sad story.. but it's true.", e);
+      mCurrentUser = null;
       listener.onAuthFailed();
     }
   }
@@ -68,8 +68,19 @@ abstract class BaseAuthManager implements AuthManager {
       Log.v(TAG, "Trying to sign in when already logged in. Bad logic flow?");
       listener.onAuthOk();
     } else {
-      User userByDevice = new User(mDeviceManager.getDeviceId());
-      requestAuth(listener, userByDevice);
+      User userToSignIn = null;
+      try {
+        userToSignIn = mInternalStorage.read(AuthManager.LAST_USER_PATH);
+      } catch (IOException | ClassNotFoundException exception) {
+        Log.w(TAG, "Failed to read last user session from storage. "
+            + "Trying to sign in based on device id.");
+      }
+      if (userToSignIn == null) {
+        userToSignIn = new User(mDeviceManager.getDeviceId());
+      } else if (userToSignIn.getDeviceId() == null) {
+        userToSignIn.setDeviceId(mDeviceManager.getDeviceId());
+      }
+      requestAuth(listener, userToSignIn);
     }
   }
 

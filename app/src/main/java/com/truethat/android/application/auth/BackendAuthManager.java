@@ -55,6 +55,7 @@ public class BackendAuthManager extends BaseAuthManager {
         } catch (IOException | AssertionError e) {
           // Auth had failed
           Log.e(TAG, "Authentication request had failed, inconceivable!", e);
+          mCurrentUser = null;
           mListener.onAuthFailed();
         }
       } else {
@@ -66,6 +67,7 @@ public class BackendAuthManager extends BaseAuthManager {
             + response.message()
             + "\n"
             + response.headers());
+        mCurrentUser = null;
         mListener.onAuthFailed();
       }
     }
@@ -73,6 +75,7 @@ public class BackendAuthManager extends BaseAuthManager {
     @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
       // Auth had failed
       Log.e(TAG, "Auth call failed :-(", t);
+      mCurrentUser = null;
       mListener.onAuthFailed();
     }
   }

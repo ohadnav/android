@@ -83,6 +83,10 @@ public class User implements Serializable {
     return mDeviceId;
   }
 
+  public void setDeviceId(String deviceId) {
+    mDeviceId = deviceId;
+  }
+
   /**
    * @return whether the user had been through on boarding.
    */
