@@ -74,7 +74,7 @@ public class BackendAuthManager extends BaseAuthManager {
 
     @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
       // Auth had failed
-      Log.e(TAG, "Auth call failed :-(", t);
+      Log.e(TAG, "Auth call failed: " + t.getMessage(), t);
       mCurrentUser = null;
       mListener.onAuthFailed();
     }

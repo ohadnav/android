@@ -23,5 +23,5 @@ public interface OnBoardingViewInterface extends BaseViewInterface {
   /**
    * Finishes the on boarding flow.
    */
-  void finishOnBoarding();
+  void sendSignUpRequest();
 }

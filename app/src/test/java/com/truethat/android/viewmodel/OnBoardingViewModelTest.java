@@ -166,7 +166,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       mKeyboardVisibility = true;
     }
 
-    @Override public void finishOnBoarding() {
+    @Override public void sendSignUpRequest() {
       mFinished = true;
     }
   }

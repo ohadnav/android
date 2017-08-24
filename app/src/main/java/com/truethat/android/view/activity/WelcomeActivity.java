@@ -17,9 +17,8 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 public class WelcomeActivity extends
     BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding> {
-  public static final String EXTRA_AUTH_FAILED = "authFailed";
-
   @Override public void onAuthFailed() {
+    Log.v(TAG, "Auth failed. Something smells bad...");
     // Display error message to the user.
     findViewById(R.id.errorText).setVisibility(View.VISIBLE);
   }
@@ -38,9 +37,6 @@ public class WelcomeActivity extends
     // If the user is initialized, then finish activity.
     if (AppContainer.getAuthManager().isAuthOk()) {
       startActivity(new Intent(this, TheaterActivity.class));
-    }
-    if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean(EXTRA_AUTH_FAILED)) {
-      onAuthFailed();
     }
   }
 

@@ -65,7 +65,7 @@ public class OnBoardingActivity extends
   /**
    * Finishes the on boarding flow.
    */
-  public void finishOnBoarding() {
+  public void sendSignUpRequest() {
     String userFullName = mNameEditText.getText().toString();
     User newUser = new User(StringUtil.extractFirstName(userFullName),
         StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId());

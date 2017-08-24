@@ -75,12 +75,10 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    * Authentication failure callback.
    */
   public void onAuthFailed() {
-    Log.v(TAG, "Auth failed. Something smells bad...");
+    Log.v(TAG, "onAuthFailed");
     runOnUiThread(new Runnable() {
       @Override public void run() {
-        Intent authFailed = new Intent(BaseActivity.this, WelcomeActivity.class);
-        authFailed.putExtra(WelcomeActivity.EXTRA_AUTH_FAILED, true);
-        startActivity(authFailed);
+        startActivity(new Intent(BaseActivity.this, WelcomeActivity.class));
       }
     });
   }

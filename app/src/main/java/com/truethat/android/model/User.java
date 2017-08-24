@@ -65,7 +65,7 @@ public class User implements Serializable {
 
   public String getDisplayName() {
     if (mFirstName == null || mLastName == null) {
-      throw new IllegalStateException("User had not been initialized.");
+      throw new IllegalStateException("User had not been initialized: " + this);
     }
     return toTitleCase(mFirstName + " " + mLastName);
   }
