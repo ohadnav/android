@@ -14,8 +14,8 @@ import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.RepertoireActivity;
 import com.truethat.android.viewmodel.ReactableViewModel;
@@ -61,7 +61,7 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   }};
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
-  private List<Scene> mRespondedScenes;
+  private List<Pose> mRespondedPoses;
 
   @SuppressWarnings("ConstantConditions")
   public static void assertReactableDisplayed(final Reactable reactable, User currentUser)
@@ -87,9 +87,9 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
         assertTrue(currentFragment.getViewModel().isReady());
       }
     });
-    if (reactable instanceof Scene) {
-      // Asserting the scene image is displayed fullscreen.
-      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.sceneImage)));
+    if (reactable instanceof Pose) {
+      // Asserting the pose image is displayed fullscreen.
+      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.poseImage)));
     }
     // Loading layout should be hidden.
     onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
@@ -134,22 +134,22 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     // Resets the post event counter.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedScenes);
-        mRespondedScenes = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedPoses);
+        mRespondedPoses = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the scenes list is empty.
-    mRespondedScenes = Collections.emptyList();
+    // By default the poses list is empty.
+    mRespondedPoses = Collections.emptyList();
   }
 
   @Test public void displayReactable() throws Exception {
-    Scene scene =
-        new Scene(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
+    Pose pose =
+        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             null);
-    mRespondedScenes = Collections.singletonList(scene);
+    mRespondedPoses = Collections.singletonList(pose);
     mRepertoireActivityRule.launchActivity(null);
-    assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Should not be detecting reaction
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Let a post event to maybe be sent.

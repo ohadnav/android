@@ -17,7 +17,7 @@ import java.util.List;
 import retrofit2.Call;
 
 /**
- * Theater is where users interact with scenes.
+ * Theater is where users interact with poses.
  */
 public class TheaterActivity extends
     BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityTheaterBinding>

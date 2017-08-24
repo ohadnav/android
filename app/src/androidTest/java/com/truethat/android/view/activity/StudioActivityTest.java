@@ -9,7 +9,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Scene;
+import com.truethat.android.model.Pose;
 import com.truethat.android.view.fragment.CameraFragment;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -66,7 +66,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setBody(GSON.toJson(
-            new Scene(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
+            new Pose(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
       }
     });
   }

@@ -3,7 +3,6 @@ package com.truethat.android.viewmodel;
 import android.content.Context;
 import android.content.res.Resources;
 import com.truethat.android.R;
-import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
 import okhttp3.mockwebserver.Dispatcher;
@@ -46,7 +45,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         mPublishedToBackend = true;
-        return new MockResponse().setBody("{\"type\":\"Scene\"}");
+        return new MockResponse().setBody("{\"type\":\"Pose\"}");
       }
     });
   }
@@ -56,12 +55,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void approvalState() throws Exception {
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
   }
 
   @Test public void approvalCancel() throws Exception {
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
     // Cancel the picture taken
     mViewModel.disapprove();
@@ -69,7 +68,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void sentState() throws Exception {
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -77,7 +76,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void publishedState() throws Exception {
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -92,7 +91,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -103,7 +102,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void activityPausedWhileSending() throws Exception {
-    mViewModel.onApproval(new Scene(new byte[1]));
+    mViewModel.onApproval();
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();

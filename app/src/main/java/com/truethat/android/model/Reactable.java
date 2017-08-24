@@ -14,7 +14,7 @@ import retrofit2.Call;
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  * <p>
- * A media item that the user can have an emotional reaction to, such as {@link Scene}.
+ * A media item that the user can have an emotional reaction to, such as {@link Pose}.
  * <p>
  * Each implementation should register at {@link NetworkUtil#GSON}.
  */

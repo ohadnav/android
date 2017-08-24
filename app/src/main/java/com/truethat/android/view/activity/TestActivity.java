@@ -13,9 +13,17 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 @VisibleForTesting public class TestActivity
     extends BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityTestBinding>
-    implements CameraFragment.OnPictureTakenListener {
+    implements CameraFragment.CameraFragmentListener {
 
-  @Override public void processImage(Image image) {
+  @Override public void onImageAvailable(Image image) {
+  }
+
+  @Override public void onVideoAvailable(String videoPath) {
+
+  }
+
+  @Override public void onVideoRecordStart() {
+
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {

@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import static com.truethat.android.common.util.RequestCodes.PERMISSION_CAMERA;
 import static com.truethat.android.common.util.RequestCodes.PERMISSION_PHONE;
+import static com.truethat.android.common.util.RequestCodes.PERMISSION_RECORD_AUDIO;
 
 /**
  * Proudly created by ohad on 24/05/2017 for TrueThat.
@@ -23,7 +24,8 @@ public enum Permission {
   CAMERA(Manifest.permission.CAMERA, PERMISSION_CAMERA,
       R.string.camera_permission_rationale), // For phone number and device ID.
   PHONE(Manifest.permission.READ_PHONE_STATE, PERMISSION_PHONE,
-      R.string.phone_permission_rationale);
+      R.string.phone_permission_rationale), AUDIO(Manifest.permission.RECORD_AUDIO,
+      PERMISSION_RECORD_AUDIO, R.string.audio_permission_rationale);
 
   /**
    * An Android internal string to describe the permission. Taken from {@link Manifest.permission}.

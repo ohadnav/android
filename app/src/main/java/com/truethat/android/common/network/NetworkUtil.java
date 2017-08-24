@@ -9,8 +9,8 @@ import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Scene;
 import com.truethat.android.view.fragment.ReactableFragment;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -61,7 +61,7 @@ public class NetworkUtil {
   public static final Gson GSON = new GsonBuilder().setFieldNamingStrategy(NAMING_STRATEGY)
       .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
       .registerTypeAdapterFactory(
-          RuntimeTypeAdapterFactory.of(Reactable.class).registerSubtype(Scene.class))
+          RuntimeTypeAdapterFactory.of(Reactable.class).registerSubtype(Pose.class))
       .create();
   /**
    * Logging tag.

@@ -7,7 +7,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Scene;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.User;
 import com.truethat.android.view.fragment.ReactablesPagerFragmentTest;
 import java.util.Collections;
@@ -45,19 +45,19 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
   private User mDirector;
-  private List<Scene> mRespondedScenes;
+  private List<Pose> mRespondedPoses;
 
   @Before public void setUp() throws Exception {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedScenes);
-        mRespondedScenes = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedPoses);
+        mRespondedPoses = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the scenes list is empty.
-    mRespondedScenes = Collections.emptyList();
+    // By default the poses list is empty.
+    mRespondedPoses = Collections.emptyList();
     // Initialize director
     mDirector = new User(99L, "James", "Cameron", mFakeDeviceManager.getDeviceId());
   }
@@ -69,26 +69,26 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
-    Scene scene = new Scene(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
-    mRespondedScenes = Collections.singletonList(scene);
+    Pose pose = new Pose(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
+    mRespondedPoses = Collections.singletonList(pose);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
     waitForActivity(StudioActivity.class);
   }
 
   @Test @FlakyTest public void singleInstance() throws Exception {
-    Scene scene = new Scene(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
+    Pose pose = new Pose(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
         mDirector, new TreeMap<Emotion, Long>(), new Date(), null);
-    mRespondedScenes = Collections.singletonList(scene);
+    mRespondedPoses = Collections.singletonList(pose);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Navigate out of Theater activity
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(TheaterActivity.class);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(scene, mFakeAuthManager.getCurrentUser());
+    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
   }
 }

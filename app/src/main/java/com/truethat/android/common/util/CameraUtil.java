@@ -96,19 +96,19 @@ import java.util.List;
    *
    * @return The optimal {@code Size}, or the largest one.
    */
-  public static Size chooseOptimalSize(Size[] choices, int textureViewWidth, int textureViewHeight,
+  public static Size choosePhotoSize(Size[] choices, int textureViewWidth, int textureViewHeight,
       int maxWidth, int maxHeight, Point aspectRatio) {
 
     // Collect the supported resolutions that are at least as big as the preview Surface
     List<Size> bigEnough = new ArrayList<>();
     // Collect the supported resolutions that are smaller than the preview Surface
     List<Size> notBigEnough = new ArrayList<>();
-    int w = aspectRatio.x;
-    int h = aspectRatio.y;
+    int width = aspectRatio.x;
+    int height = aspectRatio.y;
     for (Size option : choices) {
       if (option.getWidth() <= maxWidth
           && option.getHeight() <= maxHeight
-          && option.getHeight() == option.getWidth() * h / w) {
+          && option.getHeight() == option.getWidth() * height / width) {
         if (option.getWidth() >= textureViewWidth && option.getHeight() >= textureViewHeight) {
           bigEnough.add(option);
         } else {
@@ -127,6 +127,25 @@ import java.util.List;
       Log.e(TAG, "Couldn't find any suitable preview size");
       return Collections.max(Arrays.asList(choices), SIZE_AREA_COMPARATOR);
     }
+  }
+
+  /**
+   * Choosing a size with {@code aspectRation}, that is not larger than 1080p, since MediaRecorder
+   * cannot handle such a high-resolution video.
+   *
+   * @param choices list of available sizes
+   *
+   * @return the largest video size, that satisfies the conditions mentioned above.
+   */
+  public static Size chooseVideoSize(Size[] choices, Point aspectRatio) {
+    for (Size size : choices) {
+      if (size.getWidth() == size.getHeight() * aspectRatio.y / aspectRatio.x
+          && size.getWidth() <= 1080) {
+        return size;
+      }
+    }
+    Log.e(TAG, "Couldn't find any suitable video size.");
+    return choices[choices.length - 1];
   }
 
   /**

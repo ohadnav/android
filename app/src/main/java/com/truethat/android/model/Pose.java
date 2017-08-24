@@ -4,8 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
+import com.truethat.android.view.fragment.PoseFragment;
 import com.truethat.android.view.fragment.ReactableFragment;
-import com.truethat.android.view.fragment.SceneFragment;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -19,35 +19,35 @@ import retrofit2.Call;
  * Proudly created by ohad on 01/05/2017 for TrueThat.
  */
 
-public class Scene extends Reactable implements Serializable {
-  private static final String IMAGE_FILENAME = "scene.jpg";
+public class Pose extends Reactable implements Serializable {
+  private static final String IMAGE_FILENAME = "pose.jpg";
   /**
-   * Signed URL to the scene's image on our storage.
+   * Signed URL to the pose's image on our storage.
    */
   private String mImageSignedUrl;
   /**
-   * The byte representation of this scene. Used in {@link Reactable#createApiCall()}.
+   * The byte representation of this pose. Used in {@link Reactable#createApiCall()}.
    */
   private transient byte[] mImageBytes;
 
-  @VisibleForTesting public Scene(long id, String imageSignedUrl, User director,
+  @VisibleForTesting public Pose(long id, String imageSignedUrl, User director,
       TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction) {
     super(id, director, reactionCounters, created, userReaction);
     mImageSignedUrl = imageSignedUrl;
   }
 
-  public Scene(User director, byte[] imageBytes) {
+  public Pose(User director, byte[] imageBytes) {
     super(director, new Date());
     mImageBytes = imageBytes;
   }
 
-  @VisibleForTesting public Scene(byte[] imageBytes) {
+  @VisibleForTesting public Pose(byte[] imageBytes) {
     mImageBytes = imageBytes;
   }
 
   // A default constructor is provided for serialization and de-serialization.
-  @SuppressWarnings("unused") private Scene() {
+  @SuppressWarnings("unused") private Pose() {
   }
 
   public String getImageSignedUrl() {
@@ -55,7 +55,7 @@ public class Scene extends Reactable implements Serializable {
   }
 
   @Override public ReactableFragment createFragment() {
-    return SceneFragment.newInstance(this);
+    return PoseFragment.newInstance(this);
   }
 
   @Override public Call<Reactable> createApiCall() {
@@ -63,7 +63,7 @@ public class Scene extends Reactable implements Serializable {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
     MultipartBody.Part imagePart =
-        MultipartBody.Part.createFormData(StudioApi.SCENE_IMAGE_PART, IMAGE_FILENAME,
+        MultipartBody.Part.createFormData(StudioApi.pose_IMAGE_PART, IMAGE_FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"), mImageBytes));
     MultipartBody.Part reactablePart =
         MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
@@ -73,12 +73,12 @@ public class Scene extends Reactable implements Serializable {
 
   @Override public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Scene)) return false;
+    if (!(o instanceof Pose)) return false;
     if (!super.equals(o)) return false;
 
-    Scene scene = (Scene) o;
+    Pose pose = (Pose) o;
 
-    return mImageSignedUrl != null ? mImageSignedUrl.equals(scene.mImageSignedUrl)
-        : scene.mImageSignedUrl == null;
+    return mImageSignedUrl != null ? mImageSignedUrl.equals(pose.mImageSignedUrl)
+        : pose.mImageSignedUrl == null;
   }
 }

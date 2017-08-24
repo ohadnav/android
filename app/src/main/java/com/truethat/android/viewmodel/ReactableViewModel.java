@@ -192,16 +192,21 @@ public class ReactableViewModel<Model extends Reactable>
     for (Long counter : mReactable.getReactionCounters().values()) {
       sumCounts += counter;
     }
-    // Abbreviates the counter.
-    mReactionsCountText.set(NumberUtil.format(sumCounts));
-    // Sets the proper emotion emoji.
-    Emotion toDisplay = DEFAULT_REACTION_COUNTER;
-    if (mReactable.getUserReaction() != null) {
-      toDisplay = mReactable.getUserReaction();
-    } else if (!mReactable.getReactionCounters().isEmpty()) {
-      toDisplay = mReactable.getReactionCounters().lastKey();
+    if (sumCounts > 0) {
+      // Abbreviates the counter.
+      mReactionsCountText.set(NumberUtil.format(sumCounts));
+      // Sets the proper emotion emoji.
+      Emotion toDisplay = DEFAULT_REACTION_COUNTER;
+      if (mReactable.getUserReaction() != null) {
+        toDisplay = mReactable.getUserReaction();
+      } else if (!mReactable.getReactionCounters().isEmpty()) {
+        toDisplay = mReactable.getReactionCounters().lastKey();
+      }
+      mReactionDrawableResource.set(toDisplay.getDrawableResource());
+    } else {
+      mReactionsCountText.set("");
+      mReactionDrawableResource.set(R.drawable.transparent_1x1);
     }
-    mReactionDrawableResource.set(toDisplay.getDrawableResource());
   }
 
   private Callback<ResponseBody> buildPostEventCallback() {

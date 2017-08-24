@@ -17,8 +17,9 @@
   <string name="hey">hey</string>
   <string name="real_life_smile">as in real life smile</string>
   <string name="create_your_account">Create your account</string>
-  <string name="not_found_reactables">It\'s quiet here. Create you own scene.</string>
+  <string name="not_found_reactables">It\'s quiet here. Create you own pose.</string>
   <string name="non_created">Not in a sharing mood today?</string>
   <string name="sent_failed">Heaven forbid! Sending had failed</string>
   <string name="warning_text">Full name homey</string>
+  <string name="audio_permission_rationale">Will you let us hear that pretty voice of yours?</string>
 </resources>

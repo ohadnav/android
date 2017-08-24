@@ -1,20 +1,20 @@
 package com.truethat.android.view.activity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.Toast;
 import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
+import butterknife.OnTouch;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.databinding.ActivityStudioBinding;
-import com.truethat.android.model.Scene;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.viewmodel.StudioViewModel;
@@ -25,7 +25,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 public class StudioActivity
     extends BaseActivity<StudioViewInterface, StudioViewModel, ActivityStudioBinding>
-    implements CameraFragment.OnPictureTakenListener, StudioViewInterface {
+    implements StudioViewInterface {
 
   @VisibleForTesting @BindString(R.string.signing_in) String UNAUTHORIZED_TOAST;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
@@ -42,9 +42,17 @@ public class StudioActivity
     }
   }
 
-  @Override public void processImage(Image image) {
-    getViewModel().onApproval(
-        new Scene(AppContainer.getAuthManager().getCurrentUser(), CameraUtil.toByteArray(image)));
+  @OnLongClick(R.id.captureButton) public boolean recordVideo() {
+    mCameraFragment.startRecordVideo();
+    return true;
+  }
+
+  @OnTouch(R.id.captureButton) public boolean stopRecordVideo(MotionEvent motionEvent) {
+    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+      mCameraFragment.stopRecordVideo();
+      return true;
+    }
+    return false;
   }
 
   @OnClick(R.id.switchCameraButton) public void switchCamera() {
@@ -72,6 +80,7 @@ public class StudioActivity
     // Hooks the camera fragment
     mCameraFragment =
         (CameraFragment) getSupportFragmentManager().findFragmentById(R.id.cameraFragment);
+    mCameraFragment.setCameraFragmentListener(getViewModel());
   }
 
   public void onPublished() {

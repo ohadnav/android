@@ -3,8 +3,8 @@ package com.truethat.android.common.network;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import java.util.Date;
 import java.util.TreeMap;
@@ -24,8 +24,8 @@ public class NetworkUtilTest {
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, 10L);
   }};
-  private static final Reactable SCENE =
-      new Scene(1, "url", new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE,
+  private static final Reactable pose =
+      new Pose(1, "url", new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE,
           Emotion.HAPPY);
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {
@@ -52,15 +52,15 @@ public class NetworkUtilTest {
   }
 
   @Test public void gsonSerialize_reactable() throws Exception {
-    JsonElement serialized = GSON.toJsonTree(SCENE);
+    JsonElement serialized = GSON.toJsonTree(pose);
     // Should have type.
-    assertEquals(SCENE.getClass().getSimpleName(),
+    assertEquals(pose.getClass().getSimpleName(),
         serialized.getAsJsonObject().get(TYPE_FIELD_NAME).getAsString());
   }
 
   @Test public void gsonDeserialize_reactable() throws Exception {
-    Scene actual = (Scene) GSON.fromJson(GSON.toJson(SCENE), Reactable.class);
-    assertEquals(SCENE, actual);
+    Pose actual = (Pose) GSON.fromJson(GSON.toJson(pose), Reactable.class);
+    assertEquals(pose, actual);
   }
 
   private class MyAndroidClass {

@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.truethat.android.R;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.ReactableViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -32,7 +32,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
 
   /**
    * Prepares {@code fragment} for creation in implementing class, such as {@link
-   * SceneFragment#newInstance(Scene)}.
+   * PoseFragment#newInstance(Pose)}.
    *
    * @param fragment  to prepare.
    * @param reactable to associate with this fragment.
@@ -51,7 +51,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
   }
 
   /**
-   * Creation of media layout, such as a Scene image, is done by implementations i.e. in {@link
+   * Creation of media layout, such as a Pose image, is done by implementations i.e. in {@link
    * #createMedia(LayoutInflater)} )}.
    */
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
@@ -70,7 +70,7 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
   }
 
   /**
-   * Create the media layout of the fragment, such as the {@link Scene} image.
+   * Create the media layout of the fragment, such as the {@link Pose} image.
    */
   @MainThread protected abstract void createMedia(LayoutInflater inflater);
 }

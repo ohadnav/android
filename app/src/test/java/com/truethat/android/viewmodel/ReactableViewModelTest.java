@@ -1,12 +1,13 @@
 package com.truethat.android.viewmodel;
 
 import android.support.annotation.NonNull;
+import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import java.util.TreeMap;
 import org.awaitility.core.ThrowingRunnable;
@@ -32,7 +33,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.SAD;
   private ReactableViewModel<Reactable> mViewModel = new ReactableViewModel<>();
-  private Scene mScene;
+  private Pose mPose;
 
   private static void assertReactableDisplayed(ReactableViewModel viewModel, Reactable reactable,
       @NonNull User currentUser) {
@@ -58,13 +59,20 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void properDisplay() throws Exception {
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
     initReactableViewModel();
-    assertReactableDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
+    assertEquals("", mViewModel.mReactionsCountText.get());
+    assertEquals(R.drawable.transparent_1x1, mViewModel.mReactionDrawableResource.get());
+  }
+
+  @Test public void properDisplay_zeroReactions() throws Exception {
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, null);
+    initReactableViewModel();
+    assertReactableDisplayed(mViewModel, mPose, AppContainer.getAuthManager().getCurrentUser());
   }
 
   @Test public void doView() throws Exception {
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, null);
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, null);
     initReactableViewModel();
     // Assert a view event is sent
     final int currentRequestCount = mMockWebServer.getRequestCount();
@@ -80,7 +88,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, reactionCounters, mNow, null);
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, reactionCounters, mNow, null);
     initReactableViewModel();
     final int currentRequestCount = mMockWebServer.getRequestCount();
     mViewModel.onDisplay();
@@ -103,7 +111,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, mFakeAuthManager.getCurrentUser(), reactionCounters,
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, mFakeAuthManager.getCurrentUser(), reactionCounters,
         mNow,
             null);
     initReactableViewModel();
@@ -118,7 +126,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void reactionNotDetectedOnHidden() throws Exception {
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, null);
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, null);
     initReactableViewModel();
     mViewModel.onDisplay();
     // Hides view.
@@ -130,7 +138,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void reactionCanNotBeDetectedTwice() throws Exception {
-    mScene = new Scene(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
+    mPose = new Pose(REACTABLE_ID, IMAGE_URL, DIRECTOR, REACTION_COUNTERS, mNow, REACTION);
     initReactableViewModel();
     mViewModel.onDisplay();
     // Do a detection
@@ -141,7 +149,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
 
   private void initReactableViewModel() throws Exception {
     mViewModel = createViewModel(mViewModel.getClass(), new UnitTestViewInterface());
-    mViewModel.setReactable(mScene);
+    mViewModel.setReactable(mPose);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();
   }

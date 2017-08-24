@@ -1,13 +1,18 @@
 package com.truethat.android.viewmodel;
 
 import android.databinding.ObservableBoolean;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
+import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -17,7 +22,8 @@ import retrofit2.Response;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
+public class StudioViewModel extends BaseViewModel<StudioViewInterface>
+    implements CameraFragment.CameraFragmentListener {
   public final ObservableBoolean mCaptureButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mCancelButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSwitchCameraButtonVisibility = new ObservableBoolean();
@@ -40,7 +46,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
         onPublished();
       } else {
         Log.e(TAG,
-            "Failed to save scene.\n" + response.code() + " " + response.message() + "\n" + response
+            "Failed to save pose.\n" + response.code() + " " + response.message() + "\n" + response
                 .headers());
         onPublishError();
       }
@@ -48,7 +54,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
 
     @Override public void onFailure(@NonNull Call<Reactable> call, @NonNull Throwable t) {
       t.printStackTrace();
-      Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
+      Log.e(TAG, "Saving pose request to " + call.request().url() + " had failed.", t);
       onPublishError();
     }
   };
@@ -78,6 +84,20 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
     }
   }
 
+  @Override public void onImageAvailable(Image image) {
+    mDirectedReactable =
+        new Pose(AppContainer.getAuthManager().getCurrentUser(), CameraUtil.toByteArray(image));
+    onApproval();
+  }
+
+  @Override public void onVideoAvailable(String videoPath) {
+
+  }
+
+  @Override public void onVideoRecordStart() {
+
+  }
+
   public void onSent() {
     Log.v(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
@@ -92,10 +112,17 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
     getView().onSent();
   }
 
-  public void onApproval(Reactable reactable) {
+  public void disapprove() {
+    Log.v(TAG, "Reactable disapproved.");
+    onDirecting();
+  }
+
+  void onApproval() {
+    if (mDirectedReactable == null) {
+      onDirecting();
+    }
     Log.v(TAG, "Change state: " + DirectingState.APPROVAL.name());
     mDirectingState = DirectingState.APPROVAL;
-    mDirectedReactable = reactable;
     // Exposes approval buttons.
     mCancelButtonVisibility.set(true);
     mSendButtonVisibility.set(true);
@@ -105,11 +132,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
     // Hides loading image.
     mLoadingImageVisibility.set(false);
     getView().onApproval();
-  }
-
-  public void disapprove() {
-    Log.v(TAG, "Reactable disapproved.");
-    onDirecting();
   }
 
   private void onDirecting() {
@@ -132,14 +154,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface> {
     if (mSaveReactableCall != null) {
       mSaveReactableCall.cancel();
       onApproval();
-    }
-  }
-
-  private void onApproval() {
-    if (mDirectedReactable != null) {
-      onApproval(mDirectedReactable);
-    } else {
-      onDirecting();
     }
   }
 
