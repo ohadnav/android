@@ -2,11 +2,13 @@ package com.truethat.android.common.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.media.Image;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -40,5 +42,20 @@ public class CameraUtilTest extends BaseApplicationTestSuite {
     Image image2 =
         CameraTestUtil.bitmapBytesToMockedImage(CameraTestUtil.bitmapToByteArray(bitmap), 0);
     assertFalse(CameraUtil.compare(image1, image2));
+  }
+
+  @Test public void scaleFit() throws Exception {
+    final Point displaySize = AppUtil.realDisplaySize(mActivityTestRule.getActivity());
+    assertEquals(displaySize, CameraUtil.scaleFit(displaySize, displaySize));
+    assertEquals(displaySize,
+        CameraUtil.scaleFit(new Point(displaySize.x / 2, displaySize.y / 2), displaySize));
+    assertEquals(displaySize,
+        CameraUtil.scaleFit(new Point(displaySize.x * 2, displaySize.y * 2), displaySize));
+    assertEquals(new Point(displaySize.x, displaySize.y * 2),
+        CameraUtil.scaleFit(new Point(displaySize.x / 2, displaySize.y), displaySize));
+    assertEquals(new Point(displaySize.x * 2, displaySize.y),
+        CameraUtil.scaleFit(new Point(displaySize.x, displaySize.y / 2), displaySize));
+    assertEquals(new Point(displaySize.x, displaySize.y * 3 / 2),
+        CameraUtil.scaleFit(new Point(displaySize.x / 3, displaySize.y / 2), displaySize));
   }
 }

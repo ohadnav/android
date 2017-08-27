@@ -2,6 +2,7 @@ package com.truethat.android.common.network;
 
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Short;
 import java.util.List;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -21,7 +22,11 @@ public interface StudioApi {
   /**
    * HTTP part name of a {@link Pose}'s image.
    */
-  String pose_IMAGE_PART = "pose_image";
+  String POSE_IMAGE_PART = "pose_image";
+  /**
+   * HTTP part name of a {@link Short}'s video.
+   */
+  String SHORT_VIDEO_PART = "short_video";
   /**
    * HTTP part name of the {@link Reactable} data.
    */

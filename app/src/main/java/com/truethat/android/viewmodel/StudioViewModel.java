@@ -1,8 +1,10 @@
 package com.truethat.android.viewmodel;
 
 import android.databinding.ObservableBoolean;
+import android.databinding.ObservableInt;
 import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -12,6 +14,7 @@ import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Short;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import retrofit2.Call;
@@ -24,11 +27,16 @@ import retrofit2.Response;
 
 public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     implements CameraFragment.CameraFragmentListener {
+  @DrawableRes static final int CAPTURE_RESOURCE = R.drawable.capture;
+  @DrawableRes static final int RECORD_RESOURCE = R.drawable.record;
   public final ObservableBoolean mCaptureButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mCancelButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSwitchCameraButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSendButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
+  public final ObservableBoolean mReactablePreviewVisibility = new ObservableBoolean();
+  public final ObservableBoolean mCameraPreviewVisibility = new ObservableBoolean();
+  public final ObservableInt mCaptureButtonDrawableResource = new ObservableInt(CAPTURE_RESOURCE);
   private DirectingState mDirectingState = DirectingState.DIRECTING;
   private Reactable mDirectedReactable;
   /**
@@ -82,6 +90,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
       default:
         onDirecting();
     }
+    // Set default capture button
+    mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
   }
 
   @Override public void onImageAvailable(Image image) {
@@ -91,11 +101,13 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   @Override public void onVideoAvailable(String videoPath) {
-
+    mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
+    mDirectedReactable = new Short(AppContainer.getAuthManager().getCurrentUser(), videoPath);
+    onApproval();
   }
 
   @Override public void onVideoRecordStart() {
-
+    mCaptureButtonDrawableResource.set(RECORD_RESOURCE);
   }
 
   public void onSent() {
@@ -117,7 +129,11 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     onDirecting();
   }
 
-  void onApproval() {
+  Reactable getDirectedReactable() {
+    return mDirectedReactable;
+  }
+
+  private void onApproval() {
     if (mDirectedReactable == null) {
       onDirecting();
     }
@@ -131,7 +147,11 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mSwitchCameraButtonVisibility.set(false);
     // Hides loading image.
     mLoadingImageVisibility.set(false);
+    // Shows the directed reactable preview, and hides the camera preview.
+    mReactablePreviewVisibility.set(true);
+    mCameraPreviewVisibility.set(false);
     getView().onApproval();
+    getView().displayPreview(mDirectedReactable);
   }
 
   private void onDirecting() {
@@ -145,6 +165,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mSwitchCameraButtonVisibility.set(true);
     // Hides loading image.
     mLoadingImageVisibility.set(false);
+    // Hides the directed reactable preview, and exposes the camera preview.
+    mReactablePreviewVisibility.set(false);
+    mCameraPreviewVisibility.set(true);
     // Delete reactable.
     mDirectedReactable = null;
     getView().onDirecting();

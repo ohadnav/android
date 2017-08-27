@@ -1,18 +1,24 @@
 package com.truethat.android.view.activity;
 
 import android.graphics.Bitmap;
-import android.media.ImageReader;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.action.GeneralClickAction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.MotionEvents;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Tapper;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
+import android.view.MotionEvent;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Pose;
 import com.truethat.android.view.fragment.CameraFragment;
+import com.truethat.android.view.fragment.PoseFragment;
 import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
@@ -27,10 +33,13 @@ import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
+import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
+import static com.truethat.android.view.activity.StudioActivity.DIRECTED_REACTABLE_TAG;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
@@ -45,13 +54,6 @@ import static org.junit.Assert.assertTrue;
 public class StudioActivityTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<StudioActivity> mStudioActivityTestRule =
       new ActivityTestRule<>(StudioActivity.class, true, false);
-  private boolean mImageTaken = false;
-  private final ImageReader.OnImageAvailableListener IMAGE_AVAILABLE_LISTENER =
-      new ImageReader.OnImageAvailableListener() {
-        @Override public void onImageAvailable(ImageReader reader) {
-          mImageTaken = true;
-        }
-      };
   private CameraFragment mCameraFragment;
 
   @Before public void setUp() throws Exception {
@@ -65,33 +67,68 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        return new MockResponse().setBody(GSON.toJson(
-            new Pose(1, null, null, new TreeMap<Emotion, Long>(), null, null)));
+        return new MockResponse().setBody(
+            GSON.toJson(new Pose(1, null, new TreeMap<Emotion, Long>(), null, null, null)));
       }
     });
   }
 
   @Test public void takePictureWithButton() throws Exception {
-    // Modifies image listener, so that images are not sent.
-    mCameraFragment.setOnImageAvailableListener(IMAGE_AVAILABLE_LISTENER);
-    // Take a picture.
+    // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
-    // Wait until an image is taken
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mImageTaken;
+    // Should proceed to approval state
+    assertApprovalState();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(((PoseFragment) mStudioActivityTestRule.getActivity()
+            .getSupportFragmentManager()
+            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).getViewModel().isReady());
       }
     });
+    onView(withId(R.id.mediaLayout)).check(matches(isFullScreen()));
+    // Should hide metadata
+    onView(withId(R.id.infoLayout)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.reactionCounterLayout)).check(matches(not(isDisplayed())));
+  }
+
+  @Test public void takePhotoAndResumeDirecting() throws Exception {
+    // Start recording.
+    onView(withId(R.id.captureButton)).perform(click());
+    // Should proceed to approval state
+    assertApprovalState();
+    // Resume to directing state
+    onView(withId(R.id.cancelButton)).perform(click());
+    assertDirectingState();
+  }
+
+  @Test public void recordVideoWithButton() throws Exception {
+    // Start recording.
+    onView(withId(R.id.captureButton)).perform(
+        new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
+    // Should proceed to approval state
+    assertApprovalState();
+  }
+
+  @Test public void recordVideoAndResumeDirecting() throws Exception {
+    // Start recording.
+    onView(withId(R.id.captureButton)).perform(
+        new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
+    // Should proceed to approval state
+    assertApprovalState();
+    // Resume to directing state
+    onView(withId(R.id.cancelButton)).perform(click());
+    assertDirectingState();
   }
 
   @Test public void notTakingPictureWhenNotAuth() throws Exception {
     mFakeAuthManager.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
-    assertDirectingState();
     // Ensuring signing in Toast is shown.
     onView(withText(mStudioActivityTestRule.getActivity().UNAUTHORIZED_TOAST)).inRoot(
         withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
+    // Should navigate to welcome activity
+    waitForActivity(WelcomeActivity.class);
   }
 
   @Test public void navigationToTheater() throws Exception {
@@ -148,6 +185,8 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
     onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    // Directed reactable preview is hidden
+    onView(withId(R.id.previewLayout)).check(matches(not(isDisplayed())));
     // Preview should have no tint
     assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
   }
@@ -167,7 +206,33 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
     onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    // Directed reactable preview is shown
+    onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
     // Preview should have no tint
     assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
+  }
+
+  @SuppressWarnings("ResultOfMethodCallIgnored") private class RecordTapper implements Tapper {
+    @Override
+    public Status sendTap(UiController uiController, float[] coordinates, float[] precision) {
+      checkNotNull(uiController);
+      checkNotNull(coordinates);
+      checkNotNull(precision);
+
+      MotionEvent downEvent = MotionEvents.sendDown(uiController, coordinates, precision).down;
+      try {
+        uiController.loopMainThreadForAtLeast(2000);
+
+        if (!MotionEvents.sendUp(uiController, downEvent)) {
+          MotionEvents.sendCancel(uiController, downEvent);
+          return Tapper.Status.FAILURE;
+        }
+      } finally {
+        downEvent.recycle();
+        //noinspection UnusedAssignment
+        downEvent = null;
+      }
+      return Tapper.Status.SUCCESS;
+    }
   }
 }

@@ -11,24 +11,24 @@
         />
   </data>
   <android.support.constraint.ConstraintLayout
-    android:id="@+id/activityRootView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.activity.TestActivity"
-    >
+      android:id="@+id/activityRootView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context=".view.activity.TestActivity"
+      >
 
-  <TextView
-      android:id="@+id/noCameraPermissionTopRationale"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/test_text"
-      android:textAlignment="center"
-      android:textSize="120sp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      />
+    <TextView
+        android:id="@+id/testText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/test_text"
+        android:textAlignment="center"
+        android:textSize="120sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
-</android.support.constraint.ConstraintLayout>
+  </android.support.constraint.ConstraintLayout>
 </layout>

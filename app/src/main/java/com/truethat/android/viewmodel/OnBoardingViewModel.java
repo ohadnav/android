@@ -22,8 +22,8 @@ import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     implements ReactionDetectionListener {
   @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
-  @VisibleForTesting @ColorRes static final int ERROR_COLOR = R.color.error;
-  @VisibleForTesting @ColorRes static final int VALID_NAME_COLOR = R.color.success;
+  @VisibleForTesting @ColorRes public static final int ERROR_COLOR = R.color.error;
+  @VisibleForTesting @ColorRes public static final int VALID_NAME_COLOR = R.color.success;
   public final ObservableField<String> mNameEditText = new ObservableField<>();
   public final ObservableInt mNameTextColor = new ObservableInt(R.color.primary);
   public final ObservableBoolean mNameEditCursorVisibility = new ObservableBoolean(true);

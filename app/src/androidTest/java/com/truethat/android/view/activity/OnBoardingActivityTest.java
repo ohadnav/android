@@ -1,6 +1,7 @@
 package com.truethat.android.view.activity;
 
 import android.content.Intent;
+import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
@@ -14,12 +15,18 @@ import static android.support.test.espresso.action.ViewActions.pressImeActionBut
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isKeyboardVisible;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
+import static com.truethat.android.application.ApplicationTestUtil.withBackgroundColor;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,16 +47,52 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     mViewModel = activity.getViewModel();
   }
 
-  @Test public void successfulOnBoarding() throws Exception {
-    // EditText should be auto focused.
+  @Test public void onBoardingFlow() throws Exception {
     onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
-    // Keyboard should be exposed
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(isKeyboardVisible());
+    final EditText editText = (EditText) getCurrentActivity().findViewById(R.id.nameEditText);
+    // Type first name
+    onView(withId(R.id.nameEditText)).perform(typeText(NAME.split(" ")[0]));
+    // Cursor should be visible.
+    assertTrue(editText.isCursorVisible());
+    assertInvalidName();
+    // Lose focus, keyboard and cursor should be hidden.
+    getCurrentActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        editText.clearFocus();
       }
     });
-    doOnBoarding(NAME);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
+    assertFalse(editText.isCursorVisible());
+    // Type again, and assert keyboard and cursor are visible again.
+    onView(withId(R.id.nameEditText)).perform(typeText(" "));
+    assertTrue(isKeyboardVisible());
+    assertTrue(editText.isCursorVisible());
+    // Hit done (ime button).
+    onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
+    // Should not be moving to next stage
+    assertInvalidName();
+    // Cursor and keyboard should be hidden.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
+    assertFalse(editText.isCursorVisible());
+    // Warning text visible.
+    waitMatcher(allOf(withId(R.id.warningText), isDisplayed()));
+    // Type last name
+    onView(withId(R.id.nameEditText)).perform(typeText(NAME.split(" ")[1]));
+    assertValidName();
+    onView(withId(R.id.nameEditText)).perform(pressImeActionButton());
+    assertReadyForSmile();
+    // Cursor should be hidden after hitting ime button.
+    assertFalse(editText.isCursorVisible());
+    // Detect smile.
+    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
     assertOnBoardingSuccessful();
   }
 
@@ -87,6 +130,47 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
         assertTrue(mFakeAuthManager.isAuthOk());
       }
     });
+  }
+
+  private void assertReadyForSmile() {
+    // Wait until smile text is shown.
+    waitMatcher(allOf(isDisplayed(), withId(R.id.completionText)));
+    // Warning text should be hidden.
+    onView(withId(R.id.warningText)).check(matches(not(isDisplayed())));
+    // Assert detection is ongoing.
+    assertTrue(mFakeReactionDetectionManager.isDetecting());
+    // Keyboard should be hidden.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(isKeyboardVisible());
+      }
+    });
+  }
+
+  private void assertValidName() {
+    onView(withId(R.id.nameEditText)).check(matches(withBackgroundColor(
+        mActivityTestRule.getActivity()
+            .getResources()
+            .getColor(OnBoardingViewModel.VALID_NAME_COLOR,
+                mActivityTestRule.getActivity().getTheme()))));
+  }
+
+  private void assertInvalidName() {
+    // Error color indicator is shown.
+    onView(withId(R.id.nameEditText)).check(matches(withBackgroundColor(
+        mActivityTestRule.getActivity()
+            .getResources()
+            .getColor(OnBoardingViewModel.ERROR_COLOR,
+                mActivityTestRule.getActivity().getTheme()))));
+    try {
+      Thread.sleep(100);
+    } catch (Exception e) {
+      assertTrue(false);
+    }
+    // Detection is NOT ongoing.
+    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+    // Smile text is hidden
+    onView(withId(R.id.completionText)).check(matches(not(isDisplayed())));
   }
 
   private void assertOnBoardingSuccessful() {

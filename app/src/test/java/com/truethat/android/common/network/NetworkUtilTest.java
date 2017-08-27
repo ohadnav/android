@@ -25,8 +25,7 @@ public class NetworkUtilTest {
     put(Emotion.HAPPY, 10L);
   }};
   private static final Reactable pose =
-      new Pose(1, "url", new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE,
-          Emotion.HAPPY);
+      new Pose(1, new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE, Emotion.HAPPY, "url");
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {
     String actual = GSON.toJson(new MyAndroidClass(NUM));

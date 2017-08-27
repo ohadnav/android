@@ -42,12 +42,18 @@ public class ReactableViewModel<Model extends Reactable>
       new ObservableInt(DEFAULT_REACTION_COUNTER.getDrawableResource());
   public final ObservableField<String> mReactionsCountText = new ObservableField<>("0");
   public final ObservableBoolean mDirectorNameVisibility = new ObservableBoolean(true);
+  public final ObservableBoolean mInfoLayoutVisibility = new ObservableBoolean(true);
+  public final ObservableBoolean mReactionCountersVisibility = new ObservableBoolean(true);
   public final ObservableField<String> mTimeAgoText = new ObservableField<>();
   /**
    * Default for reaction counter's image view.
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
+  /**
+   * Whether to hide metadata and avoid send interaction events.
+   */
+  private boolean mDisplayOnly = false;
   private Model mReactable;
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
@@ -81,8 +87,14 @@ public class ReactableViewModel<Model extends Reactable>
 
   @CallSuper @Override public void onStart() {
     super.onStart();
-    updateInfoLayout();
-    updateReactionCounters();
+    Log.v(TAG, "display only = " + mDisplayOnly);
+    if (!mDisplayOnly) {
+      updateInfoLayout();
+      updateReactionCounters();
+    } else {
+      mInfoLayoutVisibility.set(false);
+      mReactionCountersVisibility.set(false);
+    }
   }
 
   @CallSuper public void onVisible() {
@@ -139,14 +151,20 @@ public class ReactableViewModel<Model extends Reactable>
     AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
 
+  public void displayOnly() {
+    mDisplayOnly = true;
+  }
+
   /**
    * Run once the media resources of the {@link #mReactable} are ready and the view is visible.
    */
   @CallSuper void onDisplay() {
     Log.v(TAG, "onDisplay");
-    doView();
-    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
-      AppContainer.getReactionDetectionManager().subscribe(this);
+    if (!mDisplayOnly) {
+      doView();
+      if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+        AppContainer.getReactionDetectionManager().subscribe(this);
+      }
     }
   }
 

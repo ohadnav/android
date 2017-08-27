@@ -28,4 +28,12 @@ public interface StudioViewInterface extends BaseViewInterface {
    * Triggered as per {@link StudioViewModel.DirectingState#DIRECTING}, when a reactable is being created (i.e. whilst taking a picture).
    */
   void onDirecting();
+
+  /**
+   * Displays a preview of the directed reactable, so that the user can approve it or prevent
+   * eternal shame.
+   *
+   * @param reactable to preview.
+   */
+  void displayPreview(Reactable reactable);
 }

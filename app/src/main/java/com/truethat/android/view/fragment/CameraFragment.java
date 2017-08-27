@@ -71,7 +71,8 @@ public class CameraFragment extends
    */
   private static final String ARG_FACING = "facing";
   /**
-   * Conversion from screen rotation to captured media orientation (applies for both still photos and videos).
+   * Conversion from screen rotation to captured media orientation (applies for both still photos
+   * and videos).
    */
   private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
 
@@ -87,6 +88,7 @@ public class CameraFragment extends
    * Max preview size that is guaranteed by Camera2 API
    */
   private static final Size MAX_SIZE = new Size(1920, 1080);
+  private static final int MAX_VIDEO_MS = 10 * 1000;
 
   static {
     DEFAULT_ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -167,7 +169,7 @@ public class CameraFragment extends
   private CaptureRequest mPreviewRequest;
 
   /**
-   * The {@link android.util.Size} of video recording.
+   * The {@link Size} of video recording.
    */
   private Size mVideoSize;
 
@@ -181,13 +183,13 @@ public class CameraFragment extends
    */
   private String mVideoAbsolutePath;
   /**
-   * Whether currently recording video.
-   */
-  private boolean mIsRecordingVideo = false;
-  /**
    * A {@link CameraCaptureSession} for taking videos.
    */
   private CameraCaptureSession mCaptureSession;
+  /**
+   * The {@link Size} of captured photos.
+   */
+  private Size mCaptureSize;
   /**
    * The current state of camera state for taking pictures.
    *
@@ -212,6 +214,30 @@ public class CameraFragment extends
    * then auto focus is skipped when taking pictures.
    */
   private List<Integer> mAutofocusAvailableModes;
+  /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
   /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
@@ -314,30 +340,6 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
-  /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
 
   @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -350,23 +352,26 @@ public class CameraFragment extends
    * Initiate a still image capture.
    */
   public void takePicture() {
-    Log.v(TAG, "takePicture");
-      lockFocus();
+    Log.v(TAG, "takePicture (sized " + mCaptureSize + ")");
+    lockFocus();
   }
 
   /**
    * Start record the next Titanic!
    */
   public void startRecordVideo() {
-    AppContainer.getPermissionsManager().requestIfNeeded(getActivity(), Permission.AUDIO);
-    if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.AUDIO)) {
-      Log.i(TAG, Permission.AUDIO + " is not granted, not starting video recording.");
+    AppContainer.getPermissionsManager().requestIfNeeded(getActivity(), Permission.RECORD_AUDIO);
+    if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.RECORD_AUDIO)) {
+      Log.i(TAG, Permission.RECORD_AUDIO + " is not granted, not starting video recording.");
       return;
     }
     if (null == mCameraDevice || !mCameraPreview.isAvailable() || null == mPreviewSize) {
+      Log.i(TAG, "Not ready to start recording a video.");
       return;
     }
     try {
+      Log.v(TAG, "startRecordVideo (" + mVideoSize + ")");
+      mState = CameraState.WAITING_RECORDING;
       closePreviewSession();
       setUpMediaRecorder();
       SurfaceTexture texture = mCameraPreview.getSurfaceTexture();
@@ -396,10 +401,11 @@ public class CameraFragment extends
           preparePreviewForVideoRecording();
           getActivity().runOnUiThread(new Runnable() {
             @Override public void run() {
+              Log.v(TAG, "video recording has started.");
               mCameraFragmentListener.onVideoRecordStart();
               // Start recording
               mMediaRecorder.start();
-              mIsRecordingVideo = true;
+              mState = CameraState.RECORDING_VIDEO;
             }
           });
         }
@@ -421,12 +427,21 @@ public class CameraFragment extends
    * And....cut!
    */
   public void stopRecordVideo() {
-    if (!mIsRecordingVideo) return;
+    if (!isRecordingVideo()) {
+      Log.v(TAG, "Trying to stop video when not recording");
+      return;
+    }
+    Log.v(TAG, "stopRecordVideo");
     // Stop recording
     mMediaRecorder.stop();
     mMediaRecorder.reset();
     mCameraFragmentListener.onVideoAvailable(mVideoAbsolutePath);
     mVideoAbsolutePath = null;
+    mState = CameraState.VIDEO_RECORDED;
+  }
+
+  public boolean isRecordingVideo() {
+    return mState == CameraState.RECORDING_VIDEO;
   }
 
   public void setCameraFragmentListener(CameraFragmentListener cameraFragmentListener) {
@@ -495,11 +510,6 @@ public class CameraFragment extends
     return mCameraDevice != null;
   }
 
-  @VisibleForTesting public void setOnImageAvailableListener(
-      ImageReader.OnImageAvailableListener onImageAvailableListener) {
-    mOnImageAvailableListener = onImageAvailableListener;
-  }
-
   public CameraState getState() {
     return mState;
   }
@@ -526,9 +536,16 @@ public class CameraFragment extends
    */
   public void restorePreview() {
     Log.v(TAG, "restorePreview");
-    if (mState == CameraState.PICTURE_TAKEN) {
+    if (mState == CameraState.PICTURE_TAKEN || mState == CameraState.VIDEO_RECORDED) {
       unlockFocus();
     }
+  }
+
+  /**
+   * @return whether a photo can be taken at the current state.
+   */
+  public boolean canUseCamera() {
+    return getActivity() != null && isCameraOpen() && isResumed();
   }
 
   /**
@@ -603,11 +620,14 @@ public class CameraFragment extends
         throw new AssertionError("OMG configuration map is null.");
       }
       // Set up video size
-      mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class), new Point(9, 16));
+      Point displaySize = AppUtil.realDisplaySize(getActivity());
+      // Inversing display size to match Media Recorder output sizes.
+      mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class),
+          displaySize.y / (double) displaySize.x);
       // For still image captures, we use the largest available size.
-      Size captureSize = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
+      mCaptureSize = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
           SIZE_AREA_COMPARATOR);
-      mImageReader = ImageReader.newInstance(captureSize.getWidth(), captureSize.getHeight(),
+      mImageReader = ImageReader.newInstance(mCaptureSize.getWidth(), mCaptureSize.getHeight(),
           ImageFormat.JPEG, 2);
       // Check if the flash is supported.
       Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
@@ -680,9 +700,9 @@ public class CameraFragment extends
       // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
       // garbage capture data.
       // (2) We use real display size, so that the preview is fullscreen, if possible.
-      mPreviewSize = CameraUtil.choosePhotoSize(map.getOutputSizes(SurfaceTexture.class),
-          rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth, maxPreviewHeight,
-          displaySize);
+      mPreviewSize =
+          CameraUtil.choosePhotoSize(map.getOutputSizes(SurfaceTexture.class), rotatedPreviewWidth,
+              rotatedPreviewHeight, maxPreviewWidth, maxPreviewHeight, displaySize);
 
       // We fit the aspect ratio of TextureView to the size of preview we picked.
       final int orientation = getResources().getConfiguration().orientation;
@@ -700,10 +720,8 @@ public class CameraFragment extends
    * Opens the camera specified by {@link #mCameraId}.
    */
   @SuppressWarnings("MissingPermission") private void openCamera() {
-    AppContainer.getPermissionsManager()
-        .requestIfNeeded(getActivity(), Permission.CAMERA);
-    if (!AppContainer.getPermissionsManager()
-        .isPermissionGranted(Permission.CAMERA)) {
+    AppContainer.getPermissionsManager().requestIfNeeded(getActivity(), Permission.CAMERA);
+    if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.CAMERA)) {
       return;
     }
     Log.v(TAG, "openCamera");
@@ -767,6 +785,7 @@ public class CameraFragment extends
     mMediaRecorder.setOutputFile(mVideoAbsolutePath);
     mMediaRecorder.setVideoEncodingBitRate(10000000);
     mMediaRecorder.setVideoFrameRate(30);
+    mMediaRecorder.setMaxDuration(MAX_VIDEO_MS);
     mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
     mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
@@ -896,7 +915,7 @@ public class CameraFragment extends
       mState = CameraState.WAITING_LOCK;
       mPreviewSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
           mBackgroundHandler.getHandler());
-    } catch (CameraAccessException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -973,7 +992,8 @@ public class CameraFragment extends
    * <p>
    * Sensor orientation is 90 for most devices, or 270 for some devices (eg. Nexus 5X) We have to
    * take that into account and rotate JPEG properly. For devices with orientation of 90, we simply
-   * return our mapping from {@link #DEFAULT_ORIENTATIONS}. For devices with orientation of 270, we need to
+   * return our mapping from {@link #DEFAULT_ORIENTATIONS}. For devices with orientation of 270, we
+   * need to
    * rotate the JPEG 180 degrees.
    *
    * @param rotation The screen rotation.
@@ -1014,13 +1034,6 @@ public class CameraFragment extends
   }
 
   /**
-   * @return whether a photo can be taken at the current state.
-   */
-  private boolean canUseCamera() {
-    return getActivity() != null && isCameraOpen() && isResumed();
-  }
-
-  /**
    * @return the path in which to store the next video.
    */
   private String getVideoFilePath() {
@@ -1045,9 +1058,18 @@ public class CameraFragment extends
      * Waiting for the exposure state to be something other than precapture, usually a capture.
      */
     WAITING_FOR_CAPTURE, /**
-     * Picture was taken.
+     * Picture was taken, and preview had not been restored.
      */
-    PICTURE_TAKEN
+    PICTURE_TAKEN, /**
+     * Waiting for video recording to start
+     */
+    WAITING_RECORDING, /**
+     * Currently recording video.
+     */
+    RECORDING_VIDEO, /**
+     * Video was recorded, and preview has not been restored.
+     */
+    VIDEO_RECORDED
   }
 
   public interface CameraFragmentListener {

@@ -69,7 +69,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
-    Pose pose = new Pose(ID_1, IMAGE_URL_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null);
+    Pose pose = new Pose(ID_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null, IMAGE_URL_1);
     mRespondedPoses = Collections.singletonList(pose);
     mTheaterActivityTestRule.launchActivity(null);
     ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
@@ -78,8 +78,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test @FlakyTest public void singleInstance() throws Exception {
-    Pose pose = new Pose(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        mDirector, new TreeMap<Emotion, Long>(), new Date(), null);
+    Pose pose = new Pose(1L, mDirector, new TreeMap<Emotion, Long>(), new Date(), null,
+        "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
     mRespondedPoses = Collections.singletonList(pose);
     mTheaterActivityTestRule.launchActivity(null);
     ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());

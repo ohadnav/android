@@ -44,7 +44,11 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   /**
    * Unbinds views, to prevent memory leaks.
    */
-  private Unbinder mViewUnbinder;
+  Unbinder mViewUnbinder;
+  /**
+   * Whether to let {@link BaseFragment} handle Butterknife's view binding.
+   */
+  boolean mAutomaticViewBinding = true;
 
   @Override public void setUserVisibleHint(boolean isVisibleToUser) {
     super.setUserVisibleHint(isVisibleToUser);
@@ -90,8 +94,10 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     }
     // Sets the view interface.
     setModelView((ViewInterface) this);
-    // Binds views with butterknife.
-    mViewUnbinder = ButterKnife.bind(this, mRootView);
+    if (mAutomaticViewBinding) {
+      // Binds views with butterknife.
+      mViewUnbinder = ButterKnife.bind(this, mRootView);
+    }
     // Sets up context
     mViewModelHelper.getViewModel().setContext(this.getActivity());
     return mRootView;

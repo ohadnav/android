@@ -29,6 +29,17 @@
         tools:layout="@layout/fragment_camera"
         />
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/previewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="@{viewModel.mReactablePreviewVisibility? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <ImageButton
         android:id="@+id/captureButton"
         android:layout_width="70dp"
@@ -36,14 +47,15 @@
         android:layout_margin="16dp"
         android:background="@null"
         android:contentDescription="@string/image_content_description"
+        android:longClickable="true"
         android:scaleType="fitCenter"
+        android:src="@{viewModel.mCaptureButtonDrawableResource}"
         android:visibility="@{viewModel.mCaptureButtonVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"
-        app:srcCompat="@drawable/capture_image"
         tools:visibility="visible"
         />
 

@@ -24,17 +24,17 @@ public class Pose extends Reactable implements Serializable {
   /**
    * Signed URL to the pose's image on our storage.
    */
-  private String mImageSignedUrl;
+  private String mImageUrl;
   /**
    * The byte representation of this pose. Used in {@link Reactable#createApiCall()}.
    */
   private transient byte[] mImageBytes;
 
-  @VisibleForTesting public Pose(long id, String imageSignedUrl, User director,
-      TreeMap<Emotion, Long> reactionCounters, Date created,
-      @Nullable Emotion userReaction) {
+  @VisibleForTesting
+  public Pose(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+      @Nullable Emotion userReaction, String imageUrl) {
     super(id, director, reactionCounters, created, userReaction);
-    mImageSignedUrl = imageSignedUrl;
+    mImageUrl = imageUrl;
   }
 
   public Pose(User director, byte[] imageBytes) {
@@ -50,8 +50,12 @@ public class Pose extends Reactable implements Serializable {
   @SuppressWarnings("unused") private Pose() {
   }
 
-  public String getImageSignedUrl() {
-    return mImageSignedUrl;
+  public String getImageUrl() {
+    return mImageUrl;
+  }
+
+  public byte[] getImageBytes() {
+    return mImageBytes;
   }
 
   @Override public ReactableFragment createFragment() {
@@ -63,7 +67,7 @@ public class Pose extends Reactable implements Serializable {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
     MultipartBody.Part imagePart =
-        MultipartBody.Part.createFormData(StudioApi.pose_IMAGE_PART, IMAGE_FILENAME,
+        MultipartBody.Part.createFormData(StudioApi.POSE_IMAGE_PART, IMAGE_FILENAME,
             RequestBody.create(MediaType.parse("image/jpg"), mImageBytes));
     MultipartBody.Part reactablePart =
         MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
@@ -78,7 +82,6 @@ public class Pose extends Reactable implements Serializable {
 
     Pose pose = (Pose) o;
 
-    return mImageSignedUrl != null ? mImageSignedUrl.equals(pose.mImageSignedUrl)
-        : pose.mImageSignedUrl == null;
+    return mImageUrl != null ? mImageUrl.equals(pose.mImageUrl) : pose.mImageUrl == null;
   }
 }

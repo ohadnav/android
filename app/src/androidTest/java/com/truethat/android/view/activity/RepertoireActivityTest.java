@@ -51,8 +51,9 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
-    Pose pose = new Pose(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+    Pose pose =
+        new Pose(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
+            null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
     mRespondedPoses = Collections.singletonList(pose);
     mRepertoireActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
@@ -61,8 +62,9 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void singleInstance() throws Exception {
-    Pose pose = new Pose(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg",
-        mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(), null);
+    Pose pose =
+        new Pose(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
+            null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
     mRespondedPoses = Collections.singletonList(pose);
     mRepertoireActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());

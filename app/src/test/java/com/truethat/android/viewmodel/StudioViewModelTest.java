@@ -2,9 +2,13 @@ package com.truethat.android.viewmodel;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.media.Image;
 import com.truethat.android.R;
+import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Short;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
+import java.nio.ByteBuffer;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -12,10 +16,12 @@ import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.truethat.android.viewmodel.StudioViewModel.CAPTURE_RESOURCE;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.APPROVAL;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.DIRECTING;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.PUBLISHED;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.SENT;
+import static com.truethat.android.viewmodel.StudioViewModel.RECORD_RESOURCE;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,9 +36,13 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   private StudioViewModel mViewModel;
   private StudioViewModel.DirectingState mCurrentState;
   private boolean mPublishedToBackend;
+  private Reactable mDisplayedReactable;
+  private Image mMockedImage;
+  private Image.Plane mMockedPlane;
 
   @Before public void setUp() throws Exception {
     super.setUp();
+    mDisplayedReactable = null;
     mCurrentState = DIRECTING;
     mPublishedToBackend = false;
     Context mockedContext = mock(Context.class);
@@ -45,9 +55,14 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         mPublishedToBackend = true;
-        return new MockResponse().setBody("{\"type\":\"Pose\"}");
+        return new MockResponse().setBody(
+            "{\"type\":\"" + mViewModel.getDirectedReactable().getClass().getSimpleName() + "\"}");
       }
     });
+    mMockedImage = mock(Image.class);
+    mMockedPlane = mock(Image.Plane.class);
+    when(mMockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] {}));
+    when(mMockedImage.getPlanes()).thenReturn(new Image.Plane[] { mMockedPlane });
   }
 
   @Test public void directingState() throws Exception {
@@ -55,12 +70,20 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void approvalState() throws Exception {
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
   }
 
+  @Test public void recordVideo() throws Exception {
+    mViewModel.onVideoRecordStart();
+    assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
+    mViewModel.onVideoAvailable("bigcoin-gen.dmg");
+    assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
+    assertTrue(mViewModel.getDirectedReactable() instanceof Short);
+  }
+
   @Test public void approvalCancel() throws Exception {
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Cancel the picture taken
     mViewModel.disapprove();
@@ -68,7 +91,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void sentState() throws Exception {
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -76,7 +99,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void publishedState() throws Exception {
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -91,7 +114,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -102,7 +125,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void activityPausedWhileSending() throws Exception {
-    mViewModel.onApproval();
+    mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Send the reactable.
     mViewModel.onSent();
@@ -124,6 +147,10 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
     assertEquals(DIRECTING, mCurrentState);
+    // Reactable preview is hidden.
+    assertFalse(mViewModel.mReactablePreviewVisibility.get());
+    // Camera preview is shown
+    assertTrue(mViewModel.mCameraPreviewVisibility.get());
   }
 
   private void assertApprovalState() {
@@ -137,6 +164,11 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
     assertEquals(APPROVAL, mCurrentState);
+    // Correct preview is shown.
+    assertTrue(mViewModel.mReactablePreviewVisibility.get());
+    // Camera preview is hidden
+    assertFalse(mViewModel.mCameraPreviewVisibility.get());
+    assertEquals(mViewModel.getDirectedReactable(), mDisplayedReactable);
   }
 
   private void assertSentState() {
@@ -185,6 +217,10 @@ public class StudioViewModelTest extends ViewModelTestSuite {
 
     @Override public void onDirecting() {
       mCurrentState = DIRECTING;
+    }
+
+    @Override public void displayPreview(Reactable reactable) {
+      mDisplayedReactable = reactable;
     }
   }
 }

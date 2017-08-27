@@ -33,6 +33,28 @@ import java.util.List;
   };
   private static final String TAG = "CameraUtil";
 
+  public static Point scaleFit(Point src, Point bounds) {
+    int newWidth;
+    int newHeight;
+    double boundsAspectRatio = bounds.y / (double) bounds.x;
+    double srcAspectRatio = src.y / (double) src.x;
+
+    // first check if we need to scale width
+    if (boundsAspectRatio < srcAspectRatio) {
+      // scale width to fit
+      newWidth = bounds.x;
+      //scale height to maintain aspect ratio
+      newHeight = (newWidth * src.y) / src.x;
+    } else {
+      //scale height to fit instead
+      newHeight = bounds.y;
+      //scale width to maintain aspect ratio
+      newWidth = (newHeight * src.x) / src.y;
+    }
+
+    return new Point(newWidth, newHeight);
+  }
+
   /**
    * @param manager of device's cameras.
    * @param facing  whether to return ID of front or back facing camera.
@@ -137,15 +159,21 @@ import java.util.List;
    *
    * @return the largest video size, that satisfies the conditions mentioned above.
    */
-  public static Size chooseVideoSize(Size[] choices, Point aspectRatio) {
+  public static Size chooseVideoSize(Size[] choices, double aspectRatio) {
+    Size largestSize = new Size(0, 0);
     for (Size size : choices) {
-      if (size.getWidth() == size.getHeight() * aspectRatio.y / aspectRatio.x
-          && size.getWidth() <= 1080) {
-        return size;
+      double sizeAspectRatio = size.getWidth() / (double) size.getHeight();
+      if (sizeAspectRatio == aspectRatio
+          && size.getHeight() <= 1080
+          && SIZE_AREA_COMPARATOR.compare(largestSize, size) < 0) {
+        largestSize = size;
       }
     }
+    if (largestSize.getWidth() > 0) {
+      return largestSize;
+    }
     Log.e(TAG, "Couldn't find any suitable video size.");
-    return choices[choices.length - 1];
+    return choices[0];
   }
 
   /**

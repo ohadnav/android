@@ -59,11 +59,11 @@ import java.util.Map;
     if (mPermissionToState.get(permission) != PermissionState.FORBID) {
       // Grant permission.
       grant(permission);
-      // Grants it for real, if needed.
+      // Request it for real, if needed.
       try {
         PermissionsManager devicePermissionsManager = new DevicePermissionsManager(activity);
         if (activity != null && !devicePermissionsManager.isPermissionGranted(permission)) {
-          PermissionsTestUtil.grantPermission(permission);
+          devicePermissionsManager.requestIfNeeded(activity, permission);
         }
       } catch (Exception e) {
         e.printStackTrace();

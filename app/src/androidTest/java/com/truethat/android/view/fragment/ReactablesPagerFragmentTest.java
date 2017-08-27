@@ -1,5 +1,6 @@
 package com.truethat.android.view.fragment;
 
+import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -16,9 +17,11 @@ import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Short;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.RepertoireActivity;
 import com.truethat.android.viewmodel.ReactableViewModel;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +55,9 @@ import static org.junit.Assert.assertTrue;
 public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
-  private static final String IMAGE_URL_1 =
+  private static final String VIDEO_URL =
+      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4";
+  private static final String IMAGE_URL =
       "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg";
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
@@ -61,7 +66,7 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   }};
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
-  private List<Pose> mRespondedPoses;
+  private List<Reactable> mRespondedReactables;
 
   @SuppressWarnings("ConstantConditions")
   public static void assertReactableDisplayed(final Reactable reactable, User currentUser)
@@ -90,6 +95,16 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     if (reactable instanceof Pose) {
       // Asserting the pose image is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.poseImage)));
+    } else if (reactable instanceof Short) {
+      // Asserting the pose image is displayed fullscreen.
+      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
+      // Video should be playing
+      await().untilAsserted(new ThrowingRunnable() {
+        @Override public void run() throws Throwable {
+          assertTrue(
+              ((ShortFragment) pagerFragment.getDisplayedReactable()).getMediaPlayer().isPlaying());
+        }
+      });
     }
     // Loading layout should be hidden.
     onView(withId(R.id.loadingLayout)).check(matches(not(isDisplayed())));
@@ -134,20 +149,19 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     // Resets the post event counter.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedPoses);
-        mRespondedPoses = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedReactables);
+        mRespondedReactables = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the poses list is empty.
-    mRespondedPoses = Collections.emptyList();
+    mRespondedReactables = Collections.emptyList();
   }
 
   @Test public void displayReactable() throws Exception {
-    Pose pose =
-        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            null);
-    mRespondedPoses = Collections.singletonList(pose);
+    Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        IMAGE_URL);
+    mRespondedReactables = Collections.singletonList((Reactable) pose);
     mRepertoireActivityRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Should not be detecting reaction
@@ -155,5 +169,19 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
+  }
+
+  @Test public void displayMultipleTypes() throws Exception {
+    Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        IMAGE_URL);
+    Short shortReactable =
+        new Short(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            VIDEO_URL);
+    mRespondedReactables = Arrays.asList(pose, shortReactable);
+    mRepertoireActivityRule.launchActivity(null);
+    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    // Swipe to next reactable
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
+    assertReactableDisplayed(shortReactable, mFakeAuthManager.getCurrentUser());
   }
 }

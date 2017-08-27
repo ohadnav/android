@@ -5,6 +5,7 @@ import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Short;
 import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -28,9 +29,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
  */
-public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
+@SuppressWarnings("RedundantCast") public class ReactablesPagerViewModelTest
+    extends ViewModelTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
+  private static final String VIDEO_URL =
+      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4";
   private static final String IMAGE_URL_1 =
       "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg";
   private static final String IMAGE_URL_2 =
@@ -48,7 +52,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
   }};
   private ReactablesPagerViewModel mViewModel;
   private TheaterApi mApi;
-  private List<Pose> mRespondedPoses;
+  private List<Reactable> mRespondedReactables;
 
   @Override public void setUp() throws Exception {
     super.setUp();
@@ -57,22 +61,22 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedPoses);
-        mRespondedPoses = Collections.emptyList();
+        String responseBody = NetworkUtil.GSON.toJson(mRespondedReactables);
+        mRespondedReactables = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the poses list is empty.
-    mRespondedPoses = Collections.emptyList();
+    mRespondedReactables = Collections.emptyList();
     // Initialize api
     mApi = NetworkUtil.createApi(TheaterApi.class);
   }
 
   @Test public void displayReactable() throws Exception {
     final Pose pose =
-        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            null);
-    mRespondedPoses = Collections.singletonList(pose);
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            IMAGE_URL_1);
+    mRespondedReactables = Collections.singletonList((Reactable) pose);
     mViewModel.fetchReactables();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -92,11 +96,11 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
         assertTrue(mViewModel.mNonFoundTextVisibility.get());
       }
     });
-    Pose pose = new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(),
-        new TreeMap<Emotion, Long>(),
-            HOUR_AGO, Emotion.HAPPY);
+    Pose pose =
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), HOUR_AGO,
+            Emotion.HAPPY, IMAGE_URL_1);
     // Explicitly load more reactables.
-    mRespondedPoses = Collections.singletonList(pose);
+    mRespondedReactables = Collections.singletonList((Reactable) pose);
     mViewModel.next();
     // Not found text should be hidden.
     await().untilAsserted(new ThrowingRunnable() {
@@ -139,12 +143,12 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
 
   @Test public void nextReactable() throws Exception {
     final Pose pose1 =
-        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            null);
-    Pose pose2 = new Pose(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
-            YESTERDAY,
-            null);
-    mRespondedPoses = Arrays.asList(pose1, pose2);
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            IMAGE_URL_1);
+    Pose pose2 =
+        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            IMAGE_URL_2);
+    mRespondedReactables = Arrays.asList((Reactable) pose1, (Reactable) pose2);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -158,15 +162,35 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
     assertEquals(pose2, mViewModel.getDisplayedReactable());
   }
 
+  @Test public void multipleTypes() throws Exception {
+    final Pose pose =
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            IMAGE_URL_1);
+    Short shortReactable =
+        new Short(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            VIDEO_URL);
+    mRespondedReactables = Arrays.asList(pose, shortReactable);
+    mViewModel.fetchReactables();
+    // First reactable should be displayed.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(pose, mViewModel.getDisplayedReactable());
+      }
+    });
+    // Triggers navigation to next reactable.
+    mViewModel.next();
+    // Second reactable should be displayed.
+    assertEquals(shortReactable, mViewModel.getDisplayedReactable());
+  }
+
   @Test public void previousReactable() throws Exception {
     final Pose pose1 =
-        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            null);
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            IMAGE_URL_1);
     final Pose pose2 =
-        new Pose(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
-            YESTERDAY,
-            null);
-    mRespondedPoses = Arrays.asList(pose1, pose2);
+        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            IMAGE_URL_2);
+    mRespondedReactables = Arrays.asList((Reactable) pose1, (Reactable) pose2);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -190,13 +214,12 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
 
   @Test public void nextReactableFetchesNewReactables() throws Exception {
     final Pose pose1 =
-        new Pose(ID_1, IMAGE_URL_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            null);
+        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            IMAGE_URL_1);
     final Pose pose2 =
-        new Pose(ID_2, IMAGE_URL_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS,
-            YESTERDAY,
-            null);
-    mRespondedPoses = Collections.singletonList(pose1);
+        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            IMAGE_URL_2);
+    mRespondedReactables = Collections.singletonList((Reactable) pose1);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -205,7 +228,7 @@ public class ReactablesPagerViewModelTest extends ViewModelTestSuite {
       }
     });
     // Updates responded poses.
-    mRespondedPoses = Collections.singletonList(pose2);
+    mRespondedReactables = Collections.singletonList((Reactable) pose2);
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.

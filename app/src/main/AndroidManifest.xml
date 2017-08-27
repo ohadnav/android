@@ -4,6 +4,7 @@
     package="com.truethat.android">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.CAMERA"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <!-- For phone number and device ID -->
   <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
