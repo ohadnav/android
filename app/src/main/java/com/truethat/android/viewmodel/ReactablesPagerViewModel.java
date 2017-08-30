@@ -111,7 +111,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
               + call.request().url()
               + "\nUser: "
               + AppContainer.getAuthManager().getCurrentUser()
-              + "\n Response: "
+              + "\nResponse: "
               + response.code()
               + " "
               + response.message()

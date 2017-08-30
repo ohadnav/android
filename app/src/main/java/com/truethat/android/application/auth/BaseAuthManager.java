@@ -173,8 +173,13 @@ public class BaseAuthManager implements AuthManager {
           mListener.onAuthFailed();
         }
       } else {
-        Log.e(TAG, "Failed auth request, input: " + call.request().body()
-            + "\n" + call.request().url() + "\nUser: " + mCurrentUser + "\n Response: "
+        Log.e(TAG, "Failed auth request, input: "
+            + call.request().body()
+            + "\n"
+            + call.request().url()
+            + "\nUser: "
+            + mUser
+            + "\nResponse: "
             + response.code()
             + " "
             + response.message()

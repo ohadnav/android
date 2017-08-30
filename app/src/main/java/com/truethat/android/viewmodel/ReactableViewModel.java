@@ -239,7 +239,10 @@ public class ReactableViewModel<Model extends Reactable>
           @NonNull Response<ResponseBody> response) {
         if (!response.isSuccessful()) {
           Log.e(TAG, "Failed to post event to "
-              + call.request().url() + "\nRequest body: " + call.request().body() + "\n Response: "
+              + call.request().url()
+              + "\nRequest body: "
+              + call.request().body()
+              + "\nResponse: "
               + response.code()
               + " "
               + response.message()

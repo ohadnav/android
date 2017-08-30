@@ -45,12 +45,6 @@ public class ShortFragment
     return shortFragment;
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
-    mLoadingImage.bringToFront();
-  }
-
   @Override public void onVisible() {
     super.onVisible();
     if (getViewModel().isReady()) {
@@ -76,6 +70,7 @@ public class ShortFragment
             new File(mReactable.getVideoInternalPath())) : Uri.parse(mReactable.getVideoUrl());
         mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), videoUri,
             mVideoSurface.getHolder());
+        // TODO(ohad): handle prepared failure
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
             mLoadingImage.setVisibility(GONE);
@@ -110,6 +105,12 @@ public class ShortFragment
     });
 
     return mRootView;
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
+    mLoadingImage.bringToFront();
   }
 
   @Override int getMediaFragmentResource() {
