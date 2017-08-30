@@ -83,33 +83,37 @@ import static org.junit.Assert.assertTrue;
         assertEquals(pose, mViewModel.getDisplayedReactable());
       }
     });
-    assertFalse(mViewModel.mLoadingLayoutVisibility.get());
-    assertFalse(mViewModel.mNonFoundTextVisibility.get());
+    assertFalse(mViewModel.mNonFoundLayoutVisibility.get());
+    assertFalse(mViewModel.mLoadingImageVisibility.get());
     assertEquals(Collections.singletonList(pose), mViewModel.mItems);
   }
 
   @Test public void noReactablesFound() throws Exception {
     mViewModel.fetchReactables();
+    // Loading image should be shown
+    assertTrue(mViewModel.mLoadingImageVisibility.get());
+    // Non found should layout should be displayed instead of loading eventually.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mViewModel.mLoadingLayoutVisibility.get());
-        assertTrue(mViewModel.mNonFoundTextVisibility.get());
+        assertTrue(mViewModel.mNonFoundLayoutVisibility.get());
       }
     });
+    assertFalse(mViewModel.mLoadingImageVisibility.get());
     Pose pose =
         new Pose(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), HOUR_AGO,
             Emotion.HAPPY, IMAGE_URL_1);
     // Explicitly load more reactables.
     mRespondedReactables = Collections.singletonList((Reactable) pose);
     mViewModel.next();
+    // Loading image should be shown
+    assertTrue(mViewModel.mLoadingImageVisibility.get());
     // Not found text should be hidden.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertFalse(mViewModel.mLoadingLayoutVisibility.get());
-        assertFalse(mViewModel.mNonFoundTextVisibility.get());
+        assertFalse(mViewModel.mNonFoundLayoutVisibility.get());
       }
     });
-    // Wait until the reactable is displayed.
+    // Reactable should be displayed.
     assertEquals(pose, mViewModel.getDisplayedReactable());
   }
 
@@ -119,7 +123,7 @@ import static org.junit.Assert.assertTrue;
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mViewModel.mNonFoundTextVisibility.get());
+        assertTrue(mViewModel.mNonFoundLayoutVisibility.get());
       }
     });
   }
@@ -132,11 +136,9 @@ import static org.junit.Assert.assertTrue;
     });
     mViewModel.fetchReactables();
     // Not found text should be displayed.
-    // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mViewModel.mLoadingLayoutVisibility.get());
-        assertTrue(mViewModel.mNonFoundTextVisibility.get());
+        assertTrue(mViewModel.mNonFoundLayoutVisibility.get());
       }
     });
   }
@@ -166,10 +168,10 @@ import static org.junit.Assert.assertTrue;
     final Pose pose =
         new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             IMAGE_URL_1);
-    Short shortReactable =
+    Short aShort =
         new Short(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
             VIDEO_URL);
-    mRespondedReactables = Arrays.asList(pose, shortReactable);
+    mRespondedReactables = Arrays.asList(pose, aShort);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -180,7 +182,7 @@ import static org.junit.Assert.assertTrue;
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.
-    assertEquals(shortReactable, mViewModel.getDisplayedReactable());
+    assertEquals(aShort, mViewModel.getDisplayedReactable());
   }
 
   @Test public void previousReactable() throws Exception {

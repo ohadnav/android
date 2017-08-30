@@ -1,5 +1,6 @@
 package com.truethat.android.view.fragment;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnTouch;
 import com.truethat.android.R;
@@ -19,6 +21,9 @@ import com.truethat.android.model.Short;
 import com.truethat.android.viewmodel.ReactableViewModel;
 import java.io.File;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
@@ -26,26 +31,30 @@ import java.io.File;
 public class ShortFragment
     extends ReactableFragment<Short, ReactableViewModel<Short>, FragmentReactableBinding> {
   @BindView(R.id.videoSurface) SurfaceView mVideoSurface;
+  @BindView(R.id.loadingImage) ImageView mLoadingImage;
   private MediaPlayer mMediaPlayer;
 
   public ShortFragment() {
     // Required empty public constructor
   }
 
-  public static ShortFragment newInstance(Short shortReactable) {
+  public static ShortFragment newInstance(Short aShort) {
     ShortFragment shortFragment = new ShortFragment();
-    ReactableFragment.prepareInstance(shortFragment, shortReactable);
+    ReactableFragment.prepareInstance(shortFragment, aShort);
     shortFragment.mAutomaticViewBinding = false;
     return shortFragment;
   }
 
-  @Override public void onDestroy() {
-    super.onDestroy();
+  @Override public void onStart() {
+    super.onStart();
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
+    mLoadingImage.bringToFront();
   }
 
   @Override public void onVisible() {
     super.onVisible();
     if (getViewModel().isReady()) {
+      mLoadingImage.setVisibility(GONE);
       mMediaPlayer.start();
     }
   }
@@ -71,6 +80,11 @@ public class ShortFragment
           @Override public void onPrepared(MediaPlayer mp) {
             getViewModel().onReady();
             mMediaPlayer.start();
+          }
+        });
+        mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+          @Override public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            mLoadingImage.setVisibility(percent == 100 ? VISIBLE : GONE);
           }
         });
         mMediaPlayer.setLooping(true);

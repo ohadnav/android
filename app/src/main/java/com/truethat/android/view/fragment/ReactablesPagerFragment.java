@@ -2,6 +2,7 @@ package com.truethat.android.view.fragment;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
@@ -33,6 +35,7 @@ public class ReactablesPagerFragment extends
     implements ReactablesPagerViewInterface {
   private static final String ARG_DETECT_REACTIONS = "detectReactions";
   @BindView(R.id.reactablesPager) ViewPager mPager;
+  @BindView(R.id.loadingImage) ImageView mLoadingImage;
   private boolean mDetectReactions = false;
   private ReactableFragmentAdapter mReactableFragmentAdapter;
   private ReactablePagerListener mListener;
@@ -96,6 +99,8 @@ public class ReactablesPagerFragment extends
     if (mDetectReactions) {
       AppContainer.getReactionDetectionManager().start(getBaseActivity());
     }
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
+    mLoadingImage.bringToFront();
   }
 
   @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {

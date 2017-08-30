@@ -2,12 +2,10 @@ package com.truethat.android.viewmodel;
 
 import android.databinding.ObservableArrayList;
 import android.databinding.ObservableBoolean;
-import android.databinding.ObservableInt;
 import android.databinding.ObservableList;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
-import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
@@ -21,9 +19,8 @@ import retrofit2.Response;
  */
 
 public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPagerViewInterface> {
-  public final ObservableBoolean mNonFoundTextVisibility = new ObservableBoolean();
-  public final ObservableBoolean mLoadingLayoutVisibility = new ObservableBoolean();
-  public final ObservableInt mLoadingImageResource = new ObservableInt();
+  public final ObservableBoolean mNonFoundLayoutVisibility = new ObservableBoolean();
+  public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
   public final ObservableList<Reactable> mItems = new ObservableArrayList<>();
   private Callback<List<Reactable>> mFetchReactablesCallback;
   private Call<List<Reactable>> mFetchReactablesCall;
@@ -69,10 +66,9 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
    */
   public void fetchReactables() {
     Log.v(TAG, "Fetching reactables...");
+    mNonFoundLayoutVisibility.set(false);
     if (mItems.isEmpty()) {
-      mLoadingLayoutVisibility.set(true);
-      mNonFoundTextVisibility.set(false);
-      mLoadingImageResource.set(R.drawable.anim_loader);
+      mLoadingImageVisibility.set(true);
     }
     mFetchReactablesCall = getView().buildFetchReactablesCall();
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);
@@ -93,6 +89,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
     return new Callback<List<Reactable>>() {
       @Override public void onResponse(@NonNull Call<List<Reactable>> call,
           @NonNull Response<List<Reactable>> response) {
+        mLoadingImageVisibility.set(false);
         if (response.isSuccessful()) {
           List<Reactable> newReactables = response.body();
           if (newReactables == null) {
@@ -100,8 +97,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
           }
           if (newReactables.size() > 0) {
             Log.v(TAG, "Loading " + newReactables.size() + " new reactables.");
-            // Hides the loading layout.
-            mLoadingLayoutVisibility.set(false);
+            // Hides the loading image.
             // Display new reactables.
             int toDisplayIndex = mItems.size();
             mItems.addAll(newReactables);
@@ -133,8 +129,6 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
 
   private void displayNotFound() {
     // Shows not found text
-    mLoadingLayoutVisibility.set(true);
-    mNonFoundTextVisibility.set(true);
-    mLoadingImageResource.set(R.drawable.sad_teddy);
+    mNonFoundLayoutVisibility.set(true);
   }
 }
