@@ -15,6 +15,7 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.BaseActivity;
+import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.Date;
@@ -102,7 +103,7 @@ import static org.junit.Assert.assertTrue;
   }
 
   @SuppressWarnings("unused") class UnitTestViewInterface
-      implements AuthListener, BaseViewInterface {
+      implements AuthListener, BaseFragmentViewInterface {
     private String mToastText;
     private AuthResult mAuthResult;
 
@@ -140,6 +141,10 @@ import static org.junit.Assert.assertTrue;
 
     @Override public void removeViewModel() {
 
+    }
+
+    @Override public boolean isReallyVisible() {
+      return true;
     }
   }
 }

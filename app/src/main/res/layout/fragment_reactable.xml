@@ -43,8 +43,8 @@
       >
     <ImageView
         android:id="@+id/reactionImage"
-        android:layout_width="30dp"
-        android:layout_height="31dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:contentDescription="@string/image_content_description"
         android:src="@{viewModel.mReactionDrawableResource}"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -66,7 +66,7 @@
         android:shadowDy="1"
         android:shadowRadius="4"
         android:text="@{viewModel.mReactionsCountText}"
-        android:textColor="@color/light"
+        android:textColor="@{viewModel.mReactionCountColor}"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

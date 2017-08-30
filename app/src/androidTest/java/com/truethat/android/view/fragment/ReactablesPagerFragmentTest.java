@@ -19,7 +19,7 @@ import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Short;
 import com.truethat.android.model.User;
-import com.truethat.android.view.activity.RepertoireActivity;
+import com.truethat.android.view.activity.TheaterActivity;
 import com.truethat.android.viewmodel.ReactableViewModel;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,8 +64,8 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final TreeMap<Emotion, Long> HAPPY_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
   }};
-  @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
-      new ActivityTestRule<>(RepertoireActivity.class, true, false);
+  @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
+      new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Reactable> mRespondedReactables;
 
   @SuppressWarnings("ConstantConditions")
@@ -162,7 +162,7 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
         IMAGE_URL);
     mRespondedReactables = Collections.singletonList((Reactable) pose);
-    mRepertoireActivityRule.launchActivity(null);
+    mTheaterActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Should not be detecting reaction
     assertFalse(mFakeReactionDetectionManager.isDetecting());
@@ -174,14 +174,14 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   @Test public void displayMultipleTypes() throws Exception {
     Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
         IMAGE_URL);
-    Short aShort =
+    Short shortReactable =
         new Short(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             VIDEO_URL);
-    mRespondedReactables = Arrays.asList(pose, aShort);
-    mRepertoireActivityRule.launchActivity(null);
+    mRespondedReactables = Arrays.asList(pose, shortReactable);
+    mTheaterActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Swipe to next reactable
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertReactableDisplayed(aShort, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(shortReactable, mFakeAuthManager.getCurrentUser());
   }
 }

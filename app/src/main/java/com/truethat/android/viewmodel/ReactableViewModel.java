@@ -5,6 +5,7 @@ import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -21,7 +22,7 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.InteractionEvent;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
 import java.util.Date;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -33,13 +34,16 @@ import retrofit2.Response;
  */
 
 public class ReactableViewModel<Model extends Reactable>
-    extends BaseFragmentViewModel<BaseFragmentViewInterface> implements ReactionDetectionListener {
+    extends BaseFragmentViewModel<ReactableViewInterface> implements ReactionDetectionListener {
   /**
    * Default for reaction counter's image view.
    */
   @VisibleForTesting public static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
+  @VisibleForTesting @ColorRes static final int DEFAULT_COUNT_COLOR = R.color.hint;
+  @VisibleForTesting @ColorRes static final int POST_REACTION_COUNT_COLOR = R.color.light;
   public final ObservableInt mReactionDrawableResource =
       new ObservableInt(DEFAULT_REACTION_COUNTER.getDrawableResource());
+  public final ObservableInt mReactionCountColor = new ObservableInt(DEFAULT_COUNT_COLOR);
   public final ObservableField<String> mReactionsCountText = new ObservableField<>("0");
   public final ObservableBoolean mDirectorNameVisibility = new ObservableBoolean(true);
   public final ObservableBoolean mInfoLayoutVisibility = new ObservableBoolean(true);
@@ -147,6 +151,7 @@ public class ReactableViewModel<Model extends Reactable>
               EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
       mPostEventCall.enqueue(mPostEventCallback);
       updateReactionCounters();
+      getView().bounceReactionImage();
     }
     AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
@@ -216,6 +221,7 @@ public class ReactableViewModel<Model extends Reactable>
       // Sets the proper emotion emoji.
       Emotion toDisplay = DEFAULT_REACTION_COUNTER;
       if (mReactable.getUserReaction() != null) {
+        mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
         toDisplay = mReactable.getUserReaction();
       } else if (!mReactable.getReactionCounters().isEmpty()) {
         toDisplay = mReactable.getReactionCounters().lastKey();

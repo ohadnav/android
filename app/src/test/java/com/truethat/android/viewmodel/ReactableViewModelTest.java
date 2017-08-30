@@ -9,6 +9,7 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.User;
+import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
 import java.util.TreeMap;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.SAD;
+  private ReactableViewInterface mView;
   private ReactableViewModel<Reactable> mViewModel = new ReactableViewModel<>();
   private Pose mPose;
 
@@ -50,6 +52,9 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     // Counters should be summed up and abbreviated.
     assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
         viewModel.mReactionsCountText.get());
+    // Color of counters should be lighter for user that have already reacted
+    assertEquals(reactable.getUserReaction() != null ? ReactableViewModel.POST_REACTION_COUNT_COLOR
+        : ReactableViewModel.DEFAULT_COUNT_COLOR, viewModel.mReactionCountColor.get());
     // Hide director name when ths current user is the director.
     assertNotEquals(currentUser.equals(reactable.getDirector()),
         viewModel.mDirectorNameVisibility.get());
@@ -123,6 +128,8 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     // and displayed
     assertEquals(REACTION.getDrawableResource(), mViewModel.mReactionDrawableResource.get());
     assertEquals("2", mViewModel.mReactionsCountText.get());
+    assertEquals(ReactableViewModel.POST_REACTION_COUNT_COLOR,
+        mViewModel.mReactionCountColor.get());
   }
 
   @Test public void reactionNotDetectedWhenDirectorIsCurrentUser() throws Exception {
@@ -165,9 +172,16 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }
 
   private void initReactableViewModel() throws Exception {
-    mViewModel = createViewModel(mViewModel.getClass(), new UnitTestViewInterface());
+    mView = new ViewInterface();
+    mViewModel = createViewModel(mViewModel.getClass(), mView);
     mViewModel.setReactable(mPose);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();
+  }
+
+  private class ViewInterface extends UnitTestViewInterface implements ReactableViewInterface {
+    @Override public void bounceReactionImage() {
+
+    }
   }
 }

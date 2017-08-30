@@ -1,5 +1,6 @@
 package com.truethat.android.view.fragment;
 
+import android.animation.Animator;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -8,12 +9,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.truethat.android.R;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.ReactableViewModel;
-import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 /**
@@ -21,9 +24,10 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
  * ReactableFragment}, and emotional reaction detection.
  */
 public abstract class ReactableFragment<Model extends Reactable, ViewModel extends ReactableViewModel<Model>, DataBinding extends ViewDataBinding>
-    extends BaseFragment<BaseFragmentViewInterface, ViewModel, DataBinding>
-    implements BaseFragmentViewInterface {
+    extends BaseFragment<ReactableViewInterface, ViewModel, DataBinding>
+    implements ReactableViewInterface {
   private static final String ARG_REACTABLE = "reactable";
+  @BindView(R.id.reactionImage) ImageView mReactionImage;
   Model mReactable;
   private boolean mDisplayOnly = false;
 
@@ -65,6 +69,11 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     return mRootView;
   }
 
+  @Override public void onStart() {
+    super.onStart();
+    defaultReactionScale();
+  }
+
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.fragment_reactable, getContext());
   }
@@ -77,8 +86,61 @@ public abstract class ReactableFragment<Model extends Reactable, ViewModel exten
     mDisplayOnly = true;
   }
 
+  @Override public void bounceReactionImage() {
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mReactionImage.animate()
+            .scaleX(1.0f)
+            .scaleY(1.0f)
+            .setListener(new Animator.AnimatorListener() {
+              @Override public void onAnimationStart(Animator animation) {
+
+              }
+
+              @Override public void onAnimationEnd(Animator animation) {
+                mReactionImage.animate()
+                    .scaleX(.5f)
+                    .scaleY(.5f)
+                    .setListener(new Animator.AnimatorListener() {
+                      @Override public void onAnimationStart(Animator animation) {
+
+                      }
+
+                      @Override public void onAnimationEnd(Animator animation) {
+
+                      }
+
+                      @Override public void onAnimationCancel(Animator animation) {
+                        defaultReactionScale();
+                      }
+
+                      @Override public void onAnimationRepeat(Animator animation) {
+
+                      }
+                    })
+                    .start();
+              }
+
+              @Override public void onAnimationCancel(Animator animation) {
+                defaultReactionScale();
+              }
+
+              @Override public void onAnimationRepeat(Animator animation) {
+
+              }
+            })
+            .start();
+      }
+    });
+  }
+
   /**
    * Create the media layout of the fragment, such as the {@link Pose} image.
    */
   abstract @LayoutRes int getMediaFragmentResource();
+
+  private void defaultReactionScale() {
+    mReactionImage.setScaleX(0.5f);
+    mReactionImage.setScaleY(0.5f);
+  }
 }

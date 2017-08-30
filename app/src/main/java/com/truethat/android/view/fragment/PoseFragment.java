@@ -22,6 +22,8 @@ import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Pose;
 import com.truethat.android.viewmodel.ReactableViewModel;
 
+import static android.view.View.GONE;
+
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
@@ -29,6 +31,7 @@ import com.truethat.android.viewmodel.ReactableViewModel;
 public class PoseFragment
     extends ReactableFragment<Pose, ReactableViewModel<Pose>, FragmentReactableBinding> {
   @BindView(R.id.poseImage) ImageView mImageView;
+  @BindView(R.id.loadingImage) ImageView mLoadingImage;
 
   public PoseFragment() {
     // Required empty public constructor
@@ -58,17 +61,11 @@ public class PoseFragment
           Bitmap.createScaledBitmap(originalBitmap, scaledSize.x, scaledSize.y, false);
       mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
       mImageView.setImageBitmap(scaledBitmap);
+      mLoadingImage.setVisibility(GONE);
       getViewModel().onReady();
     } else {
-      final AnimationDrawable animationDrawable =
-          (AnimationDrawable) getContext().getDrawable(R.drawable.anim_loader);
-      if (animationDrawable == null) {
-        throw new AssertionError("Loading resource not found.. Where are my elephants?!");
-      }
-      animationDrawable.start();
       Glide.with(getContext())
           .load(mReactable.getImageUrl())
-          .placeholder(animationDrawable)
           .centerCrop()
           .listener(new RequestListener<String, GlideDrawable>() {
             @Override
@@ -80,12 +77,19 @@ public class PoseFragment
             @Override public boolean onResourceReady(GlideDrawable resource, String model,
                 Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
               getViewModel().onReady();
+              mLoadingImage.setVisibility(GONE);
               return false;
             }
           })
           .into(mImageView);
     }
     return mRootView;
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
+    mLoadingImage.bringToFront();
   }
 
   @Override int getMediaFragmentResource() {
