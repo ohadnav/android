@@ -118,13 +118,14 @@ public class BaseAuthManager implements AuthManager {
     try {
       mInternalStorage.delete(AuthManager.LAST_USER_PATH);
     } catch (IOException e) {
+      e.printStackTrace();
       Log.e(TAG, "Failed to delete user session from storage.", e);
     }
     listener.onAuthFailed();
   }
 
   @Override public void cancelRequest() {
-    if (mAuthCall != null) {
+    if (mAuthCall != null && !mAuthCall.isCanceled()) {
       mAuthCall.cancel();
     }
   }
@@ -163,6 +164,7 @@ public class BaseAuthManager implements AuthManager {
           handleSuccessfulResponse(respondedUser);
           mListener.onAuthOk();
         } catch (IOException | AssertionError e) {
+          e.printStackTrace();
           // Auth had failed
           Log.e(TAG, "Authentication request had failed, inconceivable!", e);
           mCurrentUser = null;
@@ -183,6 +185,7 @@ public class BaseAuthManager implements AuthManager {
     }
 
     @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+      t.printStackTrace();
       // Auth had failed
       Log.e(TAG, "Auth call failed: " + t.getMessage(), t);
       mCurrentUser = null;

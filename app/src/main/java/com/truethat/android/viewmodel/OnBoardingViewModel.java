@@ -59,7 +59,15 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
 
   @Override public void onStart() {
     super.onStart();
-    doStage();
+    switch (mStage) {
+      case EDIT:
+        onEditStage();
+        break;
+      case FINAL:
+      case REQUEST_SENT:
+        onFinalStage();
+        break;
+    }
   }
 
   @Override public void onReactionDetected(Emotion reaction) {
@@ -106,20 +114,6 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     return mStage;
   }
 
-  private void doStage() {
-    switch (mStage) {
-      case EDIT:
-        onEditStage();
-        break;
-      case FINAL:
-        onFinalStage();
-        break;
-      case REQUEST_SENT:
-        onRequestSentStage();
-        break;
-    }
-  }
-
   private void onEditStage() {
     mStage = Stage.EDIT;
     mNameEditInputType.set(NAME_TEXT_EDITING_INPUT_TYPE);
@@ -141,6 +135,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     mNameEditInputType.set(NAME_TEXT_EDITING_INPUT_TYPE);
     mCompletionTextVisibility.set(true);
     mCompletionSubscriptTextVisibility.set(true);
+    // Hide warnings
+    mWarningTextVisibility.set(false);
     // Starts detection.
     AppContainer.getReactionDetectionManager().start(getView().getBaseActivity());
     // Subscribes to reaction detection.

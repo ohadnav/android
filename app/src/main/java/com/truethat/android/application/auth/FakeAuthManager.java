@@ -50,6 +50,7 @@ public class FakeAuthManager extends BaseAuthManager {
           handleSuccessfulResponse(user);
           listener.onAuthOk();
         } catch (Exception e) {
+          e.printStackTrace();
           listener.onAuthFailed();
         }
       } else {

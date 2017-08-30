@@ -250,6 +250,7 @@ public class ReactableViewModel<Model extends Reactable>
       }
 
       @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+        t.printStackTrace();
         Log.e(TAG, "Post event request to " + call.request().url() + " had failed.", t);
       }
     };

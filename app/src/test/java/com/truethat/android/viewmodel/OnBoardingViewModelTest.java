@@ -46,27 +46,8 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Initializing view model and its view interface.
-    mView = new OnBoardingViewModelTest.ViewInterface() {
-      @Override public void onAuthOk() {
-        super.onAuthOk();
-        mFinishedOnBoarding = true;
-      }
-
-      @Override public void onAuthFailed() {
-        super.onAuthFailed();
-        mViewModel.failedSignUp();
-      }
-    };
-    mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
-    // Creating fake context
-    Context mockedContext = mock(Context.class);
-    when(mockedContext.getString(R.string.name_edit_warning_text)).thenReturn(
-        "name_edit_warning_text");
-    when(mockedContext.getString(R.string.sign_up_failed_warning_text)).thenReturn(
-        "sign_up_failed_warning_text");
-    mViewModel.setContext(mockedContext);
-    // Starting view model.
-    mViewModel.onStart();
+    mView = new ViewInterface();
+    initViewModel();
   }
 
   @Test public void successfulOnBoarding() throws Exception {
@@ -94,6 +75,11 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void requestSentStage() throws Exception {
+    mView = new ViewInterface() {
+      @Override public void onAuthFailed() {
+      }
+    };
+    initViewModel();
     mFakeAuthManager.setUseNetwork(true);
     doOnBoarding(NAME);
     // Should be in request sent stage
@@ -103,9 +89,9 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertTrue(mFakeAuthManager.getAuthCall().isCanceled());
     // Should stop reaction detection
     assertFalse(mFakeReactionDetectionManager.isDetecting());
-    // Starting view model again should resume to sent state.
+    // Starting view model again should resume to final stage.
     mViewModel.onStart();
-    assertSentStage();
+    assertFinalStage();
   }
 
   @Test public void failedSignUp() throws Exception {
@@ -184,6 +170,19 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
   }
 
+  private void initViewModel() throws Exception {
+    mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
+    // Creating fake context
+    Context mockedContext = mock(Context.class);
+    when(mockedContext.getString(R.string.name_edit_warning_text)).thenReturn(
+        "name_edit_warning_text");
+    when(mockedContext.getString(R.string.sign_up_failed_warning_text)).thenReturn(
+        "sign_up_failed_warning_text");
+    mViewModel.setContext(mockedContext);
+    // Starting view model.
+    mViewModel.onStart();
+  }
+
   /**
    * Programmatically completes the on boarding process as if a user completed it.
    *
@@ -194,6 +193,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel.mNameEditText.set(name);
     // Hit done
     mViewModel.onNameDone();
+    assertFinalStage();
     // Wait until detection had started.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
@@ -270,6 +270,16 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
 
     @Override public void showSoftKeyboard() {
       mIsKeyboardVisible = true;
+    }
+
+    @Override public void onAuthOk() {
+      super.onAuthOk();
+      mFinishedOnBoarding = true;
+    }
+
+    @Override public void onAuthFailed() {
+      super.onAuthFailed();
+      mViewModel.failedSignUp();
     }
 
     boolean isKeyboardVisible() {

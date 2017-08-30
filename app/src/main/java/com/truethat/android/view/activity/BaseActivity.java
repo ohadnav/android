@@ -136,7 +136,8 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   public DataBinding getBinding() {
     try {
       return (DataBinding) mViewModelHelper.getBinding();
-    } catch (ClassCastException ex) {
+    } catch (ClassCastException e) {
+      e.printStackTrace();
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
     }

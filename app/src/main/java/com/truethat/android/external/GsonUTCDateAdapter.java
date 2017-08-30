@@ -41,6 +41,7 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserialize
     try {
       return dateFormat.parse(jsonElement.getAsString());
     } catch (ParseException e) {
+      e.printStackTrace();
       throw new JsonParseException(e);
     }
   }
