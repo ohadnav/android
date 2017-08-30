@@ -109,7 +109,9 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
         } else {
           Log.e(TAG, "Failed to get reactables from "
               + call.request().url()
-              + "\n"
+              + "\nUser: "
+              + AppContainer.getAuthManager().getCurrentUser()
+              + "\n Response: "
               + response.code()
               + " "
               + response.message()

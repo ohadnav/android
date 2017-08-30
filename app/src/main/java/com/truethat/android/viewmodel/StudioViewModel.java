@@ -54,12 +54,15 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         onPublished();
       } else {
         Log.e(TAG, "Failed to save reactable.\n"
+            + call.request().url()
+            + "\nDirected reactable: "
+            + mDirectedReactable
+            + "\n Response: "
             + response.code()
             + " "
             + response.message()
             + "\n"
-            + response
-                .headers());
+            + response.headers());
         onPublishError();
       }
     }

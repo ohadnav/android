@@ -138,7 +138,7 @@ public class BaseAuthManager implements AuthManager {
   protected void requestAuth(final AuthListener listener, User user) {
     cancelRequest();
     mAuthCall = mAuthApi.postAuth(user);
-    mAuthCall.enqueue(new AuthCallback(listener));
+    mAuthCall.enqueue(new AuthCallback(listener, user));
   }
 
   void handleSuccessfulResponse(User respondedUser) throws IOException {
@@ -149,9 +149,11 @@ public class BaseAuthManager implements AuthManager {
 
   private class AuthCallback implements Callback<User> {
     private AuthListener mListener;
+    private User mUser;
 
-    AuthCallback(AuthListener listener) {
+    AuthCallback(AuthListener listener, User user) {
       mListener = listener;
+      mUser = user;
     }
 
     @Override public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
@@ -171,9 +173,8 @@ public class BaseAuthManager implements AuthManager {
           mListener.onAuthFailed();
         }
       } else {
-        Log.e(TAG, "Failed auth request "
-            + mAuthCall.request().url()
-            + "\n"
+        Log.e(TAG, "Failed auth request, input: " + call.request().body()
+            + "\n" + call.request().url() + "\nUser: " + mCurrentUser + "\n Response: "
             + response.code()
             + " "
             + response.message()
