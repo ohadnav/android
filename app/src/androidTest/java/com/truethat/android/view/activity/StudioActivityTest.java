@@ -34,6 +34,8 @@ import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
@@ -207,7 +209,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.sendButton)).check(matches(not(isDisplayed())));
     onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
-    onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is hidden
     onView(withId(R.id.previewLayout)).check(matches(not(isDisplayed())));
   }
@@ -226,7 +228,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
     onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
-    onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
+    assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is shown
     onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
     await().untilAsserted(new ThrowingRunnable() {
@@ -250,7 +252,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
     onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
     // Loading image is show
-    onView(withId(R.id.loadingImage)).check(matches(isDisplayed()));
+    assertEquals(VISIBLE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is shown
     onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
     // Network request had been made

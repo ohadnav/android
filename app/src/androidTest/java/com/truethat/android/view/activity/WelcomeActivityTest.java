@@ -27,7 +27,7 @@ public class WelcomeActivityTest extends BaseApplicationTestSuite {
   @Test public void onAuthFailed() throws Exception {
     // Sign out
     mFakeAuthManager.signOut(mActivityTestRule.getActivity());
-    mWelcomeActivityTestRule.launchActivity(null);
+    waitForActivity(WelcomeActivity.class);
     // Error text is visible
     onView(withId(R.id.errorText)).check(matches(not(isDisplayed())));
   }

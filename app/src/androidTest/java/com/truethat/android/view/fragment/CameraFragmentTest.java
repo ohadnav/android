@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class CameraFragmentTest extends BaseApplicationTestSuite {
   private static final String FRAGMENT_TAG = "TestCameraFragment";
-  private static final int VIDEO_DURATION_MILLIS = 500;
+  private static final int VIDEO_DURATION_MILLIS = 2000;
   private CameraFragment mCameraFragment;
   private boolean mImageTaken;
   private String mVideoPath;
@@ -76,6 +76,12 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
         return mCameraFragment.isCameraOpen();
       }
     });
+    // Wait for preview to be available.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mCameraFragment.getCameraPreview().isAvailable();
+      }
+    });
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored") @Override public void tearDown() throws Exception {
@@ -88,12 +94,6 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   }
 
   @Test public void pictureTakenWithFrontCamera() throws Exception {
-    // Wait for preview to be available.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mCameraFragment.getCameraPreview().isAvailable();
-      }
-    });
     mCameraFragment.takePicture();
     // An image should have been taken.
     await().until(new Callable<Boolean>() {
@@ -124,12 +124,6 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   }
 
   @Test public void recordVideoWithFrontCamera() throws Exception {
-    // Wait for preview to be available.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mCameraFragment.getCameraPreview().isAvailable();
-      }
-    });
     AppContainer.setPermissionsManager(
         new DevicePermissionsManager(mActivityTestRule.getActivity().getApplication()));
     AppContainer.getPermissionsManager()
@@ -204,12 +198,6 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   }
 
   @Test public void cameraPreviewIsFullscreen() throws Exception {
-    // Wait until preview is available.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mCameraFragment.getCameraPreview().isAvailable();
-      }
-    });
     // Preview should be full screen
     onView(withId(R.id.cameraPreview)).check(matches(isFullScreen()));
   }

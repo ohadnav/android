@@ -78,7 +78,7 @@ public class ShortFragmentTest extends BaseApplicationTestSuite {
     // Pause video
     final int currentPosition = mShortFragment.getMediaPlayer().getCurrentPosition();
     onView(withId(R.id.videoSurface)).perform(longClick());
-    assertTrue(mShortFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 10);
+    assertTrue(mShortFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 50);
     // Should resume playing
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

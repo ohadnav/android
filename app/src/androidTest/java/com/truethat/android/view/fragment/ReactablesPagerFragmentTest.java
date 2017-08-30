@@ -46,7 +46,6 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -108,25 +107,34 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     }
     // Loading layout should be hidden.
     onView(withId(R.id.nonFoundLayout)).check(matches(not(isDisplayed())));
-    // Asserting the reactions count is abbreviated.
-    assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
-        ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
-    // Asserting the reaction image is displayed and represents the most common reaction, the user reaction, or the default one.
-    onView(allOf(isDisplayed(), withId(R.id.reactionImage))).check(matches(isDisplayed()));
     ImageView reactionImage =
         (ImageView) currentFragment.getView().findViewById(R.id.reactionImage);
-    if (currentFragment.getReactable().getUserReaction() != null) {
-      assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
-          ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-              currentFragment.getReactable().getUserReaction().getDrawableResource())));
-    } else if (!reactable.getReactionCounters().isEmpty()) {
-      assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
-          ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-              reactable.getReactionCounters().lastKey().getDrawableResource())));
+    // If there are no reactions they shouldn't be displayed
+    if (NumberUtil.sum(reactable.getReactionCounters()) > 0) {
+      // Asserting the reactions count is abbreviated.
+      assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
+          ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
+      // Asserting the reaction image is displayed and represents the most common reaction, the user reaction, or the default one.
+      onView(allOf(isDisplayed(), withId(R.id.reactionImage))).check(matches(isDisplayed()));
+      if (currentFragment.getReactable().getUserReaction() != null) {
+        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
+                currentFragment.getReactable().getUserReaction().getDrawableResource())));
+      } else if (!reactable.getReactionCounters().isEmpty()) {
+        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
+                reactable.getReactionCounters().lastKey().getDrawableResource())));
+      } else {
+        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
+            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
+                ReactableViewModel.DEFAULT_REACTION_COUNTER.getDrawableResource())));
+      }
     } else {
+      assertEquals("",
+          ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
       assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
           ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-              ReactableViewModel.DEFAULT_REACTION_COUNTER.getDrawableResource())));
+              R.drawable.transparent_1x1)));
     }
     // Asserting the displayed time is represents the reactable creation.
     assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()),
@@ -164,8 +172,6 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     mRespondedReactables = Collections.singletonList((Reactable) pose);
     mTheaterActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
-    // Should not be detecting reaction
-    assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));

@@ -53,8 +53,12 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         mDirectedReactable = response.body();
         onPublished();
       } else {
-        Log.e(TAG,
-            "Failed to save pose.\n" + response.code() + " " + response.message() + "\n" + response
+        Log.e(TAG, "Failed to save reactable.\n"
+            + response.code()
+            + " "
+            + response.message()
+            + "\n"
+            + response
                 .headers());
         onPublishError();
       }

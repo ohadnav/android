@@ -126,6 +126,13 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void activityPausedWhileSending() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        Thread.sleep(500);
+        return new MockResponse().setBody(
+            NetworkUtil.GSON.toJson(mViewModel.getDirectedReactable()));
+      }
+    });
     mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
     // Send the reactable.
@@ -155,6 +162,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   private void assertApprovalState() {
+    // Should communicate state via view interface.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(APPROVAL, mViewModel.getDirectingState());
+      }
+    });
     // Capture buttons are hidden.
     assertFalse(mViewModel.mCaptureButtonVisibility.get());
     assertFalse(mViewModel.mSwitchCameraButtonVisibility.get());
@@ -163,8 +176,6 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertTrue(mViewModel.mCancelButtonVisibility.get());
     // Loading image is hidden
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    // Should communicate state via view interface.
-    assertEquals(APPROVAL, mViewModel.getDirectingState());
     // Correct preview is shown.
     assertTrue(mViewModel.mReactablePreviewVisibility.get());
     // Camera preview is hidden
@@ -203,11 +214,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
 
   private void assertPublishFailed() {
     // Should return to approval.
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertApprovalState();
-      }
-    });
+    assertApprovalState();
   }
 
   private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
