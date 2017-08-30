@@ -19,12 +19,14 @@ import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -61,6 +63,8 @@ public class ShortFragmentTest extends BaseApplicationTestSuite {
         assertTrue(mShortFragment.getViewModel().isReady());
       }
     });
+    // Loading image should be hidden once ready
+    waitMatcher(allOf(withId(R.id.loadingImage), not(isDisplayed())));
   }
 
   @Test public void pauseAndResumeWithTouch() throws Exception {
@@ -72,13 +76,8 @@ public class ShortFragmentTest extends BaseApplicationTestSuite {
       }
     });
     // Pause video
-    onView(withId(R.id.videoSurface)).perform(longClick());
     final int currentPosition = mShortFragment.getMediaPlayer().getCurrentPosition();
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertFalse(mShortFragment.getMediaPlayer().isPlaying());
-      }
-    });
+    onView(withId(R.id.videoSurface)).perform(longClick());
     assertTrue(mShortFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 10);
     // Should resume playing
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {

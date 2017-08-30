@@ -78,13 +78,22 @@ public class ShortFragment
             mVideoSurface.getHolder());
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
-            getViewModel().onReady();
+            mLoadingImage.setVisibility(GONE);
             mMediaPlayer.start();
+            getViewModel().onReady();
           }
         });
-        mMediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-          @Override public void onBufferingUpdate(MediaPlayer mp, int percent) {
-            mLoadingImage.setVisibility(percent == 100 ? VISIBLE : GONE);
+        mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+          @Override public boolean onInfo(MediaPlayer mp, int what, int extra) {
+            switch (what) {
+              case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                mLoadingImage.setVisibility(VISIBLE);
+                break;
+              case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                mLoadingImage.setVisibility(GONE);
+                break;
+            }
+            return false;
           }
         });
         mMediaPlayer.setLooping(true);
