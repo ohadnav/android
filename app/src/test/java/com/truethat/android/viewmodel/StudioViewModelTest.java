@@ -38,7 +38,6 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   private boolean mPublishedToBackend;
   private Reactable mDisplayedReactable;
   private Image mMockedImage;
-  private Image.Plane mMockedPlane;
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -60,9 +59,9 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       }
     });
     mMockedImage = mock(Image.class);
-    mMockedPlane = mock(Image.Plane.class);
-    when(mMockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] {}));
-    when(mMockedImage.getPlanes()).thenReturn(new Image.Plane[] { mMockedPlane });
+    Image.Plane mockedPlane = mock(Image.Plane.class);
+    when(mockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] {}));
+    when(mMockedImage.getPlanes()).thenReturn(new Image.Plane[] { mockedPlane });
   }
 
   @Test public void directingState() throws Exception {

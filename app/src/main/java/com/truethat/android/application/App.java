@@ -2,7 +2,7 @@ package com.truethat.android.application;
 
 import android.app.Application;
 import android.util.Log;
-import com.truethat.android.application.auth.BackendAuthManager;
+import com.truethat.android.application.auth.BaseAuthManager;
 import com.truethat.android.application.permissions.DevicePermissionsManager;
 import com.truethat.android.application.storage.internal.DeviceInternalStorageManager;
 import com.truethat.android.empathy.AffectivaReactionDetectionManager;
@@ -19,7 +19,7 @@ public class App extends Application {
     AppContainer.setDeviceManager(new HardwareDeviceManager(this));
     AppContainer.setPermissionsManager(new DevicePermissionsManager(this));
     AppContainer.setInternalStorageManager(new DeviceInternalStorageManager(this));
-    AppContainer.setAuthManager(new BackendAuthManager(AppContainer.getDeviceManager(),
+    AppContainer.setAuthManager(new BaseAuthManager(AppContainer.getDeviceManager(),
         AppContainer.getInternalStorageManager()));
     AppContainer.setReactionDetectionManager(
         new AffectivaReactionDetectionManager(this, AppContainer.getPermissionsManager()));

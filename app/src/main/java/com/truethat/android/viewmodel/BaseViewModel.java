@@ -18,7 +18,11 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle, Bundle)}.
    */
   String TAG = this.getClass().getSimpleName();
-  Context mContext;
+  private Context mContext;
+
+  public Context getContext() {
+    return mContext;
+  }
 
   public void setContext(Context context) {
     mContext = context;

@@ -202,6 +202,14 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
   }
 
+  @Override public AuthListener getAuthListener() {
+    return this;
+  }
+
+  @Override public BaseActivity getBaseActivity() {
+    return this;
+  }
+
   /**
    * Initialize data-view binding for this activity, and injects dependencies to the view model.
    */

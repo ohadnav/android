@@ -1,8 +1,17 @@
 package com.truethat.android.viewmodel;
 
-import com.truethat.android.application.AppContainer;
+import android.content.Context;
+import android.content.res.Resources;
+import com.truethat.android.R;
+import com.truethat.android.application.auth.AuthListener;
+import com.truethat.android.application.auth.AuthResult;
+import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +20,8 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Proudly created by ohad on 31/07/2017 for TrueThat.
@@ -20,18 +31,54 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   
   private OnBoardingViewModel mViewModel;
   private OnBoardingViewModelTest.ViewInterface mView;
+  private boolean mFinishedOnBoarding;
 
   @Before public void setUp() throws Exception {
     super.setUp();
-    mView = new OnBoardingViewModelTest.ViewInterface();
+    // Signs out.
+    mFinishedOnBoarding = false;
+    mFakeAuthManager.signOut(new AuthListener() {
+      @Override public void onAuthOk() {
+
+      }
+
+      @Override public void onAuthFailed() {
+
+      }
+    });
+    // Initializing view model and its view interface.
+    mView = new OnBoardingViewModelTest.ViewInterface() {
+      @Override public void onAuthOk() {
+        super.onAuthOk();
+        mFinishedOnBoarding = true;
+      }
+
+      @Override public void onAuthFailed() {
+        super.onAuthFailed();
+        mViewModel.failedSignUp();
+      }
+    };
     mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
-    AppContainer.getReactionDetectionManager().start(null);
+    // Creating fake context
+    Context mockedContext = mock(Context.class);
+    Resources mockedResources = mock(Resources.class);
+    when(mockedContext.getResources()).thenReturn(mockedResources);
+    when(mockedResources.getString(R.string.name_edit_warning_text)).thenReturn(
+        "name_edit_warning_text");
+    when(mockedResources.getString(R.string.sign_up_failed_warning_text)).thenReturn(
+        "sign_up_failed_warning_text");
+    mViewModel.setContext(mockedContext);
+    // Starting view model.
+    mViewModel.onStart();
   }
 
   @Test public void successfulOnBoarding() throws Exception {
-    // EditText should be auto focused.
     doOnBoarding(NAME);
-    assertOnBoardingSuccessful();
+    // Wait until Auth OK.
+    assertTrue(mFakeAuthManager.isAuthOk());
+    assertEquals(StringUtil.toTitleCase(NAME), mFakeAuthManager.getCurrentUser().getDisplayName());
+    assertEquals(AuthResult.OK, mView.getAuthResult());
+    assertTrue(mFinishedOnBoarding);
   }
 
   @Test public void finalStage() throws Exception {
@@ -39,18 +86,66 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel.mNameEditText.set(NAME);
     // Hit done
     mViewModel.onNameDone();
-    // Wait for detection to start
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mFakeReactionDetectionManager.isDetecting();
-      }
-    });
-    // Expose completion texts
-    assertTrue(mViewModel.mCompletionTextVisibility.get());
-    assertTrue(mViewModel.mCompletionSubscriptTextVisibility.get());
+    assertFinalStage();
+    // Stopping view model should unsubscribe reaction detection
+    mViewModel.onStop();
+    assertFalse(mFakeReactionDetectionManager.isDetecting());
+    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+    // Starting view model should resume to final stage
+    mViewModel.onStart();
+    assertFinalStage();
   }
 
-  @Test public void typingName() throws Exception {
+  @Test public void requestSentStage() throws Exception {
+    mFakeAuthManager.setUseNetwork(true);
+    doOnBoarding(NAME);
+    // Should be in request sent stage
+    assertSentStage();
+    // Stopping view model, should cancel request
+    mViewModel.onStop();
+    assertTrue(mFakeAuthManager.getAuthCall().isCanceled());
+    // Should stop reaction detection
+    assertFalse(mFakeReactionDetectionManager.isDetecting());
+    // Starting view model again should resume to sent state.
+    mViewModel.onStart();
+    assertSentStage();
+  }
+
+  @Test public void failedSignUp() throws Exception {
+    mFakeAuthManager.setUseNetwork(true);
+    // Set up server to fail.
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+      }
+    });
+    // Set up view interface to invoke failure method
+    doOnBoarding(NAME);
+    // Should be in request sent stage
+    assertSentStage();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(AuthResult.FAILED, mView.getAuthResult());
+      }
+    });
+    // Hide loading indicator
+    assertFalse(mViewModel.mLoadingImageVisibility.get());
+    // Show warning
+    assertTrue(mViewModel.mWarningTextVisibility.get());
+    // and change text
+    assertEquals("sign_up_failed_warning_text", mViewModel.mWarningText.get());
+    // Should not complete on boarding
+    assertFalse(mFinishedOnBoarding);
+  }
+
+  @Test public void editStage() throws Exception {
+    // Should be in edit stage
+    assertEquals(OnBoardingViewModel.Stage.EDIT, mViewModel.getStage());
+    // Input type should be person name
+    assertEquals(OnBoardingViewModel.NAME_TEXT_EDITING_INPUT_TYPE,
+        mViewModel.mNameEditInputType.get());
+    // EditText should have focus
+    assertTrue(mView.isNameEditFocused());
     // Type first name
     mViewModel.mNameEditText.set(NAME.split(" ")[0]);
     // Cursor should be visible.
@@ -58,13 +153,15 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertInvalidName();
     // Lose focus, keyboard and cursor should be hidden.
     mViewModel.onNameFocusChange(false);
-    assertFalse(mView.mKeyboardVisibility);
+    mView.mIsNameEditFocused = false;
+    assertFalse(mView.isKeyboardVisible());
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
     // Type again, and assert cursor is visible again.
     mViewModel.onNameFocusChange(true);
     mViewModel.mNameEditText.set(NAME.split(" ")[0] + " ");
     assertTrue(mViewModel.mNameEditCursorVisibility.get());
-    assertTrue(mView.mKeyboardVisibility);
+    assertTrue(mView.isKeyboardVisible());
+    // Cannot test for name edit focus, but it should be assertTrue(mView.isNameEditFocused());
     // Hit done
     mViewModel.onNameDone();
     // Should not be moving to next stage
@@ -74,10 +171,12 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
-    assertFalse(mView.mKeyboardVisibility);
+    assertFalse(mView.isKeyboardVisible());
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
     // Warning text visible.
     assertTrue(mViewModel.mWarningTextVisibility.get());
+    // and with correct text
+    assertEquals("name_edit_warning_text", mViewModel.mWarningText.get());
     // Type last name
     mViewModel.mNameEditText.set(NAME);
     assertValidName();
@@ -106,17 +205,6 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     });
     // Detect smile.
     mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
-    // Wait until Auth OK.
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(mFakeAuthManager.isAuthOk());
-      }
-    });
-  }
-
-  private void assertOnBoardingSuccessful() {
-    // On boarding should be finished.
-    assertTrue(mView.mFinished);
   }
 
   private void assertInvalidName() {
@@ -139,6 +227,11 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   private void assertFinalStage() {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(OnBoardingViewModel.Stage.FINAL, mViewModel.getStage());
+      }
+    });
     // Completion text is hidden
     assertTrue(mViewModel.mCompletionTextVisibility.get());
     assertTrue(mViewModel.mCompletionSubscriptTextVisibility.get());
@@ -148,26 +241,46 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertTrue(mFakeReactionDetectionManager.isDetecting());
     assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Keyboard should be hidden.
-    assertFalse(mView.mKeyboardVisibility);
+    assertFalse(mView.isKeyboardVisible());
+    // Detection should start
+    assertTrue(mFakeReactionDetectionManager.isDetecting());
+  }
+
+  private void assertSentStage() {
+    assertEquals(OnBoardingViewModel.Stage.REQUEST_SENT, mViewModel.getStage());
+    // Should be sending an auth call.
+    assertFalse(mFakeAuthManager.getAuthCall().isCanceled());
+    // Loading should be visible
+    assertTrue(mViewModel.mLoadingImageVisibility.get());
+    // Should unsubscribe view model from reaction detection
+    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+    // Input type should be disabled
+    assertEquals(OnBoardingViewModel.NAME_TEXT_DISABLED_INPUT_TYPE,
+        mViewModel.mNameEditInputType.get());
   }
 
   private class ViewInterface extends UnitTestViewInterface implements OnBoardingViewInterface {
-    private boolean mFinished = false;
-    private boolean mKeyboardVisibility = false;
+    private boolean mIsKeyboardVisible = false;
+    private boolean mIsNameEditFocused = false;
 
     @Override public void requestNameEditFocus() {
+      mIsNameEditFocused = true;
     }
 
     @Override public void hideSoftKeyboard() {
-      mKeyboardVisibility = false;
+      mIsKeyboardVisible = false;
     }
 
     @Override public void showSoftKeyboard() {
-      mKeyboardVisibility = true;
+      mIsKeyboardVisible = true;
     }
 
-    @Override public void sendSignUpRequest() {
-      mFinished = true;
+    boolean isKeyboardVisible() {
+      return mIsKeyboardVisible;
+    }
+
+    boolean isNameEditFocused() {
+      return mIsNameEditFocused;
     }
   }
 }

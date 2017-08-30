@@ -1,29 +1,40 @@
 package com.truethat.android.application.auth;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.InternalStorageManager;
+import com.truethat.android.common.network.AuthApi;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.BaseActivity;
 import java.io.IOException;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Proudly created by ohad on 29/05/2017 for TrueThat.
  */
 
-abstract class BaseAuthManager implements AuthManager {
+public class BaseAuthManager implements AuthManager {
+  Call<User> mAuthCall;
   /**
    * Currently logged in user.
    */
-  User mCurrentUser;
-
+  private User mCurrentUser;
+  /**
+   * Auth API interface.
+   */
+  private AuthApi mAuthApi;
   private DeviceManager mDeviceManager;
   private InternalStorageManager mInternalStorage;
 
-  BaseAuthManager(DeviceManager deviceManager, InternalStorageManager internalStorage) {
+  public BaseAuthManager(DeviceManager deviceManager, InternalStorageManager internalStorage) {
     mDeviceManager = deviceManager;
     mInternalStorage = internalStorage;
+    mAuthApi = NetworkUtil.createApi(AuthApi.class);
   }
 
   public User getCurrentUser() {
@@ -112,16 +123,70 @@ abstract class BaseAuthManager implements AuthManager {
     listener.onAuthFailed();
   }
 
+  @Override public void cancelRequest() {
+    if (mAuthCall != null) {
+      mAuthCall.cancel();
+    }
+  }
+
   /**
    * Authenticates user against our lovely backend.
    *
    * @param listener to use for auth callbacks
    */
-  protected abstract void requestAuth(final AuthListener listener, User user);
+  protected void requestAuth(final AuthListener listener, User user) {
+    cancelRequest();
+    mAuthCall = mAuthApi.postAuth(user);
+    mAuthCall.enqueue(new AuthCallback(listener));
+  }
 
   void handleSuccessfulResponse(User respondedUser) throws IOException {
     mCurrentUser = respondedUser;
     mInternalStorage.write(AuthManager.LAST_USER_PATH, mCurrentUser);
     Log.v(TAG, mCurrentUser.getDisplayName() + " is authenticated.");
+  }
+
+  private class AuthCallback implements Callback<User> {
+    private AuthListener mListener;
+
+    AuthCallback(AuthListener listener) {
+      mListener = listener;
+    }
+
+    @Override public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+      if (response.isSuccessful()) {
+        try {
+          User respondedUser = response.body();
+          if (respondedUser == null) {
+            throw new AssertionError("Responded user is a ghost... scary.");
+          }
+          handleSuccessfulResponse(respondedUser);
+          mListener.onAuthOk();
+        } catch (IOException | AssertionError e) {
+          // Auth had failed
+          Log.e(TAG, "Authentication request had failed, inconceivable!", e);
+          mCurrentUser = null;
+          mListener.onAuthFailed();
+        }
+      } else {
+        Log.e(TAG, "Failed auth request "
+            + mAuthCall.request().url()
+            + "\n"
+            + response.code()
+            + " "
+            + response.message()
+            + "\n"
+            + response.headers());
+        mCurrentUser = null;
+        mListener.onAuthFailed();
+      }
+    }
+
+    @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+      // Auth had failed
+      Log.e(TAG, "Auth call failed: " + t.getMessage(), t);
+      mCurrentUser = null;
+      mListener.onAuthFailed();
+    }
   }
 }

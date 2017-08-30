@@ -72,7 +72,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
     if (mItems.isEmpty()) {
       mLoadingLayoutVisibility.set(true);
       mNonFoundTextVisibility.set(false);
-      mLoadingImageResource.set(R.drawable.anim_loading_elephant);
+      mLoadingImageResource.set(R.drawable.anim_loader);
     }
     mFetchReactablesCall = getView().buildFetchReactablesCall();
     mFetchReactablesCall.enqueue(mFetchReactablesCallback);

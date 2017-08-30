@@ -19,9 +19,4 @@ public interface OnBoardingViewInterface extends BaseViewInterface {
    * Shows soft keyboard.
    */
   void showSoftKeyboard();
-
-  /**
-   * Finishes the on boarding flow.
-   */
-  void sendSignUpRequest();
 }

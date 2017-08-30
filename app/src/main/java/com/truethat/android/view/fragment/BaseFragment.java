@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.truethat.android.application.App;
+import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
@@ -170,6 +171,14 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     getBaseActivity().toast(text);
   }
 
+  @Override public AuthListener getAuthListener() {
+    return getBaseActivity();
+  }
+
+  @Override public BaseActivity getBaseActivity() {
+    return (BaseActivity) getActivity();
+  }
+
   @SuppressWarnings({ "unused", "unchecked", "ConstantConditions" }) @NonNull
   public DataBinding getBinding() {
     try {
@@ -189,10 +198,6 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void removeViewModel() {
     mViewModelHelper.removeViewModel(getActivity());
-  }
-
-  BaseActivity getBaseActivity() {
-    return (BaseActivity) getActivity();
   }
 
   App getApp() {

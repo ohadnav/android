@@ -1,20 +1,21 @@
 package com.truethat.android.view.activity;
 
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
-import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -23,10 +24,16 @@ public class OnBoardingActivity extends
     BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding> implements
     OnBoardingViewInterface {
   @BindView(R.id.nameEditText) EditText mNameEditText;
+  @BindView(R.id.loadingImage) ImageView mLoadingImage;
 
   @Override public void onAuthOk() {
     super.onAuthOk();
     finish();
+  }
+
+  @Override public void onAuthFailed() {
+    Log.v(TAG, "onAuthFailed");
+    getViewModel().failedSignUp();
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -43,8 +50,10 @@ public class OnBoardingActivity extends
     // Maybe we are here by mistake.
     if (AppContainer.getAuthManager().isAuthOk()) {
       finish();
+      return;
     }
-    AppContainer.getReactionDetectionManager().start(this);
+    // Plays loading animation.
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
   }
 
   @Override public void requestNameEditFocus() {
@@ -60,16 +69,6 @@ public class OnBoardingActivity extends
     InputMethodManager inputMethodManager =
         (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     inputMethodManager.showSoftInput(mNameEditText, InputMethodManager.SHOW_FORCED);
-  }
-
-  /**
-   * Finishes the on boarding flow.
-   */
-  public void sendSignUpRequest() {
-    String userFullName = mNameEditText.getText().toString();
-    User newUser = new User(StringUtil.extractFirstName(userFullName),
-        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId());
-    AppContainer.getAuthManager().signUp(this, newUser);
   }
 
   @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {

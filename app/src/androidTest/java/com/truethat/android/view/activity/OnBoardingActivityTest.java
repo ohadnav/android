@@ -4,8 +4,15 @@ import android.content.Intent;
 import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
+import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +24,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasFocus;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.isKeyboardVisible;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
@@ -48,6 +56,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void onBoardingFlow() throws Exception {
+    mFakeAuthManager.setUseNetwork(true);
     onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
     final EditText editText = (EditText) getCurrentActivity().findViewById(R.id.nameEditText);
     // Type first name
@@ -93,6 +102,20 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     assertFalse(editText.isCursorVisible());
     // Detect smile.
     mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
+    // Set up server response
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        User user = NetworkUtil.GSON.fromJson(request.getBody().readUtf8(), User.class);
+        assertEquals(NAME, user.getDisplayName());
+        user.setId(1L);
+        MockResponse response = new MockResponse().setBody(NetworkUtil.GSON.toJson(user));
+        response.throttleBody(20, 100, TimeUnit.MILLISECONDS);
+        return response;
+      }
+    });
+    // Loading image should be visible
+    waitMatcher(allOf(withId(R.id.loadingImage), isDisplayed()));
+    // On Boarding should be completed.
     assertOnBoardingSuccessful();
   }
 
@@ -106,6 +129,27 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     waitForActivity(TheaterActivity.class);
   }
 
+  @Test public void failedOnBoarding() throws Exception {
+    mFakeAuthManager.setUseNetwork(true);
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        User user = NetworkUtil.GSON.fromJson(request.getBody().readUtf8(), User.class);
+        assertEquals(NAME, user.getDisplayName());
+        MockResponse response =
+            new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        Thread.sleep(500);
+        return response;
+      }
+    });
+    doOnBoarding(NAME);
+    assertFalse(mFakeAuthManager.isAuthOk());
+    // Warning text is changed
+    waitMatcher(allOf(withId(R.id.warningText), isDisplayed(),
+        withText(R.string.sign_up_failed_warning_text)));
+    // Loading is hidden
+    waitMatcher(allOf(withId(R.id.loadingImage), not(isDisplayed())));
+  }
+
   /**
    * Programmatically completes the on boarding process as if a user completed it.
    *
@@ -116,6 +160,11 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     waitForActivity(OnBoardingActivity.class);
     // Type user name and hit done.
     onView(withId(R.id.nameEditText)).perform(typeText(name)).perform(pressImeActionButton());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(OnBoardingViewModel.Stage.FINAL, mViewModel.getStage());
+      }
+    });
     // Wait until detection had started.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
@@ -124,17 +173,17 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     });
     // Detect smile.
     mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
-    // Wait until Auth OK.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mFakeAuthManager.isAuthOk());
+        assertEquals(OnBoardingViewModel.Stage.REQUEST_SENT, mViewModel.getStage());
       }
     });
+
   }
 
   private void assertReadyForSmile() {
     // Wait until smile text is shown.
-    waitMatcher(allOf(isDisplayed(), withId(R.id.completionText)));
+    waitMatcher(allOf(isDisplayed(), withId(R.id.finalStageText)));
     // Warning text should be hidden.
     onView(withId(R.id.warningText)).check(matches(not(isDisplayed())));
     // Assert detection is ongoing.
@@ -170,7 +219,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
     // Detection is NOT ongoing.
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Smile text is hidden
-    onView(withId(R.id.completionText)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.finalStageText)).check(matches(not(isDisplayed())));
   }
 
   private void assertOnBoardingSuccessful() {

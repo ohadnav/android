@@ -3,6 +3,7 @@ package com.truethat.android.application.auth;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -16,11 +17,19 @@ public class FakeAuthManagerTest extends AuthManagerTest {
 
   @Test public void authOkFake() throws Exception {
     performAuth();
+    assertEquals(0, mMockWebServer.getRequestCount());
+  }
+
+  @Test public void authRegular() throws Exception {
+    ((FakeAuthManager) mAuthManager).setUseNetwork(true);
+    performAuth();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signUpFake() throws Exception {
     mAuthManager.signUp(mListener, mUser);
     assertAuthOk();
+    assertEquals(0, mMockWebServer.getRequestCount());
   }
 
   @Test public void disallowAuth() throws Exception {

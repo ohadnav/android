@@ -61,7 +61,7 @@ public class PoseFragment
       getViewModel().onReady();
     } else {
       final AnimationDrawable animationDrawable =
-          (AnimationDrawable) getContext().getDrawable(R.drawable.anim_loading_elephant);
+          (AnimationDrawable) getContext().getDrawable(R.drawable.anim_loader);
       if (animationDrawable == null) {
         throw new AssertionError("Loading resource not found.. Where are my elephants?!");
       }

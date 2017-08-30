@@ -50,4 +50,9 @@ public interface AuthManager {
    * @param listener to apply auth callbacks.
    */
   void signOut(AuthListener listener);
+
+  /**
+   * Cancels current auth requests.
+   */
+  void cancelRequest();
 }

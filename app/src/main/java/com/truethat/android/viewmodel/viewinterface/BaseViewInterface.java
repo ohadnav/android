@@ -1,6 +1,8 @@
 package com.truethat.android.viewmodel.viewinterface;
 
 import android.widget.Toast;
+import com.truethat.android.application.auth.AuthListener;
+import com.truethat.android.view.activity.BaseActivity;
 import eu.inloop.viewmodel.IView;
 
 /**
@@ -14,4 +16,14 @@ public interface BaseViewInterface extends IView {
    * @param text to show within the toast.
    */
   void toast(String text);
+
+  /**
+   * @return the auth listener of the activity associated with this view model.
+   */
+  AuthListener getAuthListener();
+
+  /**
+   * @return the activity associated with this view model.
+   */
+  BaseActivity getBaseActivity();
 }

@@ -6,6 +6,7 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.FakeDeviceManager;
 import com.truethat.android.application.auth.AuthListener;
+import com.truethat.android.application.auth.AuthResult;
 import com.truethat.android.application.auth.FakeAuthManager;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.permissions.PermissionsManager;
@@ -13,6 +14,7 @@ import com.truethat.android.application.storage.internal.FakeInternalStorageMana
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
+import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.Date;
@@ -99,17 +101,37 @@ import static org.junit.Assert.assertTrue;
     return viewModel;
   }
 
-  class UnitTestViewInterface implements AuthListener, BaseViewInterface {
-    @Override public void onAuthOk() {
+  @SuppressWarnings("unused") class UnitTestViewInterface
+      implements AuthListener, BaseViewInterface {
+    private String mToastText;
+    private AuthResult mAuthResult;
 
+    public String getToastText() {
+      return mToastText;
+    }
+
+    public AuthResult getAuthResult() {
+      return mAuthResult;
+    }
+
+    @Override public void onAuthOk() {
+      mAuthResult = AuthResult.OK;
     }
 
     @Override public void onAuthFailed() {
-
+      mAuthResult = AuthResult.FAILED;
     }
 
     @Override public void toast(String text) {
+      mToastText = text;
+    }
 
+    @Override public AuthListener getAuthListener() {
+      return this;
+    }
+
+    @Override public BaseActivity getBaseActivity() {
+      return null;
     }
 
     @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {

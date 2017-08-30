@@ -187,7 +187,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   private void onPublishError() {
-    getView().toast(mContext.getResources().getString(R.string.sent_failed));
+    getView().toast(getContext().getResources().getString(R.string.sent_failed));
     onApproval();
   }
 

@@ -6,7 +6,9 @@ import android.databinding.ObservableList;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -25,6 +27,16 @@ public class DataBindingAdapters {
   @BindingAdapter("android:src")
   public static void setImageResource(ImageView imageView, int resource) {
     imageView.setImageResource(resource);
+  }
+
+  // --------------------------- EditText -----------------------------
+
+  /**
+   * @param inputType taken from {@link InputType}.
+   */
+  @BindingAdapter("android:inputType") public static void setInputType(EditText view,
+      int inputType) {
+    view.setInputType(inputType);
   }
 
   // --------------------------- ViewPager ------------------------------

@@ -1,42 +1,37 @@
 package com.truethat.android.application.auth;
 
-import com.truethat.android.model.User;
+import java.net.HttpURLConnection;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.truethat.android.common.network.NetworkUtil.GSON;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Proudly created by ohad on 14/06/2017 for TrueThat.
  */
 public class BaseAuthManagerTest extends AuthManagerTest {
-  private boolean mPerformedBackendCall;
 
   @Override public void setUp() throws Exception {
     super.setUp();
-    mPerformedBackendCall = false;
-    mAuthManager = new BaseAuthManager(DEVICE_MANAGER, mInternalStorage) {
-      @Override protected void requestAuth(AuthListener listener, User user) {
-        mPerformedBackendCall = true;
-        try {
-          mUser.setId(USER_ID);
-          handleSuccessfulResponse(mUser);
-          listener.onAuthOk();
-        } catch (Exception e) {
-          listener.onAuthFailed();
-        }
-      }
-    };
+    mAuthManager = new BaseAuthManager(DEVICE_MANAGER, mInternalStorage);
   }
 
   @Test public void alreadyAuthOk() throws Exception {
     performAuth();
-    mPerformedBackendCall = false;
     // Authenticate user;
     mAuthManager.auth(mListener);
     assertAuthOk();
-    // Should not authenticate against backend
-    assertFalse(mPerformedBackendCall);
+    // Should authenticate against backend
+    assertEquals(1, mMockWebServer.getRequestCount());
+    // Following auth should not send backend requests
+    mAuthManager.auth(mListener);
+    assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void authFromLastSession() throws Exception {
@@ -45,7 +40,19 @@ public class BaseAuthManagerTest extends AuthManagerTest {
     mAuthManager.auth(mListener);
     assertAuthOk();
     // Should authenticate against backend
-    assertTrue(mPerformedBackendCall);
+    assertEquals(1, mMockWebServer.getRequestCount());
+  }
+
+  @Test public void authFromLastSessionFailed() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED);
+      }
+    });
+    prepareAuth();
+    // Authenticate user;
+    mAuthManager.auth(mListener);
+    assertAuthFailed();
   }
 
   @Test public void authFailed() throws Exception {
@@ -62,27 +69,26 @@ public class BaseAuthManagerTest extends AuthManagerTest {
 
   @Test public void signInAlreadyAuthOk() throws Exception {
     performAuth();
-    mPerformedBackendCall = false;
     mListener.resetResult();
     mAuthManager.signIn(mListener);
     // Should not authenticate against backend
-    assertFalse(mPerformedBackendCall);
     assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signInByDevice() throws Exception {
     mAuthManager.signIn(mListener);
     // Should make authentication against backend
-    assertTrue(mPerformedBackendCall);
     assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signInByLastSession() throws Exception {
     prepareAuth();
     mAuthManager.signIn(mListener);
     // Should make authentication against backend
-    assertTrue(mPerformedBackendCall);
     assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signInWithStorageFailure() throws Exception {
@@ -90,8 +96,8 @@ public class BaseAuthManagerTest extends AuthManagerTest {
     mInternalStorage.setShouldFail(true);
     mAuthManager.signIn(mListener);
     // Should make authentication against backend
-    assertTrue(mPerformedBackendCall);
     assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signUpAlreadyAuthOk() throws Exception {
@@ -104,13 +110,43 @@ public class BaseAuthManagerTest extends AuthManagerTest {
   @Test public void signUp() throws Exception {
     mAuthManager.signUp(mListener, mUser);
     // Should make authentication against backend
-    assertTrue(mPerformedBackendCall);
     assertAuthOk();
+    assertEquals(1, mMockWebServer.getRequestCount());
   }
 
   @Test public void signOut() throws Exception {
     performAuth();
     mAuthManager.signOut(mListener);
     assertAuthFailed();
+  }
+
+  @Test public void badResponse() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        return new MockResponse();
+      }
+    });
+    mAuthManager.signUp(mListener, mUser);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertAuthFailed();
+      }
+    });
+  }
+
+  @Test public void badResponseStatus() throws Exception {
+    mMockWebServer.setDispatcher(new Dispatcher() {
+      @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        mUser.setId(USER_ID);
+        return new MockResponse().setBody(GSON.toJson(mUser))
+            .setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+      }
+    });
+    mAuthManager.signUp(mListener, mUser);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertAuthFailed();
+      }
+    });
   }
 }
