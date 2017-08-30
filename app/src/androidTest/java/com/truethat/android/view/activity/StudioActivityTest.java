@@ -1,6 +1,5 @@
 package com.truethat.android.view.activity;
 
-import android.graphics.Bitmap;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.action.GeneralClickAction;
 import android.support.test.espresso.action.GeneralLocation;
@@ -13,12 +12,14 @@ import android.support.test.rule.ActivityTestRule;
 import android.view.MotionEvent;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
+import com.truethat.android.databinding.FragmentReactableBinding;
+import com.truethat.android.model.Reactable;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.view.fragment.PoseFragment;
-import java.util.TreeMap;
+import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.viewmodel.ReactableViewModel;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
@@ -45,7 +46,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -67,10 +67,37 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        return new MockResponse().setBody(
-            GSON.toJson(new Pose(1, null, new TreeMap<Emotion, Long>(), null, null, null)));
+        Reactable directed =
+            mStudioActivityTestRule.getActivity().getViewModel().getDirectedReactable();
+        directed.setId(1L);
+        return new MockResponse().setBody(GSON.toJson(directed));
       }
     });
+  }
+
+  @Test public void sendPoseFlow() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(click());
+    // Should proceed to approval state
+    assertApprovalState();
+    onView(withId(R.id.sendButton)).perform(click());
+    // Should proceed to sent state
+    assertSentState();
+    // Should proceed to published state
+    assertPublishedState();
+  }
+
+  @Test public void sendShortFlow() throws Exception {
+    // Take a picture
+    onView(withId(R.id.captureButton)).perform(
+        new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
+    // Should proceed to approval state
+    assertApprovalState();
+    onView(withId(R.id.sendButton)).perform(click());
+    // Should proceed to sent state
+    assertSentState();
+    // Should proceed to published state
+    assertPublishedState();
   }
 
   @Test public void takePictureWithButton() throws Exception {
@@ -124,7 +151,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     mFakeAuthManager.setAllowAuth(false);
     onView(withId(R.id.captureButton)).perform(click());
     // Ensuring signing in Toast is shown.
-    onView(withText(mStudioActivityTestRule.getActivity().UNAUTHORIZED_TOAST)).inRoot(
+    onView(withText(R.string.signing_in)).inRoot(
         withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
         .check(matches(isDisplayed()));
     // Should navigate to welcome activity
@@ -146,7 +173,6 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
     assertApprovalState();
-    Bitmap than = mCameraFragment.getCameraPreview().getBitmap();
     // Navigate out of studio
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(TheaterActivity.class);
@@ -155,9 +181,6 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     waitForActivity(StudioActivity.class);
     // Should remain in approval state
     assertApprovalState();
-    // Preview should remain frozen.
-    Bitmap now = mCameraFragment.getCameraPreview().getBitmap();
-    assertTrue(than.sameAs(now));
   }
 
   @Test public void directingState() throws Exception {
@@ -187,8 +210,6 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
     // Directed reactable preview is hidden
     onView(withId(R.id.previewLayout)).check(matches(not(isDisplayed())));
-    // Preview should have no tint
-    assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
   }
 
   private void assertApprovalState() {
@@ -208,8 +229,40 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.loadingImage)).check(matches(not(isDisplayed())));
     // Directed reactable preview is shown
     onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
-    // Preview should have no tint
-    assertNull(mCameraFragment.getCameraPreview().getBackgroundTintList());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        //noinspection unchecked
+        assertTrue(
+            ((ReactableFragment<Reactable, ReactableViewModel<Reactable>, FragmentReactableBinding>) mStudioActivityTestRule
+                .getActivity()
+                .getSupportFragmentManager()
+                .findFragmentByTag(DIRECTED_REACTABLE_TAG)).getViewModel().isReady());
+      }
+    });
+  }
+
+  private void assertSentState() {
+    // Wait until camera preview is frozen.
+    assertNotEquals(CameraFragment.CameraState.PREVIEW, mCameraFragment.getState());
+    // Buttons are hidden
+    waitMatcher(allOf(withId(R.id.sendButton), not(isDisplayed())));
+    onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.captureButton)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
+    // Loading image is show
+    onView(withId(R.id.loadingImage)).check(matches(isDisplayed()));
+    // Directed reactable preview is shown
+    onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
+    // Network request had been made
+    assertEquals(1, mDispatcher.getCount(StudioApi.PATH));
+  }
+
+  private void assertPublishedState() {
+    waitForActivity(TheaterActivity.class);
+    // Should display toast
+    onView(withText(R.string.saved_successfully)).inRoot(
+        withDecorView(not(mStudioActivityTestRule.getActivity().getWindow().getDecorView())))
+        .check(matches(isDisplayed()));
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored") private class RecordTapper implements Tapper {

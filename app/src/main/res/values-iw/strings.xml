@@ -23,4 +23,5 @@
   <string name="name_edit_warning_text">שם מלא כפרה</string>
   <string name="audio_permission_rationale">לא תתנו לנו לשמוע את הקול היפה שלכם?</string>
   <string name="sign_up_failed_warning_text">פאדיחה.. משהו לא עובד לנו</string>
+  <string name="saved_successfully">נשמר בהצלחה</string>
 </resources>

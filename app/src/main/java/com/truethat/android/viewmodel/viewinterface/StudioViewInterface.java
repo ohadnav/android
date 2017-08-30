@@ -12,22 +12,12 @@ public interface StudioViewInterface extends BaseViewInterface {
    * Triggered as per {@link StudioViewModel.DirectingState#PUBLISHED}. Usually after a {@link
    * Reactable} is saved on our backend.
    */
-  void onPublished();
+  void leaveStudio();
 
   /**
-   * Triggered as per {@link StudioViewModel.DirectingState#APPROVAL}, usually after a {@link Reactable} is created and (i.e. an image was taken but not sent yet).
+   * Restores camera preview.
    */
-  void onApproval();
-
-  /**
-   * Triggered as per {@link StudioViewModel.DirectingState#SENT}, usually after a {@link Reactable} is approved and being sent to the backend for saving.
-   */
-  void onSent();
-
-  /**
-   * Triggered as per {@link StudioViewModel.DirectingState#DIRECTING}, when a reactable is being created (i.e. whilst taking a picture).
-   */
-  void onDirecting();
+  void restoreCameraPreview();
 
   /**
    * Displays a preview of the directed reactable, so that the user can approve it or prevent

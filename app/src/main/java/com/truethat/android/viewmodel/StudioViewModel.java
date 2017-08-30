@@ -121,7 +121,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mCancelButtonVisibility.set(false);
     mSendButtonVisibility.set(false);
     mLoadingImageVisibility.set(true);
-    getView().onSent();
   }
 
   public void disapprove() {
@@ -129,8 +128,12 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     onDirecting();
   }
 
-  Reactable getDirectedReactable() {
+  public Reactable getDirectedReactable() {
     return mDirectedReactable;
+  }
+
+  @VisibleForTesting DirectingState getDirectingState() {
+    return mDirectingState;
   }
 
   private void onApproval() {
@@ -150,7 +153,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Shows the directed reactable preview, and hides the camera preview.
     mReactablePreviewVisibility.set(true);
     mCameraPreviewVisibility.set(false);
-    getView().onApproval();
     getView().displayPreview(mDirectedReactable);
   }
 
@@ -170,12 +172,14 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mCameraPreviewVisibility.set(true);
     // Delete reactable.
     mDirectedReactable = null;
-    getView().onDirecting();
+    getView().restoreCameraPreview();
   }
 
   private void cancelSent() {
     if (mSaveReactableCall != null) {
       mSaveReactableCall.cancel();
+    }
+    if (mDirectingState == DirectingState.SENT) {
       onApproval();
     }
   }
@@ -183,11 +187,12 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   private void onPublished() {
     Log.v(TAG, "Change state: " + DirectingState.PUBLISHED.name());
     mDirectingState = DirectingState.PUBLISHED;
-    getView().onPublished();
+    getView().toast(getContext().getString(R.string.saved_successfully));
+    getView().leaveStudio();
   }
 
   private void onPublishError() {
-    getView().toast(getContext().getResources().getString(R.string.sent_failed));
+    getView().toast(getContext().getString(R.string.sent_failed));
     onApproval();
   }
 

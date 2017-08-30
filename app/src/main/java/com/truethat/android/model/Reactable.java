@@ -2,6 +2,7 @@ package com.truethat.android.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.view.activity.TheaterActivity;
 import com.truethat.android.view.fragment.ReactableFragment;
@@ -73,6 +74,10 @@ public abstract class Reactable implements Serializable {
 
   public long getId() {
     return mId;
+  }
+
+  @VisibleForTesting public void setId(Long id) {
+    mId = id;
   }
 
   public boolean isViewed() {

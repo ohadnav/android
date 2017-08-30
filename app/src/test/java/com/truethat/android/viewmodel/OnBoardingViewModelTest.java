@@ -1,7 +1,6 @@
 package com.truethat.android.viewmodel;
 
 import android.content.Context;
-import android.content.res.Resources;
 import com.truethat.android.R;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.AuthResult;
@@ -61,11 +60,9 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
     // Creating fake context
     Context mockedContext = mock(Context.class);
-    Resources mockedResources = mock(Resources.class);
-    when(mockedContext.getResources()).thenReturn(mockedResources);
-    when(mockedResources.getString(R.string.name_edit_warning_text)).thenReturn(
+    when(mockedContext.getString(R.string.name_edit_warning_text)).thenReturn(
         "name_edit_warning_text");
-    when(mockedResources.getString(R.string.sign_up_failed_warning_text)).thenReturn(
+    when(mockedContext.getString(R.string.sign_up_failed_warning_text)).thenReturn(
         "sign_up_failed_warning_text");
     mViewModel.setContext(mockedContext);
     // Starting view model.

@@ -2,9 +2,9 @@ package com.truethat.android.view.activity;
 
 import android.content.Intent;
 import android.databinding.Observable;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -36,7 +36,7 @@ public class StudioActivity
     extends BaseActivity<StudioViewInterface, StudioViewModel, ActivityStudioBinding>
     implements StudioViewInterface {
   public static final String DIRECTED_REACTABLE_TAG = "DIRECTED_REACTABLE_TAG";
-  @VisibleForTesting @BindString(R.string.signing_in) String UNAUTHORIZED_TOAST;
+  @BindString(R.string.signing_in) String SINGING_IN;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.captureButton) ImageButton mCaptureButton;
   private CameraFragment mCameraFragment;
@@ -65,7 +65,7 @@ public class StudioActivity
   @OnTouch(R.id.captureButton) public boolean onCaptureTouch(MotionEvent motionEvent) {
     if (!AppContainer.getAuthManager().isAuthOk()) {
       Log.w(TAG, "Attempt to direct reactable when unauthorized.");
-      Toast.makeText(StudioActivity.this, UNAUTHORIZED_TOAST, Toast.LENGTH_SHORT).show();
+      Toast.makeText(StudioActivity.this, SINGING_IN, Toast.LENGTH_SHORT).show();
       onAuthFailed();
       return true;
     }
@@ -90,6 +90,12 @@ public class StudioActivity
 
   @OnClick(R.id.switchCameraButton) public void switchCamera() {
     mCameraFragment.switchCamera();
+  }
+
+  @Override public void onStart() {
+    super.onStart();
+    mLoadingImage.bringToFront();
+    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -130,52 +136,36 @@ public class StudioActivity
         });
   }
 
-  public void onPublished() {
+  public void leaveStudio() {
     runOnUiThread(new Runnable() {
       @Override public void run() {
+        // Removes display fragment
+        if (getSupportFragmentManager().findFragmentByTag(DIRECTED_REACTABLE_TAG) != null) {
+          FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+          fragmentTransaction.remove(
+              getSupportFragmentManager().findFragmentByTag(DIRECTED_REACTABLE_TAG));
+          fragmentTransaction.commit();
+        }
         // Navigate to theater after publishing.
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
     });
   }
 
-  public void onApproval() {
-    runOnUiThread(new Runnable() {
-      @Override public void run() {
-        // Removes preview tint
-        mCameraFragment.getCameraPreview().setBackgroundTintList(null);
-      }
-    });
-  }
-
-  public void onSent() {
-    runOnUiThread(new Runnable() {
-      @Override public void run() {
-        // Tinting camera preview and showing a loader.
-        mCameraFragment.getCameraPreview().setBackgroundTintList(getColorStateList(R.color.tint));
-        mLoadingImage.bringToFront();
-      }
-    });
-  }
-
-  public void onDirecting() {
+  public void restoreCameraPreview() {
     runOnUiThread(new Runnable() {
       @Override public void run() {
         //Restores the camera preview.
         mCameraFragment.restorePreview();
-        // Removes preview tint
-        mCameraFragment.getCameraPreview().setBackgroundTintList(null);
       }
     });
   }
 
   @Override public void displayPreview(Reactable reactable) {
-    Log.e(TAG, "displayPreview");
     @SuppressWarnings("unchecked")
     ReactableFragment<Reactable, ReactableViewModel<Reactable>, FragmentReactableBinding>
         directedReactableFragment = reactable.createFragment();
     directedReactableFragment.displayOnly();
-    Log.e(TAG, "display only");
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(R.id.previewLayout, directedReactableFragment,
         DIRECTED_REACTABLE_TAG);

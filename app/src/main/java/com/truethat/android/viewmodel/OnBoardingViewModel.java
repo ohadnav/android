@@ -72,7 +72,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     if (isNameValid()) {
       onFinalStage();
     } else {
-      mWarningText.set(getContext().getResources().getString(R.string.name_edit_warning_text));
+      mWarningText.set(getContext().getString(R.string.name_edit_warning_text));
       mWarningTextVisibility.set(true);
     }
     getView().hideSoftKeyboard();
@@ -96,7 +96,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   }
 
   public void failedSignUp() {
-    mWarningText.set(getContext().getResources().getString(R.string.sign_up_failed_warning_text));
+    mWarningText.set(getContext().getString(R.string.sign_up_failed_warning_text));
     mWarningTextVisibility.set(true);
     mLoadingImageVisibility.set(false);
     onEditStage();

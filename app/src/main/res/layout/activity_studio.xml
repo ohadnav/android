@@ -55,7 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1"
+        app:layout_constraintVertical_bias="1.0"
         tools:visibility="visible"
         />
 
@@ -70,10 +70,10 @@
         android:visibility="@{viewModel.mSwitchCameraButtonVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/switch_camera"
         />
 
@@ -89,10 +89,10 @@
         android:visibility="@{viewModel.mCancelButtonVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/cross"
         tools:visibility="visible"
         />
@@ -109,18 +109,18 @@
         android:visibility="@{viewModel.mSendButtonVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/send_reactable"
         tools:visibility="visible"
         />
 
     <ImageView
         android:id="@+id/loadingImage"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:contentDescription="@string/image_content_description"
         android:scaleType="centerInside"
         android:visibility="@{viewModel.mLoadingImageVisibility ? View.VISIBLE : View.GONE}"

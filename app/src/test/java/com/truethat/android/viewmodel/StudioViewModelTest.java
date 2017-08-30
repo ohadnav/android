@@ -1,9 +1,9 @@
 package com.truethat.android.viewmodel;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.media.Image;
 import com.truethat.android.R;
+import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.Short;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
@@ -33,35 +33,36 @@ import static org.mockito.Mockito.when;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 public class StudioViewModelTest extends ViewModelTestSuite {
+  private static final String SENT_FAILED = "Sent failed";
+  private static final String SAVED_SUCCESSFULLY = "Saved successfully";
   private StudioViewModel mViewModel;
-  private StudioViewModel.DirectingState mCurrentState;
-  private boolean mPublishedToBackend;
-  private Reactable mDisplayedReactable;
+  private ViewInterface mView;
   private Image mMockedImage;
 
   @Before public void setUp() throws Exception {
     super.setUp();
-    mDisplayedReactable = null;
-    mCurrentState = DIRECTING;
-    mPublishedToBackend = false;
+
+    // Create context
     Context mockedContext = mock(Context.class);
-    Resources mockedResources = mock(Resources.class);
-    when(mockedContext.getResources()).thenReturn(mockedResources);
-    when(mockedResources.getString(R.string.sent_failed)).thenReturn("TEST FAILED");
-    mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) new ViewInterface());
-    mViewModel.setContext(mockedContext);
-    mViewModel.onStart();
+    when(mockedContext.getString(R.string.sent_failed)).thenReturn(SENT_FAILED);
+    when(mockedContext.getString(R.string.saved_successfully)).thenReturn(SAVED_SUCCESSFULLY);
+    // Start backend
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        mPublishedToBackend = true;
         return new MockResponse().setBody(
-            "{\"type\":\"" + mViewModel.getDirectedReactable().getClass().getSimpleName() + "\"}");
+            NetworkUtil.GSON.toJson(mViewModel.getDirectedReactable()));
       }
     });
+    // Mocks take images
     mMockedImage = mock(Image.class);
     Image.Plane mockedPlane = mock(Image.Plane.class);
     when(mockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] {}));
     when(mMockedImage.getPlanes()).thenReturn(new Image.Plane[] { mockedPlane });
+    // Creates and starts view model
+    mView = new ViewInterface();
+    mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) mView);
+    mViewModel.setContext(mockedContext);
+    mViewModel.onStart();
   }
 
   @Test public void directingState() throws Exception {
@@ -87,6 +88,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Cancel the picture taken
     mViewModel.disapprove();
     assertDirectingState();
+    // Should restore preview
+    assertTrue(mView.mPreviewRestored);
   }
 
   @Test public void sentState() throws Exception {
@@ -109,7 +112,6 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   @Test public void publishedFailed() throws Exception {
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        mPublishedToBackend = true;
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
@@ -120,7 +122,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertSentState();
     // Should fail
     assertPublishFailed();
-    assertTrue(mPublishedToBackend);
+    assertEquals(SENT_FAILED, mView.getToastText());
   }
 
   @Test public void activityPausedWhileSending() throws Exception {
@@ -145,7 +147,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Loading image is hidden
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
-    assertEquals(DIRECTING, mCurrentState);
+    assertEquals(DIRECTING, mViewModel.getDirectingState());
     // Reactable preview is hidden.
     assertFalse(mViewModel.mReactablePreviewVisibility.get());
     // Camera preview is shown
@@ -162,12 +164,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Loading image is hidden
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
-    assertEquals(APPROVAL, mCurrentState);
+    assertEquals(APPROVAL, mViewModel.getDirectingState());
     // Correct preview is shown.
     assertTrue(mViewModel.mReactablePreviewVisibility.get());
     // Camera preview is hidden
     assertFalse(mViewModel.mCameraPreviewVisibility.get());
-    assertEquals(mViewModel.getDirectedReactable(), mDisplayedReactable);
+    assertEquals(mViewModel.getDirectedReactable(), mView.mDisplayedReactable);
   }
 
   private void assertSentState() {
@@ -180,14 +182,21 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Loading image is shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
-    assertEquals(SENT, mCurrentState);
+    assertEquals(SENT, mViewModel.getDirectingState());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(1, mMockWebServer.getRequestCount());
+      }
+    });
   }
 
   private void assertPublishedState() {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mPublishedToBackend);
-        assertEquals(PUBLISHED, mCurrentState);
+        assertEquals(PUBLISHED, mViewModel.getDirectingState());
+        assertEquals(SAVED_SUCCESSFULLY, mView.getToastText());
+        // Should leave studio
+        assertTrue(mView.mLeftStudio);
       }
     });
   }
@@ -202,20 +211,16 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
-    @Override public void onPublished() {
-      mCurrentState = PUBLISHED;
+    private boolean mLeftStudio = false;
+    private boolean mPreviewRestored = false;
+    private Reactable mDisplayedReactable;
+
+    @Override public void leaveStudio() {
+      mLeftStudio = true;
     }
 
-    @Override public void onApproval() {
-      mCurrentState = APPROVAL;
-    }
-
-    @Override public void onSent() {
-      mCurrentState = SENT;
-    }
-
-    @Override public void onDirecting() {
-      mCurrentState = DIRECTING;
+    @Override public void restoreCameraPreview() {
+      mPreviewRestored = true;
     }
 
     @Override public void displayPreview(Reactable reactable) {
