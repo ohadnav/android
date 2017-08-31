@@ -36,6 +36,7 @@ android {
     beta {
       initWith release
       buildConfigField "String", "BASE_BACKEND_URL", '"https://truethat-staging.appspot.com/"'
+      versionNameSuffix "-beta"
     }
   }
 }

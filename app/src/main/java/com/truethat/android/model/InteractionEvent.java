@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
+import com.truethat.android.common.network.NetworkUtil;
 import java.util.Date;
 
 /**
@@ -46,5 +47,9 @@ import java.util.Date;
     mReaction = reaction;
     mEventType = eventType;
     mReactableId = reactableId;
+  }
+
+  @Override public String toString() {
+    return NetworkUtil.GSON.toJson(this);
   }
 }

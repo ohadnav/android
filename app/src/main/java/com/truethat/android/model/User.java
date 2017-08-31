@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.VisibleForTesting;
+import com.truethat.android.common.network.NetworkUtil;
 import java.io.Serializable;
 
 import static com.truethat.android.common.util.StringUtil.toTitleCase;
@@ -119,7 +120,7 @@ public class User implements Serializable {
   }
 
   @Override public String toString() {
-    return "User (id=" + mId + ")";
+    return NetworkUtil.GSON.toJson(this);
   }
 
   private boolean hasId() {
