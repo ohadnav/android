@@ -3,6 +3,7 @@
 /local.properties
 /.idea/workspace.xml
 /app/.idea/workspace.xml
+**/.idea/misc.xml
 
 # Gradle
 .gradle
