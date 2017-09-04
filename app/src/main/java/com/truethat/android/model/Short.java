@@ -21,7 +21,7 @@ import retrofit2.Call;
 
 public class Short extends Reactable {
   private static final String VIDEO_FILENAME = "short.mp4";
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -7669202029690134610L;
   /**
    * Signed URL to the pose's image on our storage.
    */

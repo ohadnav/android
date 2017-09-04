@@ -21,7 +21,7 @@ import retrofit2.Call;
 
 public class Pose extends Reactable implements Serializable {
   private static final String IMAGE_FILENAME = "pose.jpg";
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -3555746698314780865L;
   /**
    * Signed URL to the pose's image on our storage.
    */

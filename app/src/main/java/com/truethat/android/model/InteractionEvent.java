@@ -2,6 +2,7 @@ package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
 import com.truethat.android.common.network.NetworkUtil;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,8 +13,9 @@ import java.util.Date;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/InteractionEvent.java</a>
  */
 
-@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent {
-  private static final long serialVersionUID = 1L;
+@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent
+    implements Serializable {
+  private static final long serialVersionUID = 3577142099634828092L;
   /**
    * Client UTC timestamp
    */

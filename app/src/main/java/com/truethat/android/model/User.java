@@ -13,7 +13,7 @@ import static com.truethat.android.common.util.StringUtil.toTitleCase;
  */
 
 public class User implements Serializable {
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2497412482569724543L;
   /**
    * User ID, as stored in our backend.
    */

@@ -20,7 +20,7 @@ import retrofit2.Call;
  * Each implementation should register at {@link NetworkUtil#GSON}.
  */
 public abstract class Reactable implements Serializable {
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -6924899217823271128L;
   /**
    * ID as stored in our backend.
    */
