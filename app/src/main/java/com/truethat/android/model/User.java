@@ -13,6 +13,7 @@ import static com.truethat.android.common.util.StringUtil.toTitleCase;
  */
 
 public class User implements Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * User ID, as stored in our backend.
    */
@@ -53,10 +54,7 @@ public class User implements Serializable {
     mLastName = lastName;
   }
 
-  public long getId() {
-    if (mId == null) {
-      throw new IllegalStateException("User ID had not been initialized.");
-    }
+  public Long getId() {
     return mId;
   }
 
@@ -77,7 +75,7 @@ public class User implements Serializable {
    * @return whether ID, first and last names are all non-null.
    */
   public boolean isAuthOk() {
-    return hasId() && onBoarded();
+    return mId != null && onBoarded();
   }
 
   public String getDeviceId() {
@@ -121,9 +119,5 @@ public class User implements Serializable {
 
   @Override public String toString() {
     return NetworkUtil.GSON.toJson(this);
-  }
-
-  private boolean hasId() {
-    return mId != null;
   }
 }

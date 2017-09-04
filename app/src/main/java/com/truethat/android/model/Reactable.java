@@ -20,31 +20,27 @@ import retrofit2.Call;
  * Each implementation should register at {@link NetworkUtil#GSON}.
  */
 public abstract class Reactable implements Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * ID as stored in our backend.
    */
   private Long mId;
-
   /**
    * The user reaction to the reactable, {@code null} for no reaction.
    */
   private Emotion mUserReaction;
-
   /**
    * Creator of the reactable. By default, the current user is assigned.
    */
   private User mDirector;
-
   /**
    * Counters of emotional reactions to the reactable, per each emotion.
    */
   private TreeMap<Emotion, Long> mReactionCounters;
-
   /**
    * Date of creation.
    */
   private Date mCreated;
-
   /**
    * Whether the reactable was viewed by the user.
    */

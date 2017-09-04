@@ -84,7 +84,7 @@ import static org.junit.Assert.assertTrue;
         // Assert the user was is saved onto internal storage.
         assertEquals(mUser, mInternalStorage.read(AuthManager.LAST_USER_PATH));
         // Assert the current user now has an ID.
-        assertEquals(USER_ID, mAuthManager.getCurrentUser().getId());
+        assertEquals(USER_ID, mAuthManager.getCurrentUser().getId().longValue());
         // Assert result is ok.
         assertEquals(AuthResult.OK, mListener.getAuthResult());
       }

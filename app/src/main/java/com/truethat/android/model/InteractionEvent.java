@@ -13,28 +13,25 @@ import java.util.Date;
  */
 
 @SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent {
+  private static final long serialVersionUID = 1L;
   /**
    * Client UTC timestamp
    */
   private Date mTimestamp;
-
   /**
    * ID of the user that triggered the event.
    */
   private long mUserId;
-
   /**
    * For {@link EventType#REACTABLE_REACTION}.
    * <p>
    * Must be null for irrelevant events (such as {@link EventType#REACTABLE_VIEW}).
    */
   private Emotion mReaction;
-
   /**
    * Event type, to sync with frontend clients.
    */
   private EventType mEventType;
-
   /**
    * Of the {@link Reactable} that was interacted with.
    */
