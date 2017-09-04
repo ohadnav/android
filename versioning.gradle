@@ -1,7 +1,5 @@
-// Version initial value, as recommended by https://blog.jayway.com/2015/03/11/automatic-versioncode-generation-in-android-gradle/
-version = '1.2.1-rc1'
-
 ext {
+
   /** 
    * Builds an Android version code from the version of the project.
    * This is designed to handle the -SNAPSHOT and -RC format.
@@ -18,7 +16,6 @@ ext {
     //-RC* counts as the RC number, i.e. 1 to 98
     //final release counts as 99.
     //Thus you can only have 98 Release Candidates, which ought to be enough for everyone
-
     def candidate = '99'
     def (major, minor, patch) = version.toLowerCase().replaceAll('-', '').tokenize('.')
     if (patch.endsWith('snapshot')) {

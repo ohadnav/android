@@ -19,3 +19,7 @@
 
 # Mac OS files
 .DS_Store
+
+
+# Fabric
+/app/fabric.properties
