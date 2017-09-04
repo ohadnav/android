@@ -14,9 +14,11 @@ import android.view.View;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.LoggingKey;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.external.ProxyViewHelper;
@@ -137,6 +139,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     try {
       return (DataBinding) mViewModelHelper.getBinding();
     } catch (ClassCastException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
@@ -183,6 +186,7 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @CallSuper @Override public void onResume() {
     super.onResume();
+    Crashlytics.setString(LoggingKey.ACTIVITY.name(), TAG);
     if (!mSkipAuth) {
       AppContainer.getAuthManager().auth(this);
     }

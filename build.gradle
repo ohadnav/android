@@ -14,7 +14,7 @@ allprojects {
     jcenter()
     mavenLocal()
     maven {
-      url "http://maven.affectiva.com"
+      url 'http://maven.affectiva.com'
     }
   }
 }

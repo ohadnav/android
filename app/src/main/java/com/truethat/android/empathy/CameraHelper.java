@@ -13,6 +13,7 @@ import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import com.affectiva.android.affdex.sdk.Frame;
+import com.crashlytics.android.Crashlytics;
 import java.io.IOException;
 import java.util.List;
 
@@ -128,6 +129,7 @@ import java.util.List;
     try {
       safeCamera.setPreviewTexture(texture);
     } catch (IOException e) {
+      Crashlytics.logException(e);
       Log.i(TAG, "Unable to start camera preview" + e.getMessage());
     }
 
@@ -150,6 +152,7 @@ import java.util.List;
     try {
       safeCamera.startPreview();
     } catch (Exception e) {
+      Crashlytics.logException(e);
       Log.e(TAG, "Failed to start preview!");
       stopPreviewing();
     }

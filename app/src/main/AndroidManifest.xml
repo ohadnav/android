@@ -61,6 +61,10 @@
         android:name=".view.activity.RepertoireActivity"
         android:launchMode="singleTask">
     </activity>
+
+    <meta-data
+        android:name="io.fabric.ApiKey"
+        android:value="ddc8f05b8b5cc1630205777b73f3254602112b8e"/>
   </application>
 
 </manifest>

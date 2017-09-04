@@ -1,4 +1,19 @@
+buildscript {
+  repositories {
+    maven { url 'https://maven.fabric.io/public' }
+  }
+
+  dependencies {
+    //noinspection GradleDynamicVersion
+    classpath 'io.fabric.tools:gradle:1.+'
+  }
+}
 apply plugin: "com.android.application"
+apply plugin: 'io.fabric'
+
+repositories {
+  maven { url 'https://maven.fabric.io/public' }
+}
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -24,6 +39,7 @@ android {
       buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.0.27:8080/"'
       buildConfigField "String", "EMULATOR_BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
       buildConfigField "String", "TEST_BASE_BACKEND_URL", '"http://localhost:8070/"'
+      buildConfigField "String", "APPSEE_API_KEY", '"8f3b34050a22433ab923fced71a10e50"'
       applicationIdSuffix ".debug"
     }
     release {
@@ -31,11 +47,13 @@ android {
       zipAlignEnabled true
       proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
       buildConfigField "String", "BASE_BACKEND_URL", '"https://truethat-app.appspot.com/"'
+      buildConfigField "String", "APPSEE_API_KEY", '"89c90b70e4d842d888795abf01e181b5"'
     }
     // For beta testing in the PlayStore.
     beta {
       initWith release
       buildConfigField "String", "BASE_BACKEND_URL", '"https://truethat-staging.appspot.com/"'
+      buildConfigField "String", "APPSEE_API_KEY", '"8f3b34050a22433ab923fced71a10e50"'
       versionNameSuffix "-beta"
     }
   }
@@ -54,6 +72,11 @@ dependencies {
   compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
   compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
   compile "eu.inloop:androidviewmodel:$rootProject.inloopMvvmVersion"
+  compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+    transitive = true;
+  }
+  //noinspection GradleDynamicVersion
+  compile 'com.appsee:appsee-android:+'
   compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
   annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
   testCompile "junit:junit:$rootProject.junitVersion"

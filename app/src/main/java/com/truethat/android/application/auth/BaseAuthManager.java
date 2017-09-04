@@ -2,7 +2,9 @@ package com.truethat.android.application.auth;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.application.DeviceManager;
+import com.truethat.android.application.LoggingKey;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.application.storage.internal.InternalStorageManager;
 import com.truethat.android.common.network.AuthApi;
@@ -139,12 +141,15 @@ public class BaseAuthManager implements AuthManager {
     cancelRequest();
     mAuthCall = mAuthApi.postAuth(user);
     mAuthCall.enqueue(new AuthCallback(listener, user));
+    Crashlytics.setString(LoggingKey.AUTH_USER.name(), user.toString());
   }
 
   void handleSuccessfulResponse(User respondedUser) throws IOException {
     mCurrentUser = respondedUser;
     mInternalStorage.write(AuthManager.LAST_USER_PATH, mCurrentUser);
     Log.v(TAG, mCurrentUser.getDisplayName() + " is authenticated.");
+    Crashlytics.setUserIdentifier(Long.toString(mCurrentUser.getId()));
+    Crashlytics.setUserName(mCurrentUser.getDisplayName());
   }
 
   private class AuthCallback implements Callback<User> {
@@ -166,6 +171,7 @@ public class BaseAuthManager implements AuthManager {
           handleSuccessfulResponse(respondedUser);
           mListener.onAuthOk();
         } catch (IOException | AssertionError e) {
+          Crashlytics.logException(e);
           e.printStackTrace();
           // Auth had failed
           Log.e(TAG, "Authentication request had failed, inconceivable!", e);
@@ -191,6 +197,7 @@ public class BaseAuthManager implements AuthManager {
     }
 
     @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+      Crashlytics.logException(t);
       t.printStackTrace();
       // Auth had failed
       Log.e(TAG, "Auth call failed: " + t.getMessage(), t);

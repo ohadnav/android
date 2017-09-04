@@ -1,5 +1,6 @@
 package com.truethat.android.external;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -41,6 +42,7 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserialize
     try {
       return dateFormat.parse(jsonElement.getAsString());
     } catch (ParseException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
       throw new JsonParseException(e);
     }

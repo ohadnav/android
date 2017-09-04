@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.application.App;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.external.ProxyViewHelper;
@@ -184,6 +185,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     try {
       return (DataBinding) mViewModelHelper.getBinding();
     } catch (ClassCastException ex) {
+      Crashlytics.logException(ex);
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
     }

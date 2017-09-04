@@ -34,6 +34,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Toast;
 import butterknife.BindView;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.permissions.Permission;
@@ -215,30 +216,6 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
-  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -340,6 +317,30 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
+  /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
 
   @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -419,6 +420,7 @@ public class CameraFragment extends
         }
       }, mBackgroundHandler.getHandler());
     } catch (CameraAccessException | IOException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -572,6 +574,7 @@ public class CameraFragment extends
       mPreviewSession.setRepeatingRequest(mPreviewRequestBuilder.build(), null,
           mBackgroundHandler.getHandler());
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -633,8 +636,10 @@ public class CameraFragment extends
       Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
       mFlashSupported = available == null ? false : available;
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     } catch (NullPointerException e) {
+      Crashlytics.logException(e);
       // Currently an NPE is thrown when the Camera2API is used but not supported on the
       // device this code runs.
       Log.e(TAG, "Camera2API is not supported.");
@@ -712,6 +717,7 @@ public class CameraFragment extends
         mCameraPreview.setAspectRatio(mPreviewSize.getHeight(), mPreviewSize.getWidth());
       }
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -734,8 +740,10 @@ public class CameraFragment extends
       }
       manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler.getHandler());
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     } catch (InterruptedException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
       throw new RuntimeException("Interrupted while trying to lock camera opening.", e);
     }
@@ -765,6 +773,7 @@ public class CameraFragment extends
         mMediaRecorder = null;
       }
     } catch (InterruptedException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
       throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
     } finally {
@@ -857,16 +866,19 @@ public class CameraFragment extends
                       mBackgroundHandler.getHandler());
                 }
               } catch (CameraAccessException e) {
+                Crashlytics.logException(e);
                 e.printStackTrace();
               }
             }
 
             @Override
             public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+              Crashlytics.logException(new Exception("Camera configuration had failed."));
               Log.e(TAG, "Configuration failed.");
             }
           }, null);
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -916,6 +928,7 @@ public class CameraFragment extends
       mPreviewSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
           mBackgroundHandler.getHandler());
     } catch (Exception e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -934,6 +947,7 @@ public class CameraFragment extends
       mPreviewSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
           mBackgroundHandler.getHandler());
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -983,6 +997,7 @@ public class CameraFragment extends
       }
       mState = CameraState.PICTURE_TAKEN;
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }
@@ -1022,6 +1037,7 @@ public class CameraFragment extends
       mPreviewSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
           mBackgroundHandler.getHandler());
     } catch (CameraAccessException e) {
+      Crashlytics.logException(e);
       e.printStackTrace();
     }
   }

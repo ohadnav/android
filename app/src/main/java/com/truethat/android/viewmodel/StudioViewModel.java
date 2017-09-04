@@ -9,8 +9,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Pose;
 import com.truethat.android.model.Reactable;
@@ -53,6 +55,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         mDirectedReactable = response.body();
         onPublished();
       } else {
+        Crashlytics.logException(new Exception("Failed to save reactable"));
         Log.e(TAG, "Failed to save reactable.\n"
             + call.request().url() + "\nDirected reactable: " + mDirectedReactable + "\nResponse: "
             + response.code()
@@ -65,6 +68,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     }
 
     @Override public void onFailure(@NonNull Call<Reactable> call, @NonNull Throwable t) {
+      Crashlytics.logException(t);
       t.printStackTrace();
       Log.e(TAG, "Saving pose request to " + call.request().url() + " had failed.", t);
       onPublishError();
@@ -119,6 +123,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mDirectingState = DirectingState.SENT;
     mSaveReactableCall = mDirectedReactable.createApiCall();
     mSaveReactableCall.enqueue(mSaveReactableCallback);
+    Crashlytics.setString(LoggingKey.DIRECTED_REACTABLE.name(), mDirectedReactable.toString());
     // Hides buttons.
     mCaptureButtonVisibility.set(false);
     mSwitchCameraButtonVisibility.set(false);

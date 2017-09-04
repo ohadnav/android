@@ -55,6 +55,8 @@
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
 -keep public class com.android.vending.licensing.ILicensingService
+-keep class android.support.** { *; }
+-keep interface android.support.** { *; }
 
 # Native implementations
 -keepclasseswithmembernames class * {
@@ -77,3 +79,7 @@
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
+
+# Appsee
+-keep class com.appsee.** { *; }
+-dontwarn com.appsee.**

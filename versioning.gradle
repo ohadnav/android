@@ -1,3 +1,6 @@
+// Version initial value, as recommended by https://blog.jayway.com/2015/03/11/automatic-versioncode-generation-in-android-gradle/
+version = '1.2.1-rc1'
+
 ext {
   /** 
    * Builds an Android version code from the version of the project.
@@ -5,7 +8,7 @@ ext {
    *
    * Taken from https://blog.jayway.com/2015/03/11/automatic-versioncode-generation-in-android-gradle/
    * I.e. during development the version ends with -SNAPSHOT. As the code stabilizes and release nears
-   * one or many Release Candidates are tagged. These all end with "-RC1", "-RC2" etc.
+   * one or many Release Candidates are tagged. These all end with '-RC1', '-RC2' etc.
    * And the final release is without any suffix.
    * @return
    */
@@ -16,14 +19,14 @@ ext {
     //final release counts as 99.
     //Thus you can only have 98 Release Candidates, which ought to be enough for everyone
 
-    def candidate = "99"
+    def candidate = '99'
     def (major, minor, patch) = version.toLowerCase().replaceAll('-', '').tokenize('.')
-    if (patch.endsWith("snapshot")) {
-      candidate = "0"
-      patch = patch.replaceAll("[^0-9]", "")
+    if (patch.endsWith('snapshot')) {
+      candidate = '0'
+      patch = patch.replaceAll('[^0-9]', '')
     } else {
       def rc
-      (patch, rc) = patch.tokenize("rc")
+      (patch, rc) = patch.tokenize('rc')
       if (rc) {
         candidate = rc
       }

@@ -3,10 +3,12 @@ package com.truethat.android.common.network;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.truethat.android.BuildConfig;
+import com.truethat.android.application.LoggingKey;
 import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
 import com.truethat.android.model.Pose;
@@ -80,6 +82,7 @@ public class NetworkUtil {
     @Override public Response intercept(@NonNull Chain chain) throws IOException {
       Request request = chain.request();
       Log.v(TAG, "Sending " + request.method() + " request to " + request.url());
+      Crashlytics.setString(LoggingKey.LAST_NETWORK_REQUEST.name(), request.url().toString());
       Request newRequest = request.newBuilder()
           .addHeader(HeadersContract.VERSION_NAME.getName(), BuildConfig.VERSION_NAME)
           .build();

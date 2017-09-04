@@ -11,8 +11,10 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import butterknife.BindString;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.DateUtil;
@@ -145,11 +147,13 @@ public class ReactableViewModel<Model extends Reactable>
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mReactable.doReaction(reaction);
       // Post event of reactable reaction.
-      mPostEventCall = mInteractionApi.postEvent(
+      InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(),
-              EventType.REACTABLE_REACTION, mReactable.getUserReaction()));
+              mReactable.getId(), new Date(), EventType.REACTABLE_REACTION,
+              mReactable.getUserReaction());
+      mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
+      Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(), interactionEvent.toString());
       updateReactionCounters();
       getView().bounceReactionImage();
     }
@@ -182,10 +186,11 @@ public class ReactableViewModel<Model extends Reactable>
         .getCurrentUser()
         .equals(mReactable.getDirector())) {
       mReactable.doView();
-      mInteractionApi.postEvent(
+      InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(),
-              EventType.REACTABLE_VIEW, null)).enqueue(mPostEventCallback);
+              mReactable.getId(), new Date(), EventType.REACTABLE_VIEW, null);
+      mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
+      Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(), interactionEvent.toString());
     }
   }
 
@@ -238,6 +243,7 @@ public class ReactableViewModel<Model extends Reactable>
       @Override public void onResponse(@NonNull Call<ResponseBody> call,
           @NonNull Response<ResponseBody> response) {
         if (!response.isSuccessful()) {
+          Crashlytics.logException(new Exception("Failed to save interaction event"));
           Log.e(TAG, "Failed to post event to "
               + call.request().url()
               + "\nRequest body: "
@@ -252,6 +258,7 @@ public class ReactableViewModel<Model extends Reactable>
       }
 
       @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+        Crashlytics.logException(t);
         t.printStackTrace();
         Log.e(TAG, "Post event request to " + call.request().url() + " had failed.", t);
       }

@@ -6,6 +6,7 @@ import android.databinding.ObservableList;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+import com.crashlytics.android.Crashlytics;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
@@ -107,7 +108,8 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
             displayNotFound();
           }
         } else {
-          Log.e(TAG, "Failed to get reactables from "
+          Crashlytics.logException(new Exception("Failed to fetch reactables"));
+          Log.e(TAG, "Failed to fetch reactables from "
               + call.request().url()
               + "\nUser: "
               + AppContainer.getAuthManager().getCurrentUser()
@@ -122,6 +124,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
       }
 
       @Override public void onFailure(@NonNull Call<List<Reactable>> call, @NonNull Throwable t) {
+        Crashlytics.logException(t);
         t.printStackTrace();
         Log.e(TAG, "Fetch reactables request to " + call.request().url() + " had failed.", t);
         displayNotFound();

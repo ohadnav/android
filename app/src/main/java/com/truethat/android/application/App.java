@@ -2,10 +2,14 @@ package com.truethat.android.application;
 
 import android.app.Application;
 import android.util.Log;
+import com.appsee.Appsee;
+import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.auth.BaseAuthManager;
 import com.truethat.android.application.permissions.DevicePermissionsManager;
 import com.truethat.android.application.storage.internal.DeviceInternalStorageManager;
 import com.truethat.android.empathy.AffectivaReactionDetectionManager;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Proudly created by ohad on 14/07/2017 for TrueThat.
@@ -24,5 +28,7 @@ public class App extends Application {
     AppContainer.setReactionDetectionManager(
         new AffectivaReactionDetectionManager(this, AppContainer.getPermissionsManager()));
     super.onCreate();
+    Fabric.with(this, new Crashlytics());
+    Appsee.start(BuildConfig.APPSEE_API_KEY);
   }
 }
