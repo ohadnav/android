@@ -25,9 +25,9 @@ import java.util.Date;
    */
   private long mUserId;
   /**
-   * For {@link EventType#REACTABLE_REACTION}.
+   * For {@link EventType#REACTION}.
    * <p>
-   * Must be null for irrelevant events (such as {@link EventType#REACTABLE_VIEW}).
+   * Must be null for irrelevant events (such as {@link EventType#VIEW}).
    */
   private Emotion mReaction;
   /**

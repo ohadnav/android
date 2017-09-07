@@ -149,7 +149,7 @@ public class ReactableViewModel<Model extends Reactable>
       // Post event of reactable reaction.
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(), EventType.REACTABLE_REACTION,
+              mReactable.getId(), new Date(), EventType.REACTION,
               mReactable.getUserReaction());
       mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
@@ -188,7 +188,7 @@ public class ReactableViewModel<Model extends Reactable>
       mReactable.doView();
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(), EventType.REACTABLE_VIEW, null);
+              mReactable.getId(), new Date(), EventType.VIEW, null);
       mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
       Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(), interactionEvent.toString());
     }

@@ -13,10 +13,10 @@ public enum EventType {
   /**
    * User viewed a reactable.
    */
-  REACTABLE_VIEW,
+  VIEW,
 
   /**
    * User reacted to a reactable.
    */
-  REACTABLE_REACTION
+  REACTION
 }
