@@ -21,13 +21,13 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   private State mState = State.IDLE;
 
   @Override public void start(@Nullable BaseActivity baseActivity) {
-    Log.v(TAG, "Starting detection.");
+    Log.d(TAG, "Starting detection.");
     mState = State.DETECTING;
   }
 
   @Override public void subscribe(ReactionDetectionListener reactionDetectionListener) {
     if (isDetecting()) {
-      Log.v(TAG, "Subscribing "
+      Log.d(TAG, "Subscribing "
           + reactionDetectionListener.getClass().getSimpleName()
           + "("
           + reactionDetectionListener.hashCode()
@@ -40,22 +40,22 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
 
   @Override public void unsubscribe(ReactionDetectionListener reactionDetectionListener) {
     if (mReactionDetectionListeners.contains(reactionDetectionListener)) {
-      Log.v(TAG, "Unsubscribing "
+      Log.d(TAG, "Unsubscribing "
           + reactionDetectionListener.getClass().getSimpleName()
           + "("
           + reactionDetectionListener.hashCode()
           + ")");
       mReactionDetectionListeners.remove(reactionDetectionListener);
-      Log.v(TAG, mReactionDetectionListeners.size() + " listeners left.");
+      Log.d(TAG, mReactionDetectionListeners.size() + " listeners left.");
     }
   }
 
   @Override public void stop() {
     if (mReactionDetectionListeners.isEmpty()) {
-      Log.v(TAG, "Stopping detection.");
+      Log.d(TAG, "Stopping detection.");
       mState = State.IDLE;
     } else {
-      Log.v(TAG, "Not stopping: "
+      Log.d(TAG, "Not stopping: "
           + mReactionDetectionListeners.size()
           + " listeners left (such as "
           + mReactionDetectionListeners.iterator().next().getClass().getSimpleName()
@@ -72,7 +72,7 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
 
   @CallSuper void onReactionDetected(Emotion reaction) {
     if (!mReactionDetectionListeners.isEmpty()) {
-      Log.v(TAG, "Detected " + reaction.name());
+      Log.d(TAG, "Detected " + reaction.name());
     }
     for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
       reactionDetectionListener.onReactionDetected(reaction);

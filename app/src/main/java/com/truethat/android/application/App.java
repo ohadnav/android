@@ -19,7 +19,7 @@ public class App extends Application {
   private static final String TAG = App.class.getSimpleName();
 
   @Override public void onCreate() {
-    Log.v(TAG, this.getClass().getSimpleName() + " has been created.");
+    Log.d(TAG, this.getClass().getSimpleName() + " has been created.");
     AppContainer.setDeviceManager(new HardwareDeviceManager(this));
     AppContainer.setPermissionsManager(new DevicePermissionsManager(this));
     AppContainer.setInternalStorageManager(new DeviceInternalStorageManager(this));
@@ -28,7 +28,9 @@ public class App extends Application {
     AppContainer.setReactionDetectionManager(
         new AffectivaReactionDetectionManager(this, AppContainer.getPermissionsManager()));
     super.onCreate();
-    Fabric.with(this, new Crashlytics());
-    Appsee.start(BuildConfig.APPSEE_API_KEY);
+    if (!BuildConfig.DEBUG) {
+      Fabric.with(this, new Crashlytics());
+      Appsee.start(BuildConfig.APPSEE_API_KEY);
+    }
   }
 }

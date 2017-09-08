@@ -26,8 +26,7 @@ public class FakeInternalStorageManager implements InternalStorageManager {
    */
   private boolean mShouldFail = false;
 
-  @Override public void write(String fileName, Serializable data)
-      throws IOException {
+  @Override public void write(String fileName, Serializable data) throws IOException {
 
     if (mShouldFail) fail();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

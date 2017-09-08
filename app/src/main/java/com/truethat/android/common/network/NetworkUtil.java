@@ -81,8 +81,10 @@ public class NetworkUtil {
   private static OkHttpClient CLIENT = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
     @Override public Response intercept(@NonNull Chain chain) throws IOException {
       Request request = chain.request();
-      Log.v(TAG, "Sending " + request.method() + " request to " + request.url());
-      Crashlytics.setString(LoggingKey.LAST_NETWORK_REQUEST.name(), request.url().toString());
+      Log.d(TAG, "Sending " + request.method() + " request to " + request.url());
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.setString(LoggingKey.LAST_NETWORK_REQUEST.name(), request.url().toString());
+      }
       Request newRequest = request.newBuilder()
           .addHeader(HeadersContract.VERSION_NAME.getName(), BuildConfig.VERSION_NAME)
           .build();

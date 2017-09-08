@@ -29,7 +29,7 @@ public class AskForPermissionActivity extends
    * Asks for permission again.
    */
   @OnClick(R.id.askPermissionButton) public void askForPermission() {
-    Log.v(TAG, "Asking for " + mPermission.name() + " again.");
+    Log.d(TAG, "Asking for " + mPermission.name() + " again.");
     AppContainer.getPermissionsManager()
         .requestIfNeeded(AskForPermissionActivity.this, mPermission);
   }

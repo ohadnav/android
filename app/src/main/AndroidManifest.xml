@@ -8,7 +8,6 @@
   <!-- For phone number and device ID -->
   <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
-  <!-- For Affectiva -->
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
   <uses-feature android:name="android.hardware.camera.any"/>

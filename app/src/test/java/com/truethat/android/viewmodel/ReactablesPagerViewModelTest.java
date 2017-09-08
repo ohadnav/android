@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
  */
-@SuppressWarnings("RedundantCast") public class ReactablesPagerViewModelTest
+@SuppressWarnings({ "RedundantCast", "serial" }) public class ReactablesPagerViewModelTest
     extends ViewModelTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;

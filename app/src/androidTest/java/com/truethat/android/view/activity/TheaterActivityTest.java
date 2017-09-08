@@ -5,7 +5,6 @@ import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Pose;
@@ -27,7 +26,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Proudly created by ohad on 05/06/2017 for TrueThat.
@@ -40,7 +38,8 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   private static final long SAD_COUNT = HAPPY_COUNT + 1;
-  private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
+  @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS =
+      new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
     put(Emotion.SAD, SAD_COUNT);
   }};
@@ -53,8 +52,6 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        assertEquals(mFakeAuthManager.getCurrentUser(),
-            NetworkUtil.GSON.fromJson(request.getBody().readUtf8(), User.class));
         String responseBody = GSON.toJson(mRespondedPoses);
         mRespondedPoses = Collections.emptyList();
         return new MockResponse().setBody(responseBody);

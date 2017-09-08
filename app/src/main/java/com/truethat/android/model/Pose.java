@@ -4,8 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
-import com.truethat.android.view.fragment.PoseFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.view.fragment.MediaFragment;
+import com.truethat.android.view.fragment.PhotoFragment;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -59,8 +59,8 @@ public class Pose extends Reactable implements Serializable {
     return mImageBytes;
   }
 
-  @Override public ReactableFragment createFragment() {
-    return PoseFragment.newInstance(this);
+  @Override public MediaFragment createMediaFragment() {
+    return PhotoFragment.newInstance(new Photo(mImageUrl, mImageBytes));
   }
 
   @Override public Call<Reactable> createApiCall() {

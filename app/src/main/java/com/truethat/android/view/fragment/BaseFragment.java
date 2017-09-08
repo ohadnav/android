@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.App;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.external.ProxyViewHelper;
@@ -65,16 +66,17 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void onAttach(Context context) {
     TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
-    Log.v(TAG, "ATTACHED");
+    Log.d(TAG, "ATTACHED");
     super.onAttach(context);
   }
 
   @SuppressWarnings("unchecked") @CallSuper @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
+    Log.d(TAG, "CREATED");
     super.onCreate(savedInstanceState);
     // Initializes view model
     Class<ViewModel> viewModelClass =
-        (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseViewModel.class);
+        (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseFragmentViewModel.class);
     mViewModelHelper.onCreate(getActivity(), savedInstanceState, viewModelClass, getArguments());
     mViewModelHelper.performBinding(this);
   }
@@ -84,7 +86,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    Log.v(TAG, "VIEW CREATED");
+    Log.d(TAG, "CREATING VIEW");
     // Completes data binding.
     mViewModelHelper.performBinding(this);
     final ViewDataBinding binding = mViewModelHelper.getBinding();
@@ -105,8 +107,13 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     return mRootView;
   }
 
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    Log.d(TAG, "VIEW CREATED");
+    super.onViewCreated(view, savedInstanceState);
+  }
+
   @CallSuper @Override public void onStart() {
-    Log.v(TAG, "STARTED");
+    Log.d(TAG, "STARTED");
     super.onStart();
     mViewModelHelper.onStart();
   }
@@ -116,40 +123,46 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * and {@link #onHidden()} here as well.
    */
   @CallSuper @Override public void onResume() {
-    Log.v(TAG, "RESUMED");
+    Log.d(TAG, "RESUMED");
     super.onResume();
     if (getUserVisibleHint()) onVisible();
   }
 
   @CallSuper @Override public void onPause() {
-    Log.v(TAG, "PAUSED");
+    Log.d(TAG, "PAUSED");
     super.onPause();
     onHidden();
   }
 
   @CallSuper @Override public void onStop() {
-    Log.v(TAG, "STOPPED");
+    Log.d(TAG, "STOPPED");
     super.onStop();
     mViewModelHelper.onStop();
   }
 
   @CallSuper @Override public void onDestroyView() {
-    Log.v(TAG, "VIEW DESTROYED");
+    Log.d(TAG, "VIEW DESTROYED");
     mViewModelHelper.onDestroyView(this);
     super.onDestroyView();
     mViewUnbinder.unbind();
   }
 
   @CallSuper @Override public void onDestroy() {
+    Log.d(TAG, "DESTROYED");
     mViewModelHelper.onDestroy(this);
     super.onDestroy();
+  }
+
+  @Override public void onDetach() {
+    Log.d(TAG, "DETACHED");
+    super.onDetach();
   }
 
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
   @SuppressWarnings("WeakerAccess") @CallSuper public void onVisible() {
-    Log.v(TAG, "VISIBLE");
+    Log.d(TAG, "VISIBLE");
     getViewModel().onVisible();
   }
 
@@ -157,7 +170,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * Should be invoked once this fragment is hidden. Use with caution.
    */
   @CallSuper public void onHidden() {
-    Log.v(TAG, "HIDDEN");
+    Log.d(TAG, "HIDDEN");
     getViewModel().onHidden();
   }
 
@@ -184,8 +197,10 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   public DataBinding getBinding() {
     try {
       return (DataBinding) mViewModelHelper.getBinding();
-    } catch (ClassCastException ex) {
-      Crashlytics.logException(ex);
+    } catch (ClassCastException e) {
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
     }

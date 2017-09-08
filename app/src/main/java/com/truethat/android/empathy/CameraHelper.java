@@ -14,6 +14,7 @@ import android.view.OrientationEventListener;
 import android.view.Surface;
 import com.affectiva.android.affdex.sdk.Frame;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import java.io.IOException;
 import java.util.List;
 
@@ -129,7 +130,9 @@ import java.util.List;
     try {
       safeCamera.setPreviewTexture(texture);
     } catch (IOException e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       Log.i(TAG, "Unable to start camera preview" + e.getMessage());
     }
 
@@ -152,7 +155,9 @@ import java.util.List;
     try {
       safeCamera.startPreview();
     } catch (Exception e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       Log.e(TAG, "Failed to start preview!");
       stopPreviewing();
     }
@@ -292,7 +297,7 @@ import java.util.List;
     // although this shouldn't happen on a real device.
     // See https://code.google.com/p/android/issues/detail?id=6271
     if (null == supportedPreviewSizes || supportedPreviewSizes.isEmpty()) {
-      Log.v(TAG, "Camera returning null for getSupportedPreviewSizes(), will use default");
+      Log.d(TAG, "Camera returning null for getSupportedPreviewSizes(), will use default");
       return;
     }
 

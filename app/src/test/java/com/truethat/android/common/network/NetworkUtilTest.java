@@ -21,7 +21,8 @@ public class NetworkUtilTest {
   private static final int NUM = 5;
   private static final Date DATE = new Date(0);
   private static final String UTC_DATE = "\"1970-01-01T00:00:00.000+0000\"";
-  private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
+  @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS =
+      new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, 10L);
   }};
   private static final Reactable pose =

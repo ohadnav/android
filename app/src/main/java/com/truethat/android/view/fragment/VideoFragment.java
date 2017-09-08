@@ -1,6 +1,5 @@
 package com.truethat.android.view.fragment;
 
-import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,13 +11,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnTouch;
 import com.truethat.android.R;
-import com.truethat.android.databinding.FragmentReactableBinding;
-import com.truethat.android.model.Short;
-import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.model.Video;
 import java.io.File;
 
 import static android.view.View.GONE;
@@ -28,26 +24,24 @@ import static android.view.View.VISIBLE;
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
 
-public class ShortFragment
-    extends ReactableFragment<Short, ReactableViewModel<Short>, FragmentReactableBinding> {
+public class VideoFragment extends MediaFragment<Video> {
   @BindView(R.id.videoSurface) SurfaceView mVideoSurface;
-  @BindView(R.id.loadingImage) ImageView mLoadingImage;
   private MediaPlayer mMediaPlayer;
 
-  public ShortFragment() {
+  public VideoFragment() {
     // Required empty public constructor
   }
 
-  public static ShortFragment newInstance(Short aShort) {
-    ShortFragment shortFragment = new ShortFragment();
-    ReactableFragment.prepareInstance(shortFragment, aShort);
-    shortFragment.mAutomaticViewBinding = false;
-    return shortFragment;
+  public static VideoFragment newInstance(Video video) {
+    VideoFragment videoFragment = new VideoFragment();
+    MediaFragment.prepareInstance(videoFragment, video);
+    videoFragment.mAutomaticViewBinding = false;
+    return videoFragment;
   }
 
   @Override public void onVisible() {
     super.onVisible();
-    if (getViewModel().isReady()) {
+    if (mIsReady) {
       mLoadingImage.setVisibility(GONE);
       mMediaPlayer.start();
     }
@@ -58,7 +52,7 @@ public class ShortFragment
   }
 
   /**
-   * Displays the video from {@link Short#getVideoInternalPath()} or {@link Short#getVideoUrl()},
+   * Displays the video from {@link Video#getInternalPath()} or {@link Video#getUrl()},
    * and adds a cute loading animation until it is loaded.
    */
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,25 +60,31 @@ public class ShortFragment
     super.onCreateView(inflater, container, savedInstanceState);
     mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
       @Override public void surfaceCreated(SurfaceHolder holder) {
-        Uri videoUri = mReactable.getVideoInternalPath() != null ? Uri.fromFile(
-            new File(mReactable.getVideoInternalPath())) : Uri.parse(mReactable.getVideoUrl());
+        Uri videoUri =
+            mMedia.getInternalPath() != null ? Uri.fromFile(new File(mMedia.getInternalPath()))
+                : Uri.parse(mMedia.getUrl());
         mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), videoUri,
             mVideoSurface.getHolder());
-        // TODO(ohad): handle prepared failure
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
             mLoadingImage.setVisibility(GONE);
-            mMediaPlayer.start();
-            getViewModel().onReady();
+            mp.start();
+            mIsReady = true;
+            Log.d(TAG, "Video is prepared.");
+            if (mMediaListener != null) {
+              mMediaListener.onReady();
+            }
           }
         });
         mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
           @Override public boolean onInfo(MediaPlayer mp, int what, int extra) {
             switch (what) {
               case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                Log.d(TAG, "Video is buffering.");
                 mLoadingImage.setVisibility(VISIBLE);
                 break;
               case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                Log.d(TAG, "Video buffering completed.");
                 mLoadingImage.setVisibility(GONE);
                 break;
             }
@@ -107,23 +107,17 @@ public class ShortFragment
     return mRootView;
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    ((AnimationDrawable) mLoadingImage.getDrawable()).start();
-    mLoadingImage.bringToFront();
-  }
-
-  @Override int getMediaFragmentResource() {
-    return R.layout.fragment_short;
+  @Override int getLayoutResource() {
+    return R.layout.fragment_video;
   }
 
   @OnTouch(R.id.videoSurface) boolean pauseOrResumeVideo(MotionEvent motionEvent) {
     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-      Log.v(TAG, "Short video paused.");
+      Log.d(TAG, "Video video paused.");
       mMediaPlayer.pause();
       return true;
     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-      Log.v(TAG, "Short video is resumed.. and action!");
+      Log.d(TAG, "Video video is resumed.. and action!");
       mMediaPlayer.start();
       return true;
     }

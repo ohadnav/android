@@ -40,11 +40,20 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Ignored warnings
+# Ignore warnings
 -dontwarn okio.**
+
+# Guava
 -dontwarn com.google.**
+
+# Affectiva
 -dontwarn com.affectiva.**
+
+# Retrofit 2
 -dontwarn retrofit2.Platform$Java8
+
+#Picasso
+-dontwarn com.squareup.okhttp.**
 
 # Android classes
 -keep public class * extends android.app.Activity

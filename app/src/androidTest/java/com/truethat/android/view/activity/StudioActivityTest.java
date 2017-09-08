@@ -14,12 +14,9 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.fragment.CameraFragment;
-import com.truethat.android.view.fragment.PoseFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
-import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.view.fragment.MediaFragment;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.awaitility.core.ThrowingRunnable;
@@ -109,15 +106,12 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     assertApprovalState();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(((PoseFragment) mStudioActivityTestRule.getActivity()
+        assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
             .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).getViewModel().isReady());
+            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
       }
     });
-    onView(withId(R.id.mediaLayout)).check(matches(isFullScreen()));
-    // Should hide metadata
-    onView(withId(R.id.infoLayout)).check(matches(not(isDisplayed())));
-    onView(withId(R.id.reactionCounterLayout)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.imageView)).check(matches(isFullScreen()));
   }
 
   @Test public void takePhotoAndResumeDirecting() throws Exception {
@@ -136,6 +130,14 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
         new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
     // Should proceed to approval state
     assertApprovalState();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
+            .getSupportFragmentManager()
+            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
+      }
+    });
+    onView(withId(R.id.videoSurface)).check(matches(isFullScreen()));
   }
 
   @Test public void recordVideoAndResumeDirecting() throws Exception {
@@ -211,7 +213,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Loading image is hidden
     assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is hidden
-    onView(withId(R.id.previewLayout)).check(matches(not(isDisplayed())));
+    onView(withId(R.id.previewContainer)).check(matches(not(isDisplayed())));
   }
 
   private void assertApprovalState() {
@@ -230,15 +232,14 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Loading image is hidden
     assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is shown
-    onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
+    onView(withId(R.id.previewContainer)).check(matches(isDisplayed()));
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         //noinspection unchecked
-        assertTrue(
-            ((ReactableFragment<Reactable, ReactableViewModel<Reactable>, FragmentReactableBinding>) mStudioActivityTestRule
+        assertTrue(((MediaFragment) mStudioActivityTestRule
                 .getActivity()
-                .getSupportFragmentManager()
-                .findFragmentByTag(DIRECTED_REACTABLE_TAG)).getViewModel().isReady());
+            .getSupportFragmentManager()
+            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
       }
     });
   }
@@ -254,7 +255,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Loading image is show
     assertEquals(VISIBLE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed reactable preview is shown
-    onView(withId(R.id.previewLayout)).check(matches(isDisplayed()));
+    onView(withId(R.id.previewContainer)).check(matches(isDisplayed()));
     // Network request had been made
     assertEquals(1, mDispatcher.getCount(StudioApi.PATH));
   }

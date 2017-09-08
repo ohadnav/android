@@ -33,11 +33,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 24/08/2017 for TrueThat.
  */
-public class ShortFragmentTest extends BaseApplicationTestSuite {
+public class VideoFragmentTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
+  // TODO(ohad): remove short basically
   private Short mShort;
-  private ShortFragment mShortFragment;
+  private VideoFragment mVideoFragment;
 
   @Override public void setUp() throws Exception {
     super.setUp();
@@ -54,13 +55,14 @@ public class ShortFragmentTest extends BaseApplicationTestSuite {
     mRepertoireActivityRule.launchActivity(null);
     // Wait until the reactable fragment is created.
     waitMatcher(withId(R.id.reactableFragment));
-    mShortFragment =
-        (ShortFragment) ((ReactablesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.reactablesPagerFragment)).getDisplayedReactable();
+    mVideoFragment =
+        (VideoFragment) ((ReactablesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.reactablesPagerFragment)).getDisplayedReactable()
+            .getMediaFragment();
     // Wait until the fragment is ready
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mShortFragment.getViewModel().isReady());
+        assertTrue(mVideoFragment.isReady());
       }
     });
     // Loading image should be hidden once ready
@@ -71,19 +73,19 @@ public class ShortFragmentTest extends BaseApplicationTestSuite {
     // Should be playing video
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mShortFragment.getMediaPlayer().isPlaying());
-        assertNotEquals(0, mShortFragment.getMediaPlayer().getCurrentPosition());
+        assertTrue(mVideoFragment.getMediaPlayer().isPlaying());
+        assertNotEquals(0, mVideoFragment.getMediaPlayer().getCurrentPosition());
       }
     });
     // Pause video
-    final int currentPosition = mShortFragment.getMediaPlayer().getCurrentPosition();
+    final int currentPosition = mVideoFragment.getMediaPlayer().getCurrentPosition();
     onView(withId(R.id.videoSurface)).perform(longClick());
-    assertTrue(mShortFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 50);
+    assertTrue(mVideoFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 50);
     // Should resume playing
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertTrue(mShortFragment.getMediaPlayer().isPlaying());
-        assertTrue(mShortFragment.getMediaPlayer().getCurrentPosition() - currentPosition > 1000);
+        assertTrue(mVideoFragment.getMediaPlayer().isPlaying());
+        assertTrue(mVideoFragment.getMediaPlayer().getCurrentPosition() - currentPosition > 1000);
       }
     });
   }

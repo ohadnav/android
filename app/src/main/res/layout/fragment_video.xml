@@ -2,34 +2,20 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/poseFragment"
+    android:id="@+id/videoFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragment.PoseFragment"
+    tools:context=".view.fragment.VideoFragment"
     >
 
-  <ImageView
-      android:id="@+id/poseImage"
+  <SurfaceView
+      android:id="@+id/videoSurface"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:contentDescription="@string/image_content_description"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      />
-
-  <ImageView
-      android:id="@+id/loadingImage"
-      android:layout_width="80dp"
-      android:layout_height="80dp"
-      android:contentDescription="@string/image_content_description"
-      android:scaleType="centerInside"
-      app:layout_constraintBottom_toTopOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/anim_loader"
       />
 
 </android.support.constraint.ConstraintLayout>

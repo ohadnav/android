@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.LoggingKey;
@@ -55,9 +56,14 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         mDirectedReactable = response.body();
         onPublished();
       } else {
-        Crashlytics.logException(new Exception("Failed to save reactable"));
+        if (!BuildConfig.DEBUG) {
+          Crashlytics.logException(new Exception("Failed to save reactable."));
+        }
         Log.e(TAG, "Failed to save reactable.\n"
-            + call.request().url() + "\nDirected reactable: " + mDirectedReactable + "\nResponse: "
+            + call.request().url()
+            + "\nDirected reactable: "
+            + mDirectedReactable
+            + "\nResponse: "
             + response.code()
             + " "
             + response.message()
@@ -68,7 +74,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     }
 
     @Override public void onFailure(@NonNull Call<Reactable> call, @NonNull Throwable t) {
-      Crashlytics.logException(t);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(t);
+      }
       t.printStackTrace();
       Log.e(TAG, "Saving pose request to " + call.request().url() + " had failed.", t);
       onPublishError();
@@ -119,11 +127,13 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   public void onSent() {
-    Log.v(TAG, "Change state: " + DirectingState.SENT.name());
+    Log.d(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
     mSaveReactableCall = mDirectedReactable.createApiCall();
     mSaveReactableCall.enqueue(mSaveReactableCallback);
-    Crashlytics.setString(LoggingKey.DIRECTED_REACTABLE.name(), mDirectedReactable.toString());
+    if (!BuildConfig.DEBUG) {
+      Crashlytics.setString(LoggingKey.DIRECTED_REACTABLE.name(), mDirectedReactable.toString());
+    }
     // Hides buttons.
     mCaptureButtonVisibility.set(false);
     mSwitchCameraButtonVisibility.set(false);
@@ -133,7 +143,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   public void disapprove() {
-    Log.v(TAG, "Reactable disapproved.");
+    Log.d(TAG, "Reactable disapproved.");
     onDirecting();
   }
 
@@ -149,7 +159,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     if (mDirectedReactable == null) {
       onDirecting();
     }
-    Log.v(TAG, "Change state: " + DirectingState.APPROVAL.name());
+    Log.d(TAG, "Change state: " + DirectingState.APPROVAL.name());
     mDirectingState = DirectingState.APPROVAL;
     // Exposes approval buttons.
     mCancelButtonVisibility.set(true);
@@ -166,7 +176,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   private void onDirecting() {
-    Log.v(TAG, "Change state: " + DirectingState.DIRECTING.name());
+    Log.d(TAG, "Change state: " + DirectingState.DIRECTING.name());
     mDirectingState = DirectingState.DIRECTING;
     // Hides approval buttons.
     mCancelButtonVisibility.set(false);
@@ -194,7 +204,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   private void onPublished() {
-    Log.v(TAG, "Change state: " + DirectingState.PUBLISHED.name());
+    Log.d(TAG, "Change state: " + DirectingState.PUBLISHED.name());
     mDirectingState = DirectingState.PUBLISHED;
     getView().toast(getContext().getString(R.string.saved_successfully));
     getView().leaveStudio();

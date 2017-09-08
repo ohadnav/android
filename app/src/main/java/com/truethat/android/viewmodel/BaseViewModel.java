@@ -31,13 +31,13 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
     TAG = this.getClass().getSimpleName();
-    Log.v(TAG, "CREATED");
+    Log.d(TAG, "CREATED");
   }
 
   @Override public void onBindView(@NonNull ViewInterface view) {
     super.onBindView(view);
     TAG = this.getClass().getSimpleName() + "(" + getView().getClass().getSimpleName() + ")";
-    Log.v(TAG, "DATA-BOUND");
+    Log.d(TAG, "DATA-BOUND");
   }
 
   @SuppressWarnings("ConstantConditions") @NonNull @Override public ViewInterface getView() {
@@ -45,12 +45,12 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   }
 
   @Override public void onStop() {
-    Log.v(TAG, "STOPPED");
+    Log.d(TAG, "STOPPED");
     super.onStop();
   }
 
   @Override public void onStart() {
-    Log.v(TAG, "STARTED");
+    Log.d(TAG, "STARTED");
     super.onStart();
   }
 }

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.view.fragment.CameraFragment;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -76,7 +77,9 @@ import java.util.List;
         }
       }
     } catch (CameraAccessException e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       e.printStackTrace();
     }
     return result;

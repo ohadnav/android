@@ -1,7 +1,6 @@
 package com.truethat.android.external;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -14,9 +13,9 @@ public class ProxyViewHelper {
    * @param in           a generic type that should extend {@code whichExtends}.
    * @param whichExtends a class we expect the generic type of {@code in} to extend.
    *
-   * @return the generic type of {@code in} that extends {@code whichExtends}.
+   * @return the generic type of {@code in}'s type parameters that extends {@code whichExtends}, or
+   * {@code whichExtends} if no such parameterized type exists.
    */
-  @Nullable
   public static Class<?> getGenericType(@NonNull Class<?> in, @NonNull Class<?> whichExtends) {
     final Type genericSuperclass = in.getGenericSuperclass();
     // If it has no parameters, then exit.
@@ -36,6 +35,6 @@ public class ProxyViewHelper {
         }
       }
     }
-    return null;
+    return whichExtends;
   }
 }

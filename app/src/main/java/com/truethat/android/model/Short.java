@@ -4,8 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
-import com.truethat.android.view.fragment.ReactableFragment;
-import com.truethat.android.view.fragment.ShortFragment;
+import com.truethat.android.view.fragment.MediaFragment;
+import com.truethat.android.view.fragment.VideoFragment;
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
@@ -43,13 +43,13 @@ public class Short extends Reactable {
     mVideoInternalPath = videoInternalPath;
   }
 
-  @Override public ReactableFragment createFragment() {
-    return ShortFragment.newInstance(this);
+  @Override public MediaFragment createMediaFragment() {
+    return VideoFragment.newInstance(new Video(mVideoUrl, mVideoInternalPath));
   }
 
   @Override public Call<Reactable> createApiCall() {
     if (mVideoInternalPath == null) {
-      throw new AssertionError("Image bytes had not been properly initialized.");
+      throw new AssertionError("Video internal path had not been properly initialized.");
     }
     MultipartBody.Part imagePart =
         MultipartBody.Part.createFormData(StudioApi.SHORT_VIDEO_PART, VIDEO_FILENAME,

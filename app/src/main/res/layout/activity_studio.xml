@@ -30,7 +30,7 @@
         />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/previewLayout"
+        android:id="@+id/previewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="@{viewModel.mReactablePreviewVisibility? View.VISIBLE : View.GONE}"

@@ -20,9 +20,9 @@ import com.truethat.android.viewmodel.OnBoardingViewModel;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
-public class OnBoardingActivity extends
-    BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding> implements
-    OnBoardingViewInterface {
+public class OnBoardingActivity
+    extends BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding>
+    implements OnBoardingViewInterface {
   @BindView(R.id.nameEditText) EditText mNameEditText;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
 
@@ -32,7 +32,7 @@ public class OnBoardingActivity extends
   }
 
   @Override public void onAuthFailed() {
-    Log.v(TAG, "onAuthFailed");
+    Log.d(TAG, "onAuthFailed");
     getViewModel().failedSignUp();
   }
 

@@ -1,6 +1,5 @@
 package com.truethat.android.empathy;
 
-import android.media.Image;
 import android.util.Log;
 import com.truethat.android.model.Emotion;
 
@@ -15,12 +14,13 @@ public class FakeReactionDetectionManager extends BaseReactionDetectionManager {
    * @param reaction of the detected emotion.
    */
   public void doDetection(Emotion reaction) {
-    Log.v(TAG, "Faking detection of " + reaction.name() + ".");
+    Log.d(TAG, "Faking detection of " + reaction.name() + ".");
     onReactionDetected(reaction);
   }
 
   /**
    * @param listener to check for
+   *
    * @return whether to given listener is subscribed to this detection manager.
    */
   public boolean isSubscribed(ReactionDetectionListener listener) {

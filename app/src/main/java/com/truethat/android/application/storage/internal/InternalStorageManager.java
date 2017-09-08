@@ -11,7 +11,8 @@ import java.io.Serializable;
 public interface InternalStorageManager {
   /**
    * Writes serialized data onto fileName,
-   *  @param fileName relative path, in relation to mContext.getFilesDir, to the designated file.
+   *
+   * @param fileName relative path, in relation to mContext.getFilesDir, to the designated file.
    * @param data     to write to the file.
    */
   void write(String fileName, Serializable data) throws IOException;
@@ -20,12 +21,11 @@ public interface InternalStorageManager {
    * Reads the contents of fileName, deserializes it, and casts it to type T
    *
    * @param <T>      of the deserialized object.
-   *
    * @param fileName relative path, in relation to mContext.getFilesDir, to the designated file.
+   *
    * @return the deserialized content of fileName.
    */
-  <T extends Serializable> T read(String fileName)
-      throws IOException, ClassNotFoundException;
+  <T extends Serializable> T read(String fileName) throws IOException, ClassNotFoundException;
 
   /**
    * Asses whether fileName exists.

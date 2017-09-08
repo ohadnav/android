@@ -3,6 +3,7 @@ package com.truethat.android.application.auth;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.application.permissions.Permission;
@@ -112,7 +113,7 @@ public class BaseAuthManager implements AuthManager {
   }
 
   @Override public void signOut(AuthListener listener) {
-    Log.v(TAG,
+    Log.d(TAG,
         "Signing " + (mCurrentUser != null ? mCurrentUser.getDisplayName() : "") + " out...");
     // Deletes user session.
     mCurrentUser = null;
@@ -141,15 +142,19 @@ public class BaseAuthManager implements AuthManager {
     cancelRequest();
     mAuthCall = mAuthApi.postAuth(user);
     mAuthCall.enqueue(new AuthCallback(listener, user));
-    Crashlytics.setString(LoggingKey.AUTH_USER.name(), user.toString());
+    if (!BuildConfig.DEBUG) {
+      Crashlytics.setString(LoggingKey.AUTH_USER.name(), user.toString());
+    }
   }
 
   void handleSuccessfulResponse(User respondedUser) throws IOException {
     mCurrentUser = respondedUser;
     mInternalStorage.write(AuthManager.LAST_USER_PATH, mCurrentUser);
     Log.v(TAG, mCurrentUser.getDisplayName() + " is authenticated.");
-    Crashlytics.setUserIdentifier(Long.toString(mCurrentUser.getId()));
-    Crashlytics.setUserName(mCurrentUser.getDisplayName());
+    if (!BuildConfig.DEBUG) {
+      Crashlytics.setUserIdentifier(Long.toString(mCurrentUser.getId()));
+      Crashlytics.setUserName(mCurrentUser.getDisplayName());
+    }
   }
 
   private class AuthCallback implements Callback<User> {
@@ -197,7 +202,9 @@ public class BaseAuthManager implements AuthManager {
     }
 
     @Override public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-      Crashlytics.logException(t);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(t);
+      }
       t.printStackTrace();
       // Auth had failed
       Log.e(TAG, "Auth call failed: " + t.getMessage(), t);

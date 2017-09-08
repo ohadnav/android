@@ -175,7 +175,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   }
 
   private boolean isNameValid() {
-    return !Strings.isNullOrEmpty(mNameEditText.get()) && StringUtil.isValidFullName(mNameEditText.get());
+    return !Strings.isNullOrEmpty(mNameEditText.get()) && StringUtil.isValidFullName(
+        mNameEditText.get());
   }
 
   @VisibleForTesting public enum Stage {

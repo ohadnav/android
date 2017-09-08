@@ -14,6 +14,7 @@ import com.affectiva.android.affdex.sdk.detector.Detector;
 import com.affectiva.android.affdex.sdk.detector.Face;
 import com.affectiva.android.affdex.sdk.detector.FrameDetector;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.model.Emotion;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +76,9 @@ class DetectionHandler extends Handler {
           mCameraHelper.acquire(Camera.CameraInfo.CAMERA_FACING_FRONT);
           mCameraHelper.start(mSurfaceTexture); // initiates previewing
         } catch (IllegalStateException e) {
-          Crashlytics.logException(e);
+          if (!BuildConfig.DEBUG) {
+            Crashlytics.logException(e);
+          }
           Log.d(TAG, "couldn't open camera: " + e.getMessage());
           // TODO(ohad): Let user know via UI
           return;

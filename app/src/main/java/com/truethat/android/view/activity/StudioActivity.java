@@ -20,12 +20,10 @@ import butterknife.OnTouch;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.databinding.ActivityStudioBinding;
-import com.truethat.android.databinding.FragmentReactableBinding;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.fragment.CameraFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
-import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.viewmodel.StudioViewModel;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -45,7 +43,7 @@ public class StudioActivity
    * UI initiated picture taking.
    */
   @OnClick(R.id.captureButton) public void captureImage() {
-    Log.v(TAG, "captureImage");
+    Log.d(TAG, "captureImage");
     mCameraFragment.takePicture();
   }
 
@@ -53,7 +51,7 @@ public class StudioActivity
    * UI initiated video recording.
    */
   @OnLongClick(R.id.captureButton) public boolean startRecordVideo() {
-    Log.v(TAG, "startRecordVideo");
+    Log.d(TAG, "startRecordVideo");
     mCameraFragment.startRecordVideo();
     return true;
   }
@@ -84,7 +82,7 @@ public class StudioActivity
    * Stop video recording.
    */
   public void stopRecordVideo() {
-    Log.v(TAG, "stopRecordVideo");
+    Log.d(TAG, "stopRecordVideo");
     mCameraFragment.stopRecordVideo();
   }
 
@@ -162,15 +160,10 @@ public class StudioActivity
   }
 
   @Override public void displayPreview(Reactable reactable) {
-    @SuppressWarnings("unchecked")
-    ReactableFragment<Reactable, ReactableViewModel<Reactable>, FragmentReactableBinding>
-        directedReactableFragment = reactable.createFragment();
-    directedReactableFragment.displayOnly();
+    MediaFragment mediaFragment = reactable.createMediaFragment();
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(R.id.previewLayout, directedReactableFragment,
-        DIRECTED_REACTABLE_TAG);
+    fragmentTransaction.replace(R.id.previewContainer, mediaFragment, DIRECTED_REACTABLE_TAG);
     fragmentTransaction.commit();
-
   }
 
   @Override protected void onNewIntent(Intent intent) {

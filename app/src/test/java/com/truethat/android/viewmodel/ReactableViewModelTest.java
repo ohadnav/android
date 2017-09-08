@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
  */
-public class ReactableViewModelTest extends ViewModelTestSuite {
+@SuppressWarnings("serial") public class ReactableViewModelTest extends ViewModelTestSuite {
   private static final long REACTABLE_ID = 1;
   private static final String IMAGE_URL = "http://www.ishim.co.il/i/11/1139.jpg";
   private static final User DIRECTOR = new User(1L, "Tomer", "Sh");
@@ -33,8 +33,7 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.SAD;
-  private ReactableViewInterface mView;
-  private ReactableViewModel<Reactable> mViewModel = new ReactableViewModel<>();
+  private ReactableViewModel mViewModel = new ReactableViewModel();
   private Pose mPose;
 
   private static void assertReactableDisplayed(ReactableViewModel viewModel, Reactable reactable,
@@ -67,24 +66,6 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
     mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION, IMAGE_URL);
     initReactableViewModel();
     assertReactableDisplayed(mViewModel, mPose, AppContainer.getAuthManager().getCurrentUser());
-  }
-
-  @Test public void properDisplay_displayOnly() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION, IMAGE_URL);
-    mViewModel = createViewModel(mViewModel.getClass(), new UnitTestViewInterface());
-    mViewModel.setReactable(mPose);
-    mViewModel.displayOnly();
-    final int currentRequestCount = mMockWebServer.getRequestCount();
-    mViewModel.onStart();
-    assertFalse(mViewModel.mInfoLayoutVisibility.get());
-    assertFalse(mViewModel.mReactionCountersVisibility.get());
-    // Does not issue a view event.
-    Thread.sleep(100);
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertEquals(currentRequestCount, mMockWebServer.getRequestCount());
-      }
-    });
   }
 
   @Test public void properDisplay_zeroReactions() throws Exception {
@@ -172,8 +153,8 @@ public class ReactableViewModelTest extends ViewModelTestSuite {
   }
 
   private void initReactableViewModel() throws Exception {
-    mView = new ViewInterface();
-    mViewModel = createViewModel(mViewModel.getClass(), mView);
+    ReactableViewInterface view = new ViewInterface();
+    mViewModel = createViewModel(mViewModel.getClass(), view);
     mViewModel.setReactable(mPose);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();

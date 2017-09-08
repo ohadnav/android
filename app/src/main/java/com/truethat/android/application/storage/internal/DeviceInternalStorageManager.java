@@ -26,8 +26,7 @@ import java.util.Objects;
     mContext = context;
   }
 
-  @Override public void write(String fileName, Serializable data)
-      throws IOException {
+  @Override public void write(String fileName, Serializable data) throws IOException {
     String currentSubPath = "";
     for (String subDirectoryPath : fileName.split("/")) {
       currentSubPath += currentSubPath.isEmpty() ? subDirectoryPath : "/" + subDirectoryPath;

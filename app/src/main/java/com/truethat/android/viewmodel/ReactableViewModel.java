@@ -12,6 +12,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import butterknife.BindString;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.LoggingKey;
@@ -24,6 +25,7 @@ import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.InteractionEvent;
 import com.truethat.android.model.Reactable;
+import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
 import java.util.Date;
 import okhttp3.ResponseBody;
@@ -35,8 +37,8 @@ import retrofit2.Response;
  * Proudly created by ohad on 21/07/2017 for TrueThat.
  */
 
-public class ReactableViewModel<Model extends Reactable>
-    extends BaseFragmentViewModel<ReactableViewInterface> implements ReactionDetectionListener {
+public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInterface>
+    implements ReactionDetectionListener, MediaFragment.MediaListener {
   /**
    * Default for reaction counter's image view.
    */
@@ -56,11 +58,7 @@ public class ReactableViewModel<Model extends Reactable>
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
-  /**
-   * Whether to hide metadata and avoid send interaction events.
-   */
-  private boolean mDisplayOnly = false;
-  private Model mReactable;
+  private Reactable mReactable;
   /**
    * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
    * InteractionEvent}.
@@ -93,14 +91,8 @@ public class ReactableViewModel<Model extends Reactable>
 
   @CallSuper @Override public void onStart() {
     super.onStart();
-    Log.v(TAG, "display only = " + mDisplayOnly);
-    if (!mDisplayOnly) {
-      updateInfoLayout();
-      updateReactionCounters();
-    } else {
-      mInfoLayoutVisibility.set(false);
-      mReactionCountersVisibility.set(false);
-    }
+    updateInfoLayout();
+    updateReactionCounters();
   }
 
   @CallSuper public void onVisible() {
@@ -118,7 +110,7 @@ public class ReactableViewModel<Model extends Reactable>
     return mReactable;
   }
 
-  public void setReactable(Model reactable) {
+  public void setReactable(Reactable reactable) {
     mReactable = reactable;
   }
 
@@ -127,15 +119,11 @@ public class ReactableViewModel<Model extends Reactable>
    * displayed to the user.
    */
   @CallSuper public void onReady() {
-    Log.v(TAG, "onReady");
+    Log.d(TAG, "onReady");
     mReadyForDisplay = true;
     if (getView().isReallyVisible()) {
       onDisplay();
     }
-  }
-
-  public boolean isReady() {
-    return mReadyForDisplay;
   }
 
   @Override public String toString() {
@@ -149,31 +137,27 @@ public class ReactableViewModel<Model extends Reactable>
       // Post event of reactable reaction.
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(), EventType.REACTION,
-              mReactable.getUserReaction());
+              mReactable.getId(), new Date(), EventType.REACTION, mReactable.getUserReaction());
       mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
-      Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(), interactionEvent.toString());
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
+            interactionEvent.toString());
+      }
       updateReactionCounters();
       getView().bounceReactionImage();
     }
     AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
 
-  public void displayOnly() {
-    mDisplayOnly = true;
-  }
-
   /**
    * Run once the media resources of the {@link #mReactable} are ready and the view is visible.
    */
   @CallSuper void onDisplay() {
-    Log.v(TAG, "onDisplay");
-    if (!mDisplayOnly) {
-      doView();
-      if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
-        AppContainer.getReactionDetectionManager().subscribe(this);
-      }
+    Log.d(TAG, "onDisplay");
+    doView();
+    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+      AppContainer.getReactionDetectionManager().subscribe(this);
     }
   }
 
@@ -190,7 +174,10 @@ public class ReactableViewModel<Model extends Reactable>
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
               mReactable.getId(), new Date(), EventType.VIEW, null);
       mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
-      Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(), interactionEvent.toString());
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
+            interactionEvent.toString());
+      }
     }
   }
 
@@ -243,7 +230,9 @@ public class ReactableViewModel<Model extends Reactable>
       @Override public void onResponse(@NonNull Call<ResponseBody> call,
           @NonNull Response<ResponseBody> response) {
         if (!response.isSuccessful()) {
-          Crashlytics.logException(new Exception("Failed to save interaction event"));
+          if (!BuildConfig.DEBUG) {
+            Crashlytics.logException(new Exception("Failed to save interaction event"));
+          }
           Log.e(TAG, "Failed to post event to "
               + call.request().url()
               + "\nRequest body: "
@@ -258,7 +247,9 @@ public class ReactableViewModel<Model extends Reactable>
       }
 
       @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-        Crashlytics.logException(t);
+        if (!BuildConfig.DEBUG) {
+          Crashlytics.logException(t);
+        }
         t.printStackTrace();
         Log.e(TAG, "Post event request to " + call.request().url() + " had failed.", t);
       }

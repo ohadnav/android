@@ -25,6 +25,7 @@ public class FakeAuthManager extends BaseAuthManager {
   public Call<User> getAuthCall() {
     return mAuthCall;
   }
+
   public void setAllowAuth(boolean allowAuth) {
     mAllowAuth = allowAuth;
   }

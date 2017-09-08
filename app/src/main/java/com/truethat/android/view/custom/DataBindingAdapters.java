@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bumptech.glide.Glide;
 
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
@@ -19,11 +18,6 @@ import com.bumptech.glide.Glide;
 
 public class DataBindingAdapters {
   // --------------------------- ImageView -----------------------------
-  @SuppressWarnings("unused") @BindingAdapter("android:src") public static void setImageUrl(
-      ImageView view, String imageUrl) {
-    Glide.with(view.getContext()).load(imageUrl).into(view);
-  }
-
   @BindingAdapter("android:src")
   public static void setImageResource(ImageView imageView, int resource) {
     imageView.setImageResource(resource);

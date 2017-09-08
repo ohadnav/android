@@ -37,7 +37,9 @@ public class AppUtil {
 
   /**
    * @param context of the application.
-   * @return the hardware dimensions of the device (normally these are the answer to "what's the screen resolution?"
+   *
+   * @return the hardware dimensions of the device (normally these are the answer to "what's the
+   * screen resolution?"
    */
   public static Point realDisplaySize(Context context) {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);

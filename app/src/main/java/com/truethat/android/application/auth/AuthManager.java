@@ -25,7 +25,8 @@ public interface AuthManager {
   void auth(AuthListener listener);
 
   /**
-   * Authenticates against our backend, based on {@link DeviceManager} and {@link #getCurrentUser()}.
+   * Authenticates against our backend, based on {@link DeviceManager} and {@link
+   * #getCurrentUser()}.
    *
    * @param listener to apply auth callbacks.
    */
@@ -47,6 +48,7 @@ public interface AuthManager {
 
   /**
    * Signing {@link #getCurrentUser()} out.
+   *
    * @param listener to apply auth callbacks.
    */
   void signOut(AuthListener listener);

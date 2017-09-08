@@ -15,6 +15,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.application.App;
 import com.truethat.android.application.AppContainer;
@@ -24,7 +25,6 @@ import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
-import eu.inloop.viewmodel.AbstractViewModel;
 import eu.inloop.viewmodel.ViewModelHelper;
 import eu.inloop.viewmodel.base.ViewModelBaseEmptyActivity;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -70,14 +70,14 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    * Authentication success callback.
    */
   public void onAuthOk() {
-    Log.v(TAG, "onAuthOk");
+    Log.d(TAG, "onAuthOk");
   }
 
   /**
    * Authentication failure callback.
    */
   public void onAuthFailed() {
-    Log.v(TAG, "onAuthFailed");
+    Log.d(TAG, "onAuthFailed");
     runOnUiThread(new Runnable() {
       @Override public void run() {
         startActivity(new Intent(BaseActivity.this, WelcomeActivity.class));
@@ -99,11 +99,6 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    */
   @SuppressWarnings("unused") public void setModelView(@NonNull final ViewInterface view) {
     mViewModelHelper.setView(view);
-  }
-
-  @SuppressWarnings({ "WeakerAccess", "SameReturnValue" }) @Nullable
-  public Class<ViewModel> getViewModelClass() {
-    return null;
   }
 
   @CallSuper @Override public void onStart() {
@@ -139,7 +134,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     try {
       return (DataBinding) mViewModelHelper.getBinding();
     } catch (ClassCastException e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       e.printStackTrace();
       throw new IllegalStateException("Method getViewModelBindingConfig() has to return same "
           + "ViewDataBinding type as it is set to base Fragment");
@@ -162,16 +159,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
         | View.SYSTEM_UI_FLAG_IMMERSIVE
         | View.SYSTEM_UI_FLAG_FULLSCREEN;
     decorView.setSystemUiVisibility(uiOptions);
-
     // Initializes view model
-    Class<? extends AbstractViewModel<ViewInterface>> viewModelClass = getViewModelClass();
-    // try to extract the ViewModel class from the implementation
-    if (viewModelClass == null) {
-      //noinspection unchecked
-      viewModelClass =
-          (Class<? extends AbstractViewModel<ViewInterface>>) ProxyViewHelper.getGenericType(
-              getClass(), BaseViewModel.class);
-    }
+    Class<ViewModel> viewModelClass =
+        (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseViewModel.class);
     mViewModelHelper.onCreate(this, savedInstanceState, viewModelClass, getIntent().getExtras());
     // Bind the activity to its view model.
     initializeViewModel();
@@ -186,7 +176,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @CallSuper @Override public void onResume() {
     super.onResume();
-    Crashlytics.setString(LoggingKey.ACTIVITY.name(), TAG);
+    if (!BuildConfig.DEBUG) {
+      Crashlytics.setString(LoggingKey.ACTIVITY.name(), TAG);
+    }
     if (!mSkipAuth) {
       AppContainer.getAuthManager().auth(this);
     }

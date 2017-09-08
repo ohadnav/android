@@ -21,7 +21,6 @@ android {
   defaultConfig {
     applicationId "com.truethat.android"
     minSdkVersion rootProject.ext.minSdkVersion
-    //noinspection OldTargetApi
     targetSdkVersion rootProject.ext.targetSdkVersion
     versionCode buildVersionCode()
     versionName version
@@ -62,7 +61,9 @@ android {
 dependencies {
   compile fileTree(include: ["*.jar"], dir: "libs")
   compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-  compile "com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion"
+  compile("com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion", {
+    exclude group: "com.android.support", module: "support-annotations"
+  })
   compile "com.google.code.findbugs:jsr305:$rootProject.findBugsVersion"
   compile "com.google.guava:guava:$rootProject.guavaVersion"
   compile "com.squareup.okhttp3:okhttp:$rootProject.okhttpVersion"
@@ -70,13 +71,12 @@ dependencies {
     exclude group: "com.squareup.okhttp3", module: "okhttp"
   }
   compile "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
-  compile "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+  compile "com.squareup.picasso:picasso:$rootProject.picassoVersion"
   compile "eu.inloop:androidviewmodel:$rootProject.inloopMvvmVersion"
-  compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+  compile("com.crashlytics.sdk.android:crashlytics:2.6.8@aar") {
     transitive = true;
   }
-  //noinspection GradleDynamicVersion
-  compile 'com.appsee:appsee-android:+'
+  compile "com.appsee:appsee-android:$rootProject.appseeVersion"
   compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
   annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
   testCompile "junit:junit:$rootProject.junitVersion"

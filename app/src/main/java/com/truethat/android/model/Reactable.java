@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.view.activity.TheaterActivity;
+import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.ReactableFragment;
 import java.io.Serializable;
 import java.util.Date;
@@ -68,7 +68,7 @@ public abstract class Reactable implements Serializable {
     return mCreated;
   }
 
-  public long getId() {
+  public Long getId() {
     return mId;
   }
 
@@ -117,10 +117,10 @@ public abstract class Reactable implements Serializable {
   }
 
   /**
-   * @return created a {@link ReactableFragment} to show it around in dubious activities such as
-   * {@link TheaterActivity}.
+   * @return creates the media view of this reactable to prettify the code at {@link
+   * ReactableFragment#newInstance(Reactable)}
    */
-  public abstract ReactableFragment createFragment();
+  public abstract MediaFragment createMediaFragment();
 
   public abstract Call<Reactable> createApiCall();
 

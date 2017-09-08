@@ -8,6 +8,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.truethat.android.BuildConfig;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,7 +43,9 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>, JsonDeserialize
     try {
       return dateFormat.parse(jsonElement.getAsString());
     } catch (ParseException e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       e.printStackTrace();
       throw new JsonParseException(e);
     }

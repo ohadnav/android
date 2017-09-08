@@ -3,6 +3,7 @@ package com.truethat.android.empathy;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import com.crashlytics.android.Crashlytics;
+import com.truethat.android.BuildConfig;
 import java.io.IOException;
 
 /**
@@ -40,7 +41,9 @@ import java.io.IOException;
     try {
       camera = Camera.open(cameraId); // attempt to get a Camera instance.
     } catch (RuntimeException e) {
-      Crashlytics.logException(e);
+      if (!BuildConfig.DEBUG) {
+        Crashlytics.logException(e);
+      }
       // Camera is not available (in use or does not exist). Translate to a more appropriate exception type.
       String msg =
           "Camera is unavailable. Please close the app that is using the camera and then try again.\n"
