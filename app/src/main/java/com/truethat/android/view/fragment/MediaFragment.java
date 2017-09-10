@@ -15,7 +15,6 @@ import com.truethat.android.R;
 import com.truethat.android.databinding.FragmentMediaBinding;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Pose;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -87,7 +86,7 @@ public abstract class MediaFragment<Model extends Media> extends
   }
 
   /**
-   * Create the media layout of the fragment, such as the {@link Pose} image.
+   * The resource ID of the {@link MediaFragment}.
    */
   abstract @LayoutRes int getLayoutResource();
 

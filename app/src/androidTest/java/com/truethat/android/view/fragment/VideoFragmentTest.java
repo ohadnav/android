@@ -5,7 +5,8 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Short;
+import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Video;
 import com.truethat.android.view.activity.RepertoireActivity;
 import java.util.Collections;
 import java.util.Date;
@@ -37,21 +38,20 @@ public class VideoFragmentTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
   // TODO(ohad): remove short basically
-  private Short mShort;
+  private Reactable mReactable;
   private VideoFragment mVideoFragment;
 
   @Override public void setUp() throws Exception {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(Collections.singletonList(mShort));
+        String responseBody = GSON.toJson(Collections.singletonList(mReactable));
         return new MockResponse().setBody(responseBody);
       }
     });
-    mShort =
-        new Short(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
-            null,
-            "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4");
+    mReactable = new Reactable(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+        new Date(), null,
+        new Video("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
     mRepertoireActivityRule.launchActivity(null);
     // Wait until the reactable fragment is created.
     waitMatcher(withId(R.id.reactableFragment));

@@ -1,23 +1,19 @@
 package com.truethat.android.view.activity;
 
 import android.support.test.espresso.action.ViewActions;
-import android.support.test.filters.FlakyTest;
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
-import com.truethat.android.model.User;
-import com.truethat.android.view.fragment.ReactablesPagerFragmentTest;
+import com.truethat.android.model.Photo;
+import com.truethat.android.model.Reactable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,41 +22,31 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.centerSwipeUp;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
+import static com.truethat.android.view.fragment.ReactablesPagerFragmentTest.assertReactableDisplayed;
 
 /**
  * Proudly created by ohad on 05/06/2017 for TrueThat.
  */
 public class TheaterActivityTest extends BaseApplicationTestSuite {
-  private static final long ID_1 = 1;
-  private static final long ID_2 = 2;
-  private static final String IMAGE_URL_1 =
-      "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg";
-  private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
-  private static final long HAPPY_COUNT = 3000;
-  private static final long SAD_COUNT = HAPPY_COUNT + 1;
-  @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS =
-      new TreeMap<Emotion, Long>() {{
-    put(Emotion.HAPPY, HAPPY_COUNT);
-    put(Emotion.SAD, SAD_COUNT);
-  }};
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
-  private User mDirector;
-  private List<Pose> mRespondedPoses;
+  private List<Reactable> mRespondedReactables;
+  private Reactable mReactable;
 
-  @Before public void setUp() throws Exception {
+  @Override public void setUp() throws Exception {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedPoses);
-        mRespondedPoses = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedReactables);
+        mRespondedReactables = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the poses list is empty.
-    mRespondedPoses = Collections.emptyList();
-    // Initialize director
-    mDirector = new User(99L, "James", "Cameron", mFakeDeviceManager.getDeviceId());
+    mRespondedReactables = Collections.emptyList();
+    mReactable = new Reactable(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+        new Date(), null,
+        new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
   }
 
   @Test public void navigation() throws Exception {
@@ -70,26 +56,23 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
-    Pose pose = new Pose(ID_1, mDirector, EMOTIONAL_REACTIONS, HOUR_AGO, null, IMAGE_URL_1);
-    mRespondedPoses = Collections.singletonList(pose);
+    mRespondedReactables = Collections.singletonList(mReactable);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeUp());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
+    centerSwipeUp();
     waitForActivity(StudioActivity.class);
   }
 
-  @Test @FlakyTest public void singleInstance() throws Exception {
-    Pose pose = new Pose(1L, mDirector, new TreeMap<Emotion, Long>(), new Date(), null,
-        "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
-    mRespondedPoses = Collections.singletonList(pose);
+  @Test public void singleInstance() throws Exception {
+    mRespondedReactables = Collections.singletonList(mReactable);
     mTheaterActivityTestRule.launchActivity(null);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
     // Navigate out of Theater activity
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
+    centerSwipeUp();
     waitForActivity(TheaterActivity.class);
-    ReactablesPagerFragmentTest.assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
   }
 }

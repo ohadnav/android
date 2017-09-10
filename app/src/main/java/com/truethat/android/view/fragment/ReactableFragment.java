@@ -62,7 +62,7 @@ public class ReactableFragment
     super.onCreateView(inflater, container, savedInstanceState);
     mMediaContainerViewId = View.generateViewId();
     mRootView.findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
-    mMediaFragment = mReactable.createMediaFragment();
+    mMediaFragment = mReactable.getMedia().createFragment();
     FragmentTransaction fragmentTransaction =
         getActivity().getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(mMediaContainerViewId, mMediaFragment);

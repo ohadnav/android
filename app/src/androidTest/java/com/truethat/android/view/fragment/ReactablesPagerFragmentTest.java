@@ -14,10 +14,10 @@ import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Photo;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Short;
 import com.truethat.android.model.User;
+import com.truethat.android.model.Video;
 import com.truethat.android.view.activity.TheaterActivity;
 import com.truethat.android.viewmodel.ReactableViewModel;
 import java.util.Arrays;
@@ -90,14 +90,14 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
         assertTrue(currentFragment.getMediaFragment().isReady());
       }
     });
-    if (reactable instanceof Pose) {
+    if (reactable.getMedia() instanceof Photo) {
       // Asserting the pose image is displayed fullscreen.
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {
           assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
         }
       });
-    } else if (reactable instanceof Short) {
+    } else if (reactable.getMedia() instanceof Video) {
       // Asserting the video is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
       // Video should be playing
@@ -168,37 +168,39 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     mRespondedReactables = Collections.emptyList();
   }
 
-  @Test public void displayPose() throws Exception {
-    Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-        IMAGE_URL);
-    mRespondedReactables = Collections.singletonList((Reactable) pose);
+  @Test public void displayPhoto() throws Exception {
+    Reactable reactable =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL, null));
+    mRespondedReactables = Collections.singletonList(reactable);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(reactable, mFakeAuthManager.getCurrentUser());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
   }
 
-  @Test public void displayShort() throws Exception {
-    Short aShort =
-        new Short(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            VIDEO_URL);
-    mRespondedReactables = Collections.singletonList((Reactable) aShort);
+  @Test public void displayVideo() throws Exception {
+    Reactable video =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Video(VIDEO_URL, null));
+    mRespondedReactables = Collections.singletonList(video);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(aShort, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(video, mFakeAuthManager.getCurrentUser());
   }
 
   @Test public void displayMultipleTypes() throws Exception {
-    Pose pose = new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-        IMAGE_URL);
-    Short aShort =
-        new Short(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            VIDEO_URL);
-    mRespondedReactables = Arrays.asList(pose, aShort);
+    Reactable pose =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL, null));
+    Reactable video =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Video(VIDEO_URL, null));
+    mRespondedReactables = Arrays.asList(pose, video);
     mTheaterActivityTestRule.launchActivity(null);
     assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
     // Swipe to next reactable
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertReactableDisplayed(aShort, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(video, mFakeAuthManager.getCurrentUser());
   }
 }

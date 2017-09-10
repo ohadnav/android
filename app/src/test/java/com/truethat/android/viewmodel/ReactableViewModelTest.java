@@ -6,7 +6,7 @@ import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Photo;
 import com.truethat.android.model.Reactable;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.SAD;
   private ReactableViewModel mViewModel = new ReactableViewModel();
-  private Pose mPose;
+  private Reactable mReactable;
 
   private static void assertReactableDisplayed(ReactableViewModel viewModel, Reactable reactable,
       @NonNull User currentUser) {
@@ -63,20 +63,24 @@ import static org.junit.Assert.assertNull;
   }
 
   @Test public void properDisplay() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
-    assertReactableDisplayed(mViewModel, mPose, AppContainer.getAuthManager().getCurrentUser());
+    assertReactableDisplayed(mViewModel, mReactable,
+        AppContainer.getAuthManager().getCurrentUser());
   }
 
   @Test public void properDisplay_zeroReactions() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, null, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, null,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
     assertEquals("", mViewModel.mReactionsCountText.get());
     assertEquals(R.drawable.transparent_1x1, mViewModel.mReactionDrawableResource.get());
   }
 
   @Test public void doView() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
     // Assert a view event is sent
     final int currentRequestCount = mMockWebServer.getRequestCount();
@@ -92,7 +96,8 @@ import static org.junit.Assert.assertNull;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, reactionCounters, mNow, null, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, reactionCounters, mNow, null,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
     final int currentRequestCount = mMockWebServer.getRequestCount();
     mViewModel.onDisplay();
@@ -117,8 +122,9 @@ import static org.junit.Assert.assertNull;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mPose = new Pose(REACTABLE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, null,
-        IMAGE_URL);
+    mReactable =
+        new Reactable(REACTABLE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, null,
+            new Photo(IMAGE_URL, null));
     initReactableViewModel();
     mViewModel.onDisplay();
     // Should not be subscribed to reaction detection.
@@ -131,7 +137,8 @@ import static org.junit.Assert.assertNull;
   }
 
   @Test public void reactionNotDetectedOnHidden() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
     mViewModel.onDisplay();
     // Hides view.
@@ -143,7 +150,8 @@ import static org.junit.Assert.assertNull;
   }
 
   @Test public void reactionCanNotBeDetectedTwice() throws Exception {
-    mPose = new Pose(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION, IMAGE_URL);
+    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
+        new Photo(IMAGE_URL, null));
     initReactableViewModel();
     mViewModel.onDisplay();
     // Do a detection
@@ -155,7 +163,7 @@ import static org.junit.Assert.assertNull;
   private void initReactableViewModel() throws Exception {
     ReactableViewInterface view = new ViewInterface();
     mViewModel = createViewModel(mViewModel.getClass(), view);
-    mViewModel.setReactable(mPose);
+    mViewModel.setReactable(mReactable);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();
   }

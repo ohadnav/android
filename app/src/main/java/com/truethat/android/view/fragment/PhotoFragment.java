@@ -15,12 +15,13 @@ import com.truethat.android.R;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Pose;
 
 import static android.view.View.GONE;
 
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
+ *
+ * A UI container representation of {@link Photo}.
  */
 
 public class PhotoFragment extends MediaFragment<Photo> {
@@ -74,11 +75,6 @@ public class PhotoFragment extends MediaFragment<Photo> {
           });
     }
   }
-
-  /**
-   * Displays the image from {@link Pose#getImageUrl()}, and adds a cute loading animation
-   * until it is loaded.
-   */
 
   @Override int getLayoutResource() {
     return R.layout.fragment_photo;

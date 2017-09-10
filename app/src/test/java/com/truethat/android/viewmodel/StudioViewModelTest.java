@@ -5,7 +5,7 @@ import android.media.Image;
 import com.truethat.android.R;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Short;
+import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
@@ -79,7 +79,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
     mViewModel.onVideoAvailable("bigcoin-gen.dmg");
     assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
-    assertTrue(mViewModel.getDirectedReactable() instanceof Short);
+    assertTrue(mViewModel.getDirectedReactable().getMedia() instanceof Video);
   }
 
   @Test public void approvalCancel() throws Exception {

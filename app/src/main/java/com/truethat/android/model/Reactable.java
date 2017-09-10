@@ -3,24 +3,25 @@ package com.truethat.android.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.view.fragment.MediaFragment;
-import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.common.network.StudioApi;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 
 /**
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  * <p>
- * A media item that the user can have an emotional reaction to, such as {@link Pose}.
- * <p>
- * Each implementation should register at {@link NetworkUtil#GSON}.
+ * A media item that the user can have an emotional reaction to.
  */
-public abstract class Reactable implements Serializable {
-  private static final long serialVersionUID = -6924899217823271128L;
+public class Reactable implements Serializable {
+  private static final long serialVersionUID = -1448872330838152333L;
   /**
    * ID as stored in our backend.
    */
@@ -45,23 +46,34 @@ public abstract class Reactable implements Serializable {
    * Whether the reactable was viewed by the user.
    */
   private boolean mViewed;
+  /**
+   * The media associated with this reactable, such as a {@link Photo}.
+   */
+  private Media mMedia;
 
-  Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
-      @Nullable Emotion userReaction) {
+  @VisibleForTesting
+  public Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+      @Nullable Emotion userReaction, Media media) {
     mId = id;
     mUserReaction = userReaction;
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
+    mMedia = media;
   }
 
-  Reactable(User director, Date created) {
-    mDirector = director;
-    mCreated = created;
+  public Reactable(Media media) {
+    mDirector = AppContainer.getAuthManager().getCurrentUser();
+    mCreated = new Date();
+    mMedia = media;
   }
 
   // A default constructor is provided for serialization and de-serialization.
   @SuppressWarnings("unused") Reactable() {
+  }
+
+  public Media getMedia() {
+    return mMedia;
   }
 
   public Date getCreated() {
@@ -116,13 +128,13 @@ public abstract class Reactable implements Serializable {
     return mUserReaction;
   }
 
-  /**
-   * @return creates the media view of this reactable to prettify the code at {@link
-   * ReactableFragment#newInstance(Reactable)}
-   */
-  public abstract MediaFragment createMediaFragment();
-
-  public abstract Call<Reactable> createApiCall();
+  @SuppressWarnings("unchecked") public Call<Reactable> createApiCall() {
+    List<MultipartBody.Part> mediaParts =
+        mMedia == null ? Collections.EMPTY_LIST : Collections.singletonList(mMedia.createPart());
+    MultipartBody.Part reactablePart =
+        MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
+    return NetworkUtil.createApi(StudioApi.class).saveReactable(reactablePart, mediaParts);
+  }
 
   /**
    * @param user that should react to this reactable.

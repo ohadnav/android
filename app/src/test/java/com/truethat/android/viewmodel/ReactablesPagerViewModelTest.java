@@ -3,9 +3,9 @@ package com.truethat.android.viewmodel;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Photo;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Short;
+import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -66,26 +66,26 @@ import static org.junit.Assert.assertTrue;
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the poses list is empty.
+    // By default the reactables list is empty.
     mRespondedReactables = Collections.emptyList();
     // Initialize api
     mApi = NetworkUtil.createApi(TheaterApi.class);
   }
 
   @Test public void displayReactable() throws Exception {
-    final Pose pose =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            IMAGE_URL_1);
-    mRespondedReactables = Collections.singletonList((Reactable) pose);
+    final Reactable reactable =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL_1, null));
+    mRespondedReactables = Collections.singletonList((Reactable) reactable);
     mViewModel.fetchReactables();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose, mViewModel.getDisplayedReactable());
+        assertEquals(reactable, mViewModel.getDisplayedReactable());
       }
     });
     assertFalse(mViewModel.mNonFoundLayoutVisibility.get());
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    assertEquals(Collections.singletonList(pose), mViewModel.mItems);
+    assertEquals(Collections.singletonList(reactable), mViewModel.mItems);
   }
 
   @Test public void noReactablesFound() throws Exception {
@@ -99,11 +99,11 @@ import static org.junit.Assert.assertTrue;
       }
     });
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    Pose pose =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), HOUR_AGO,
-            Emotion.HAPPY, IMAGE_URL_1);
+    Reactable reactable =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+            HOUR_AGO, Emotion.HAPPY, new Photo(IMAGE_URL_1, null));
     // Explicitly load more reactables.
-    mRespondedReactables = Collections.singletonList((Reactable) pose);
+    mRespondedReactables = Collections.singletonList((Reactable) reactable);
     mViewModel.next();
     // Loading image should be shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
@@ -114,7 +114,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Reactable should be displayed.
-    assertEquals(pose, mViewModel.getDisplayedReactable());
+    assertEquals(reactable, mViewModel.getDisplayedReactable());
   }
 
   @Test public void noReactablesFound_failedRequest() throws Exception {
@@ -144,99 +144,99 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void nextReactable() throws Exception {
-    final Pose pose1 =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            IMAGE_URL_1);
-    Pose pose2 =
-        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
-            IMAGE_URL_2);
-    mRespondedReactables = Arrays.asList((Reactable) pose1, (Reactable) pose2);
+    final Reactable reactable1 =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL_1, null));
+    Reactable reactable2 =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            new Photo(IMAGE_URL_2, null));
+    mRespondedReactables = Arrays.asList((Reactable) reactable1, (Reactable) reactable2);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose1, mViewModel.getDisplayedReactable());
+        assertEquals(reactable1, mViewModel.getDisplayedReactable());
       }
     });
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.
-    assertEquals(pose2, mViewModel.getDisplayedReactable());
+    assertEquals(reactable2, mViewModel.getDisplayedReactable());
   }
 
   @Test public void multipleTypes() throws Exception {
-    final Pose pose =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            IMAGE_URL_1);
-    Short aShort =
-        new Short(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
-            VIDEO_URL);
-    mRespondedReactables = Arrays.asList(pose, aShort);
+    final Reactable photo =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL_1, null));
+    Reactable video =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            new Video(VIDEO_URL, null));
+    mRespondedReactables = Arrays.asList(photo, video);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose, mViewModel.getDisplayedReactable());
+        assertEquals(photo, mViewModel.getDisplayedReactable());
       }
     });
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.
-    assertEquals(aShort, mViewModel.getDisplayedReactable());
+    assertEquals(video, mViewModel.getDisplayedReactable());
   }
 
   @Test public void previousReactable() throws Exception {
-    final Pose pose1 =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            IMAGE_URL_1);
-    final Pose pose2 =
-        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
-            IMAGE_URL_2);
-    mRespondedReactables = Arrays.asList((Reactable) pose1, (Reactable) pose2);
+    final Reactable reactable1 =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL_1, null));
+    final Reactable reactable2 =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            new Photo(IMAGE_URL_2, null));
+    mRespondedReactables = Arrays.asList((Reactable) reactable1, (Reactable) reactable2);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose1, mViewModel.getDisplayedReactable());
+        assertEquals(reactable1, mViewModel.getDisplayedReactable());
       }
     });
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.
-    assertEquals(pose2, mViewModel.getDisplayedReactable());
+    assertEquals(reactable2, mViewModel.getDisplayedReactable());
     // Triggers navigation to previous reactable.
     mViewModel.previous();
     // First reactable should be displayed.
-    assertEquals(pose1, mViewModel.getDisplayedReactable());
+    assertEquals(reactable1, mViewModel.getDisplayedReactable());
     // Triggers navigation to previous reactable.
     mViewModel.previous();
     // First reactable should still be displayed.
-    assertEquals(pose1, mViewModel.getDisplayedReactable());
+    assertEquals(reactable1, mViewModel.getDisplayedReactable());
   }
 
   @Test public void nextReactableFetchesNewReactables() throws Exception {
-    final Pose pose1 =
-        new Pose(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            IMAGE_URL_1);
-    final Pose pose2 =
-        new Pose(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
-            IMAGE_URL_2);
-    mRespondedReactables = Collections.singletonList((Reactable) pose1);
+    final Reactable reactable1 =
+        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+            new Photo(IMAGE_URL_1, null));
+    final Reactable reactable2 =
+        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+            new Photo(IMAGE_URL_2, null));
+    mRespondedReactables = Collections.singletonList((Reactable) reactable1);
     mViewModel.fetchReactables();
     // First reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose1, mViewModel.getDisplayedReactable());
+        assertEquals(reactable1, mViewModel.getDisplayedReactable());
       }
     });
-    // Updates responded poses.
-    mRespondedReactables = Collections.singletonList((Reactable) pose2);
+    // Updates responded reactables.
+    mRespondedReactables = Collections.singletonList((Reactable) reactable2);
     // Triggers navigation to next reactable.
     mViewModel.next();
     // Second reactable should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(pose2, mViewModel.getDisplayedReactable());
+        assertEquals(reactable2, mViewModel.getDisplayedReactable());
       }
     });
   }

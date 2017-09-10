@@ -160,7 +160,7 @@ public class StudioActivity
   }
 
   @Override public void displayPreview(Reactable reactable) {
-    MediaFragment mediaFragment = reactable.createMediaFragment();
+    MediaFragment mediaFragment = reactable.getMedia().createFragment();
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(R.id.previewContainer, mediaFragment, DIRECTED_REACTABLE_TAG);
     fragmentTransaction.commit();

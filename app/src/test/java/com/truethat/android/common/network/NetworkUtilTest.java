@@ -2,12 +2,9 @@ package com.truethat.android.common.network;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
-import com.truethat.android.model.Reactable;
-import com.truethat.android.model.User;
+import com.truethat.android.model.Media;
+import com.truethat.android.model.Photo;
 import java.util.Date;
-import java.util.TreeMap;
 import org.junit.Test;
 
 import static com.truethat.android.common.network.NetworkUtil.GSON;
@@ -21,12 +18,7 @@ public class NetworkUtilTest {
   private static final int NUM = 5;
   private static final Date DATE = new Date(0);
   private static final String UTC_DATE = "\"1970-01-01T00:00:00.000+0000\"";
-  @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS =
-      new TreeMap<Emotion, Long>() {{
-    put(Emotion.HAPPY, 10L);
-  }};
-  private static final Reactable pose =
-      new Pose(1, new User("elon", "musk", null), EMOTIONAL_REACTIONS, DATE, Emotion.HAPPY, "url");
+  private static final Media photo = new Photo("example.com", null);
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {
     String actual = GSON.toJson(new MyAndroidClass(NUM));
@@ -51,16 +43,16 @@ public class NetworkUtilTest {
     assertEquals(DATE, actual);
   }
 
-  @Test public void gsonSerialize_reactable() throws Exception {
-    JsonElement serialized = GSON.toJsonTree(pose);
+  @Test public void gsonSerialize_subtype() throws Exception {
+    JsonElement serialized = GSON.toJsonTree(photo);
     // Should have type.
-    assertEquals(pose.getClass().getSimpleName(),
+    assertEquals(photo.getClass().getSimpleName(),
         serialized.getAsJsonObject().get(TYPE_FIELD_NAME).getAsString());
   }
 
-  @Test public void gsonDeserialize_reactable() throws Exception {
-    Pose actual = (Pose) GSON.fromJson(GSON.toJson(pose), Reactable.class);
-    assertEquals(pose, actual);
+  @Test public void gsonDeserialize_subtype() throws Exception {
+    Photo actual = (Photo) GSON.fromJson(GSON.toJson(photo), Media.class);
+    assertEquals(photo, actual);
   }
 
   private class MyAndroidClass {

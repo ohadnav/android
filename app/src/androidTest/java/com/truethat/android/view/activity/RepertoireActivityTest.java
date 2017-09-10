@@ -6,7 +6,8 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Photo;
+import com.truethat.android.model.Reactable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,19 +30,23 @@ import static com.truethat.android.view.fragment.ReactablesPagerFragmentTest.ass
 public class RepertoireActivityTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityTestRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
-  private List<Pose> mRespondedPoses;
+  private List<Reactable> mRespondedReactables;
+  private Reactable mReactable;
 
   @Override public void setUp() throws Exception {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedPoses);
-        mRespondedPoses = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedReactables);
+        mRespondedReactables = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the poses list is empty.
-    mRespondedPoses = Collections.emptyList();
+    mRespondedReactables = Collections.emptyList();
+    mReactable = new Reactable(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+        new Date(), null,
+        new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
   }
 
   @Test public void navigation() throws Exception {
@@ -51,29 +56,23 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileReactableDisplayed() throws Exception {
-    Pose pose =
-        new Pose(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
-            null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
-    mRespondedPoses = Collections.singletonList(pose);
+    mRespondedReactables = Collections.singletonList(mReactable);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
   }
 
   @Test public void singleInstance() throws Exception {
-    Pose pose =
-        new Pose(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
-            null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
-    mRespondedPoses = Collections.singletonList(pose);
+    mRespondedReactables = Collections.singletonList(mReactable);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
     // Navigate out of Repertoire activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
     // Navigate back to Repertoire activity
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertReactableDisplayed(mReactable, mFakeAuthManager.getCurrentUser());
   }
 }

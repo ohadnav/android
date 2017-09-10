@@ -1,8 +1,8 @@
 package com.truethat.android.common.network;
 
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Media;
+import com.truethat.android.model.Photo;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Short;
 import java.util.List;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -20,13 +20,9 @@ import retrofit2.http.Part;
 public interface StudioApi {
   String PATH = "studio";
   /**
-   * HTTP part name of a {@link Pose}'s image.
+   * HTTP part name of the {@link Reactable}'s {@link Media}.
    */
-  String POSE_IMAGE_PART = "pose_image";
-  /**
-   * HTTP part name of a {@link Short}'s video.
-   */
-  String SHORT_VIDEO_PART = "short_video";
+  String MEDIA_PART = "media";
   /**
    * HTTP part name of the {@link Reactable} data.
    */
@@ -36,7 +32,7 @@ public interface StudioApi {
    * Saves a {@link Reactable} in out magical backend.
    *
    * @param reactable to save
-   * @param media     files to save in storage, such as a {@link Pose}'s image.
+   * @param media     files to save in storage, such as a {@link Photo}.
    *
    * @return {@link Retrofit} call.
    */

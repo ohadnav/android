@@ -12,12 +12,11 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
-import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.util.CameraUtil;
-import com.truethat.android.model.Pose;
+import com.truethat.android.model.Photo;
 import com.truethat.android.model.Reactable;
-import com.truethat.android.model.Short;
+import com.truethat.android.model.Video;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import retrofit2.Call;
@@ -111,14 +110,13 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   @Override public void onImageAvailable(Image image) {
-    mDirectedReactable =
-        new Pose(AppContainer.getAuthManager().getCurrentUser(), CameraUtil.toByteArray(image));
+    mDirectedReactable = new Reactable(new Photo(null, CameraUtil.toByteArray(image)));
     onApproval();
   }
 
   @Override public void onVideoAvailable(String videoPath) {
     mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
-    mDirectedReactable = new Short(AppContainer.getAuthManager().getCurrentUser(), videoPath);
+    mDirectedReactable = new Reactable(new Video(null, videoPath));
     onApproval();
   }
 
