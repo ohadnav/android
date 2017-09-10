@@ -15,7 +15,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
@@ -36,32 +36,29 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   public final ObservableBoolean mSwitchCameraButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSendButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
-  public final ObservableBoolean mReactablePreviewVisibility = new ObservableBoolean();
+  public final ObservableBoolean mScenePreviewVisibility = new ObservableBoolean();
   public final ObservableBoolean mCameraPreviewVisibility = new ObservableBoolean();
   public final ObservableInt mCaptureButtonDrawableResource = new ObservableInt(CAPTURE_RESOURCE);
   private DirectingState mDirectingState = DirectingState.DIRECTING;
-  private Reactable mDirectedReactable;
+  private Scene mDirectedScene;
   /**
-   * Api call to save {@link #mDirectedReactable}.
+   * Api call to save {@link #mDirectedScene}.
    */
-  private Call<Reactable> mSaveReactableCall;
+  private Call<Scene> mSaveSceneCall;
   /**
-   * Callback for {@link #mSaveReactableCall}.
+   * Callback for {@link #mSaveSceneCall}.
    */
-  private Callback<Reactable> mSaveReactableCallback = new Callback<Reactable>() {
-    @Override
-    public void onResponse(@NonNull Call<Reactable> call, @NonNull Response<Reactable> response) {
+  private Callback<Scene> mSaveSceneCallback = new Callback<Scene>() {
+    @Override public void onResponse(@NonNull Call<Scene> call, @NonNull Response<Scene> response) {
       if (response.isSuccessful() && response.body() != null) {
-        mDirectedReactable = response.body();
+        mDirectedScene = response.body();
         onPublished();
       } else {
         if (!BuildConfig.DEBUG) {
-          Crashlytics.logException(new Exception("Failed to save reactable."));
+          Crashlytics.logException(new Exception("Failed to save scene."));
         }
-        Log.e(TAG, "Failed to save reactable.\n"
-            + call.request().url()
-            + "\nDirected reactable: "
-            + mDirectedReactable
+        Log.e(TAG, "Failed to save scene.\n"
+            + call.request().url() + "\nDirected scene: " + mDirectedScene
             + "\nResponse: "
             + response.code()
             + " "
@@ -72,7 +69,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
       }
     }
 
-    @Override public void onFailure(@NonNull Call<Reactable> call, @NonNull Throwable t) {
+    @Override public void onFailure(@NonNull Call<Scene> call, @NonNull Throwable t) {
       if (!BuildConfig.DEBUG) {
         Crashlytics.logException(t);
       }
@@ -110,13 +107,13 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   @Override public void onImageAvailable(Image image) {
-    mDirectedReactable = new Reactable(new Photo(null, CameraUtil.toByteArray(image)));
+    mDirectedScene = new Scene(new Photo(null, CameraUtil.toByteArray(image)));
     onApproval();
   }
 
   @Override public void onVideoAvailable(String videoPath) {
     mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
-    mDirectedReactable = new Reactable(new Video(null, videoPath));
+    mDirectedScene = new Scene(new Video(null, videoPath));
     onApproval();
   }
 
@@ -127,10 +124,10 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   public void onSent() {
     Log.d(TAG, "Change state: " + DirectingState.SENT.name());
     mDirectingState = DirectingState.SENT;
-    mSaveReactableCall = mDirectedReactable.createApiCall();
-    mSaveReactableCall.enqueue(mSaveReactableCallback);
+    mSaveSceneCall = mDirectedScene.createApiCall();
+    mSaveSceneCall.enqueue(mSaveSceneCallback);
     if (!BuildConfig.DEBUG) {
-      Crashlytics.setString(LoggingKey.DIRECTED_REACTABLE.name(), mDirectedReactable.toString());
+      Crashlytics.setString(LoggingKey.DIRECTED_SCENE.name(), mDirectedScene.toString());
     }
     // Hides buttons.
     mCaptureButtonVisibility.set(false);
@@ -141,12 +138,12 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   public void disapprove() {
-    Log.d(TAG, "Reactable disapproved.");
+    Log.d(TAG, "Scene disapproved.");
     onDirecting();
   }
 
-  public Reactable getDirectedReactable() {
-    return mDirectedReactable;
+  public Scene getDirectedScene() {
+    return mDirectedScene;
   }
 
   @VisibleForTesting DirectingState getDirectingState() {
@@ -154,7 +151,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   private void onApproval() {
-    if (mDirectedReactable == null) {
+    if (mDirectedScene == null) {
       onDirecting();
     }
     Log.d(TAG, "Change state: " + DirectingState.APPROVAL.name());
@@ -167,10 +164,10 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mSwitchCameraButtonVisibility.set(false);
     // Hides loading image.
     mLoadingImageVisibility.set(false);
-    // Shows the directed reactable preview, and hides the camera preview.
-    mReactablePreviewVisibility.set(true);
+    // Shows the directed scene preview, and hides the camera preview.
+    mScenePreviewVisibility.set(true);
     mCameraPreviewVisibility.set(false);
-    getView().displayPreview(mDirectedReactable);
+    getView().displayPreview(mDirectedScene);
   }
 
   private void onDirecting() {
@@ -184,17 +181,17 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mSwitchCameraButtonVisibility.set(true);
     // Hides loading image.
     mLoadingImageVisibility.set(false);
-    // Hides the directed reactable preview, and exposes the camera preview.
-    mReactablePreviewVisibility.set(false);
+    // Hides the directed scene preview, and exposes the camera preview.
+    mScenePreviewVisibility.set(false);
     mCameraPreviewVisibility.set(true);
-    // Delete reactable.
-    mDirectedReactable = null;
+    // Delete scene.
+    mDirectedScene = null;
     getView().restoreCameraPreview();
   }
 
   private void cancelSent() {
-    if (mSaveReactableCall != null) {
-      mSaveReactableCall.cancel();
+    if (mSaveSceneCall != null) {
+      mSaveSceneCall.cancel();
     }
     if (mDirectingState == DirectingState.SENT) {
       onApproval();
@@ -218,13 +215,13 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
      * The user directs the piece of art he is about to create, usually involves the camera preview.
      */
     DIRECTING, /**
-     * A {@link Reactable} was created and is awaiting final approval to be published.
+     * A {@link Scene} was created and is awaiting final approval to be published.
      */
     APPROVAL, /**
-     * A {@link Reactable} was approved and is now being sent to the server.
+     * A {@link Scene} was approved and is now being sent to the server.
      */
     SENT, /**
-     * The created {@link Reactable} was successfully received by the server.
+     * The created {@link Scene} was successfully received by the server.
      */
     PUBLISHED
   }

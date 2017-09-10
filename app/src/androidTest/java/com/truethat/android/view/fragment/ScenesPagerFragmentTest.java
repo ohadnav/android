@@ -15,11 +15,11 @@ import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.model.Video;
 import com.truethat.android.view.activity.TheaterActivity;
-import com.truethat.android.viewmodel.ReactableViewModel;
+import com.truethat.android.viewmodel.SceneViewModel;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -51,7 +51,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 26/06/2017 for TrueThat.
  */
-public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
+public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
   private static final String VIDEO_URL =
@@ -66,44 +66,43 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
   }};
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
-  private List<Reactable> mRespondedReactables;
+  private List<Scene> mRespondedScenes;
 
   @SuppressWarnings("ConstantConditions")
-  public static void assertReactableDisplayed(final Reactable reactable, User currentUser)
+  public static void assertSceneDisplayed(final Scene scene, User currentUser)
       throws Exception {
-    final ReactablesPagerFragment pagerFragment =
-        (ReactablesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.reactablesPagerFragment);
-    // Wait until the reactable is displayed.
-    waitMatcher(withId(R.id.reactableFragment));
+    final ScenesPagerFragment pagerFragment =
+        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.scenesPagerFragment);
+    // Wait until the scene is displayed.
+    waitMatcher(withId(R.id.sceneFragment));
     // Wait until the correct fragment is the current one.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable.getId(),
-            pagerFragment.getDisplayedReactable().getReactable().getId());
+        assertEquals(scene.getId(), pagerFragment.getDisplayedScene().getScene().getId());
       }
     });
-    final ReactableFragment currentFragment = pagerFragment.getDisplayedReactable();
+    final SceneFragment currentFragment = pagerFragment.getDisplayedScene();
     // Wait until the fragment is ready
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(currentFragment.getMediaFragment().isReady());
       }
     });
-    if (reactable.getMedia() instanceof Photo) {
+    if (scene.getMedia() instanceof Photo) {
       // Asserting the pose image is displayed fullscreen.
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {
           assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
         }
       });
-    } else if (reactable.getMedia() instanceof Video) {
+    } else if (scene.getMedia() instanceof Video) {
       // Asserting the video is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
       // Video should be playing
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {
-          assertTrue(((VideoFragment) pagerFragment.getDisplayedReactable()
+          assertTrue(((VideoFragment) pagerFragment.getDisplayedScene()
               .getMediaFragment()).getMediaPlayer().isPlaying());
         }
       });
@@ -112,24 +111,24 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     onView(withId(R.id.nonFoundLayout)).check(matches(not(isDisplayed())));
     ImageView reactionImage = currentFragment.getView().findViewById(R.id.reactionImage);
     // If there are no reactions they shouldn't be displayed
-    if (NumberUtil.sum(reactable.getReactionCounters()) > 0) {
+    if (NumberUtil.sum(scene.getReactionCounters()) > 0) {
       // Asserting the reactions count is abbreviated.
-      assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
+      assertEquals(NumberUtil.format(NumberUtil.sum(scene.getReactionCounters())),
           ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
       // Asserting the reaction image is displayed and represents the most common reaction, the user reaction, or the default one.
       onView(allOf(isDisplayed(), withId(R.id.reactionImage))).check(matches(isDisplayed()));
-      if (currentFragment.getReactable().getUserReaction() != null) {
+      if (currentFragment.getScene().getUserReaction() != null) {
         assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
             ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                currentFragment.getReactable().getUserReaction().getDrawableResource())));
-      } else if (!reactable.getReactionCounters().isEmpty()) {
+                currentFragment.getScene().getUserReaction().getDrawableResource())));
+      } else if (!scene.getReactionCounters().isEmpty()) {
         assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
             ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                reactable.getReactionCounters().lastKey().getDrawableResource())));
+                scene.getReactionCounters().lastKey().getDrawableResource())));
       } else {
         assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
             ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                ReactableViewModel.DEFAULT_REACTION_COUNTER.getDrawableResource())));
+                SceneViewModel.DEFAULT_REACTION_COUNTER.getDrawableResource())));
       }
     } else {
       assertEquals("",
@@ -138,15 +137,15 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
           ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
               R.drawable.transparent_1x1)));
     }
-    // Asserting the displayed time is represents the reactable creation.
-    assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()),
+    // Asserting the displayed time is represents the scene creation.
+    assertEquals(DateUtil.formatTimeAgo(scene.getCreated()),
         ((TextView) currentFragment.getView().findViewById(R.id.timeAgoText)).getText());
     // Should not display director name if the current user is the director.
-    if (!Objects.equals(reactable.getDirector().getId(), currentUser.getId())) {
+    if (!Objects.equals(scene.getDirector().getId(), currentUser.getId())) {
       assertEquals(View.VISIBLE,
           currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
-      // Asserting the displayed name is of the reactable director
-      assertEquals(reactable.getDirector().getDisplayName(),
+      // Asserting the displayed name is of the scene director
+      assertEquals(scene.getDirector().getDisplayName(),
           ((TextView) currentFragment.getView().findViewById(R.id.directorNameText)).getText());
     } else {
       assertEquals(View.GONE,
@@ -159,48 +158,47 @@ public class ReactablesPagerFragmentTest extends BaseApplicationTestSuite {
     // Resets the post event counter.
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(mRespondedReactables);
-        mRespondedReactables = Collections.emptyList();
+        String responseBody = GSON.toJson(mRespondedScenes);
+        mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
     // By default the poses list is empty.
-    mRespondedReactables = Collections.emptyList();
+    mRespondedScenes = Collections.emptyList();
   }
 
   @Test public void displayPhoto() throws Exception {
-    Reactable reactable =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+    Scene scene =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL, null));
-    mRespondedReactables = Collections.singletonList(reactable);
+    mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(reactable, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser());
     // Let a post event to maybe be sent.
     Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
     assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
   }
 
   @Test public void displayVideo() throws Exception {
-    Reactable video =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+    Scene video =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Video(VIDEO_URL, null));
-    mRespondedReactables = Collections.singletonList(video);
+    mRespondedScenes = Collections.singletonList(video);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(video, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser());
   }
 
   @Test public void displayMultipleTypes() throws Exception {
-    Reactable pose =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+    Scene pose = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL, null));
-    Reactable video =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+    Scene video =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Video(VIDEO_URL, null));
-    mRespondedReactables = Arrays.asList(pose, video);
+    mRespondedScenes = Arrays.asList(pose, video);
     mTheaterActivityTestRule.launchActivity(null);
-    assertReactableDisplayed(pose, mFakeAuthManager.getCurrentUser());
-    // Swipe to next reactable
+    assertSceneDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    // Swipe to next scene
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertReactableDisplayed(video, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser());
   }
 }

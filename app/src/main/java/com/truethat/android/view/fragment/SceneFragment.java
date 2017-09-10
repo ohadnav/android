@@ -11,38 +11,37 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
-import com.truethat.android.databinding.FragmentReactableBinding;
-import com.truethat.android.model.Reactable;
-import com.truethat.android.viewmodel.ReactableViewModel;
-import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
+import com.truethat.android.databinding.FragmentSceneBinding;
+import com.truethat.android.model.Scene;
+import com.truethat.android.viewmodel.SceneViewModel;
+import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 /**
- * A generic container for {@link Reactable}. Handles touch gestures for navigation between {@link
- * ReactableFragment}, and emotional reaction detection.
+ * A generic container for {@link Scene}. Handles touch gestures for navigation between {@link
+ * SceneFragment}, and emotional reaction detection.
  */
-public class ReactableFragment
-    extends BaseFragment<ReactableViewInterface, ReactableViewModel, FragmentReactableBinding>
-    implements ReactableViewInterface {
-  private static final String ARG_REACTABLE = "reactable";
+public class SceneFragment
+    extends BaseFragment<SceneViewInterface, SceneViewModel, FragmentSceneBinding>
+    implements SceneViewInterface {
+  private static final String ARG_SCENE = "scene";
   @BindView(R.id.reactionImage) ImageView mReactionImage;
-  Reactable mReactable;
+  Scene mScene;
   private MediaFragment mMediaFragment;
-  private int mMediaContainerViewId;
 
-  public ReactableFragment() {
+  public SceneFragment() {
     // Required empty public constructor
   }
 
   /**
-   * @param reactable to initialize with
+   * @param scene to initialize with
    *
-   * @return a fresh from the oven reactable fragment. View with care ;)
+   * @return a fresh from the oven scene fragment. View with care ;)
    */
-  public static ReactableFragment newInstance(Reactable reactable) {
-    ReactableFragment fragment = new ReactableFragment();
+  public static SceneFragment newInstance(Scene scene) {
+    SceneFragment fragment = new SceneFragment();
     Bundle args = new Bundle();
-    args.putSerializable(ARG_REACTABLE, reactable);
+    args.putSerializable(ARG_SCENE, scene);
     fragment.setArguments(args);
     return fragment;
   }
@@ -50,8 +49,8 @@ public class ReactableFragment
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //noinspection unchecked
-    mReactable = (Reactable) getArguments().getSerializable(ARG_REACTABLE);
-    getViewModel().setReactable(mReactable);
+    mScene = (Scene) getArguments().getSerializable(ARG_SCENE);
+    getViewModel().setScene(mScene);
   }
 
   /**
@@ -60,12 +59,12 @@ public class ReactableFragment
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    mMediaContainerViewId = View.generateViewId();
-    mRootView.findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
-    mMediaFragment = mReactable.getMedia().createFragment();
+    int mediaContainerViewId = View.generateViewId();
+    mRootView.findViewById(R.id.mediaContainer).setId(mediaContainerViewId);
+    mMediaFragment = mScene.getMedia().createFragment();
     FragmentTransaction fragmentTransaction =
         getActivity().getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(mMediaContainerViewId, mMediaFragment);
+    fragmentTransaction.replace(mediaContainerViewId, mMediaFragment);
     fragmentTransaction.commit();
     mMediaFragment.setMediaListener(getViewModel());
     return mRootView;
@@ -82,11 +81,11 @@ public class ReactableFragment
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
-    return new ViewModelBindingConfig(R.layout.fragment_reactable, getContext());
+    return new ViewModelBindingConfig(R.layout.fragment_scene, getContext());
   }
 
-  public Reactable getReactable() {
-    return mReactable;
+  public Scene getScene() {
+    return mScene;
   }
 
   @VisibleForTesting public MediaFragment getMediaFragment() {

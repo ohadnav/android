@@ -20,7 +20,7 @@ import butterknife.OnTouch;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.databinding.ActivityStudioBinding;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.view.fragment.MediaFragment;
@@ -33,7 +33,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 public class StudioActivity
     extends BaseActivity<StudioViewInterface, StudioViewModel, ActivityStudioBinding>
     implements StudioViewInterface {
-  public static final String DIRECTED_REACTABLE_TAG = "DIRECTED_REACTABLE_TAG";
+  public static final String DIRECTED_SCENE_TAG = "DIRECTED_SCENE_TAG";
   @BindString(R.string.signing_in) String SINGING_IN;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.captureButton) ImageButton mCaptureButton;
@@ -62,7 +62,7 @@ public class StudioActivity
    */
   @OnTouch(R.id.captureButton) public boolean onCaptureTouch(MotionEvent motionEvent) {
     if (!AppContainer.getAuthManager().isAuthOk()) {
-      Log.w(TAG, "Attempt to direct reactable when unauthorized.");
+      Log.w(TAG, "Attempt to direct scene when unauthorized.");
       Toast.makeText(StudioActivity.this, SINGING_IN, Toast.LENGTH_SHORT).show();
       onAuthFailed();
       return true;
@@ -72,7 +72,7 @@ public class StudioActivity
       return true;
     }
     if (!mCameraFragment.canUseCamera()) {
-      Log.w(TAG, "Attempt to direct reactable when camera is not ready.");
+      Log.w(TAG, "Attempt to direct scene when camera is not ready.");
       return true;
     }
     return false;
@@ -138,10 +138,10 @@ public class StudioActivity
     runOnUiThread(new Runnable() {
       @Override public void run() {
         // Removes display fragment
-        if (getSupportFragmentManager().findFragmentByTag(DIRECTED_REACTABLE_TAG) != null) {
+        if (getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG) != null) {
           FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
           fragmentTransaction.remove(
-              getSupportFragmentManager().findFragmentByTag(DIRECTED_REACTABLE_TAG));
+              getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG));
           fragmentTransaction.commit();
         }
         // Navigate to theater after publishing.
@@ -159,10 +159,10 @@ public class StudioActivity
     });
   }
 
-  @Override public void displayPreview(Reactable reactable) {
-    MediaFragment mediaFragment = reactable.getMedia().createFragment();
+  @Override public void displayPreview(Scene scene) {
+    MediaFragment mediaFragment = scene.getMedia().createFragment();
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(R.id.previewContainer, mediaFragment, DIRECTED_REACTABLE_TAG);
+    fragmentTransaction.replace(R.id.previewContainer, mediaFragment, DIRECTED_SCENE_TAG);
     fragmentTransaction.commit();
   }
 

@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Proudly created by ohad on 12/06/2017 for TrueThat.
  * <p>
- * Encapsulates event of user interaction with a reactable.
+ * Encapsulates event of user interaction with a scene.
  *
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/InteractionEvent.java</a>
  */
@@ -35,17 +35,17 @@ import java.util.Date;
    */
   private EventType mEventType;
   /**
-   * Of the {@link Reactable} that was interacted with.
+   * Of the {@link Scene} that was interacted with.
    */
-  private long mReactableId;
+  private long mSceneId;
 
-  public InteractionEvent(long userId, long reactableId, Date timestamp, EventType eventType,
+  public InteractionEvent(long userId, long sceneId, Date timestamp, EventType eventType,
       @Nullable Emotion reaction) {
     mTimestamp = timestamp;
     mUserId = userId;
     mReaction = reaction;
     mEventType = eventType;
-    mReactableId = reactableId;
+    mSceneId = sceneId;
   }
 
   @Override public String toString() {

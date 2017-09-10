@@ -1,6 +1,6 @@
 package com.truethat.android.common.network;
 
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import java.util.List;
 import retrofit2.Call;
@@ -17,7 +17,7 @@ public interface TheaterApi {
   String PATH = "theater";
 
   /**
-   * Get reactables from our backend to add some drama to our users life.
+   * Get scenes from our backend to add some drama to our users life.
    */
-  @POST(PATH) Call<List<Reactable>> fetchReactables(@Body User user);
+  @POST(PATH) Call<List<Scene>> fetchScenes(@Body User user);
 }

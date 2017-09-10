@@ -4,7 +4,7 @@ import android.content.Context;
 import android.media.Image;
 import com.truethat.android.R;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
@@ -49,8 +49,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Start backend
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        return new MockResponse().setBody(
-            NetworkUtil.GSON.toJson(mViewModel.getDirectedReactable()));
+        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mViewModel.getDirectedScene()));
       }
     });
     // Mocks take images
@@ -79,7 +78,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
     mViewModel.onVideoAvailable("bigcoin-gen.dmg");
     assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
-    assertTrue(mViewModel.getDirectedReactable().getMedia() instanceof Video);
+    assertTrue(mViewModel.getDirectedScene().getMedia() instanceof Video);
   }
 
   @Test public void approvalCancel() throws Exception {
@@ -95,7 +94,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   @Test public void sentState() throws Exception {
     mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
-    // Send the reactable.
+    // Send the scene.
     mViewModel.onSent();
     assertSentState();
   }
@@ -103,7 +102,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   @Test public void publishedState() throws Exception {
     mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
-    // Send the reactable.
+    // Send the scene.
     mViewModel.onSent();
     assertSentState();
     assertPublishedState();
@@ -117,7 +116,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     });
     mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
-    // Send the reactable.
+    // Send the scene.
     mViewModel.onSent();
     assertSentState();
     // Should fail
@@ -129,13 +128,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         Thread.sleep(500);
-        return new MockResponse().setBody(
-            NetworkUtil.GSON.toJson(mViewModel.getDirectedReactable()));
+        return new MockResponse().setBody(NetworkUtil.GSON.toJson(mViewModel.getDirectedScene()));
       }
     });
     mViewModel.onImageAvailable(mMockedImage);
     assertApprovalState();
-    // Send the reactable.
+    // Send the scene.
     mViewModel.onSent();
     assertSentState();
     // Pause activity.
@@ -155,8 +153,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
     assertEquals(DIRECTING, mViewModel.getDirectingState());
-    // Reactable preview is hidden.
-    assertFalse(mViewModel.mReactablePreviewVisibility.get());
+    // Scene preview is hidden.
+    assertFalse(mViewModel.mScenePreviewVisibility.get());
     // Camera preview is shown
     assertTrue(mViewModel.mCameraPreviewVisibility.get());
   }
@@ -177,10 +175,10 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Loading image is hidden
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     // Correct preview is shown.
-    assertTrue(mViewModel.mReactablePreviewVisibility.get());
+    assertTrue(mViewModel.mScenePreviewVisibility.get());
     // Camera preview is hidden
     assertFalse(mViewModel.mCameraPreviewVisibility.get());
-    assertEquals(mViewModel.getDirectedReactable(), mView.mDisplayedReactable);
+    assertEquals(mViewModel.getDirectedScene(), mView.mDisplayedScene);
   }
 
   private void assertSentState() {
@@ -220,7 +218,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
     private boolean mLeftStudio = false;
     private boolean mPreviewRestored = false;
-    private Reactable mDisplayedReactable;
+    private Scene mDisplayedScene;
 
     @Override public void leaveStudio() {
       mLeftStudio = true;
@@ -230,8 +228,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       mPreviewRestored = true;
     }
 
-    @Override public void displayPreview(Reactable reactable) {
-      mDisplayedReactable = reactable;
+    @Override public void displayPreview(Scene scene) {
+      mDisplayedScene = scene;
     }
   }
 }

@@ -20,22 +20,22 @@ import retrofit2.Call;
  * <p>
  * A media item that the user can have an emotional reaction to.
  */
-public class Reactable implements Serializable {
+public class Scene implements Serializable {
   private static final long serialVersionUID = -1448872330838152333L;
   /**
    * ID as stored in our backend.
    */
   private Long mId;
   /**
-   * The user reaction to the reactable, {@code null} for no reaction.
+   * The user reaction to the scene, {@code null} for no reaction.
    */
   private Emotion mUserReaction;
   /**
-   * Creator of the reactable. By default, the current user is assigned.
+   * Creator of the scene. By default, the current user is assigned.
    */
   private User mDirector;
   /**
-   * Counters of emotional reactions to the reactable, per each emotion.
+   * Counters of emotional reactions to the scene, per each emotion.
    */
   private TreeMap<Emotion, Long> mReactionCounters;
   /**
@@ -43,16 +43,16 @@ public class Reactable implements Serializable {
    */
   private Date mCreated;
   /**
-   * Whether the reactable was viewed by the user.
+   * Whether the scene was viewed by the user.
    */
   private boolean mViewed;
   /**
-   * The media associated with this reactable, such as a {@link Photo}.
+   * The media associated with this scene, such as a {@link Photo}.
    */
   private Media mMedia;
 
   @VisibleForTesting
-  public Reactable(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+  public Scene(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       @Nullable Emotion userReaction, Media media) {
     mId = id;
     mUserReaction = userReaction;
@@ -62,14 +62,14 @@ public class Reactable implements Serializable {
     mMedia = media;
   }
 
-  public Reactable(Media media) {
+  public Scene(Media media) {
     mDirector = AppContainer.getAuthManager().getCurrentUser();
     mCreated = new Date();
     mMedia = media;
   }
 
   // A default constructor is provided for serialization and de-serialization.
-  @SuppressWarnings("unused") Reactable() {
+  @SuppressWarnings("unused") Scene() {
   }
 
   public Media getMedia() {
@@ -93,7 +93,7 @@ public class Reactable implements Serializable {
   }
 
   /**
-   * Marks this Reactable as viewed by the user.
+   * Marks this Scene as viewed by the user.
    */
   public void doView() {
     mViewed = true;
@@ -104,7 +104,7 @@ public class Reactable implements Serializable {
   }
 
   /**
-   * Applies {@code reaction} on the reactable, by updating {@code mReactionCounters} and {@code
+   * Applies {@code reaction} on the scene, by updating {@code mReactionCounters} and {@code
    * mUserReaction}.
    *
    * @param reaction of the user reaction.
@@ -112,7 +112,7 @@ public class Reactable implements Serializable {
   public void doReaction(@NonNull Emotion reaction) {
     if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     increaseReactionCounter(reaction);
-    // Check if the user had already reacted this reactable.
+    // Check if the user had already reacted this scene.
     if (mUserReaction != null) {
       decreaseReactionCounter(reaction);
     }
@@ -128,18 +128,18 @@ public class Reactable implements Serializable {
     return mUserReaction;
   }
 
-  @SuppressWarnings("unchecked") public Call<Reactable> createApiCall() {
+  @SuppressWarnings("unchecked") public Call<Scene> createApiCall() {
     List<MultipartBody.Part> mediaParts =
         mMedia == null ? Collections.EMPTY_LIST : Collections.singletonList(mMedia.createPart());
-    MultipartBody.Part reactablePart =
-        MultipartBody.Part.createFormData(StudioApi.REACTABLE_PART, NetworkUtil.GSON.toJson(this));
-    return NetworkUtil.createApi(StudioApi.class).saveReactable(reactablePart, mediaParts);
+    MultipartBody.Part scenePart =
+        MultipartBody.Part.createFormData(StudioApi.SCENE_PART, NetworkUtil.GSON.toJson(this));
+    return NetworkUtil.createApi(StudioApi.class).saveScene(scenePart, mediaParts);
   }
 
   /**
-   * @param user that should react to this reactable.
+   * @param user that should react to this scene.
    *
-   * @return whether {@code user} can react to this reactable.
+   * @return whether {@code user} can react to this scene.
    */
   public boolean canReactTo(User user) {
     boolean notReactedTo = mUserReaction == null;
@@ -149,22 +149,22 @@ public class Reactable implements Serializable {
 
   @Override public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Reactable)) return false;
+    if (!(o instanceof Scene)) return false;
 
-    Reactable reactable = (Reactable) o;
+    Scene scene = (Scene) o;
 
-    if (!Objects.equals(mId, reactable.mId)) return false;
-    if (mViewed != reactable.mViewed) return false;
-    if (mUserReaction != reactable.mUserReaction) return false;
-    if (mDirector != null ? !mDirector.equals(reactable.mDirector) : reactable.mDirector != null) {
+    if (!Objects.equals(mId, scene.mId)) return false;
+    if (mViewed != scene.mViewed) return false;
+    if (mUserReaction != scene.mUserReaction) return false;
+    if (mDirector != null ? !mDirector.equals(scene.mDirector) : scene.mDirector != null) {
       return false;
     }
     //noinspection SimplifiableIfStatement
-    if (mReactionCounters != null ? !mReactionCounters.equals(reactable.mReactionCounters)
-        : reactable.mReactionCounters != null) {
+    if (mReactionCounters != null ? !mReactionCounters.equals(scene.mReactionCounters)
+        : scene.mReactionCounters != null) {
       return false;
     }
-    return mCreated != null ? mCreated.equals(reactable.mCreated) : reactable.mCreated == null;
+    return mCreated != null ? mCreated.equals(scene.mCreated) : scene.mCreated == null;
   }
 
   @Override public String toString() {

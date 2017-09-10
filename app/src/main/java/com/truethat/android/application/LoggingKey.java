@@ -7,16 +7,16 @@ package com.truethat.android.application;
 public enum LoggingKey {
   // -------------------- UI + UX -----------------------
   /**
-   * Currently displayed reactable.
+   * Currently displayed scene.
    */
-  DISPLAYED_REACTABLE, /**
-   * Last directed reactable.
+  DISPLAYED_SCENE, /**
+   * Last directed scene.
    */
-  DIRECTED_REACTABLE, /**
+  DIRECTED_SCENE, /**
    * Current resumed activity.
    */
   ACTIVITY, /**
-   * Last user interaction with a reactable.
+   * Last user interaction with a scene.
    */
   LAST_INTERACTION_EVENT,
   // --------------------- Network ----------------------

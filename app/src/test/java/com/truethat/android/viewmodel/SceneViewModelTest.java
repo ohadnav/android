@@ -7,9 +7,9 @@ import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
-import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
+import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
 import java.util.TreeMap;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Test;
@@ -23,8 +23,8 @@ import static org.junit.Assert.assertNull;
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
  */
-@SuppressWarnings("serial") public class ReactableViewModelTest extends ViewModelTestSuite {
-  private static final long REACTABLE_ID = 1;
+@SuppressWarnings("serial") public class SceneViewModelTest extends ViewModelTestSuite {
+  private static final long SCENE_ID = 1;
   private static final String IMAGE_URL = "http://www.ishim.co.il/i/11/1139.jpg";
   private static final User DIRECTOR = new User(1L, "Tomer", "Sh");
   private static final TreeMap<Emotion, Long> REACTION_COUNTERS = new TreeMap<Emotion, Long>() {{
@@ -33,55 +33,55 @@ import static org.junit.Assert.assertNull;
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.SAD;
-  private ReactableViewModel mViewModel = new ReactableViewModel();
-  private Reactable mReactable;
+  private SceneViewModel mViewModel = new SceneViewModel();
+  private Scene mScene;
 
-  private static void assertReactableDisplayed(ReactableViewModel viewModel, Reactable reactable,
+  private static void assertSceneDisplayed(SceneViewModel viewModel, Scene scene,
       @NonNull User currentUser) {
-    assertEquals(reactable.getId(), viewModel.getReactable().getId());
-    if (reactable.getUserReaction() != null) {
+    assertEquals(scene.getId(), viewModel.getScene().getId());
+    if (scene.getUserReaction() != null) {
       // Display user reaction when possible.
-      assertEquals(reactable.getUserReaction().getDrawableResource(),
+      assertEquals(scene.getUserReaction().getDrawableResource(),
           viewModel.mReactionDrawableResource.get());
     } else {
       // Display common reaction otherwise.
-      assertEquals(reactable.getReactionCounters().lastKey().getDrawableResource(),
+      assertEquals(scene.getReactionCounters().lastKey().getDrawableResource(),
           viewModel.mReactionDrawableResource.get());
     }
     // Counters should be summed up and abbreviated.
-    assertEquals(NumberUtil.format(NumberUtil.sum(reactable.getReactionCounters())),
+    assertEquals(NumberUtil.format(NumberUtil.sum(scene.getReactionCounters())),
         viewModel.mReactionsCountText.get());
     // Color of counters should be lighter for user that have already reacted
-    assertEquals(reactable.getUserReaction() != null ? ReactableViewModel.POST_REACTION_COUNT_COLOR
-        : ReactableViewModel.DEFAULT_COUNT_COLOR, viewModel.mReactionCountColor.get());
+    assertEquals(scene.getUserReaction() != null ? SceneViewModel.POST_REACTION_COUNT_COLOR
+        : SceneViewModel.DEFAULT_COUNT_COLOR, viewModel.mReactionCountColor.get());
     // Hide director name when ths current user is the director.
-    assertNotEquals(currentUser.equals(reactable.getDirector()),
+    assertNotEquals(currentUser.equals(scene.getDirector()),
         viewModel.mDirectorNameVisibility.get());
-    assertEquals(reactable.getDirector().getDisplayName(), viewModel.mDirectorName.get());
+    assertEquals(scene.getDirector().getDisplayName(), viewModel.mDirectorName.get());
     // Display time ago in a proper fashion.
-    assertEquals(DateUtil.formatTimeAgo(reactable.getCreated()), viewModel.mTimeAgoText.get());
+    assertEquals(DateUtil.formatTimeAgo(scene.getCreated()), viewModel.mTimeAgoText.get());
   }
 
   @Test public void properDisplay() throws Exception {
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
-    assertReactableDisplayed(mViewModel, mReactable,
+    initSceneViewModel();
+    assertSceneDisplayed(mViewModel, mScene,
         AppContainer.getAuthManager().getCurrentUser());
   }
 
   @Test public void properDisplay_zeroReactions() throws Exception {
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, null,
+    mScene = new Scene(SCENE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, null,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     assertEquals("", mViewModel.mReactionsCountText.get());
     assertEquals(R.drawable.transparent_1x1, mViewModel.mReactionDrawableResource.get());
   }
 
   @Test public void doView() throws Exception {
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     // Assert a view event is sent
     final int currentRequestCount = mMockWebServer.getRequestCount();
     mViewModel.onDisplay();
@@ -96,9 +96,9 @@ import static org.junit.Assert.assertNull;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, reactionCounters, mNow, null,
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, null,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     final int currentRequestCount = mMockWebServer.getRequestCount();
     mViewModel.onDisplay();
     // Applies the detection.
@@ -110,11 +110,11 @@ import static org.junit.Assert.assertNull;
       }
     });
     // The detected reaction should be registered
-    assertEquals(REACTION, mViewModel.getReactable().getUserReaction());
+    assertEquals(REACTION, mViewModel.getScene().getUserReaction());
     // and displayed
     assertEquals(REACTION.getDrawableResource(), mViewModel.mReactionDrawableResource.get());
     assertEquals("2", mViewModel.mReactionsCountText.get());
-    assertEquals(ReactableViewModel.POST_REACTION_COUNT_COLOR,
+    assertEquals(SceneViewModel.POST_REACTION_COUNT_COLOR,
         mViewModel.mReactionCountColor.get());
   }
 
@@ -122,53 +122,52 @@ import static org.junit.Assert.assertNull;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mReactable =
-        new Reactable(REACTABLE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, null,
+    mScene = new Scene(SCENE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, null,
             new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     mViewModel.onDisplay();
     // Should not be subscribed to reaction detection.
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Fake a detection.
     mFakeReactionDetectionManager.doDetection(REACTION);
     // Should not have an effect
-    assertNull(mViewModel.getReactable().getUserReaction());
-    assertEquals(reactionCounters, mViewModel.getReactable().getReactionCounters());
+    assertNull(mViewModel.getScene().getUserReaction());
+    assertEquals(reactionCounters, mViewModel.getScene().getReactionCounters());
   }
 
   @Test public void reactionNotDetectedOnHidden() throws Exception {
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, null,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     mViewModel.onDisplay();
     // Hides view.
     mViewModel.onHidden();
     // Do a detection
     mFakeReactionDetectionManager.doDetection(REACTION);
     // Should not register the detection.
-    assertNull(mViewModel.getReactable().getUserReaction());
+    assertNull(mViewModel.getScene().getUserReaction());
   }
 
   @Test public void reactionCanNotBeDetectedTwice() throws Exception {
-    mReactable = new Reactable(REACTABLE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, REACTION,
         new Photo(IMAGE_URL, null));
-    initReactableViewModel();
+    initSceneViewModel();
     mViewModel.onDisplay();
     // Do a detection
     mFakeReactionDetectionManager.doDetection(REACTION_2);
     // Should not register the detection.
-    assertEquals(REACTION, mViewModel.getReactable().getUserReaction());
+    assertEquals(REACTION, mViewModel.getScene().getUserReaction());
   }
 
-  private void initReactableViewModel() throws Exception {
-    ReactableViewInterface view = new ViewInterface();
+  private void initSceneViewModel() throws Exception {
+    SceneViewInterface view = new ViewInterface();
     mViewModel = createViewModel(mViewModel.getClass(), view);
-    mViewModel.setReactable(mReactable);
+    mViewModel.setScene(mScene);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();
   }
 
-  private class ViewInterface extends UnitTestViewInterface implements ReactableViewInterface {
+  private class ViewInterface extends UnitTestViewInterface implements SceneViewInterface {
     @Override public void bounceReactionImage() {
 
     }

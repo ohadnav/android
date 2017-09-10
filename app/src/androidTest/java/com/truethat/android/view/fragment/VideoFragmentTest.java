@@ -5,7 +5,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
 import com.truethat.android.view.activity.RepertoireActivity;
 import java.util.Collections;
@@ -38,26 +38,26 @@ public class VideoFragmentTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
   // TODO(ohad): remove short basically
-  private Reactable mReactable;
+  private Scene mScene;
   private VideoFragment mVideoFragment;
 
   @Override public void setUp() throws Exception {
     super.setUp();
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(Collections.singletonList(mReactable));
+        String responseBody = GSON.toJson(Collections.singletonList(mScene));
         return new MockResponse().setBody(responseBody);
       }
     });
-    mReactable = new Reactable(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+    mScene = new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
         new Date(), null,
         new Video("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
     mRepertoireActivityRule.launchActivity(null);
-    // Wait until the reactable fragment is created.
-    waitMatcher(withId(R.id.reactableFragment));
+    // Wait until the scene fragment is created.
+    waitMatcher(withId(R.id.sceneFragment));
     mVideoFragment =
-        (VideoFragment) ((ReactablesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.reactablesPagerFragment)).getDisplayedReactable()
+        (VideoFragment) ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene()
             .getMediaFragment();
     // Wait until the fragment is ready
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {

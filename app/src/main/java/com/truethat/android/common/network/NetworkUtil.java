@@ -13,9 +13,9 @@ import com.truethat.android.external.GsonUTCDateAdapter;
 import com.truethat.android.external.RuntimeTypeAdapterFactory;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
-import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.view.fragment.SceneFragment;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -58,7 +58,7 @@ public class NetworkUtil {
    * <ul>
    * <li>Android naming strategy, so that serialized json match regular Java notations.</li>
    * <li>Date format, to sync with our backend.</li>
-   * <li>{@link Reactable} serialization, so that {@link ReactableFragment} can be created more
+   * <li>{@link Scene} serialization, so that {@link SceneFragment} can be created more
    * freely.</li>
    * </ul>
    */

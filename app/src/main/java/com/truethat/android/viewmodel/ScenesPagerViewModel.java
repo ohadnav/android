@@ -9,8 +9,8 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.model.Reactable;
-import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
+import com.truethat.android.model.Scene;
+import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,12 +20,12 @@ import retrofit2.Response;
  * Proudly created by ohad on 21/07/2017 for TrueThat.
  */
 
-public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPagerViewInterface> {
+public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewInterface> {
   public final ObservableBoolean mNonFoundLayoutVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
-  public final ObservableList<Reactable> mItems = new ObservableArrayList<>();
-  private Callback<List<Reactable>> mFetchReactablesCallback;
-  private Call<List<Reactable>> mFetchReactablesCall;
+  public final ObservableList<Scene> mItems = new ObservableArrayList<>();
+  private Callback<List<Scene>> mFetchScenesCallback;
+  private Call<List<Scene>> mFetchScenesCall;
   private int mDisplayedIndex;
   private boolean mDetectReactions = false;
 
@@ -34,9 +34,9 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
   }
 
   public void next() {
-    // Fetch more reactables if we have none, or if we're at the last item.
+    // Fetch more scenes if we have none, or if we're at the last item.
     if (mItems.size() == 0 || mDisplayedIndex == mItems.size() - 1) {
-      fetchReactables();
+      fetchScenes();
     } else {
       mDisplayedIndex = mDisplayedIndex + 1;
       getView().displayItem(mDisplayedIndex);
@@ -52,7 +52,7 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
 
   @Override public void onStop() {
     super.onStop();
-    if (mFetchReactablesCall != null) mFetchReactablesCall.cancel();
+    if (mFetchScenesCall != null) mFetchScenesCall.cancel();
     if (mDetectReactions) {
       AppContainer.getReactionDetectionManager().stop();
     }
@@ -60,23 +60,23 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
 
   @Override public void onStart() {
     super.onStart();
-    mFetchReactablesCallback = buildFetchReactablesCallback();
+    mFetchScenesCallback = buildFetchScenesCallback();
   }
 
   /**
-   * Fetching {@link Reactable} from our backend.
+   * Fetching {@link Scene} from our backend.
    */
-  public void fetchReactables() {
-    Log.d(TAG, "Fetching reactables...");
+  public void fetchScenes() {
+    Log.d(TAG, "Fetching scenes...");
     mNonFoundLayoutVisibility.set(false);
     if (mItems.isEmpty()) {
       mLoadingImageVisibility.set(true);
     }
-    mFetchReactablesCall = getView().buildFetchReactablesCall();
-    mFetchReactablesCall.enqueue(mFetchReactablesCallback);
+    mFetchScenesCall = getView().buildFetchScenesCall();
+    mFetchScenesCall.enqueue(mFetchScenesCallback);
   }
 
-  @VisibleForTesting Reactable getDisplayedReactable() {
+  @VisibleForTesting Scene getDisplayedScene() {
     if (mDisplayedIndex < 0 || mDisplayedIndex >= mItems.size()) {
       return null;
     }
@@ -84,25 +84,25 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
   }
 
   /**
-   * @return fetching callback. If new {@link Reactable}s are retrieved, then they are added to
+   * @return fetching callback. If new {@link Scene}s are retrieved, then they are added to
    * {@link #mItems}.
    */
-  private Callback<List<Reactable>> buildFetchReactablesCallback() {
-    return new Callback<List<Reactable>>() {
-      @Override public void onResponse(@NonNull Call<List<Reactable>> call,
-          @NonNull Response<List<Reactable>> response) {
+  private Callback<List<Scene>> buildFetchScenesCallback() {
+    return new Callback<List<Scene>>() {
+      @Override public void onResponse(@NonNull Call<List<Scene>> call,
+          @NonNull Response<List<Scene>> response) {
         mLoadingImageVisibility.set(false);
         if (response.isSuccessful()) {
-          List<Reactable> newReactables = response.body();
-          if (newReactables == null) {
-            throw new AssertionError("I just cant believe it! The new reactables are null.");
+          List<Scene> newScenes = response.body();
+          if (newScenes == null) {
+            throw new AssertionError("I just cant believe it! The new scenes are null.");
           }
-          if (newReactables.size() > 0) {
-            Log.v(TAG, "Loading " + newReactables.size() + " new reactables.");
+          if (newScenes.size() > 0) {
+            Log.v(TAG, "Loading " + newScenes.size() + " new scenes.");
             // Hides the loading image.
-            // Display new reactables.
+            // Display new scenes.
             int toDisplayIndex = mItems.size();
-            mItems.addAll(newReactables);
+            mItems.addAll(newScenes);
             mDisplayedIndex = toDisplayIndex;
             getView().displayItem(mDisplayedIndex);
           } else if (mItems.size() == 0) {
@@ -110,9 +110,9 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
           }
         } else {
           if (!BuildConfig.DEBUG) {
-            Crashlytics.logException(new Exception("Failed to fetch reactables"));
+            Crashlytics.logException(new Exception("Failed to fetch scenes"));
           }
-          Log.e(TAG, "Failed to fetch reactables from "
+          Log.e(TAG, "Failed to fetch scenes from "
               + call.request().url()
               + "\nUser: "
               + AppContainer.getAuthManager().getCurrentUser()
@@ -126,12 +126,12 @@ public class ReactablesPagerViewModel extends BaseFragmentViewModel<ReactablesPa
         }
       }
 
-      @Override public void onFailure(@NonNull Call<List<Reactable>> call, @NonNull Throwable t) {
+      @Override public void onFailure(@NonNull Call<List<Scene>> call, @NonNull Throwable t) {
         if (!BuildConfig.DEBUG) {
           Crashlytics.logException(t);
         }
         t.printStackTrace();
-        Log.e(TAG, "Fetch reactables request to " + call.request().url() + " had failed.", t);
+        Log.e(TAG, "Fetch scenes request to " + call.request().url() + " had failed.", t);
         displayNotFound();
       }
     };

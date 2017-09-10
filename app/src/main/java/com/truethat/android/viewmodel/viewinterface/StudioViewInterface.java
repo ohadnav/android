@@ -1,6 +1,6 @@
 package com.truethat.android.viewmodel.viewinterface;
 
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.StudioViewModel;
 
 /**
@@ -10,7 +10,7 @@ import com.truethat.android.viewmodel.StudioViewModel;
 public interface StudioViewInterface extends BaseViewInterface {
   /**
    * Triggered as per {@link StudioViewModel.DirectingState#PUBLISHED}. Usually after a {@link
-   * Reactable} is saved on our backend.
+   * Scene} is saved on our backend.
    */
   void leaveStudio();
 
@@ -20,10 +20,10 @@ public interface StudioViewInterface extends BaseViewInterface {
   void restoreCameraPreview();
 
   /**
-   * Displays a preview of the directed reactable, so that the user can approve it or prevent
+   * Displays a preview of the directed scene, so that the user can approve it or prevent
    * eternal shame.
    *
-   * @param reactable to preview.
+   * @param scene to preview.
    */
-  void displayPreview(Reactable reactable);
+  void displayPreview(Scene scene);
 }

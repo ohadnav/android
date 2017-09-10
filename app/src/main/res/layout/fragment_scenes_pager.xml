@@ -7,14 +7,14 @@
     <import type="android.view.View"/>
     <variable
         name="viewModel"
-        type="com.truethat.android.viewmodel.ReactablesPagerViewModel"
+        type="com.truethat.android.viewmodel.ScenesPagerViewModel"
         />
   </data>
   <android.support.constraint.ConstraintLayout
       android:id="@+id/activityRootView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      tools:context=".view.fragment.ReactablesPagerFragment"
+      tools:context=".view.fragment.ScenesPagerFragment"
       >
 
     <android.support.constraint.ConstraintLayout
@@ -45,7 +45,7 @@
           android:layout_height="wrap_content"
           android:layout_marginTop="16dp"
           android:gravity="center"
-          android:text="@string/not_found_reactables"
+          android:text="@string/not_found_scenes"
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/reactablesPager"
+        android:id="@+id/scenesPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:items="@{viewModel.mItems}"

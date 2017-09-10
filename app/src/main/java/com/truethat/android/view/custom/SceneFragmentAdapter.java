@@ -5,23 +5,23 @@ import android.support.v4.app.FragmentManager;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.application.LoggingKey;
-import com.truethat.android.model.Reactable;
-import com.truethat.android.view.fragment.ReactableFragment;
+import com.truethat.android.model.Scene;
+import com.truethat.android.view.fragment.SceneFragment;
 
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
  */
 
-public class ReactableFragmentAdapter extends BaseFragmentAdapter<Reactable> {
+public class SceneFragmentAdapter extends BaseFragmentAdapter<Scene> {
 
-  public ReactableFragmentAdapter(FragmentManager fm) {
+  public SceneFragmentAdapter(FragmentManager fm) {
     super(fm);
   }
 
   @Override public Fragment getItem(int position) {
     if (!BuildConfig.DEBUG) {
-      Crashlytics.setString(LoggingKey.DISPLAYED_REACTABLE.name(), mItems.get(position).toString());
+      Crashlytics.setString(LoggingKey.DISPLAYED_SCENE.name(), mItems.get(position).toString());
     }
-    return ReactableFragment.newInstance(mItems.get(position));
+    return SceneFragment.newInstance(mItems.get(position));
   }
 }

@@ -16,7 +16,7 @@ public interface InteractionApi {
   String PATH = "interaction";
 
   /**
-   * Informs our backend of the the current user interactionEvent with reactables.
+   * Informs our backend of the the current user interactionEvent with scenes.
    *
    * @param interactionEvent the encapsulates all the event information.
    */

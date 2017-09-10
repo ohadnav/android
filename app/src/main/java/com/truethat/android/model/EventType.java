@@ -11,12 +11,12 @@ package com.truethat.android.model;
  */
 public enum EventType {
   /**
-   * User viewed a reactable.
+   * User viewed a scene.
    */
   VIEW,
 
   /**
-   * User reacted to a reactable.
+   * User reacted to a scene.
    */
   REACTION
 }

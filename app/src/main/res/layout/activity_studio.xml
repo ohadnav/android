@@ -33,7 +33,7 @@
         android:id="@+id/previewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="@{viewModel.mReactablePreviewVisibility? View.VISIBLE : View.GONE}"
+        android:visibility="@{viewModel.mScenePreviewVisibility? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +113,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/send_reactable"
+        app:srcCompat="@drawable/send"
         tools:visibility="visible"
         />
 

@@ -4,9 +4,9 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.TheaterApi;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
-import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 23/07/2017 for TrueThat.
  */
-@SuppressWarnings({ "RedundantCast", "serial" }) public class ReactablesPagerViewModelTest
+@SuppressWarnings({ "RedundantCast", "serial" }) public class ScenesPagerViewModelTest
     extends ViewModelTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
@@ -50,46 +50,46 @@ import static org.junit.Assert.assertTrue;
     put(Emotion.HAPPY, HAPPY_COUNT);
     put(Emotion.SAD, SAD_COUNT);
   }};
-  private ReactablesPagerViewModel mViewModel;
+  private ScenesPagerViewModel mViewModel;
   private TheaterApi mApi;
-  private List<Reactable> mRespondedReactables;
+  private List<Scene> mRespondedScenes;
 
   @Override public void setUp() throws Exception {
     super.setUp();
-    mViewModel = createViewModel(ReactablesPagerViewModel.class,
-        (ReactablesPagerViewInterface) new ViewInterface());
+    mViewModel =
+        createViewModel(ScenesPagerViewModel.class, (ScenesPagerViewInterface) new ViewInterface());
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        String responseBody = NetworkUtil.GSON.toJson(mRespondedReactables);
-        mRespondedReactables = Collections.emptyList();
+        String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
+        mRespondedScenes = Collections.emptyList();
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the reactables list is empty.
-    mRespondedReactables = Collections.emptyList();
+    // By default the scenes list is empty.
+    mRespondedScenes = Collections.emptyList();
     // Initialize api
     mApi = NetworkUtil.createApi(TheaterApi.class);
   }
 
-  @Test public void displayReactable() throws Exception {
-    final Reactable reactable =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+  @Test public void displayScene() throws Exception {
+    final Scene scene =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL_1, null));
-    mRespondedReactables = Collections.singletonList((Reactable) reactable);
-    mViewModel.fetchReactables();
+    mRespondedScenes = Collections.singletonList((Scene) scene);
+    mViewModel.fetchScenes();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable, mViewModel.getDisplayedReactable());
+        assertEquals(scene, mViewModel.getDisplayedScene());
       }
     });
     assertFalse(mViewModel.mNonFoundLayoutVisibility.get());
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    assertEquals(Collections.singletonList(reactable), mViewModel.mItems);
+    assertEquals(Collections.singletonList(scene), mViewModel.mItems);
   }
 
-  @Test public void noReactablesFound() throws Exception {
-    mViewModel.fetchReactables();
+  @Test public void noScenesFound() throws Exception {
+    mViewModel.fetchScenes();
     // Loading image should be shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
     // Non found should layout should be displayed instead of loading eventually.
@@ -99,11 +99,10 @@ import static org.junit.Assert.assertTrue;
       }
     });
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    Reactable reactable =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
+    Scene scene = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
             HOUR_AGO, Emotion.HAPPY, new Photo(IMAGE_URL_1, null));
-    // Explicitly load more reactables.
-    mRespondedReactables = Collections.singletonList((Reactable) reactable);
+    // Explicitly load more scenes.
+    mRespondedScenes = Collections.singletonList((Scene) scene);
     mViewModel.next();
     // Loading image should be shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
@@ -113,13 +112,13 @@ import static org.junit.Assert.assertTrue;
         assertFalse(mViewModel.mNonFoundLayoutVisibility.get());
       }
     });
-    // Reactable should be displayed.
-    assertEquals(reactable, mViewModel.getDisplayedReactable());
+    // Scene should be displayed.
+    assertEquals(scene, mViewModel.getDisplayedScene());
   }
 
-  @Test public void noReactablesFound_failedRequest() throws Exception {
+  @Test public void noScenesFound_failedRequest() throws Exception {
     mMockWebServer.close();
-    mViewModel.fetchReactables();
+    mViewModel.fetchScenes();
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -128,13 +127,13 @@ import static org.junit.Assert.assertTrue;
     });
   }
 
-  @Test public void noReactablesFound_failedResponse() throws Exception {
+  @Test public void noScenesFound_failedResponse() throws Exception {
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
-    mViewModel.fetchReactables();
+    mViewModel.fetchScenes();
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -143,112 +142,112 @@ import static org.junit.Assert.assertTrue;
     });
   }
 
-  @Test public void nextReactable() throws Exception {
-    final Reactable reactable1 =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+  @Test public void nextScene() throws Exception {
+    final Scene scene1 =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL_1, null));
-    Reactable reactable2 =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+    Scene scene2 =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
             new Photo(IMAGE_URL_2, null));
-    mRespondedReactables = Arrays.asList((Reactable) reactable1, (Reactable) reactable2);
-    mViewModel.fetchReactables();
-    // First reactable should be displayed.
+    mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable1, mViewModel.getDisplayedReactable());
+        assertEquals(scene1, mViewModel.getDisplayedScene());
       }
     });
-    // Triggers navigation to next reactable.
+    // Triggers navigation to next scene.
     mViewModel.next();
-    // Second reactable should be displayed.
-    assertEquals(reactable2, mViewModel.getDisplayedReactable());
+    // Second scene should be displayed.
+    assertEquals(scene2, mViewModel.getDisplayedScene());
   }
 
   @Test public void multipleTypes() throws Exception {
-    final Reactable photo =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+    final Scene photo =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL_1, null));
-    Reactable video =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+    Scene video =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
             new Video(VIDEO_URL, null));
-    mRespondedReactables = Arrays.asList(photo, video);
-    mViewModel.fetchReactables();
-    // First reactable should be displayed.
+    mRespondedScenes = Arrays.asList(photo, video);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(photo, mViewModel.getDisplayedReactable());
+        assertEquals(photo, mViewModel.getDisplayedScene());
       }
     });
-    // Triggers navigation to next reactable.
+    // Triggers navigation to next scene.
     mViewModel.next();
-    // Second reactable should be displayed.
-    assertEquals(video, mViewModel.getDisplayedReactable());
+    // Second scene should be displayed.
+    assertEquals(video, mViewModel.getDisplayedScene());
   }
 
-  @Test public void previousReactable() throws Exception {
-    final Reactable reactable1 =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+  @Test public void previousScene() throws Exception {
+    final Scene scene1 =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL_1, null));
-    final Reactable reactable2 =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+    final Scene scene2 =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
             new Photo(IMAGE_URL_2, null));
-    mRespondedReactables = Arrays.asList((Reactable) reactable1, (Reactable) reactable2);
-    mViewModel.fetchReactables();
-    // First reactable should be displayed.
+    mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable1, mViewModel.getDisplayedReactable());
+        assertEquals(scene1, mViewModel.getDisplayedScene());
       }
     });
-    // Triggers navigation to next reactable.
+    // Triggers navigation to next scene.
     mViewModel.next();
-    // Second reactable should be displayed.
-    assertEquals(reactable2, mViewModel.getDisplayedReactable());
-    // Triggers navigation to previous reactable.
+    // Second scene should be displayed.
+    assertEquals(scene2, mViewModel.getDisplayedScene());
+    // Triggers navigation to previous scene.
     mViewModel.previous();
-    // First reactable should be displayed.
-    assertEquals(reactable1, mViewModel.getDisplayedReactable());
-    // Triggers navigation to previous reactable.
+    // First scene should be displayed.
+    assertEquals(scene1, mViewModel.getDisplayedScene());
+    // Triggers navigation to previous scene.
     mViewModel.previous();
-    // First reactable should still be displayed.
-    assertEquals(reactable1, mViewModel.getDisplayedReactable());
+    // First scene should still be displayed.
+    assertEquals(scene1, mViewModel.getDisplayedScene());
   }
 
-  @Test public void nextReactableFetchesNewReactables() throws Exception {
-    final Reactable reactable1 =
-        new Reactable(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+  @Test public void nextSceneFetchesNewScenes() throws Exception {
+    final Scene scene1 =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
             new Photo(IMAGE_URL_1, null));
-    final Reactable reactable2 =
-        new Reactable(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+    final Scene scene2 =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
             new Photo(IMAGE_URL_2, null));
-    mRespondedReactables = Collections.singletonList((Reactable) reactable1);
-    mViewModel.fetchReactables();
-    // First reactable should be displayed.
+    mRespondedScenes = Collections.singletonList((Scene) scene1);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable1, mViewModel.getDisplayedReactable());
+        assertEquals(scene1, mViewModel.getDisplayedScene());
       }
     });
-    // Updates responded reactables.
-    mRespondedReactables = Collections.singletonList((Reactable) reactable2);
-    // Triggers navigation to next reactable.
+    // Updates responded scenes.
+    mRespondedScenes = Collections.singletonList((Scene) scene2);
+    // Triggers navigation to next scene.
     mViewModel.next();
-    // Second reactable should be displayed.
+    // Second scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(reactable2, mViewModel.getDisplayedReactable());
+        assertEquals(scene2, mViewModel.getDisplayedScene());
       }
     });
   }
 
   private class ViewInterface extends ViewModelTestSuite.UnitTestViewInterface
-      implements ReactablesPagerViewInterface {
+      implements ScenesPagerViewInterface {
     @Override public void displayItem(int index) {
 
     }
 
-    @Override public Call<List<Reactable>> buildFetchReactablesCall() {
-      return mApi.fetchReactables(mFakeAuthManager.getCurrentUser());
+    @Override public Call<List<Scene>> buildFetchScenesCall() {
+      return mApi.fetchScenes(mFakeAuthManager.getCurrentUser());
     }
 
     @Override public boolean isReallyVisible() {

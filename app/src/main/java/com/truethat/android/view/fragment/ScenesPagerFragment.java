@@ -16,12 +16,12 @@ import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.databinding.FragmentReactablesPagerBinding;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.databinding.FragmentScenesPagerBinding;
+import com.truethat.android.model.Scene;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
-import com.truethat.android.view.custom.ReactableFragmentAdapter;
-import com.truethat.android.viewmodel.ReactablesPagerViewModel;
-import com.truethat.android.viewmodel.viewinterface.ReactablesPagerViewInterface;
+import com.truethat.android.view.custom.SceneFragmentAdapter;
+import com.truethat.android.viewmodel.ScenesPagerViewModel;
+import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
 import retrofit2.Call;
@@ -30,31 +30,30 @@ import retrofit2.Call;
  * Proudly created by ohad on 03/07/2017 for TrueThat.
  */
 
-public class ReactablesPagerFragment extends
-    BaseFragment<ReactablesPagerViewInterface, ReactablesPagerViewModel, FragmentReactablesPagerBinding>
-    implements ReactablesPagerViewInterface {
+public class ScenesPagerFragment
+    extends BaseFragment<ScenesPagerViewInterface, ScenesPagerViewModel, FragmentScenesPagerBinding>
+    implements ScenesPagerViewInterface {
   private static final String ARG_DETECT_REACTIONS = "detectReactions";
-  @BindView(R.id.reactablesPager) ViewPager mPager;
+  @BindView(R.id.scenesPager) ViewPager mPager;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   private boolean mDetectReactions = false;
-  private ReactableFragmentAdapter mReactableFragmentAdapter;
-  private ReactablePagerListener mListener;
+  private SceneFragmentAdapter mSceneFragmentAdapter;
+  private ScenePagerListener mListener;
 
   @Override public void onAttach(Context context) {
     super.onAttach(context);
-    if (context instanceof ReactablePagerListener) {
-      mListener = (ReactablePagerListener) context;
+    if (context instanceof ScenePagerListener) {
+      mListener = (ScenePagerListener) context;
     } else {
       throw new RuntimeException(context.getClass().getSimpleName()
-          + " must implement "
-          + ReactablePagerListener.class.getSimpleName());
+          + " must implement " + ScenePagerListener.class.getSimpleName());
     }
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    // Navigation between reactables and activities.
+    // Navigation between scenes and activities.
     mRootView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
       @Override public void onSwipeLeft() {
         getViewModel().next();
@@ -86,9 +85,8 @@ public class ReactablesPagerFragment extends
       }
     });
     // Initialize views
-    mReactableFragmentAdapter =
-        new ReactableFragmentAdapter(getActivity().getSupportFragmentManager());
-    mPager.setAdapter(mReactableFragmentAdapter);
+    mSceneFragmentAdapter = new SceneFragmentAdapter(getActivity().getSupportFragmentManager());
+    mPager.setAdapter(mSceneFragmentAdapter);
     // Initializes view model parameters.
     getViewModel().setDetectReactions(mDetectReactions);
     return mRootView;
@@ -106,11 +104,11 @@ public class ReactablesPagerFragment extends
   @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
     super.onInflate(context, attrs, savedInstanceState);
     TypedArray styledAttributes =
-        context.obtainStyledAttributes(attrs, R.styleable.ReactablesPagerFragment);
+        context.obtainStyledAttributes(attrs, R.styleable.ScenesPagerFragment);
     // Saved state trumps XML.
     if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_DETECT_REACTIONS)) {
       mDetectReactions =
-          styledAttributes.getBoolean(R.styleable.ReactablesPagerFragment_detect_reactions, false);
+          styledAttributes.getBoolean(R.styleable.ScenesPagerFragment_detect_reactions, false);
     }
     styledAttributes.recycle();
   }
@@ -127,8 +125,8 @@ public class ReactablesPagerFragment extends
     outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
   }
 
-  @VisibleForTesting public ReactableFragment getDisplayedReactable() {
-    return (ReactableFragment) mReactableFragmentAdapter.instantiateItem(mPager,
+  @VisibleForTesting public SceneFragment getDisplayedScene() {
+    return (SceneFragment) mSceneFragmentAdapter.instantiateItem(mPager,
         mPager.getCurrentItem());
   }
 
@@ -136,19 +134,19 @@ public class ReactablesPagerFragment extends
     mPager.setCurrentItem(index, true);
   }
 
-  @Override public Call<List<Reactable>> buildFetchReactablesCall() {
-    return mListener.buildFetchReactablesCall();
+  @Override public Call<List<Scene>> buildFetchScenesCall() {
+    return mListener.buildFetchScenesCall();
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
-    return new ViewModelBindingConfig(R.layout.fragment_reactables_pager, getContext());
+    return new ViewModelBindingConfig(R.layout.fragment_scenes_pager, getContext());
   }
 
-  public interface ReactablePagerListener {
+  public interface ScenePagerListener {
     void onSwipeUp();
 
     void onSwipeDown();
 
-    Call<List<Reactable>> buildFetchReactablesCall();
+    Call<List<Scene>> buildFetchScenesCall();
   }
 }

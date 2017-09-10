@@ -2,7 +2,7 @@ package com.truethat.android.common.network;
 
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import java.util.List;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -20,22 +20,22 @@ import retrofit2.http.Part;
 public interface StudioApi {
   String PATH = "studio";
   /**
-   * HTTP part name of the {@link Reactable}'s {@link Media}.
+   * HTTP part name of the {@link Scene}'s {@link Media}.
    */
   String MEDIA_PART = "media";
   /**
-   * HTTP part name of the {@link Reactable} data.
+   * HTTP part name of the {@link Scene} data.
    */
-  String REACTABLE_PART = "reactable";
+  String SCENE_PART = "scene";
 
   /**
-   * Saves a {@link Reactable} in out magical backend.
+   * Saves a {@link Scene} in out magical backend.
    *
-   * @param reactable to save
+   * @param scene to save
    * @param media     files to save in storage, such as a {@link Photo}.
    *
    * @return {@link Retrofit} call.
    */
-  @Multipart @POST(PATH) Call<Reactable> saveReactable(@Part MultipartBody.Part reactable,
+  @Multipart @POST(PATH) Call<Scene> saveScene(@Part MultipartBody.Part scene,
       @Part List<MultipartBody.Part> media);
 }

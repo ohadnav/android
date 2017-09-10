@@ -18,16 +18,16 @@
     >
 
     <fragment
-        android:id="@+id/reactablesPagerFragment"
-        android:name="com.truethat.android.view.fragment.ReactablesPagerFragment"
+        android:id="@+id/scenesPagerFragment"
+        android:name="com.truethat.android.view.fragment.ScenesPagerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:detect_reactions="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:detect_reactions="false"
-        tools:layout="@layout/fragment_reactables_pager"
+        tools:layout="@layout/fragment_scenes_pager"
         />
 </android.support.constraint.ConstraintLayout>
 </layout>

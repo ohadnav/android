@@ -14,7 +14,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.common.util.CountingDispatcher;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.view.fragment.CameraFragment;
 import com.truethat.android.view.fragment.MediaFragment;
 import okhttp3.mockwebserver.MockResponse;
@@ -39,7 +39,7 @@ import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
-import static com.truethat.android.view.activity.StudioActivity.DIRECTED_REACTABLE_TAG;
+import static com.truethat.android.view.activity.StudioActivity.DIRECTED_SCENE_TAG;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
@@ -66,8 +66,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-        Reactable directed =
-            mStudioActivityTestRule.getActivity().getViewModel().getDirectedReactable();
+        Scene directed = mStudioActivityTestRule.getActivity().getViewModel().getDirectedScene();
         directed.setId(1L);
         return new MockResponse().setBody(GSON.toJson(directed));
       }
@@ -107,8 +106,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
-            .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
+            .getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG)).isReady());
       }
     });
     onView(withId(R.id.imageView)).check(matches(isFullScreen()));
@@ -133,8 +131,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
-            .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
+            .getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG)).isReady());
       }
     });
     onView(withId(R.id.videoSurface)).check(matches(isFullScreen()));
@@ -212,7 +209,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.cancelButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
     assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
-    // Directed reactable preview is hidden
+    // Directed scene preview is hidden
     onView(withId(R.id.previewContainer)).check(matches(not(isDisplayed())));
   }
 
@@ -231,15 +228,14 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
     // Loading image is hidden
     assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
-    // Directed reactable preview is shown
+    // Directed scene preview is shown
     onView(withId(R.id.previewContainer)).check(matches(isDisplayed()));
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         //noinspection unchecked
         assertTrue(((MediaFragment) mStudioActivityTestRule
                 .getActivity()
-            .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_REACTABLE_TAG)).isReady());
+            .getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG)).isReady());
       }
     });
   }
@@ -254,7 +250,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.switchCameraButton)).check(matches(not(isDisplayed())));
     // Loading image is show
     assertEquals(VISIBLE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
-    // Directed reactable preview is shown
+    // Directed scene preview is shown
     onView(withId(R.id.previewContainer)).check(matches(isDisplayed()));
     // Network request had been made
     assertEquals(1, mDispatcher.getCount(StudioApi.PATH));

@@ -7,14 +7,14 @@
     <import type="android.view.View"/>
     <variable
         name="viewModel"
-        type="com.truethat.android.viewmodel.ReactableViewModel"
+        type="com.truethat.android.viewmodel.SceneViewModel"
         />
   </data>
   <android.support.constraint.ConstraintLayout
-    android:id="@+id/reactableFragment"
+      android:id="@+id/sceneFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragment.ReactableFragment"
+      tools:context=".view.fragment.SceneFragment"
     >
 
   <android.support.constraint.ConstraintLayout

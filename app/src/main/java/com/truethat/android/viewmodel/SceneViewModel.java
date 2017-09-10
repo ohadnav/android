@@ -24,9 +24,9 @@ import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.InteractionEvent;
-import com.truethat.android.model.Reactable;
+import com.truethat.android.model.Scene;
 import com.truethat.android.view.fragment.MediaFragment;
-import com.truethat.android.viewmodel.viewinterface.ReactableViewInterface;
+import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
 import java.util.Date;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -37,7 +37,7 @@ import retrofit2.Response;
  * Proudly created by ohad on 21/07/2017 for TrueThat.
  */
 
-public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInterface>
+public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     implements ReactionDetectionListener, MediaFragment.MediaListener {
   /**
    * Default for reaction counter's image view.
@@ -58,9 +58,9 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
-  private Reactable mReactable;
+  private Scene mScene;
   /**
-   * API to inform our backend of user interaction with {@link #mReactable}, in the form of {@link
+   * API to inform our backend of user interaction with {@link #mScene}, in the form of {@link
    * InteractionEvent}.
    */
   private InteractionApi mInteractionApi;
@@ -73,7 +73,7 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
    */
   private Callback<ResponseBody> mPostEventCallback;
   /**
-   * Whether the media resources to display this reactable had been downloaded.
+   * Whether the media resources to display this scene had been downloaded.
    */
   private boolean mReadyForDisplay = false;
 
@@ -106,16 +106,16 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
     AppContainer.getReactionDetectionManager().unsubscribe(this);
   }
 
-  public Reactable getReactable() {
-    return mReactable;
+  public Scene getScene() {
+    return mScene;
   }
 
-  public void setReactable(Reactable reactable) {
-    mReactable = reactable;
+  public void setScene(Scene scene) {
+    mScene = scene;
   }
 
   /**
-   * Run once media resources of {@link #mReactable} had been downloaded, to the degree they can be
+   * Run once media resources of {@link #mScene} had been downloaded, to the degree they can be
    * displayed to the user.
    */
   @CallSuper public void onReady() {
@@ -127,17 +127,17 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
   }
 
   @Override public String toString() {
-    return TAG + " {" + mReactable + "}";
+    return TAG + " {" + mScene + "}";
   }
 
   public void onReactionDetected(Emotion reaction) {
-    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+    if (mScene.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
-      mReactable.doReaction(reaction);
-      // Post event of reactable reaction.
+      mScene.doReaction(reaction);
+      // Post event of scene reaction.
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(), EventType.REACTION, mReactable.getUserReaction());
+              mScene.getId(), new Date(), EventType.REACTION, mScene.getUserReaction());
       mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
@@ -151,28 +151,27 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
   }
 
   /**
-   * Run once the media resources of the {@link #mReactable} are ready and the view is visible.
+   * Run once the media resources of the {@link #mScene} are ready and the view is visible.
    */
   @CallSuper void onDisplay() {
     Log.d(TAG, "onDisplay");
     doView();
-    if (mReactable.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+    if (mScene.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
       AppContainer.getReactionDetectionManager().subscribe(this);
     }
   }
 
   /**
-   * Marks {@link #mReactable} as viewed by the user, and informs our backend about it.
+   * Marks {@link #mScene} as viewed by the user, and informs our backend about it.
    */
   private void doView() {
-    // Don't record view of the user's own reactables.
-    if (!mReactable.isViewed() && !AppContainer.getAuthManager()
-        .getCurrentUser()
-        .equals(mReactable.getDirector())) {
-      mReactable.doView();
+    // Don't record view of the user's own scenes.
+    if (!mScene.isViewed() && !AppContainer.getAuthManager()
+        .getCurrentUser().equals(mScene.getDirector())) {
+      mScene.doView();
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mReactable.getId(), new Date(), EventType.VIEW, null);
+              mScene.getId(), new Date(), EventType.VIEW, null);
       mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
         Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
@@ -182,29 +181,29 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
   }
 
   /**
-   * Updates the director layout with data from {@link #mReactable}.
+   * Updates the director layout with data from {@link #mScene}.
    */
   private void updateInfoLayout() {
-    if (mReactable.getDirector() != null) {
+    if (mScene.getDirector() != null) {
       // Sets director name.
-      mDirectorName.set(mReactable.getDirector().getDisplayName());
+      mDirectorName.set(mScene.getDirector().getDisplayName());
       // Hide the director name if it is the user.
-      if (mReactable.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
+      if (mScene.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
         mDirectorNameVisibility.set(false);
       }
     }
     // Sets time ago
-    mTimeAgoText.set(DateUtil.formatTimeAgo(mReactable.getCreated()));
+    mTimeAgoText.set(DateUtil.formatTimeAgo(mScene.getCreated()));
   }
 
   /**
    * Updates {@link R.id#reactionCounterLayout} with the counters of {@link
-   * Reactable#getReactionCounters()} and an image based on {@link Reactable#getUserReaction()} or
+   * Scene#getReactionCounters()} and an image based on {@link Scene#getUserReaction()} or
    * {@link #DEFAULT_REACTION_COUNTER}.
    */
   private void updateReactionCounters() {
     long sumCounts = 0;
-    for (Long counter : mReactable.getReactionCounters().values()) {
+    for (Long counter : mScene.getReactionCounters().values()) {
       sumCounts += counter;
     }
     if (sumCounts > 0) {
@@ -212,11 +211,11 @@ public class ReactableViewModel extends BaseFragmentViewModel<ReactableViewInter
       mReactionsCountText.set(NumberUtil.format(sumCounts));
       // Sets the proper emotion emoji.
       Emotion toDisplay = DEFAULT_REACTION_COUNTER;
-      if (mReactable.getUserReaction() != null) {
+      if (mScene.getUserReaction() != null) {
         mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
-        toDisplay = mReactable.getUserReaction();
-      } else if (!mReactable.getReactionCounters().isEmpty()) {
-        toDisplay = mReactable.getReactionCounters().lastKey();
+        toDisplay = mScene.getUserReaction();
+      } else if (!mScene.getReactionCounters().isEmpty()) {
+        toDisplay = mScene.getReactionCounters().lastKey();
       }
       mReactionDrawableResource.set(toDisplay.getDrawableResource());
     } else {
