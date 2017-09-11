@@ -78,7 +78,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
     mViewModel.onVideoAvailable("bigcoin-gen.dmg");
     assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
-    assertTrue(mViewModel.getDirectedScene().getMedia() instanceof Video);
+    assertTrue(mViewModel.getDirectedScene().getRootMediaNode() instanceof Video);
   }
 
   @Test public void approvalCancel() throws Exception {

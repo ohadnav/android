@@ -1,7 +1,6 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
-import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.PhotoFragment;
 import java.io.Serializable;
@@ -48,11 +47,11 @@ public class Photo extends Media implements Serializable {
     return Arrays.equals(mBytes, photo.mBytes);
   }
 
-  @Override MultipartBody.Part createPart() {
+  @Override MultipartBody.Part createPart(String partName) {
     if (mBytes == null) {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
-    return MultipartBody.Part.createFormData(StudioApi.MEDIA_PART, IMAGE_FILENAME,
+    return MultipartBody.Part.createFormData(partName, IMAGE_FILENAME,
         RequestBody.create(MediaType.parse("image/jpg"), mBytes));
   }
 }

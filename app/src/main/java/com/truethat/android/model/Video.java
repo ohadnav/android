@@ -1,7 +1,6 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
-import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.VideoFragment;
 import java.io.File;
@@ -52,11 +51,11 @@ public class Video extends Media implements Serializable {
         : video.mInternalPath == null;
   }
 
-  @Override MultipartBody.Part createPart() {
+  @Override MultipartBody.Part createPart(String partName) {
     if (mInternalPath == null) {
       throw new AssertionError("Video internal path had not been properly initialized.");
     }
-    return MultipartBody.Part.createFormData(StudioApi.MEDIA_PART, VIDEO_FILENAME,
+    return MultipartBody.Part.createFormData(partName, VIDEO_FILENAME,
         RequestBody.create(MediaType.parse("video/mp4"), new File(mInternalPath)));
   }
 }

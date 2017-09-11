@@ -160,7 +160,7 @@ public class StudioActivity
   }
 
   @Override public void displayPreview(Scene scene) {
-    MediaFragment mediaFragment = scene.getMedia().createFragment();
+    MediaFragment mediaFragment = scene.getRootMediaNode().createFragment();
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(R.id.previewContainer, mediaFragment, DIRECTED_SCENE_TAG);
     fragmentTransaction.commit();

@@ -51,5 +51,5 @@ public abstract class Media implements Serializable {
   /**
    * @return a HTTP multipart part with the binary data of this media.
    */
-  abstract MultipartBody.Part createPart();
+  abstract MultipartBody.Part createPart(String partName);
 }

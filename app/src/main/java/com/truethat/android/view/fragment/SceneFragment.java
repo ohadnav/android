@@ -61,7 +61,7 @@ public class SceneFragment
     super.onCreateView(inflater, container, savedInstanceState);
     int mediaContainerViewId = View.generateViewId();
     mRootView.findViewById(R.id.mediaContainer).setId(mediaContainerViewId);
-    mMediaFragment = mScene.getMedia().createFragment();
+    mMediaFragment = mScene.getRootMediaNode().createFragment();
     FragmentTransaction fragmentTransaction =
         getActivity().getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(mediaContainerViewId, mMediaFragment);

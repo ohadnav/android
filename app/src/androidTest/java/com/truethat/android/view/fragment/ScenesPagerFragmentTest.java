@@ -89,14 +89,14 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
         assertTrue(currentFragment.getMediaFragment().isReady());
       }
     });
-    if (scene.getMedia() instanceof Photo) {
+    if (scene.getRootMediaNode() instanceof Photo) {
       // Asserting the pose image is displayed fullscreen.
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {
           assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
         }
       });
-    } else if (scene.getMedia() instanceof Video) {
+    } else if (scene.getRootMediaNode() instanceof Video) {
       // Asserting the video is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
       // Video should be playing

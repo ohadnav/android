@@ -22,7 +22,7 @@ public interface StudioApi {
   /**
    * HTTP part name of the {@link Scene}'s {@link Media}.
    */
-  String MEDIA_PART = "media";
+  String MEDIA_PART_PREFIX = "media_";
   /**
    * HTTP part name of the {@link Scene} data.
    */

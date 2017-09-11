@@ -3,10 +3,13 @@ package com.truethat.android.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import com.google.common.graph.MutableValueGraph;
+import com.google.common.graph.ValueGraphBuilder;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +24,7 @@ import retrofit2.Call;
  * A media item that the user can have an emotional reaction to.
  */
 public class Scene implements Serializable {
-  private static final long serialVersionUID = -1448872330838152333L;
+  private static final long serialVersionUID = 7734272873629700816L;
   /**
    * ID as stored in our backend.
    */
@@ -49,31 +52,75 @@ public class Scene implements Serializable {
   /**
    * The media associated with this scene, such as a {@link Photo}.
    */
-  private Media mMedia;
+  private List<Media> mMediaNodes;
+  /**
+   * The interaction flow of users with this scene.
+   */
+  private List<Edge> mEdges;
+  /**
+   * The flow of the user interaction with this scene. Each node represents a media item such as
+   * video or a photo and each edge describe which reaction leads from one media item to the next.
+   */
+  private transient MutableValueGraph<Media, Emotion> mMediaGraph;
 
   @VisibleForTesting
   public Scene(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
-      @Nullable Emotion userReaction, Media media) {
+      @Nullable Emotion userReaction, Media rootMedia) {
     mId = id;
     mUserReaction = userReaction;
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
-    mMedia = media;
+    mMediaNodes = Collections.singletonList(rootMedia);
+    //if (edges != null) {
+    //  mEdges = edges;
+    //  for (Edge edge : mEdges) {
+    //    updateGraph(edge);
+    //  }
+    //}
   }
 
   public Scene(Media media) {
     mDirector = AppContainer.getAuthManager().getCurrentUser();
     mCreated = new Date();
-    mMedia = media;
+    mMediaNodes = new ArrayList<>();
+    mMediaNodes.add(media);
   }
 
   // A default constructor is provided for serialization and de-serialization.
   @SuppressWarnings("unused") Scene() {
   }
 
-  public Media getMedia() {
-    return mMedia;
+  public List<Edge> getEdges() {
+    return mEdges;
+  }
+
+  public MutableValueGraph<Media, Emotion> getMediaGraph() {
+    if (mMediaGraph == null) {
+      initializeMediaGraph();
+    }
+    return mMediaGraph;
+  }
+
+  public void addMedia(Media source, Media target, Emotion reaction) {
+    mMediaNodes.add(target);
+    Edge newEdge =
+        new Edge((long) mMediaNodes.indexOf(source), (long) mMediaNodes.indexOf(target), reaction);
+    mEdges.add(newEdge);
+    updateGraph(newEdge);
+  }
+
+  @Nullable public Media getNextMedia(Media current, Emotion reaction) {
+    for (Media optionalNext : mMediaGraph.adjacentNodes(current)) {
+      if (mMediaGraph.edgeValue(current, optionalNext) == reaction) {
+        return optionalNext;
+      }
+    }
+    return null;
+  }
+
+  public Media getRootMediaNode() {
+    return mMediaNodes.get(0);
   }
 
   public Date getCreated() {
@@ -129,8 +176,10 @@ public class Scene implements Serializable {
   }
 
   @SuppressWarnings("unchecked") public Call<Scene> createApiCall() {
-    List<MultipartBody.Part> mediaParts =
-        mMedia == null ? Collections.EMPTY_LIST : Collections.singletonList(mMedia.createPart());
+    List<MultipartBody.Part> mediaParts = new ArrayList<>();
+    for (int i = 0; i < mMediaNodes.size(); i++) {
+      mediaParts.add(mMediaNodes.get(i).createPart(generatePartName(i)));
+    }
     MultipartBody.Part scenePart =
         MultipartBody.Part.createFormData(StudioApi.SCENE_PART, NetworkUtil.GSON.toJson(this));
     return NetworkUtil.createApi(StudioApi.class).saveScene(scenePart, mediaParts);
@@ -200,5 +249,34 @@ public class Scene implements Serializable {
     } else {
       mReactionCounters.put(emotion, mReactionCounters.get(emotion) - 1);
     }
+  }
+
+  @SuppressWarnings("ResultOfMethodCallIgnored") private void updateGraph(Edge newEdge) {
+    if (mMediaGraph == null) {
+      initializeMediaGraph();
+    }
+    Media sourceNode = mMediaNodes.get(newEdge.getSourceIndex().intValue());
+    Media targetNode = mMediaNodes.get(newEdge.getTargetIndex().intValue());
+    if (!mMediaGraph.nodes().contains(sourceNode)) {
+      mMediaGraph.addNode(sourceNode);
+    }
+    if (!mMediaGraph.nodes().contains(targetNode)) {
+      mMediaGraph.addNode(targetNode);
+    }
+    mMediaGraph.putEdgeValue(sourceNode, targetNode, newEdge.getReaction());
+  }
+
+  @SuppressWarnings("ResultOfMethodCallIgnored") private void initializeMediaGraph() {
+    mMediaGraph = ValueGraphBuilder.directed().expectedNodeCount(mMediaNodes.size()).build();
+    for (Media mediaNode : mMediaNodes) {
+      mMediaGraph.addNode(mediaNode);
+    }
+    for (Edge edge : mEdges) {
+      updateGraph(edge);
+    }
+  }
+
+  private String generatePartName(int mediaIndex) {
+    return StudioApi.MEDIA_PART_PREFIX + mediaIndex;
   }
 }
