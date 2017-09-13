@@ -39,14 +39,6 @@ public class VideoFragment extends MediaFragment<Video> {
     return videoFragment;
   }
 
-  @Override public void onVisible() {
-    super.onVisible();
-    if (mIsReady) {
-      mLoadingImage.setVisibility(GONE);
-      mMediaPlayer.start();
-    }
-  }
-
   public MediaPlayer getMediaPlayer() {
     return mMediaPlayer;
   }
@@ -60,15 +52,23 @@ public class VideoFragment extends MediaFragment<Video> {
     super.onCreateView(inflater, container, savedInstanceState);
     mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
       @Override public void surfaceCreated(SurfaceHolder holder) {
+        // Create a URI to read the video from
         Uri videoUri =
             mMedia.getInternalPath() != null ? Uri.fromFile(new File(mMedia.getInternalPath()))
                 : Uri.parse(mMedia.getUrl());
+        // Creates the media player instance
         mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), videoUri,
             mVideoSurface.getHolder());
+        if (mMediaPlayer == null) {
+          throw new IllegalStateException("Failed to create media player for " + mMedia);
+        }
+        // A callback that is invoked once the player is ready to start streaming.
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
             mLoadingImage.setVisibility(GONE);
-            mp.start();
+            if (isVisible()) {
+              mp.start();
+            }
             mIsReady = true;
             Log.d(TAG, "Video is prepared.");
             if (mMediaListener != null) {
@@ -76,6 +76,7 @@ public class VideoFragment extends MediaFragment<Video> {
             }
           }
         });
+        // Buffering callbacks to show loading indication while buffering.
         mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
           @Override public boolean onInfo(MediaPlayer mp, int what, int extra) {
             switch (what) {
@@ -91,7 +92,19 @@ public class VideoFragment extends MediaFragment<Video> {
             return false;
           }
         });
-        mMediaPlayer.setLooping(true);
+        // Completion callbacks, that allows video looping and informing the listener.
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+          @Override public void onCompletion(MediaPlayer mediaPlayer) {
+            mHasFinished = true;
+            if (mMediaListener != null) {
+              mMediaListener.onFinished();
+            }
+            if (!mediaPlayer.isPlaying()) {
+              mediaPlayer.start();
+            }
+            mediaPlayer.seekTo(0);
+          }
+        });
       }
 
       @Override
@@ -109,6 +122,31 @@ public class VideoFragment extends MediaFragment<Video> {
 
   @Override int getLayoutResource() {
     return R.layout.fragment_video;
+  }
+
+  @Override public void onDestroyView() {
+    super.onDestroyView();
+    if (mMediaPlayer != null) {
+      mMediaPlayer.release();
+      mMediaPlayer = null;
+    }
+  }
+
+  @Override public void onVisible() {
+    super.onVisible();
+    if (mIsReady) {
+      mLoadingImage.setVisibility(GONE);
+      if (mMediaPlayer != null) {
+        mMediaPlayer.start();
+      }
+    }
+  }
+
+  @Override public void onHidden() {
+    super.onHidden();
+    if (mMediaPlayer != null) {
+      mMediaPlayer.stop();
+    }
   }
 
   @OnTouch(R.id.videoSurface) boolean pauseOrResumeVideo(MotionEvent motionEvent) {

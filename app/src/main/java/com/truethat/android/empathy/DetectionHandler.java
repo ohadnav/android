@@ -25,7 +25,7 @@ import java.util.List;
  * A handler for the DetectionThread.
  */
 class DetectionHandler extends Handler {
-  private static final double DETECTION_THRESHOLD = 0.2;
+  private static final double DETECTION_THRESHOLD = 0.3;
   //Incoming message codes
   private static final int START = 0;
   private static final int STOP = 1;
@@ -51,10 +51,15 @@ class DetectionHandler extends Handler {
     mFrameDetector.setImageListener(new Detector.ImageListener() {
       @Override public void onImageResults(List<Face> faces, Frame frame, float v) {
         for (Face face : faces) {
-          if (face.emotions.getJoy() > DETECTION_THRESHOLD) {
+          if (face.emotions.getSurprise() > DETECTION_THRESHOLD) {
+            reactionDetectionManager.onReactionDetected(Emotion.SURPRISE);
+          } else if (face.emotions.getJoy() > DETECTION_THRESHOLD) {
             reactionDetectionManager.onReactionDetected(Emotion.HAPPY);
-          } else if (face.emotions.getSadness() > DETECTION_THRESHOLD) {
-            reactionDetectionManager.onReactionDetected(Emotion.SAD);
+            // Fear is harder to detect, and so the threshold is lowered
+          } else if (face.emotions.getFear() > DETECTION_THRESHOLD / 2) {
+            reactionDetectionManager.onReactionDetected(Emotion.FEAR);
+          } else if (face.emotions.getDisgust() > DETECTION_THRESHOLD) {
+            reactionDetectionManager.onReactionDetected(Emotion.DISGUST);
           }
         }
       }

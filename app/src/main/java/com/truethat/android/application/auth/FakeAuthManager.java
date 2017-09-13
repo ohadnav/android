@@ -11,7 +11,7 @@ import retrofit2.Call;
 
 public class FakeAuthManager extends BaseAuthManager {
 
-  private static final long USER_ID = 1;
+  public static final long USER_ID = 1;
   private static final String FIRST_NAME = "fifty";
   private static final String LAST_NAME = "cent";
 

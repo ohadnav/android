@@ -13,13 +13,13 @@ import java.io.Serializable;
  * Note that we regard the {@link Media} node order in {@link Scene#mMediaNodes} as its index.
  */
 
-class Edge implements Serializable {
+public class Edge implements Serializable {
   private static final long serialVersionUID = -8255565106026309672L;
   private Long mSourceIndex;
   private Long mTargetIndex;
   private Emotion mReaction;
 
-  Edge(Long sourceIndex, Long targetIndex, Emotion reaction) {
+  public Edge(Long sourceIndex, Long targetIndex, Emotion reaction) {
     mSourceIndex = sourceIndex;
     mTargetIndex = targetIndex;
     mReaction = reaction;
@@ -37,11 +37,11 @@ class Edge implements Serializable {
     return NetworkUtil.GSON.toJson(this);
   }
 
-  Long getSourceIndex() {
-    return mSourceIndex;
+  public Long getTargetIndex() {
+    return mTargetIndex;
   }
 
-  Long getTargetIndex() {
-    return mTargetIndex;
+  Long getSourceIndex() {
+    return mSourceIndex;
   }
 }

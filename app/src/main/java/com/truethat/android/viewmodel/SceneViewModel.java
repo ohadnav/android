@@ -4,7 +4,6 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,10 +23,15 @@ import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.EventType;
 import com.truethat.android.model.InteractionEvent;
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Scene;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,13 +44,20 @@ import retrofit2.Response;
 public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     implements ReactionDetectionListener, MediaFragment.MediaListener {
   /**
-   * Default for reaction counter's image view.
+   * Default color for reactions count.
    */
-  @VisibleForTesting public static final Emotion DEFAULT_REACTION_COUNTER = Emotion.HAPPY;
   @VisibleForTesting @ColorRes static final int DEFAULT_COUNT_COLOR = R.color.hint;
+  /**
+   * Emphasized color after a user reaction to a scene.
+   */
   @VisibleForTesting @ColorRes static final int POST_REACTION_COUNT_COLOR = R.color.light;
+  /**
+   * Detection delay in milliseconds, so that reaction detection will be less affected by prior
+   * events.
+   */
+  @VisibleForTesting static long DETECTION_DELAY_MILLIS = 300;
   public final ObservableInt mReactionDrawableResource =
-      new ObservableInt(DEFAULT_REACTION_COUNTER.getDrawableResource());
+      new ObservableInt(R.drawable.transparent_1x1);
   public final ObservableInt mReactionCountColor = new ObservableInt(DEFAULT_COUNT_COLOR);
   public final ObservableField<String> mReactionsCountText = new ObservableField<>("0");
   public final ObservableBoolean mDirectorNameVisibility = new ObservableBoolean(true);
@@ -58,6 +69,31 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
+  private Timer mTimer;
+  /**
+   * Whether the scene had been displayed to the user. Used to limit the number of {@link
+   * EventType#VIEW} events sent to one.
+   */
+  private boolean isViewed = false;
+  /**
+   * A set of the detected reactions to {@link #mCurrentMedia}. Used to limit the number of {@link
+   * EventType#REACTION} events sent, to one per {@link Emotion}.
+   */
+  private Set<Emotion> mDetectedReactions;
+  /**
+   * Currently displayed media.
+   */
+  private Media mCurrentMedia;
+  /**
+   * The next media after {@link #mCurrentMedia}, as per the user first reaction to {@link
+   * #mCurrentMedia} and {@link Scene#mMediaGraph}.
+   */
+  private Media mNextMedia;
+  /**
+   * The last detected reaction to {@link #mCurrentMedia}. Used to limit the number of animations
+   * (i.e. {@link SceneViewInterface#bounceReactionImage()}) for subsequent identical reactions.
+   */
+  private Emotion mLastReaction;
   private Scene mScene;
   /**
    * API to inform our backend of user interaction with {@link #mScene}, in the form of {@link
@@ -77,6 +113,14 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    */
   private boolean mReadyForDisplay = false;
 
+  public static void setDetectionDelayMillis(long detectionDelayMillis) {
+    DETECTION_DELAY_MILLIS = detectionDelayMillis;
+  }
+
+  public Media getCurrentMedia() {
+    return mCurrentMedia;
+  }
+
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
     // Initializes the API
@@ -84,18 +128,23 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mPostEventCallback = buildPostEventCallback();
   }
 
-  @CallSuper @Override public void onStop() {
+  @Override public void onStop() {
     super.onStop();
     if (mPostEventCall != null) mPostEventCall.cancel();
   }
 
-  @CallSuper @Override public void onStart() {
+  @Override public void onStart() {
     super.onStart();
+    if (mCurrentMedia == null) {
+      mCurrentMedia = mScene.getRootMediaNode();
+    }
+    display(mCurrentMedia);
     updateInfoLayout();
-    updateReactionCounters();
+    updateReactionsLayout(null);
   }
 
-  @CallSuper public void onVisible() {
+  public void onVisible() {
+    if (mTimer == null) mTimer = new Timer(TAG);
     if (mReadyForDisplay) {
       onDisplay();
     }
@@ -104,6 +153,11 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   @Override public void onHidden() {
     super.onHidden();
     AppContainer.getReactionDetectionManager().unsubscribe(this);
+    if (mTimer != null) {
+      mTimer.cancel();
+      mTimer.purge();
+      mTimer = null;
+    }
   }
 
   public Scene getScene() {
@@ -118,11 +172,18 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    * Run once media resources of {@link #mScene} had been downloaded, to the degree they can be
    * displayed to the user.
    */
-  @CallSuper public void onReady() {
+  public void onReady() {
     Log.d(TAG, "onReady");
     mReadyForDisplay = true;
     if (getView().isReallyVisible()) {
       onDisplay();
+    }
+  }
+
+  @Override public void onFinished() {
+    Log.d(TAG, "Media finished");
+    if (mNextMedia != null) {
+      display(mNextMedia);
     }
   }
 
@@ -131,53 +192,101 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   public void onReactionDetected(Emotion reaction) {
-    if (mScene.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
+    if (!mDetectedReactions.contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mScene.doReaction(reaction);
       // Post event of scene reaction.
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mScene.getId(), new Date(), EventType.REACTION, mScene.getUserReaction());
+              mScene.getId(), new Date(), EventType.REACTION, reaction,
+              (long) mScene.getMediaNodes().indexOf(mCurrentMedia));
       mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
         Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
             interactionEvent.toString());
       }
-      updateReactionCounters();
+    }
+    // Calculate next media
+    if (mNextMedia == null) {
+      mNextMedia = mScene.getNextMedia(mCurrentMedia, reaction);
+      Log.d(TAG, "Next media: " + mNextMedia);
+    }
+    // Displays next media if it is finished.
+    if (getView().hasMediaFinished() && mNextMedia != null) {
+      display(mNextMedia);
+    }
+    // Show UI indication of detected reaction.
+    if (mLastReaction != reaction) {
+      updateReactionsLayout(reaction);
       getView().bounceReactionImage();
     }
-    AppContainer.getReactionDetectionManager().unsubscribe(this);
+    mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
+    // Update fragment state.
+    mLastReaction = reaction;
+    mDetectedReactions.add(reaction);
+  }
+
+  Media getNextMedia() {
+    return mNextMedia;
+  }
+
+  Set<Emotion> getDetectedReactions() {
+    return mDetectedReactions;
   }
 
   /**
    * Run once the media resources of the {@link #mScene} are ready and the view is visible.
    */
-  @CallSuper void onDisplay() {
+  private void onDisplay() {
     Log.d(TAG, "onDisplay");
     doView();
-    if (mScene.canReactTo(AppContainer.getAuthManager().getCurrentUser())) {
-      AppContainer.getReactionDetectionManager().subscribe(this);
-    }
+    // Delays reaction detection by a bit.
+    mTimer.schedule(new TimerTask() {
+      @Override public void run() {
+        if (!AppContainer.getAuthManager()
+            .getCurrentUser()
+            .getId()
+            .equals(mScene.getDirector().getId())) {
+          AppContainer.getReactionDetectionManager().subscribe(SceneViewModel.this);
+        }
+      }
+    }, DETECTION_DELAY_MILLIS);
+  }
+
+  /**
+   * Displays {@code media} to the user, and resets current state.
+   *
+   * @param media to display
+   */
+  private void display(Media media) {
+    // Stops reaction detection temporarily until the new media is displayed.
+    AppContainer.getReactionDetectionManager().unsubscribe(this);
+    getView().display(media);
+    // Updates media state.
+    mCurrentMedia = media;
+    mNextMedia = null;
+    mDetectedReactions = new HashSet<>();
+    mLastReaction = null;
+    isViewed = false;
   }
 
   /**
    * Marks {@link #mScene} as viewed by the user, and informs our backend about it.
    */
   private void doView() {
-    // Don't record view of the user's own scenes.
-    if (!mScene.isViewed() && !AppContainer.getAuthManager()
-        .getCurrentUser().equals(mScene.getDirector())) {
-      mScene.doView();
+    if (!isViewed) {
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mScene.getId(), new Date(), EventType.VIEW, null);
+              mScene.getId(), new Date(), EventType.VIEW, null,
+              (long) mScene.getMediaNodes().indexOf(mCurrentMedia));
       mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
         Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
             interactionEvent.toString());
       }
     }
+    isViewed = true;
   }
 
   /**
@@ -188,7 +297,9 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
       // Sets director name.
       mDirectorName.set(mScene.getDirector().getDisplayName());
       // Hide the director name if it is the user.
-      if (mScene.getDirector().equals(AppContainer.getAuthManager().getCurrentUser())) {
+      if (mScene.getDirector()
+          .getId()
+          .equals(AppContainer.getAuthManager().getCurrentUser().getId())) {
         mDirectorNameVisibility.set(false);
       }
     }
@@ -197,11 +308,12 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   /**
-   * Updates {@link R.id#reactionCounterLayout} with the counters of {@link
-   * Scene#getReactionCounters()} and an image based on {@link Scene#getUserReaction()} or
-   * {@link #DEFAULT_REACTION_COUNTER}.
+   * Updates {@link R.id#reactionsCountLayout} with the counters of {@link
+   * Scene#getReactionCounters()}.
+   *
+   * @param detectedReaction so that the displayed reaction matches it.
    */
-  private void updateReactionCounters() {
+  private void updateReactionsLayout(@Nullable Emotion detectedReaction) {
     long sumCounts = 0;
     for (Long counter : mScene.getReactionCounters().values()) {
       sumCounts += counter;
@@ -210,14 +322,11 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
       // Abbreviates the counter.
       mReactionsCountText.set(NumberUtil.format(sumCounts));
       // Sets the proper emotion emoji.
-      Emotion toDisplay = DEFAULT_REACTION_COUNTER;
-      if (mScene.getUserReaction() != null) {
-        mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
-        toDisplay = mScene.getUserReaction();
+      if (detectedReaction != null) {
+        mReactionDrawableResource.set(detectedReaction.getDrawableResource());
       } else if (!mScene.getReactionCounters().isEmpty()) {
-        toDisplay = mScene.getReactionCounters().lastKey();
+        mReactionDrawableResource.set(mScene.getReactionCounters().lastKey().getDrawableResource());
       }
-      mReactionDrawableResource.set(toDisplay.getDrawableResource());
     } else {
       mReactionsCountText.set("");
       mReactionDrawableResource.set(R.drawable.transparent_1x1);

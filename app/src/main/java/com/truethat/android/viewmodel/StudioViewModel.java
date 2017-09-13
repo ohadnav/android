@@ -74,7 +74,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         Crashlytics.logException(t);
       }
       t.printStackTrace();
-      Log.e(TAG, "Saving pose request to " + call.request().url() + " had failed.", t);
+      Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
       onPublishError();
     }
   };

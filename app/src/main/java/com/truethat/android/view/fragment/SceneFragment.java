@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentTransaction;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.databinding.FragmentSceneBinding;
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.SceneViewModel;
 import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
@@ -28,6 +28,7 @@ public class SceneFragment
   @BindView(R.id.reactionImage) ImageView mReactionImage;
   Scene mScene;
   private MediaFragment mMediaFragment;
+  private Integer mMediaContainerViewId = View.generateViewId();
 
   public SceneFragment() {
     // Required empty public constructor
@@ -53,21 +54,9 @@ public class SceneFragment
     getViewModel().setScene(mScene);
   }
 
-  /**
-   * Creation of media layout, such as a Pose image, is done by implementations.
-   */
-  @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    int mediaContainerViewId = View.generateViewId();
-    mRootView.findViewById(R.id.mediaContainer).setId(mediaContainerViewId);
-    mMediaFragment = mScene.getRootMediaNode().createFragment();
-    FragmentTransaction fragmentTransaction =
-        getActivity().getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(mediaContainerViewId, mMediaFragment);
-    fragmentTransaction.commit();
-    mMediaFragment.setMediaListener(getViewModel());
-    return mRootView;
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+    mRootView.findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
   }
 
   @Override public void onStart() {
@@ -138,6 +127,20 @@ public class SceneFragment
             .start();
       }
     });
+  }
+
+  @Override public void display(Media media) {
+    Log.d(TAG, "Displaying " + media);
+    mMediaFragment = media.createFragment();
+    FragmentTransaction fragmentTransaction =
+        getActivity().getSupportFragmentManager().beginTransaction();
+    fragmentTransaction.replace(mMediaContainerViewId, mMediaFragment);
+    fragmentTransaction.commit();
+    mMediaFragment.setMediaListener(getViewModel());
+  }
+
+  @Override public boolean hasMediaFinished() {
+    return mMediaFragment != null && mMediaFragment.hasFinished();
   }
 
   private void defaultReactionScale() {

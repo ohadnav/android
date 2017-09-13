@@ -42,10 +42,10 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the poses list is empty.
+    // By default the list is empty.
     mRespondedScenes = Collections.emptyList();
     mScene = new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
-        new Date(), null,
+        new Date(),
         new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
   }
 
@@ -58,7 +58,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Test public void navigationWhileSceneDisplayed() throws Exception {
     mRespondedScenes = Collections.singletonList(mScene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
   }
@@ -66,13 +66,13 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   @Test public void singleInstance() throws Exception {
     mRespondedScenes = Collections.singletonList(mScene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
     // Navigate out of Theater activity
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
     centerSwipeUp();
     waitForActivity(TheaterActivity.class);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
   }
 }

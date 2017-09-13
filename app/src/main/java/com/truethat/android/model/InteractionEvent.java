@@ -23,7 +23,7 @@ import java.util.Date;
   /**
    * ID of the user that triggered the event.
    */
-  private long mUserId;
+  private Long mUserId;
   /**
    * For {@link EventType#REACTION}.
    * <p>
@@ -37,15 +37,40 @@ import java.util.Date;
   /**
    * Of the {@link Scene} that was interacted with.
    */
-  private long mSceneId;
+  private Long mSceneId;
+  /**
+   * The {@link Media} index within {@link Scene#mMediaNodes}.
+   */
+  private Long mMediaIndex;
 
-  public InteractionEvent(long userId, long sceneId, Date timestamp, EventType eventType,
-      @Nullable Emotion reaction) {
+  public InteractionEvent(Long userId, Long sceneId, Date timestamp, EventType eventType,
+      @Nullable Emotion reaction, Long mediaIndex) {
     mTimestamp = timestamp;
     mUserId = userId;
     mReaction = reaction;
     mEventType = eventType;
     mSceneId = sceneId;
+    mMediaIndex = mediaIndex;
+  }
+
+  public Long getUserId() {
+    return mUserId;
+  }
+
+  public EventType getEventType() {
+    return mEventType;
+  }
+
+  public Long getSceneId() {
+    return mSceneId;
+  }
+
+  public Long getMediaIndex() {
+    return mMediaIndex;
+  }
+
+  public Emotion getReaction() {
+    return mReaction;
   }
 
   @Override public String toString() {

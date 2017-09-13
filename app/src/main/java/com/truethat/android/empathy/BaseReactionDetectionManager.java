@@ -71,9 +71,6 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
   }
 
   @CallSuper void onReactionDetected(Emotion reaction) {
-    if (!mReactionDetectionListeners.isEmpty()) {
-      Log.d(TAG, "Detected " + reaction.name());
-    }
     for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
       reactionDetectionListener.onReactionDetected(reaction);
     }

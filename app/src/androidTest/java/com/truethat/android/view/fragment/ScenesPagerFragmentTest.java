@@ -7,12 +7,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.truethat.android.R;
+import com.truethat.android.application.auth.FakeAuthManager;
 import com.truethat.android.common.BaseApplicationTestSuite;
-import com.truethat.android.common.network.InteractionApi;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
+import com.truethat.android.model.Edge;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Photo;
 import com.truethat.android.model.Scene;
@@ -29,8 +30,10 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -43,8 +46,8 @@ import static com.truethat.android.application.ApplicationTestUtil.isFullscreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -54,22 +57,23 @@ import static org.junit.Assert.assertTrue;
 public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
-  private static final String VIDEO_URL =
-      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4";
-  private static final String IMAGE_URL =
-      "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg";
+  private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "ci");
+  private static final Video VIDEO = new Video(
+      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4", null);
+  private static final Photo PHOTO =
+      new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null);
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> HAPPY_REACTIONS =
       new TreeMap<Emotion, Long>() {{
-    put(Emotion.HAPPY, HAPPY_COUNT);
-  }};
+        put(Emotion.HAPPY, HAPPY_COUNT);
+      }};
   @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
       new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Scene> mRespondedScenes;
 
   @SuppressWarnings("ConstantConditions")
-  public static void assertSceneDisplayed(final Scene scene, User currentUser)
+  public static void assertSceneDisplayed(final Scene scene, User currentUser, final int mediaIndex)
       throws Exception {
     final ScenesPagerFragment pagerFragment =
         (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
@@ -83,20 +87,24 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
       }
     });
     final SceneFragment currentFragment = pagerFragment.getDisplayedScene();
+    // Wait for the right media to display
+    await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(mediaIndex,
+            scene.getMediaNodes().indexOf(currentFragment.getViewModel().getCurrentMedia()));
+      }
+    });
     // Wait until the fragment is ready
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(currentFragment.getMediaFragment().isReady());
       }
     });
-    if (scene.getRootMediaNode() instanceof Photo) {
-      // Asserting the pose image is displayed fullscreen.
-      await().untilAsserted(new ThrowingRunnable() {
-        @Override public void run() throws Throwable {
-          assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
-        }
-      });
-    } else if (scene.getRootMediaNode() instanceof Video) {
+    if (scene.getMediaNodes().get(mediaIndex) instanceof Photo) {
+      // Asserting the image is displayed fullscreen.
+      waitMatcher(allOf(withId(R.id.imageView), isDisplayed()));
+      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
+    } else if (scene.getMediaNodes().get(mediaIndex) instanceof Video) {
       // Asserting the video is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
       // Video should be playing
@@ -114,25 +122,10 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
     if (NumberUtil.sum(scene.getReactionCounters()) > 0) {
       // Asserting the reactions count is abbreviated.
       assertEquals(NumberUtil.format(NumberUtil.sum(scene.getReactionCounters())),
-          ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
-      // Asserting the reaction image is displayed and represents the most common reaction, the user reaction, or the default one.
-      onView(allOf(isDisplayed(), withId(R.id.reactionImage))).check(matches(isDisplayed()));
-      if (currentFragment.getScene().getUserReaction() != null) {
-        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
-            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                currentFragment.getScene().getUserReaction().getDrawableResource())));
-      } else if (!scene.getReactionCounters().isEmpty()) {
-        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
-            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                scene.getReactionCounters().lastKey().getDrawableResource())));
-      } else {
-        assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
-            ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
-                SceneViewModel.DEFAULT_REACTION_COUNTER.getDrawableResource())));
-      }
+          ((TextView) currentFragment.getView().findViewById(R.id.reactionsCountText)).getText());
     } else {
       assertEquals("",
-          ((TextView) currentFragment.getView().findViewById(R.id.reactionCountText)).getText());
+          ((TextView) currentFragment.getView().findViewById(R.id.reactionsCountText)).getText());
       assertTrue(CameraTestUtil.areDrawablesIdentical(reactionImage.getDrawable(),
           ContextCompat.getDrawable(pagerFragment.getActivity().getApplicationContext(),
               R.drawable.transparent_1x1)));
@@ -153,6 +146,10 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
     }
   }
 
+  @BeforeClass public static void beforeClass() throws Exception {
+    SceneViewModel.setDetectionDelayMillis(100);
+  }
+
   @Before public void setUp() throws Exception {
     super.setUp();
     // Resets the post event counter.
@@ -163,42 +160,82 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the poses list is empty.
+    // By default the list is empty.
     mRespondedScenes = Collections.emptyList();
   }
 
   @Test public void displayPhoto() throws Exception {
     Scene scene =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            new Photo(IMAGE_URL, null));
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, PHOTO);
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser());
-    // Let a post event to maybe be sent.
-    Thread.sleep(BaseApplicationTestSuite.TIMEOUT.getValueInMS() / 2);
-    assertEquals(0, mDispatcher.getCount(InteractionApi.PATH));
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
   }
 
   @Test public void displayVideo() throws Exception {
     Scene video =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            new Video(VIDEO_URL, null));
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
     mRespondedScenes = Collections.singletonList(video);
     mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser(), 0);
   }
 
   @Test public void displayMultipleTypes() throws Exception {
-    Scene pose = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            new Photo(IMAGE_URL, null));
+    Scene photo =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, PHOTO);
     Scene video =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
-            new Video(VIDEO_URL, null));
-    mRespondedScenes = Arrays.asList(pose, video);
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
+    mRespondedScenes = Arrays.asList(photo, video);
     mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(pose, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(photo, mFakeAuthManager.getCurrentUser(), 0);
     // Swipe to next scene
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser(), 0);
+  }
+
+  @Test public void reactionDetection() throws Exception {
+    Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, PHOTO);
+    mRespondedScenes = Collections.singletonList(scene);
+    mTheaterActivityTestRule.launchActivity(null);
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
+    // Wait for reaction detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+                .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene().getViewModel()));
+      }
+    });
+    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    @SuppressWarnings("ConstantConditions") final ImageView reactionImage =
+        ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene()
+            .getView()
+            .findViewById(R.id.reactionImage);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(CameraTestUtil.areDrawablesIdentical(
+            ContextCompat.getDrawable(mActivityTestRule.getActivity(),
+                Emotion.SURPRISE.getDrawableResource()), reactionImage.getDrawable()));
+      }
+    });
+  }
+
+  @Test public void evolvingScene() throws Exception {
+    Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
+        Collections.singletonList(new Edge(0L, 1L, Emotion.SURPRISE)));
+    mRespondedScenes = Collections.singletonList(scene);
+    mTheaterActivityTestRule.launchActivity(null);
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
+    // Wait for reaction detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+                .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene().getViewModel()));
+      }
+    });
+    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 1);
   }
 }

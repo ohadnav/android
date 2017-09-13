@@ -28,7 +28,7 @@
       />
 
   <android.support.constraint.ConstraintLayout
-      android:id="@+id/reactionCounterLayout"
+      android:id="@+id/reactionsCountLayout"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="16dp"
@@ -48,14 +48,14 @@
         android:contentDescription="@string/image_content_description"
         android:src="@{viewModel.mReactionDrawableResource}"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/reactionCountText"
+        app:layout_constraintEnd_toStartOf="@+id/reactionsCountText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/emoji_happy"
         />
 
     <TextView
-        android:id="@+id/reactionCountText"
+        android:id="@+id/reactionsCountText"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="8dp"

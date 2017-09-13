@@ -30,10 +30,6 @@ public class Scene implements Serializable {
    */
   private Long mId;
   /**
-   * The user reaction to the scene, {@code null} for no reaction.
-   */
-  private Emotion mUserReaction;
-  /**
    * Creator of the scene. By default, the current user is assigned.
    */
   private User mDirector;
@@ -45,10 +41,6 @@ public class Scene implements Serializable {
    * Date of creation.
    */
   private Date mCreated;
-  /**
-   * Whether the scene was viewed by the user.
-   */
-  private boolean mViewed;
   /**
    * The media associated with this scene, such as a {@link Photo}.
    */
@@ -62,22 +54,31 @@ public class Scene implements Serializable {
    * video or a photo and each edge describe which reaction leads from one media item to the next.
    */
   private transient MutableValueGraph<Media, Emotion> mMediaGraph;
-
   @VisibleForTesting
   public Scene(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
-      @Nullable Emotion userReaction, Media rootMedia) {
+      Media rootMedia) {
     mId = id;
-    mUserReaction = userReaction;
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
     mMediaNodes = Collections.singletonList(rootMedia);
-    //if (edges != null) {
-    //  mEdges = edges;
-    //  for (Edge edge : mEdges) {
-    //    updateGraph(edge);
-    //  }
-    //}
+  }
+
+  @VisibleForTesting
+  public Scene(Long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+      List<Media> mediaNodes, List<Edge> edges) {
+    mId = id;
+    mDirector = director;
+    mReactionCounters = reactionCounters;
+    mCreated = created;
+    mMediaNodes = mediaNodes;
+    mEdges = edges;
+    if (edges != null) {
+      mEdges = edges;
+      for (Edge edge : mEdges) {
+        updateGraph(edge);
+      }
+    }
   }
 
   public Scene(Media media) {
@@ -91,15 +92,8 @@ public class Scene implements Serializable {
   @SuppressWarnings("unused") Scene() {
   }
 
-  public List<Edge> getEdges() {
-    return mEdges;
-  }
-
-  public MutableValueGraph<Media, Emotion> getMediaGraph() {
-    if (mMediaGraph == null) {
-      initializeMediaGraph();
-    }
-    return mMediaGraph;
+  public List<Media> getMediaNodes() {
+    return mMediaNodes;
   }
 
   public void addMedia(Media source, Media target, Emotion reaction) {
@@ -111,8 +105,8 @@ public class Scene implements Serializable {
   }
 
   @Nullable public Media getNextMedia(Media current, Emotion reaction) {
-    for (Media optionalNext : mMediaGraph.adjacentNodes(current)) {
-      if (mMediaGraph.edgeValue(current, optionalNext) == reaction) {
+    for (Media optionalNext : getMediaGraph().adjacentNodes(current)) {
+      if (getMediaGraph().edgeValue(current, optionalNext) == reaction) {
         return optionalNext;
       }
     }
@@ -135,17 +129,6 @@ public class Scene implements Serializable {
     mId = id;
   }
 
-  public boolean isViewed() {
-    return mViewed;
-  }
-
-  /**
-   * Marks this Scene as viewed by the user.
-   */
-  public void doView() {
-    mViewed = true;
-  }
-
   public User getDirector() {
     return mDirector;
   }
@@ -159,20 +142,11 @@ public class Scene implements Serializable {
   public void doReaction(@NonNull Emotion reaction) {
     if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     increaseReactionCounter(reaction);
-    // Check if the user had already reacted this scene.
-    if (mUserReaction != null) {
-      decreaseReactionCounter(reaction);
-    }
-    mUserReaction = reaction;
   }
 
   public TreeMap<Emotion, Long> getReactionCounters() {
     if (mReactionCounters == null) mReactionCounters = new TreeMap<>();
     return mReactionCounters;
-  }
-
-  public Emotion getUserReaction() {
-    return mUserReaction;
   }
 
   @SuppressWarnings("unchecked") public Call<Scene> createApiCall() {
@@ -185,17 +159,6 @@ public class Scene implements Serializable {
     return NetworkUtil.createApi(StudioApi.class).saveScene(scenePart, mediaParts);
   }
 
-  /**
-   * @param user that should react to this scene.
-   *
-   * @return whether {@code user} can react to this scene.
-   */
-  public boolean canReactTo(User user) {
-    boolean notReactedTo = mUserReaction == null;
-    boolean notMine = !user.equals(mDirector);
-    return notReactedTo && notMine;
-  }
-
   @Override public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Scene)) return false;
@@ -203,8 +166,6 @@ public class Scene implements Serializable {
     Scene scene = (Scene) o;
 
     if (!Objects.equals(mId, scene.mId)) return false;
-    if (mViewed != scene.mViewed) return false;
-    if (mUserReaction != scene.mUserReaction) return false;
     if (mDirector != null ? !mDirector.equals(scene.mDirector) : scene.mDirector != null) {
       return false;
     }
@@ -218,6 +179,13 @@ public class Scene implements Serializable {
 
   @Override public String toString() {
     return this.getClass().getSimpleName() + "{id: " + mId + "}";
+  }
+
+  private MutableValueGraph<Media, Emotion> getMediaGraph() {
+    if (mMediaGraph == null) {
+      initializeMediaGraph();
+    }
+    return mMediaGraph;
   }
 
   /**
@@ -252,18 +220,15 @@ public class Scene implements Serializable {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored") private void updateGraph(Edge newEdge) {
-    if (mMediaGraph == null) {
-      initializeMediaGraph();
-    }
     Media sourceNode = mMediaNodes.get(newEdge.getSourceIndex().intValue());
     Media targetNode = mMediaNodes.get(newEdge.getTargetIndex().intValue());
-    if (!mMediaGraph.nodes().contains(sourceNode)) {
-      mMediaGraph.addNode(sourceNode);
+    if (!getMediaGraph().nodes().contains(sourceNode)) {
+      getMediaGraph().addNode(sourceNode);
     }
-    if (!mMediaGraph.nodes().contains(targetNode)) {
-      mMediaGraph.addNode(targetNode);
+    if (!getMediaGraph().nodes().contains(targetNode)) {
+      getMediaGraph().addNode(targetNode);
     }
-    mMediaGraph.putEdgeValue(sourceNode, targetNode, newEdge.getReaction());
+    getMediaGraph().putEdgeValue(sourceNode, targetNode, newEdge.getReaction());
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored") private void initializeMediaGraph() {
@@ -271,8 +236,10 @@ public class Scene implements Serializable {
     for (Media mediaNode : mMediaNodes) {
       mMediaGraph.addNode(mediaNode);
     }
-    for (Edge edge : mEdges) {
-      updateGraph(edge);
+    if (mEdges != null) {
+      for (Edge edge : mEdges) {
+        updateGraph(edge);
+      }
     }
   }
 

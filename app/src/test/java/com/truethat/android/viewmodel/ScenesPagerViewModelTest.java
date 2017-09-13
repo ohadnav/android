@@ -42,13 +42,13 @@ import static org.junit.Assert.assertTrue;
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final Date YESTERDAY = new Date(new Date().getTime() - TimeUnit.DAYS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
-  private static final long SAD_COUNT = HAPPY_COUNT + 1;
+  private static final long FEAR_COUNT = HAPPY_COUNT + 1;
   private static final TreeMap<Emotion, Long> HAPPY_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
   }};
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
-    put(Emotion.SAD, SAD_COUNT);
+    put(Emotion.FEAR, FEAR_COUNT);
   }};
   private ScenesPagerViewModel mViewModel;
   private TheaterApi mApi;
@@ -74,7 +74,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void displayScene() throws Exception {
     final Scene scene =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(IMAGE_URL_1, null));
     mRespondedScenes = Collections.singletonList((Scene) scene);
     mViewModel.fetchScenes();
@@ -100,7 +100,7 @@ import static org.junit.Assert.assertTrue;
     });
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     Scene scene = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
-            HOUR_AGO, Emotion.HAPPY, new Photo(IMAGE_URL_1, null));
+        HOUR_AGO, new Photo(IMAGE_URL_1, null));
     // Explicitly load more scenes.
     mRespondedScenes = Collections.singletonList((Scene) scene);
     mViewModel.next();
@@ -144,10 +144,10 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextScene() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(IMAGE_URL_1, null));
     Scene scene2 =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(IMAGE_URL_2, null));
     mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
     mViewModel.fetchScenes();
@@ -165,10 +165,9 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void multipleTypes() throws Exception {
     final Scene photo =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(IMAGE_URL_1, null));
-    Scene video =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+    Scene video = new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Video(VIDEO_URL, null));
     mRespondedScenes = Arrays.asList(photo, video);
     mViewModel.fetchScenes();
@@ -186,10 +185,10 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void previousScene() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(IMAGE_URL_1, null));
     final Scene scene2 =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(IMAGE_URL_2, null));
     mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
     mViewModel.fetchScenes();
@@ -215,10 +214,10 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextSceneFetchesNewScenes() throws Exception {
     final Scene scene1 =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, null,
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(IMAGE_URL_1, null));
     final Scene scene2 =
-        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY, null,
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(IMAGE_URL_2, null));
     mRespondedScenes = Collections.singletonList((Scene) scene1);
     mViewModel.fetchScenes();

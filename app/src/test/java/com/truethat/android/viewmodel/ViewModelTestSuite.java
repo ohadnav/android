@@ -43,6 +43,7 @@ import static org.junit.Assert.assertTrue;
   protected FakeInternalStorageManager mFakeInternalStorageManager;
   protected FakeReactionDetectionManager mFakeReactionDetectionManager;
   protected FakeDeviceManager mFakeDeviceManager;
+  protected String mLastRequest;
   Date mNow;
 
   @SuppressWarnings("unchecked") @Before public void setUp() throws Exception {
@@ -56,6 +57,7 @@ import static org.junit.Assert.assertTrue;
     mMockWebServer.start(8070);
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        mLastRequest = request.getBody().readUtf8();
         return new MockResponse();
       }
     });
@@ -106,6 +108,7 @@ import static org.junit.Assert.assertTrue;
       implements AuthListener, BaseFragmentViewInterface {
     private String mToastText;
     private AuthResult mAuthResult;
+    private boolean isVisible = true;
 
     public String getToastText() {
       return mToastText;
@@ -144,7 +147,7 @@ import static org.junit.Assert.assertTrue;
     }
 
     @Override public boolean isReallyVisible() {
-      return true;
+      return isVisible;
     }
   }
 }

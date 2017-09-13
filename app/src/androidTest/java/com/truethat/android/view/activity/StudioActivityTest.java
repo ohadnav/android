@@ -73,7 +73,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     });
   }
 
-  @Test public void sendPoseFlow() throws Exception {
+  @Test public void sendPhotoFlow() throws Exception {
     // Take a picture
     onView(withId(R.id.captureButton)).perform(click());
     // Should proceed to approval state
@@ -85,7 +85,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     assertPublishedState();
   }
 
-  @Test public void sendShortFlow() throws Exception {
+  @Test public void sendVideoFlow() throws Exception {
     // Take a picture
     onView(withId(R.id.captureButton)).perform(
         new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));

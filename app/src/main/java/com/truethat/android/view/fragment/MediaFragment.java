@@ -15,6 +15,7 @@ import com.truethat.android.R;
 import com.truethat.android.databinding.FragmentMediaBinding;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
+import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -29,7 +30,14 @@ public abstract class MediaFragment<Model extends Media> extends
   Model mMedia;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   MediaListener mMediaListener;
+  /**
+   * Whether the media was downloaded and can be instantly displayed.
+   */
   boolean mIsReady = false;
+  /**
+   * Whether the media had been finished.
+   */
+  boolean mHasFinished = false;
 
   /**
    * Prepares {@code fragment} for creation in implementing class, such as {@link
@@ -42,6 +50,10 @@ public abstract class MediaFragment<Model extends Media> extends
     Bundle args = new Bundle();
     args.putSerializable(ARG_MEDIA, media);
     fragment.setArguments(args);
+  }
+
+  public boolean hasFinished() {
+    return mHasFinished;
   }
 
   public void setMediaListener(MediaListener mediaListener) {
@@ -59,7 +71,7 @@ public abstract class MediaFragment<Model extends Media> extends
   }
 
   /**
-   * Creation of media layout, such as a Pose image, is done by implementations.
+   * Creation of media layout, such as an image, is done by implementations.
    */
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,5 +107,10 @@ public abstract class MediaFragment<Model extends Media> extends
      * Called once the media has been downloaded.
      */
     void onReady();
+
+    /**
+     * Called once the media is finished, such as when a {@link Video} ends.
+     */
+    void onFinished();
   }
 }

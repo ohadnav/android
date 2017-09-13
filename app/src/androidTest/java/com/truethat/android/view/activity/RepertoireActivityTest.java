@@ -42,10 +42,10 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
         return new MockResponse().setBody(responseBody);
       }
     });
-    // By default the poses list is empty.
+    // By default the list is empty.
     mRespondedScenes = Collections.emptyList();
     mScene = new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
-        new Date(), null,
+        new Date(),
         new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
   }
 
@@ -58,7 +58,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   @Test public void navigationWhileSceneDisplayed() throws Exception {
     mRespondedScenes = Collections.singletonList(mScene);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
   }
@@ -66,13 +66,13 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
   @Test public void singleInstance() throws Exception {
     mRespondedScenes = Collections.singletonList(mScene);
     mRepertoireActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
     // Navigate out of Repertoire activity
     onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(StudioActivity.class);
     // Navigate back to Repertoire activity
     centerSwipeUp();
     waitForActivity(RepertoireActivity.class);
-    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser());
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
   }
 }

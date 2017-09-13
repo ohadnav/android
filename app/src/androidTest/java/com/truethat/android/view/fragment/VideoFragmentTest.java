@@ -1,6 +1,7 @@
 package com.truethat.android.view.fragment;
 
 import android.support.test.rule.ActivityTestRule;
+import android.view.ViewConfiguration;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import com.truethat.android.common.util.CountingDispatcher;
@@ -25,6 +26,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.getCurrentActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
+import static com.truethat.android.view.fragment.ScenesPagerFragmentTest.assertSceneDisplayed;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
@@ -37,39 +39,28 @@ import static org.junit.Assert.assertTrue;
 public class VideoFragmentTest extends BaseApplicationTestSuite {
   @Rule public ActivityTestRule<RepertoireActivity> mRepertoireActivityRule =
       new ActivityTestRule<>(RepertoireActivity.class, true, false);
-  // TODO(ohad): remove short basically
-  private Scene mScene;
+  // TODO(ohad): remove dependency on external activity basically
   private VideoFragment mVideoFragment;
 
-  @Override public void setUp() throws Exception {
-    super.setUp();
+  @Test public void pauseAndResumeWithTouch() throws Exception {
+    final Scene scene =
+        new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
+            new Video(
+                "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4",
+                null));
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
-        String responseBody = GSON.toJson(Collections.singletonList(mScene));
+        String responseBody = GSON.toJson(Collections.singletonList(scene));
         return new MockResponse().setBody(responseBody);
       }
     });
-    mScene = new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
-        new Date(), null,
-        new Video("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
     mRepertoireActivityRule.launchActivity(null);
-    // Wait until the scene fragment is created.
-    waitMatcher(withId(R.id.sceneFragment));
+    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
     mVideoFragment =
         (VideoFragment) ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene()
-            .getMediaFragment();
-    // Wait until the fragment is ready
-    await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(mVideoFragment.isReady());
-      }
-    });
+            .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene().getMediaFragment();
     // Loading image should be hidden once ready
     waitMatcher(allOf(withId(R.id.loadingImage), not(isDisplayed())));
-  }
-
-  @Test public void pauseAndResumeWithTouch() throws Exception {
     // Should be playing video
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -80,7 +71,8 @@ public class VideoFragmentTest extends BaseApplicationTestSuite {
     // Pause video
     final int currentPosition = mVideoFragment.getMediaPlayer().getCurrentPosition();
     onView(withId(R.id.videoSurface)).perform(longClick());
-    assertTrue(mVideoFragment.getMediaPlayer().getCurrentPosition() - currentPosition < 50);
+    assertTrue(mVideoFragment.getMediaPlayer().getCurrentPosition() - currentPosition
+        < ViewConfiguration.getLongPressTimeout() / 2);
     // Should resume playing
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

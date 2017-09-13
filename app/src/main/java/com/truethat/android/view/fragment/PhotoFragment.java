@@ -15,6 +15,8 @@ import com.truethat.android.R;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.model.Photo;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.view.View.GONE;
 
@@ -25,7 +27,9 @@ import static android.view.View.GONE;
  */
 
 public class PhotoFragment extends MediaFragment<Photo> {
+  private static final long FINISHED_TIMEOUT_MILLIS = 1000;
   @BindView(R.id.imageView) ImageView mImageView;
+  private Timer mTimer;
 
   public PhotoFragment() {
     // Required empty public constructor
@@ -66,13 +70,37 @@ public class PhotoFragment extends MediaFragment<Photo> {
                 mMediaListener.onReady();
               }
               mIsReady = true;
-              mLoadingImage.setVisibility(GONE);
+              if (mLoadingImage != null) {
+                mLoadingImage.setVisibility(GONE);
+              }
             }
 
             @Override public void onError() {
               Log.w(TAG, "Failed to download image.");
             }
           });
+    }
+  }
+
+  @Override public void onVisible() {
+    super.onVisible();
+    if (mTimer == null) mTimer = new Timer(TAG);
+    mTimer.schedule(new TimerTask() {
+      @Override public void run() {
+        mHasFinished = true;
+        if (mMediaListener != null) {
+          mMediaListener.onFinished();
+        }
+      }
+    }, FINISHED_TIMEOUT_MILLIS);
+  }
+
+  @Override public void onHidden() {
+    super.onHidden();
+    if (mTimer != null) {
+      mTimer.cancel();
+      mTimer.purge();
+      mTimer = null;
     }
   }
 
