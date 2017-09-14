@@ -7,7 +7,7 @@ package com.truethat.android.model;
  * should be aligned
  * with our backend.
  *
- * @backend <a>https://goo.gl/5HOYDY</a>
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/EventType.java</a>
  */
 public enum EventType {
   /**

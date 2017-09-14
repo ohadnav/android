@@ -11,6 +11,8 @@ import java.io.Serializable;
  * will than view 1-indexed node.
  * <p>
  * Note that we regard the {@link Media} node order in {@link Scene#mMediaNodes} as its index.
+ *
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Edge.java</a>
  */
 
 public class Edge implements Serializable {

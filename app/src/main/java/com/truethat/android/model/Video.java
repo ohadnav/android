@@ -11,6 +11,8 @@ import okhttp3.RequestBody;
 
 /**
  * Proudly created by ohad on 07/09/2017 for TrueThat.
+ *
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Video.java</a>
  */
 
 public class Video extends Media implements Serializable {

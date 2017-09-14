@@ -20,6 +20,8 @@ import retrofit2.Call;
  * Proudly created by ohad on 08/06/2017 for TrueThat.
  * <p>
  * A media item that the user can have an emotional reaction to.
+ *
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Scene.java</a>
  */
 public class Scene implements Serializable {
   private static final long serialVersionUID = 7734272873629700816L;

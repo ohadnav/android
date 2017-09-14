@@ -12,6 +12,8 @@ import okhttp3.MultipartBody;
  * Media items such as videos or photos.
  * <p>
  * Each implementation should register at {@link NetworkUtil#GSON}.
+ *
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Media.java</a>
  */
 
 public abstract class Media implements Serializable {

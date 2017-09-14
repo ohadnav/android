@@ -6,7 +6,7 @@ import com.truethat.android.R;
 /**
  * Proudly created by ohad on 01/05/2017 for TrueThat.
  *
- * @backend <a>https://goo.gl/dWSkXd</a>
+ * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Emotion.java</a>
  */
 
 public enum Emotion {
