@@ -323,7 +323,8 @@ import java.util.List;
   public interface Listener {
     void onFrameAvailable(byte[] frame, int width, int height, Frame.ROTATE rotation);
 
-    void onFrameSizeSelected(int width, int height, Frame.ROTATE rotation);
+    @SuppressWarnings("EmptyMethod") void onFrameSizeSelected(int width, int height,
+        Frame.ROTATE rotation);
   }
 
   private class OrientationHelper extends OrientationEventListener {

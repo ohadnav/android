@@ -8,7 +8,7 @@ import okhttp3.MultipartBody;
 
 /**
  * Proudly created by ohad on 07/09/2017 for TrueThat.
- *
+ * <p>
  * Media items such as videos or photos.
  * <p>
  * Each implementation should register at {@link NetworkUtil#GSON}.
@@ -45,7 +45,7 @@ public abstract class Media implements Serializable {
   }
 
   @Override public String toString() {
-    return NetworkUtil.GSON.toJson(this);
+    return this.getClass().getSimpleName() + " " + hashCode() % 1000;
   }
 
   /**

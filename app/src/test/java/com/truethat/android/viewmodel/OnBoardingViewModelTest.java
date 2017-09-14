@@ -51,7 +51,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void successfulOnBoarding() throws Exception {
-    doOnBoarding(NAME);
+    doOnBoarding();
     // Wait until Auth OK.
     assertTrue(mFakeAuthManager.isAuthOk());
     assertEquals(StringUtil.toTitleCase(NAME), mFakeAuthManager.getCurrentUser().getDisplayName());
@@ -80,8 +80,8 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     };
     initViewModel();
-    mFakeAuthManager.setUseNetwork(true);
-    doOnBoarding(NAME);
+    mFakeAuthManager.useNetwork();
+    doOnBoarding();
     // Should be in request sent stage
     assertSentStage();
     // Stopping view model, should cancel request
@@ -95,7 +95,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void failedSignUp() throws Exception {
-    mFakeAuthManager.setUseNetwork(true);
+    mFakeAuthManager.useNetwork();
     // Set up server to fail.
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -103,7 +103,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Set up view interface to invoke failure method
-    doOnBoarding(NAME);
+    doOnBoarding();
     // Should be in request sent stage
     assertSentStage();
     await().untilAsserted(new ThrowingRunnable() {
@@ -186,11 +186,10 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   /**
    * Programmatically completes the on boarding process as if a user completed it.
    *
-   * @param name of the new user.
    */
-  private void doOnBoarding(String name) {
+  private void doOnBoarding() {
     // Type name
-    mViewModel.mNameEditText.set(name);
+    mViewModel.mNameEditText.set(OnBoardingViewModelTest.NAME);
     // Hit done
     mViewModel.onNameDone();
     assertFinalStage();

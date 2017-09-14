@@ -15,10 +15,10 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
     extends BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityTestBinding>
     implements CameraFragment.CameraFragmentListener {
 
-  @Override public void onImageAvailable(Image image) {
+  @Override public void onPhotoTaken(Image image) {
   }
 
-  @Override public void onVideoAvailable(String videoPath) {
+  @Override public void onVideoRecorded(String videoPath) {
 
   }
 

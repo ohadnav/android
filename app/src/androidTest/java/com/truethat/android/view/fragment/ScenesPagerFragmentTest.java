@@ -73,8 +73,8 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
   private List<Scene> mRespondedScenes;
 
   @SuppressWarnings("ConstantConditions")
-  public static void assertSceneDisplayed(final Scene scene, User currentUser, final int mediaIndex)
-      throws Exception {
+  public static void assertSceneDisplayed(final Scene scene, User currentUser,
+      final int mediaIndex) {
     final ScenesPagerFragment pagerFragment =
         (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
             .findFragmentById(R.id.scenesPagerFragment);
@@ -198,20 +198,19 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
     assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
+    final ScenesPagerFragment scenesPagerFragment =
+        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.scenesPagerFragment);
     // Wait for reaction detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeReactionDetectionManager.isSubscribed(
-            ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-                .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene().getViewModel()));
+            scenesPagerFragment.getDisplayedScene().getViewModel()));
       }
     });
     mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
     @SuppressWarnings("ConstantConditions") final ImageView reactionImage =
-        ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene()
-            .getView()
-            .findViewById(R.id.reactionImage);
+        scenesPagerFragment.getDisplayedScene().getView().findViewById(R.id.reactionImage);
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(CameraTestUtil.areDrawablesIdentical(
@@ -223,16 +222,18 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
 
   @Test public void evolvingScene() throws Exception {
     Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
-        Collections.singletonList(new Edge(0L, 1L, Emotion.SURPRISE)));
+        Collections.singletonList(new Edge(0, 1, Emotion.SURPRISE)));
     mRespondedScenes = Collections.singletonList(scene);
     mTheaterActivityTestRule.launchActivity(null);
     assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
+    final ScenesPagerFragment scenesPagerFragment =
+        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
+            .findFragmentById(R.id.scenesPagerFragment);
     // Wait for reaction detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeReactionDetectionManager.isSubscribed(
-            ((ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-                .findFragmentById(R.id.scenesPagerFragment)).getDisplayedScene().getViewModel()));
+            scenesPagerFragment.getDisplayedScene().getViewModel()));
       }
     });
     mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);

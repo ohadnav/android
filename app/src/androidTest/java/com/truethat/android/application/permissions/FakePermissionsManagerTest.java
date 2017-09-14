@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void requestCallback_notInvokedIfAlreadyGranted() throws Exception {
     // Enables invocation of request callback.
-    mFakePermissionsManager.setInvokeRequestCallback(true);
+    mFakePermissionsManager.invokeRequestCallback();
     // Grants permission
     mFakePermissionsManager.grant(PERMISSION);
     mFakePermissionsManager.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);

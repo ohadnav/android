@@ -26,12 +26,12 @@ public class FakeAuthManager extends BaseAuthManager {
     return mAuthCall;
   }
 
-  public void setAllowAuth(boolean allowAuth) {
-    mAllowAuth = allowAuth;
+  public void forbidAuth() {
+    mAllowAuth = false;
   }
 
-  public void setUseNetwork(boolean useNetwork) {
-    mUseNetwork = useNetwork;
+  public void useNetwork() {
+    mUseNetwork = true;
   }
 
   @Override public boolean isAuthOk() {

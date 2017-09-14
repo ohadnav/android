@@ -4,7 +4,8 @@ import android.content.Context;
 import android.media.Image;
 import com.truethat.android.R;
 import com.truethat.android.common.network.NetworkUtil;
-import com.truethat.android.model.Scene;
+import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
@@ -17,14 +18,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.truethat.android.viewmodel.StudioViewModel.CAPTURE_RESOURCE;
-import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.APPROVAL;
-import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.DIRECTING;
+import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.CAMERA;
+import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.EDIT;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.PUBLISHED;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.SENT;
 import static com.truethat.android.viewmodel.StudioViewModel.RECORD_RESOURCE;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +40,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   private static final String SAVED_SUCCESSFULLY = "Saved successfully";
   private StudioViewModel mViewModel;
   private ViewInterface mView;
-  private Image mMockedImage;
+  private int mImageContent = 0;
 
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -52,11 +55,6 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         return new MockResponse().setBody(NetworkUtil.GSON.toJson(mViewModel.getDirectedScene()));
       }
     });
-    // Mocks take images
-    mMockedImage = mock(Image.class);
-    Image.Plane mockedPlane = mock(Image.Plane.class);
-    when(mockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] {}));
-    when(mMockedImage.getPlanes()).thenReturn(new Image.Plane[] { mockedPlane });
     // Creates and starts view model
     mView = new ViewInterface();
     mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) mView);
@@ -65,43 +63,173 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   @Test public void directingState() throws Exception {
-    assertDirectingState();
+    assertCameraState();
   }
 
   @Test public void approvalState() throws Exception {
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+  }
+
+  @Test public void basicInteractiveScene() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Expect a flow tree with two nodes
+    assertEquals(2, mViewModel.getDirectedScene().getMediaNodes().size());
+    assertNotNull(mViewModel.getDirectedScene()
+        .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST));
+    // Send the scene
+    mViewModel.onSent();
+    assertSentState();
+  }
+
+  @Test public void deepInteractiveScene() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.HAPPY);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Go to root media
+    mViewModel.previousMedia();
+    mViewModel.previousMedia();
+    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+    // Chose a different follow up reaction
+    mViewModel.onReactionChosen(Emotion.FEAR);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Return to root media and chose first reaction
+    mViewModel.previousMedia();
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertEditState();
+    // Chose a new reaction
+    mViewModel.onReactionChosen(Emotion.SURPRISE);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    // Verify flow tree
+    assertEquals(5, mViewModel.getDirectedScene().getMediaNodes().size());
+    assertNotNull(mViewModel.getDirectedScene()
+        .getNextMedia(mViewModel.getDirectedScene()
+                .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST),
+            Emotion.HAPPY));
+    assertNotNull(mViewModel.getDirectedScene()
+        .getNextMedia(mViewModel.getDirectedScene()
+                .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST),
+            Emotion.SURPRISE));
+    assertNotNull(mViewModel.getDirectedScene()
+        .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.FEAR));
+  }
+
+  @Test public void previousMedia() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Go to root media
+    mViewModel.previousMedia();
+    // Should edit root media
+    assertEditState();
+    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+  }
+
+  @Test public void previousMediaHiddenFromRoot() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    assertFalse(mViewModel.mPreviousMediaVisibility.get());
+  }
+
+  @Test public void cancelNestedMedia() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    assertEquals(1, mViewModel.getDirectedScene().getMediaNodes().size());
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    assertEquals(2, mViewModel.getDirectedScene().getMediaNodes().size());
+    // Chose a nested follow up reaction
+    mViewModel.onReactionChosen(Emotion.HAPPY);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    assertEquals(3, mViewModel.getDirectedScene().getMediaNodes().size());
+    // Cancel last media
+    mViewModel.disapprove();
+    assertEditState();
+    // Should have one node
+    assertEquals(2, mViewModel.getDirectedScene().getMediaNodes().size());
+  }
+
+  @Test public void cancelRootMedia() throws Exception {
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a follow up reaction
+    mViewModel.onReactionChosen(Emotion.DISGUST);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    // Chose a nested follow up reaction
+    mViewModel.onReactionChosen(Emotion.HAPPY);
+    assertCameraState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
+    assertEquals(3, mViewModel.getDirectedScene().getMediaNodes().size());
+    // Go to root media
+    mViewModel.previousMedia();
+    mViewModel.previousMedia();
+    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+    // Cancel root media
+    mViewModel.disapprove();
+    assertCameraState();
+    // Should have a null scene
+    assertNull(mViewModel.getDirectedScene());
   }
 
   @Test public void recordVideo() throws Exception {
     mViewModel.onVideoRecordStart();
     assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
-    mViewModel.onVideoAvailable("bigcoin-gen.dmg");
+    mViewModel.onVideoRecorded("bigcoin-gen.dmg");
     assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
     assertTrue(mViewModel.getDirectedScene().getRootMediaNode() instanceof Video);
   }
 
   @Test public void approvalCancel() throws Exception {
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
     // Cancel the picture taken
     mViewModel.disapprove();
-    assertDirectingState();
+    assertCameraState();
     // Should restore preview
     assertTrue(mView.mPreviewRestored);
   }
 
   @Test public void sentState() throws Exception {
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
     // Send the scene.
     mViewModel.onSent();
     assertSentState();
   }
 
   @Test public void publishedState() throws Exception {
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
     // Send the scene.
     mViewModel.onSent();
     assertSentState();
@@ -114,8 +242,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
     // Send the scene.
     mViewModel.onSent();
     assertSentState();
@@ -131,8 +259,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         return new MockResponse().setBody(NetworkUtil.GSON.toJson(mViewModel.getDirectedScene()));
       }
     });
-    mViewModel.onImageAvailable(mMockedImage);
-    assertApprovalState();
+    mViewModel.onPhotoTaken(createMockedImage());
+    assertEditState();
     // Send the scene.
     mViewModel.onSent();
     assertSentState();
@@ -142,7 +270,22 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertPublishFailed();
   }
 
-  private void assertDirectingState() {
+  private Image createMockedImage() {
+    Image mockedImage = mock(Image.class);
+    Image.Plane mockedPlane = mock(Image.Plane.class);
+    when(mockedPlane.getBuffer()).thenReturn(ByteBuffer.wrap(new byte[] { (byte) mImageContent }));
+    mImageContent++;
+    when(mockedImage.getPlanes()).thenReturn(new Image.Plane[] { mockedPlane });
+    return mockedImage;
+  }
+
+  private void assertCameraState() {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        // Should communicate state via view interface.
+        assertEquals(CAMERA, mViewModel.getState());
+      }
+    });
     // Capture buttons are displayed.
     assertTrue(mViewModel.mCaptureButtonVisibility.get());
     assertTrue(mViewModel.mSwitchCameraButtonVisibility.get());
@@ -151,19 +294,21 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mCancelButtonVisibility.get());
     // Loading image is hidden
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    // Should communicate state via view interface.
-    assertEquals(DIRECTING, mViewModel.getDirectingState());
     // Scene preview is hidden.
     assertFalse(mViewModel.mScenePreviewVisibility.get());
     // Camera preview is shown
     assertTrue(mViewModel.mCameraPreviewVisibility.get());
+    // Assert that if directed scene is not null then new edge is not null.
+    if (mViewModel.getDirectedScene() != null) {
+      assertNotNull(mViewModel.getNewEdge());
+    }
   }
 
-  private void assertApprovalState() {
+  private void assertEditState() {
     // Should communicate state via view interface.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(APPROVAL, mViewModel.getDirectingState());
+        assertEquals(EDIT, mViewModel.getState());
       }
     });
     // Capture buttons are hidden.
@@ -178,7 +323,11 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertTrue(mViewModel.mScenePreviewVisibility.get());
     // Camera preview is hidden
     assertFalse(mViewModel.mCameraPreviewVisibility.get());
-    assertEquals(mViewModel.getDirectedScene(), mView.mDisplayedScene);
+    assertEquals(mViewModel.getCurrentMedia(), mView.mDisplayedMedia);
+    // Previous media visible if not editing root media
+    assertEquals(
+        !mViewModel.getDirectedScene().getRootMediaNode().equals(mViewModel.getCurrentMedia()),
+        mViewModel.mPreviousMediaVisibility.get());
   }
 
   private void assertSentState() {
@@ -191,7 +340,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Loading image is shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
     // Should communicate state via view interface.
-    assertEquals(SENT, mViewModel.getDirectingState());
+    assertEquals(SENT, mViewModel.getState());
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(1, mMockWebServer.getRequestCount());
@@ -202,7 +351,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   private void assertPublishedState() {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(PUBLISHED, mViewModel.getDirectingState());
+        assertEquals(PUBLISHED, mViewModel.getState());
         assertEquals(SAVED_SUCCESSFULLY, mView.getToastText());
         // Should leave studio
         assertTrue(mView.mLeftStudio);
@@ -212,13 +361,13 @@ public class StudioViewModelTest extends ViewModelTestSuite {
 
   private void assertPublishFailed() {
     // Should return to approval.
-    assertApprovalState();
+    assertEditState();
   }
 
   private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
     private boolean mLeftStudio = false;
     private boolean mPreviewRestored = false;
-    private Scene mDisplayedScene;
+    private Media mDisplayedMedia;
 
     @Override public void leaveStudio() {
       mLeftStudio = true;
@@ -228,8 +377,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       mPreviewRestored = true;
     }
 
-    @Override public void displayPreview(Scene scene) {
-      mDisplayedScene = scene;
+    @Override public void displayPreview(Media media) {
+      mDisplayedMedia = media;
     }
   }
 }

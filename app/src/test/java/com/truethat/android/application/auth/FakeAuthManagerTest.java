@@ -21,7 +21,7 @@ public class FakeAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void authRegular() throws Exception {
-    ((FakeAuthManager) mAuthManager).setUseNetwork(true);
+    ((FakeAuthManager) mAuthManager).useNetwork();
     performAuth();
     assertEquals(1, mMockWebServer.getRequestCount());
   }
@@ -33,7 +33,7 @@ public class FakeAuthManagerTest extends AuthManagerTest {
   }
 
   @Test public void disallowAuth() throws Exception {
-    ((FakeAuthManager) mAuthManager).setAllowAuth(false);
+    ((FakeAuthManager) mAuthManager).forbidAuth();
     prepareAuth();
     // Authenticate user;
     mAuthManager.auth(mListener);

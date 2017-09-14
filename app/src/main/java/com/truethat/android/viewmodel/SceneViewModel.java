@@ -86,7 +86,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   private Media mCurrentMedia;
   /**
    * The next media after {@link #mCurrentMedia}, as per the user first reaction to {@link
-   * #mCurrentMedia} and {@link Scene#mMediaGraph}.
+   * #mCurrentMedia} and {@link Scene#mFlowTree}.
    */
   private Media mNextMedia;
   /**

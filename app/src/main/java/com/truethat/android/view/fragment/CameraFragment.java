@@ -115,7 +115,7 @@ public class CameraFragment extends
    */
   private CameraFragmentListener mCameraFragmentListener;
   /**
-   * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
+   * This a callback object for the {@link ImageReader}. "onPhotoTaken" will be called when a
    * still image is ready to be processed.
    */
   private ImageReader.OnImageAvailableListener mOnImageAvailableListener =
@@ -124,7 +124,7 @@ public class CameraFragment extends
           Image image = null;
           try {
             image = reader.acquireLatestImage();
-            mCameraFragmentListener.onImageAvailable(image);
+            mCameraFragmentListener.onPhotoTaken(image);
           } finally {
             if (image != null) {
               image.close();
@@ -184,10 +184,6 @@ public class CameraFragment extends
    * Absolute path to internal storage in which to store the next video.
    */
   private String mVideoAbsolutePath;
-  /**
-   * A {@link CameraCaptureSession} for taking videos.
-   */
-  private CameraCaptureSession mCaptureSession;
   /**
    * The {@link Size} of captured photos.
    */
@@ -440,7 +436,7 @@ public class CameraFragment extends
     // Stop recording
     mMediaRecorder.stop();
     mMediaRecorder.reset();
-    mCameraFragmentListener.onVideoAvailable(mVideoAbsolutePath);
+    mCameraFragmentListener.onVideoRecorded(mVideoAbsolutePath);
     mVideoAbsolutePath = null;
     mState = CameraState.VIDEO_RECORDED;
   }
@@ -537,20 +533,25 @@ public class CameraFragment extends
   }
 
   /**
-   * Restores camera preview after a picture was taken.
+   * Restores camera preview after a picture was taken, or after a video was recorded.
    */
   public void restorePreview() {
     Log.d(TAG, "restorePreview");
     if (mState == CameraState.PICTURE_TAKEN || mState == CameraState.VIDEO_RECORDED) {
-      unlockFocus();
+      getActivity().runOnUiThread(new Runnable() {
+        @Override public void run() {
+          createCameraPreviewSession();
+          mState = CameraState.PREVIEW;
+        }
+      });
     }
   }
 
   /**
    * @return whether a photo can be taken at the current state.
    */
-  public boolean canUseCamera() {
-    return getActivity() != null && isCameraOpen() && isResumed();
+  public boolean cameraNotPrepared() {
+    return getActivity() == null || !isCameraOpen() || !isResumed();
   }
 
   /**
@@ -866,7 +867,7 @@ public class CameraFragment extends
           new CameraCaptureSession.StateCallback() {
 
             @Override public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-              if (!canUseCamera()) {
+              if (cameraNotPrepared()) {
                 return;
               }
 
@@ -984,7 +985,7 @@ public class CameraFragment extends
   private void captureStillPicture() {
     try {
       final Activity activity = getActivity();
-      if (!canUseCamera()) {
+      if (cameraNotPrepared()) {
         Log.i(TAG, "Capturing still picture aborted, as view is no longer visible.");
         return;
       }
@@ -1017,8 +1018,6 @@ public class CameraFragment extends
       if (mPreviewSession != null) {
         mPreviewSession.stopRepeating();
         mPreviewSession.capture(captureBuilder.build(), captureCallback, null);
-      } else {
-        mCaptureSession.capture(captureBuilder.build(), captureCallback, null);
       }
       mState = CameraState.PICTURE_TAKEN;
     } catch (CameraAccessException e) {
@@ -1045,30 +1044,6 @@ public class CameraFragment extends
   private int getOrientation(int rotation) {
 
     return (DEFAULT_ORIENTATIONS.get(rotation) + mSensorOrientation + 270) % 360;
-  }
-
-  /**
-   * Unlock the focus. This method should be called when still image capture sequence is
-   * finished.
-   */
-  private void unlockFocus() {
-    try {
-      // Reset the auto-focus trigger
-      mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
-          CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
-      setAutoFlash(mPreviewRequestBuilder);
-      mPreviewSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
-          mBackgroundHandler.getHandler());
-      // After this, the camera will go back to the normal state of preview.
-      mState = CameraState.PREVIEW;
-      mPreviewSession.setRepeatingRequest(mPreviewRequest, mCaptureCallback,
-          mBackgroundHandler.getHandler());
-    } catch (CameraAccessException e) {
-      if (!BuildConfig.DEBUG) {
-        Crashlytics.logException(e);
-      }
-      e.printStackTrace();
-    }
   }
 
   private void setAutoFlash(CaptureRequest.Builder requestBuilder) {
@@ -1123,14 +1098,14 @@ public class CameraFragment extends
      *
      * @param image fresh from the oven image.
      */
-    void onImageAvailable(Image image);
+    void onPhotoTaken(Image image);
 
     /**
      * Callback for ready videos. Users may be haunted with eternal fame.
      *
      * @param videoPath file path o internal storage where the video is stored.
      */
-    void onVideoAvailable(String videoPath);
+    void onVideoRecorded(String videoPath);
 
     /**
      * Called once video recording has started.

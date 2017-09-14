@@ -15,13 +15,18 @@ import java.io.Serializable;
 
 public class Edge implements Serializable {
   private static final long serialVersionUID = -8255565106026309672L;
-  private Long mSourceIndex;
-  private Long mTargetIndex;
+  private Integer mSourceIndex;
+  private Integer mTargetIndex;
   private Emotion mReaction;
 
-  public Edge(Long sourceIndex, Long targetIndex, Emotion reaction) {
+  public Edge(int sourceIndex, int targetIndex, Emotion reaction) {
     mSourceIndex = sourceIndex;
     mTargetIndex = targetIndex;
+    mReaction = reaction;
+  }
+
+  public Edge(int sourceIndex, Emotion reaction) {
+    mSourceIndex = sourceIndex;
     mReaction = reaction;
   }
 
@@ -29,19 +34,15 @@ public class Edge implements Serializable {
     return mReaction;
   }
 
-  public void setReaction(Emotion reaction) {
-    mReaction = reaction;
-  }
-
   @Override public String toString() {
     return NetworkUtil.GSON.toJson(this);
   }
 
-  public Long getTargetIndex() {
+  public Integer getTargetIndex() {
     return mTargetIndex;
   }
 
-  Long getSourceIndex() {
+  Integer getSourceIndex() {
     return mSourceIndex;
   }
 }

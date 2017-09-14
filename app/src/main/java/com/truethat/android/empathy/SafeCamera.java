@@ -9,10 +9,10 @@ import java.io.IOException;
 /**
  * A wrapper class to enforce thread-safe access to the camera and its properties.
  */
-@SuppressWarnings("deprecation") class SafeCamera {
+@SuppressWarnings({ "deprecation", "SameParameterValue" }) class SafeCamera {
   private Camera camera;
   private volatile int cameraId = -1;
-  private boolean taken;
+  @SuppressWarnings("unused") private boolean taken;
 
   /**
    * Attempts to open the specified camera.

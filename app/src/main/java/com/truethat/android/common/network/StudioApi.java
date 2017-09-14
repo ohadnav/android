@@ -32,7 +32,7 @@ public interface StudioApi {
    * Saves a {@link Scene} in out magical backend.
    *
    * @param scene to save
-   * @param media     files to save in storage, such as a {@link Photo}.
+   * @param media files to save in storage, such as a {@link Photo}.
    *
    * @return {@link Retrofit} call.
    */

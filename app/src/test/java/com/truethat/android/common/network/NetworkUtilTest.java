@@ -55,7 +55,7 @@ public class NetworkUtilTest {
     assertEquals(photo, actual);
   }
 
-  private class MyAndroidClass {
+  @SuppressWarnings("SameParameterValue") private class MyAndroidClass {
     private int mAwesomeness;
 
     MyAndroidClass(int anAwesomeness) {
@@ -76,7 +76,7 @@ public class NetworkUtilTest {
     }
   }
 
-  private class MyClass {
+  @SuppressWarnings({ "SameParameterValue", "unused" }) private class MyClass {
     private int awesomeness;
 
     MyClass(int anInt) {

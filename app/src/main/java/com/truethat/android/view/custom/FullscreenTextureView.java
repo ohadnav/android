@@ -2,6 +2,7 @@ package com.truethat.android.view.custom;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.TextureView;
@@ -36,7 +37,7 @@ public class FullscreenTextureView extends TextureView {
    * @param width  Relative horizontal size
    * @param height Relative vertical size
    */
-  public void setAspectRatio(int width, int height) {
+  @MainThread public void setAspectRatio(int width, int height) {
     if (width < 0 || height < 0) {
       throw new IllegalArgumentException("Size cannot be negative.");
     }

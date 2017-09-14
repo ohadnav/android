@@ -15,7 +15,6 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
-import com.truethat.android.application.App;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.view.activity.BaseActivity;
@@ -169,7 +168,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   /**
    * Should be invoked once this fragment is hidden. Use with caution.
    */
-  @CallSuper public void onHidden() {
+  @SuppressWarnings("WeakerAccess") @CallSuper public void onHidden() {
     Log.d(TAG, "HIDDEN");
     getViewModel().onHidden();
   }
@@ -215,10 +214,6 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void removeViewModel() {
     mViewModelHelper.removeViewModel(getActivity());
-  }
-
-  App getApp() {
-    return getBaseActivity().getApp();
   }
 
   /**

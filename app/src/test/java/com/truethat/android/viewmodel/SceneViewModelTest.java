@@ -45,9 +45,9 @@ import static org.junit.Assert.assertTrue;
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
   private static final Emotion REACTION_2 = Emotion.FEAR;
-  private static final Edge EDGE_1 = new Edge(0L, 1L, REACTION);
-  private static final Edge EDGE_1A = new Edge(0L, 2L, REACTION_2);
-  private static final Edge EDGE_2 = new Edge(1L, 2L, REACTION_2);
+  private static final Edge EDGE_1 = new Edge(0, 1, REACTION);
+  private static final Edge EDGE_1A = new Edge(0, 2, REACTION_2);
+  private static final Edge EDGE_2 = new Edge(1, 2, REACTION_2);
   private SceneViewModel mViewModel = new SceneViewModel();
   private ViewInterface mView;
   private Scene mScene;
@@ -152,7 +152,7 @@ import static org.junit.Assert.assertTrue;
     mFakeReactionDetectionManager.doDetection(EDGE_1A.getReaction());
     mView.finishMedia();
     // Should navigate to edge 1a target index
-    assertEquals(mViewModel.getScene().getMediaNodes().get(EDGE_1A.getTargetIndex().intValue()),
+    assertEquals(mViewModel.getScene().getMediaNodes().get(EDGE_1A.getTargetIndex()),
         mView.getDisplayedMedia());
   }
 

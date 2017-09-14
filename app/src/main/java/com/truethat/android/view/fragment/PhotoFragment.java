@@ -22,7 +22,7 @@ import static android.view.View.GONE;
 
 /**
  * Proudly created by ohad on 21/06/2017 for TrueThat.
- *
+ * <p>
  * A UI container representation of {@link Photo}.
  */
 

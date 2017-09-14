@@ -51,10 +51,6 @@ public class FakeInternalStorageManager implements InternalStorageManager {
     return result;
   }
 
-  @Override public boolean exists(String fileName) {
-    return mFileNameToBytes.containsKey(fileName);
-  }
-
   @Override public void delete(String fileName) throws IOException {
     if (mShouldFail) fail();
     if (!exists(fileName)) {
@@ -65,6 +61,10 @@ public class FakeInternalStorageManager implements InternalStorageManager {
 
   public void setShouldFail(boolean shouldFail) {
     mShouldFail = shouldFail;
+  }
+
+  boolean exists(String fileName) {
+    return mFileNameToBytes.containsKey(fileName);
   }
 
   private void fail() throws IOException {

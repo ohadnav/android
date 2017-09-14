@@ -3,8 +3,6 @@ package com.truethat.android.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraphBuilder;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
@@ -53,7 +51,8 @@ public class Scene implements Serializable {
    * The flow of the user interaction with this scene. Each node represents a media item such as
    * video or a photo and each edge describe which reaction leads from one media item to the next.
    */
-  private transient MutableValueGraph<Media, Emotion> mMediaGraph;
+  private transient FlowTree mFlowTree;
+
   @VisibleForTesting
   public Scene(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       Media rootMedia) {
@@ -73,12 +72,6 @@ public class Scene implements Serializable {
     mCreated = created;
     mMediaNodes = mediaNodes;
     mEdges = edges;
-    if (edges != null) {
-      mEdges = edges;
-      for (Edge edge : mEdges) {
-        updateGraph(edge);
-      }
-    }
   }
 
   public Scene(Media media) {
@@ -96,25 +89,43 @@ public class Scene implements Serializable {
     return mMediaNodes;
   }
 
-  public void addMedia(Media source, Media target, Emotion reaction) {
-    mMediaNodes.add(target);
-    Edge newEdge =
-        new Edge((long) mMediaNodes.indexOf(source), (long) mMediaNodes.indexOf(target), reaction);
+  /**
+   * Adds the new media to {@link #mFlowTree}.
+   *
+   * @param newMedia    to add
+   * @param partialEdge to deduce source index and reaction from.
+   */
+  public void addMedia(Media newMedia, Edge partialEdge) {
+    mMediaNodes.add(newMedia);
+    Edge newEdge = new Edge(partialEdge.getSourceIndex(), mMediaNodes.indexOf(newMedia),
+        partialEdge.getReaction());
+    if (mEdges == null) {
+      mEdges = new ArrayList<>();
+    }
     mEdges.add(newEdge);
-    updateGraph(newEdge);
+    addEdgeToTree(newEdge);
   }
 
   @Nullable public Media getNextMedia(Media current, Emotion reaction) {
-    for (Media optionalNext : getMediaGraph().adjacentNodes(current)) {
-      if (getMediaGraph().edgeValue(current, optionalNext) == reaction) {
-        return optionalNext;
-      }
+    if (!getFlowTree().getNodes().containsKey(current)) {
+      throw new IllegalArgumentException("Flow tree has no node with media " + current);
     }
-    return null;
+    if (!getFlowTree().getNodes().get(current).getChildren().containsKey(reaction)) {
+      return null;
+    }
+    return getFlowTree().getNodes().get(current).getChildren().get(reaction).getMedia();
+  }
+
+  public void removeMedia(Media media) {
+    for (FlowTree.Node node : getFlowTree().getNodes().get(media).getChildren().values()) {
+      removeMedia(node.getMedia());
+    }
+    getFlowTree().remove(media);
+    mMediaNodes.remove(media);
   }
 
   public Media getRootMediaNode() {
-    return mMediaNodes.get(0);
+    return getFlowTree().getRoot().getMedia();
   }
 
   public Date getCreated() {
@@ -125,7 +136,7 @@ public class Scene implements Serializable {
     return mId;
   }
 
-  @VisibleForTesting public void setId(Long id) {
+  @SuppressWarnings("SameParameterValue") @VisibleForTesting public void setId(Long id) {
     mId = id;
   }
 
@@ -181,11 +192,11 @@ public class Scene implements Serializable {
     return this.getClass().getSimpleName() + "{id: " + mId + "}";
   }
 
-  private MutableValueGraph<Media, Emotion> getMediaGraph() {
-    if (mMediaGraph == null) {
-      initializeMediaGraph();
+  public FlowTree getFlowTree() {
+    if (mFlowTree == null) {
+      initializeFlowTree();
     }
-    return mMediaGraph;
+    return mFlowTree;
   }
 
   /**
@@ -201,44 +212,26 @@ public class Scene implements Serializable {
     mReactionCounters.put(emotion, mReactionCounters.get(emotion) + 1);
   }
 
-  /**
-   * Decreases {@code emotion}'s reaction counter in {@code mReactionCounters} by 1. Deletes the map
-   * entry, if the
-   * counter reaches 0.
-   *
-   * @param emotion to decrease its counter.
-   */
-  private void decreaseReactionCounter(@NonNull Emotion emotion) {
-    if (!mReactionCounters.containsKey(emotion)) {
-      throw new IllegalArgumentException(
-          this.getClass().getSimpleName() + " was never reacted with " + emotion.name() + ".");
-    } else if (mReactionCounters.get(emotion) <= 1) {
-      mReactionCounters.remove(emotion);
-    } else {
-      mReactionCounters.put(emotion, mReactionCounters.get(emotion) - 1);
+  @SuppressWarnings("ResultOfMethodCallIgnored") private void addEdgeToTree(Edge newEdge) {
+    if (mEdges == null) {
+      mEdges = new ArrayList<>();
     }
+    Media parent = mMediaNodes.get(newEdge.getSourceIndex());
+    Media child = mMediaNodes.get(newEdge.getTargetIndex());
+    if (!getFlowTree().getNodes().containsKey(parent)) {
+      getFlowTree().setRoot(parent);
+    }
+    getFlowTree().addNode(parent, child, newEdge.getReaction());
   }
 
-  @SuppressWarnings("ResultOfMethodCallIgnored") private void updateGraph(Edge newEdge) {
-    Media sourceNode = mMediaNodes.get(newEdge.getSourceIndex().intValue());
-    Media targetNode = mMediaNodes.get(newEdge.getTargetIndex().intValue());
-    if (!getMediaGraph().nodes().contains(sourceNode)) {
-      getMediaGraph().addNode(sourceNode);
-    }
-    if (!getMediaGraph().nodes().contains(targetNode)) {
-      getMediaGraph().addNode(targetNode);
-    }
-    getMediaGraph().putEdgeValue(sourceNode, targetNode, newEdge.getReaction());
-  }
-
-  @SuppressWarnings("ResultOfMethodCallIgnored") private void initializeMediaGraph() {
-    mMediaGraph = ValueGraphBuilder.directed().expectedNodeCount(mMediaNodes.size()).build();
-    for (Media mediaNode : mMediaNodes) {
-      mMediaGraph.addNode(mediaNode);
+  @SuppressWarnings("ResultOfMethodCallIgnored") private void initializeFlowTree() {
+    mFlowTree = new FlowTree();
+    if (!mMediaNodes.isEmpty()) {
+      getFlowTree().setRoot(mMediaNodes.get(0));
     }
     if (mEdges != null) {
       for (Edge edge : mEdges) {
-        updateGraph(edge);
+        addEdgeToTree(edge);
       }
     }
   }

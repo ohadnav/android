@@ -46,7 +46,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
 
   @Test public void finishAfterPermissionGranted() throws Exception {
     // Invoke request callback, to finish activity.
-    mFakePermissionsManager.setInvokeRequestCallback(true);
+    mFakePermissionsManager.invokeRequestCallback();
     mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);

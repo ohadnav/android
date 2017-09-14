@@ -138,7 +138,7 @@ public class BaseAuthManager implements AuthManager {
    *
    * @param listener to use for auth callbacks
    */
-  protected void requestAuth(final AuthListener listener, User user) {
+  void requestAuth(final AuthListener listener, User user) {
     cancelRequest();
     mAuthCall = mAuthApi.postAuth(user);
     mAuthCall.enqueue(new AuthCallback(listener, user));

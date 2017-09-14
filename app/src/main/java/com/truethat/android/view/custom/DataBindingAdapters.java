@@ -18,8 +18,8 @@ import android.widget.TextView;
 
 public class DataBindingAdapters {
   // --------------------------- ImageView -----------------------------
-  @BindingAdapter("android:src")
-  public static void setImageResource(ImageView imageView, int resource) {
+  @BindingAdapter("android:src") public static void setImageResource(ImageView imageView,
+      int resource) {
     imageView.setImageResource(resource);
   }
 

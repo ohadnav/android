@@ -112,7 +112,8 @@ public class NetworkUtil {
     return sBackendUrl;
   }
 
-  @VisibleForTesting public static void setBackendUrl(String backendUrl) {
+  @SuppressWarnings("SameParameterValue") @VisibleForTesting
+  public static void setBackendUrl(String backendUrl) {
     sBackendUrl = backendUrl;
   }
 }

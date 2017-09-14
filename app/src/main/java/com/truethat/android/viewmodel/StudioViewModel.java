@@ -3,10 +3,8 @@ package com.truethat.android.viewmodel;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableInt;
 import android.media.Image;
-import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import com.crashlytics.android.Crashlytics;
@@ -14,6 +12,9 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.util.CameraUtil;
+import com.truethat.android.model.Edge;
+import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.Video;
@@ -32,6 +33,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   @DrawableRes static final int CAPTURE_RESOURCE = R.drawable.capture;
   @DrawableRes static final int RECORD_RESOURCE = R.drawable.record;
   public final ObservableBoolean mCaptureButtonVisibility = new ObservableBoolean();
+  public final ObservableBoolean mPreviousMediaVisibility = new ObservableBoolean();
   public final ObservableBoolean mCancelButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSwitchCameraButtonVisibility = new ObservableBoolean();
   public final ObservableBoolean mSendButtonVisibility = new ObservableBoolean();
@@ -39,8 +41,11 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   public final ObservableBoolean mScenePreviewVisibility = new ObservableBoolean();
   public final ObservableBoolean mCameraPreviewVisibility = new ObservableBoolean();
   public final ObservableInt mCaptureButtonDrawableResource = new ObservableInt(CAPTURE_RESOURCE);
-  private DirectingState mDirectingState = DirectingState.DIRECTING;
+  private DirectingState mState = DirectingState.CAMERA;
   private Scene mDirectedScene;
+  private Media mCurrentMedia;
+  private Media mNewMedia;
+  private Edge mNewEdge;
   /**
    * Api call to save {@link #mDirectedScene}.
    */
@@ -58,7 +63,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
           Crashlytics.logException(new Exception("Failed to save scene."));
         }
         Log.e(TAG, "Failed to save scene.\n"
-            + call.request().url() + "\nDirected scene: " + mDirectedScene
+            + call.request().url()
+            + "\nDirected scene: "
+            + mDirectedScene
             + "\nResponse: "
             + response.code()
             + " "
@@ -79,8 +86,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     }
   };
 
-  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
-    super.onCreate(arguments, savedInstanceState);
+  public Media getCurrentMedia() {
+    return mCurrentMedia;
   }
 
   @Override public void onStop() {
@@ -90,40 +97,62 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
 
   @Override public void onStart() {
     super.onStart();
-    switch (mDirectingState) {
-      case APPROVAL:
-        onApproval();
+    switch (mState) {
+      case EDIT:
+        onEdit();
         break;
       case SENT:
         cancelSent();
         break;
       case PUBLISHED:
-      case DIRECTING:
+      case CAMERA:
       default:
-        onDirecting();
+        onCamera();
     }
     // Set default capture button
     mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
   }
 
-  @Override public void onImageAvailable(Image image) {
-    mDirectedScene = new Scene(new Photo(null, CameraUtil.toByteArray(image)));
-    onApproval();
+  @Override public void onPhotoTaken(Image image) {
+    Log.d(TAG, "Photo taken.");
+    mNewMedia = new Photo(null, CameraUtil.toByteArray(image));
+    onEdit();
   }
 
-  @Override public void onVideoAvailable(String videoPath) {
+  @Override public void onVideoRecorded(String videoPath) {
+    Log.d(TAG, "Video recorded.");
     mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
-    mDirectedScene = new Scene(new Video(null, videoPath));
-    onApproval();
+    mNewMedia = new Video(null, videoPath);
+    onEdit();
   }
 
   @Override public void onVideoRecordStart() {
     mCaptureButtonDrawableResource.set(RECORD_RESOURCE);
   }
 
+  /**
+   * Go back to edit the previous media, after which the user can reach the current one.
+   */
+  public void previousMedia() {
+    // Should reach here only if the current media node has a parent.
+    mCurrentMedia =
+        getDirectedScene().getFlowTree().getNodes().get(mCurrentMedia).getParent().getMedia();
+    onEdit();
+  }
+
+  public void onReactionChosen(Emotion reaction) {
+    if (mDirectedScene.getNextMedia(mCurrentMedia, reaction) != null) {
+      mCurrentMedia = mDirectedScene.getNextMedia(mCurrentMedia, reaction);
+      onEdit();
+    } else {
+      mNewEdge = new Edge(mDirectedScene.getMediaNodes().indexOf(mCurrentMedia), reaction);
+      onCamera();
+    }
+  }
+
   public void onSent() {
     Log.d(TAG, "Change state: " + DirectingState.SENT.name());
-    mDirectingState = DirectingState.SENT;
+    mState = DirectingState.SENT;
     mSaveSceneCall = mDirectedScene.createApiCall();
     mSaveSceneCall.enqueue(mSaveSceneCallback);
     if (!BuildConfig.DEBUG) {
@@ -137,28 +166,73 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mLoadingImageVisibility.set(true);
   }
 
+  /**
+   * Cancel the current media, so that you will not be judged for eternal embarrassment.
+   */
   public void disapprove() {
     Log.d(TAG, "Scene disapproved.");
-    onDirecting();
+    Media previous = mCurrentMedia;
+    if (mDirectedScene.getFlowTree().getNodes().get(mCurrentMedia).getParent() != null) {
+      mCurrentMedia =
+          mDirectedScene.getFlowTree().getNodes().get(mCurrentMedia).getParent().getMedia();
+      mDirectedScene.removeMedia(previous);
+      onEdit();
+    } else {
+      mCurrentMedia = null;
+      mDirectedScene = null;
+      onCamera();
+    }
   }
 
   public Scene getDirectedScene() {
     return mDirectedScene;
   }
 
-  @VisibleForTesting DirectingState getDirectingState() {
-    return mDirectingState;
+  @VisibleForTesting public DirectingState getState() {
+    return mState;
   }
 
-  private void onApproval() {
-    if (mDirectedScene == null) {
-      onDirecting();
+  Edge getNewEdge() {
+    return mNewEdge;
+  }
+
+  private void onEdit() {
+    mState = DirectingState.EDIT;
+    Log.d(TAG, "Change state: " + mState.name());
+    if (mNewMedia == null) {
+      if (mDirectedScene == null) {
+        Log.w(TAG, "Trying to edit without a media to edit.");
+        // No scene has been directed and there isn't any media to create one from, and so return
+        // camera mode.
+        onCamera();
+        return;
+      } else if (mCurrentMedia == null) {
+        Log.w(TAG, "Editing with a null new and current media.");
+        mCurrentMedia = mDirectedScene.getRootMediaNode();
+      }
+    } else {
+      // Add media to directed scene
+      if (mDirectedScene == null) {
+        // No existing scene, so create one.
+        mDirectedScene = new Scene(mNewMedia);
+        mCurrentMedia = mNewMedia;
+      } else {
+        // Add media to flow tree
+        if (mNewEdge != null) {
+          mDirectedScene.addMedia(mNewMedia, mNewEdge);
+          mCurrentMedia = mNewMedia;
+          mNewEdge = null;
+        } else {
+          Log.w(TAG, "Editing scene flow without a chosen reaction.");
+        }
+      }
+      mNewMedia = null;
     }
-    Log.d(TAG, "Change state: " + DirectingState.APPROVAL.name());
-    mDirectingState = DirectingState.APPROVAL;
     // Exposes approval buttons.
     mCancelButtonVisibility.set(true);
     mSendButtonVisibility.set(true);
+    // Expose previous media button if not editing root media.
+    mPreviousMediaVisibility.set(!mCurrentMedia.equals(mDirectedScene.getRootMediaNode()));
     // Hides capture button.
     mCaptureButtonVisibility.set(false);
     mSwitchCameraButtonVisibility.set(false);
@@ -167,12 +241,12 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Shows the directed scene preview, and hides the camera preview.
     mScenePreviewVisibility.set(true);
     mCameraPreviewVisibility.set(false);
-    getView().displayPreview(mDirectedScene);
+    getView().displayPreview(mCurrentMedia);
   }
 
-  private void onDirecting() {
-    Log.d(TAG, "Change state: " + DirectingState.DIRECTING.name());
-    mDirectingState = DirectingState.DIRECTING;
+  private void onCamera() {
+    Log.d(TAG, "Change state: " + DirectingState.CAMERA.name());
+    mState = DirectingState.CAMERA;
     // Hides approval buttons.
     mCancelButtonVisibility.set(false);
     mSendButtonVisibility.set(false);
@@ -184,40 +258,43 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Hides the directed scene preview, and exposes the camera preview.
     mScenePreviewVisibility.set(false);
     mCameraPreviewVisibility.set(true);
-    // Delete scene.
-    mDirectedScene = null;
     getView().restoreCameraPreview();
+    // Ensures scene state
+    if (mDirectedScene != null && mNewEdge == null) {
+      mCurrentMedia = getDirectedScene().getRootMediaNode();
+      onEdit();
+    }
   }
 
   private void cancelSent() {
     if (mSaveSceneCall != null) {
       mSaveSceneCall.cancel();
     }
-    if (mDirectingState == DirectingState.SENT) {
-      onApproval();
+    if (mState == DirectingState.SENT) {
+      onEdit();
     }
   }
 
   private void onPublished() {
     Log.d(TAG, "Change state: " + DirectingState.PUBLISHED.name());
-    mDirectingState = DirectingState.PUBLISHED;
+    mState = DirectingState.PUBLISHED;
     getView().toast(getContext().getString(R.string.saved_successfully));
     getView().leaveStudio();
   }
 
   private void onPublishError() {
     getView().toast(getContext().getString(R.string.sent_failed));
-    onApproval();
+    onEdit();
   }
 
-  @VisibleForTesting enum DirectingState {
+  @VisibleForTesting public enum DirectingState {
     /**
-     * The user directs the piece of art he is about to create, usually involves the camera preview.
+     * The user directs the piece of art he is about to create, using the camera.
      */
-    DIRECTING, /**
-     * A {@link Scene} was created and is awaiting final approval to be published.
+    CAMERA, /**
+     * A {@link Scene} is edit and awaiting final approval to be published.
      */
-    APPROVAL, /**
+    EDIT, /**
      * A {@link Scene} was approved and is now being sent to the server.
      */
     SENT, /**

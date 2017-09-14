@@ -20,14 +20,6 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   String TAG = this.getClass().getSimpleName();
   private Context mContext;
 
-  public Context getContext() {
-    return mContext;
-  }
-
-  public void setContext(Context context) {
-    mContext = context;
-  }
-
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
     TAG = this.getClass().getSimpleName();
@@ -40,7 +32,8 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     Log.d(TAG, "DATA-BOUND");
   }
 
-  @SuppressWarnings("ConstantConditions") @NonNull @Override public ViewInterface getView() {
+  @SuppressWarnings({ "ConstantConditions", "EmptyMethod" }) @NonNull @Override
+  public ViewInterface getView() {
     return super.getView();
   }
 
@@ -52,5 +45,13 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   @Override public void onStart() {
     Log.d(TAG, "STARTED");
     super.onStart();
+  }
+
+  Context getContext() {
+    return mContext;
+  }
+
+  public void setContext(Context context) {
+    mContext = context;
   }
 }

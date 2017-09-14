@@ -76,7 +76,7 @@ import static org.junit.Assert.assertTrue;
     mInternalStorage.write(AuthManager.LAST_USER_PATH, mUser);
   }
 
-  void assertAuthOk() throws Exception {
+  void assertAuthOk() {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         // Assert auth-OK

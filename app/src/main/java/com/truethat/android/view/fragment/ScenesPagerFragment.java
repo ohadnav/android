@@ -46,7 +46,8 @@ public class ScenesPagerFragment
       mListener = (ScenePagerListener) context;
     } else {
       throw new RuntimeException(context.getClass().getSimpleName()
-          + " must implement " + ScenePagerListener.class.getSimpleName());
+          + " must implement "
+          + ScenePagerListener.class.getSimpleName());
     }
   }
 
@@ -126,8 +127,7 @@ public class ScenesPagerFragment
   }
 
   @VisibleForTesting public SceneFragment getDisplayedScene() {
-    return (SceneFragment) mSceneFragmentAdapter.instantiateItem(mPager,
-        mPager.getCurrentItem());
+    return (SceneFragment) mSceneFragmentAdapter.instantiateItem(mPager, mPager.getCurrentItem());
   }
 
   @Override public void displayItem(int index) {

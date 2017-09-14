@@ -26,7 +26,7 @@ public class SceneFragment
     implements SceneViewInterface {
   private static final String ARG_SCENE = "scene";
   @BindView(R.id.reactionImage) ImageView mReactionImage;
-  Scene mScene;
+  private Scene mScene;
   private MediaFragment mMediaFragment;
   private Integer mMediaContainerViewId = View.generateViewId();
 

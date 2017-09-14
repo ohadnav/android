@@ -38,7 +38,41 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        >
+      <android.support.constraint.ConstraintLayout
+          android:id="@+id/mediaContainer"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+      <android.support.constraint.ConstraintLayout
+          android:id="@+id/flowLayout"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.05"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          >
+        <ImageButton
+            android:id="@+id/previousMedia"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/image_content_description"
+            android:onClick="@{() -> viewModel.previousMedia()}"
+            android:visibility="@{viewModel.mPreviousMediaVisibility? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@android:drawable/ic_media_previous"
+            />
+      </android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/captureButton"

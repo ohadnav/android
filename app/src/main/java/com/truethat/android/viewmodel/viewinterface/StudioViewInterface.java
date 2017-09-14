@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel.viewinterface;
 
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.StudioViewModel;
 
@@ -23,7 +24,7 @@ public interface StudioViewInterface extends BaseViewInterface {
    * Displays a preview of the directed scene, so that the user can approve it or prevent
    * eternal shame.
    *
-   * @param scene to preview.
+   * @param media to preview.
    */
-  void displayPreview(Scene scene);
+  void displayPreview(Media media);
 }

@@ -28,15 +28,6 @@ public interface InternalStorageManager {
   <T extends Serializable> T read(String fileName) throws IOException, ClassNotFoundException;
 
   /**
-   * Asses whether fileName exists.
-   *
-   * @param fileName relative path, in relation to mContext.getFilesDir, to the designated file.
-   *
-   * @return the deserialized content of fileName.
-   */
-  boolean exists(String fileName);
-
-  /**
    * Deletes fileName from the internal storage.
    *
    * @param fileName to delete.

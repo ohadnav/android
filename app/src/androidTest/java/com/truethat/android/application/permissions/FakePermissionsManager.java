@@ -93,8 +93,8 @@ import java.util.Map;
     mPermissionToState.remove(permission);
   }
 
-  public void setInvokeRequestCallback(boolean invokeRequestCallback) {
-    mInvokeRequestCallback = invokeRequestCallback;
+  public void invokeRequestCallback() {
+    mInvokeRequestCallback = true;
   }
 
   private enum PermissionState {

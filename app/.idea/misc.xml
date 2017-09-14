@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <entry_points version="2.0" />
+    <entry_points version="2.0">
+      <entry_point TYPE="method" FQNAME="com.truethat.android.view.fragment.BaseFragment com.truethat.android.application.App getApp()" />
+    </entry_points>
     <list size="7">
       <item index="0" class="java.lang.String" itemvalue="butterknife.OnClick" />
       <item index="1" class="java.lang.String" itemvalue="butterknife.OnFocusChange" />

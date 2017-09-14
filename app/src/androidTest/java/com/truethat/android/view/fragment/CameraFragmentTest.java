@@ -24,7 +24,9 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.isDebugging;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
+import static com.truethat.android.view.fragment.CameraFragment.CameraState.PREVIEW;
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -249,6 +251,46 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     mImageTaken = false;
     // Restore preview
     mCameraFragment.restorePreview();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(PREVIEW, mCameraFragment.getState());
+      }
+    });
+    mCameraFragment.takePicture();
+    // Another image should have been taken.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mImageTaken;
+      }
+    });
+  }
+
+  @Test public void recordVideoAndThenTakePicture() throws Exception {
+    mCameraFragment.startRecordVideo();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mCameraFragment.isRecordingVideo());
+      }
+    });
+    Thread.sleep(VIDEO_DURATION_MILLIS);
+    mCameraFragment.stopRecordVideo();
+    // A video should have been recorded.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertFalse(mCameraFragment.isRecordingVideo());
+        assertNotNull(mVideoPath);
+        File videoFile = new File(mVideoPath);
+        assertTrue(videoFile.exists());
+      }
+    });
+    // Restore preview
+    mCameraFragment.restorePreview();
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(PREVIEW, mCameraFragment.getState());
+      }
+    });
+    // Now, take a picture
     mCameraFragment.takePicture();
     // Another image should have been taken.
     await().until(new Callable<Boolean>() {
@@ -270,11 +312,11 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   }
 
   private class TestCameraFragmentListener implements CameraFragment.CameraFragmentListener {
-    @Override public void onImageAvailable(Image image) {
+    @Override public void onPhotoTaken(Image image) {
       mImageTaken = true;
     }
 
-    @Override public void onVideoAvailable(String videoPath) {
+    @Override public void onVideoRecorded(String videoPath) {
       mVideoPath = videoPath;
     }
 

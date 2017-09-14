@@ -56,7 +56,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void onBoardingFlow() throws Exception {
-    mFakeAuthManager.setUseNetwork(true);
+    mFakeAuthManager.useNetwork();
     onView(withId(R.id.nameEditText)).check(matches(hasFocus()));
     final EditText editText = (EditText) getCurrentActivity().findViewById(R.id.nameEditText);
     // Type first name
@@ -120,7 +120,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void alreadyAuthOk() throws Exception {
-    doOnBoarding(NAME);
+    doOnBoarding();
     assertOnBoardingSuccessful();
     // Go to on boarding by mistake.
     mActivityTestRule.getActivity()
@@ -130,7 +130,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void failedOnBoarding() throws Exception {
-    mFakeAuthManager.setUseNetwork(true);
+    mFakeAuthManager.useNetwork();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         User user = NetworkUtil.GSON.fromJson(request.getBody().readUtf8(), User.class);
@@ -141,7 +141,7 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
         return response;
       }
     });
-    doOnBoarding(NAME);
+    doOnBoarding();
     assertFalse(mFakeAuthManager.isAuthOk());
     // Warning text is changed
     waitMatcher(allOf(withId(R.id.warningText), isDisplayed(),
@@ -153,13 +153,13 @@ public class OnBoardingActivityTest extends BaseApplicationTestSuite {
   /**
    * Programmatically completes the on boarding process as if a user completed it.
    *
-   * @param name of the new user.
    */
-  private void doOnBoarding(String name) {
+  private void doOnBoarding() {
     // Should navigate to On-Boarding
     waitForActivity(OnBoardingActivity.class);
     // Type user name and hit done.
-    onView(withId(R.id.nameEditText)).perform(typeText(name)).perform(pressImeActionButton());
+    onView(withId(R.id.nameEditText)).perform(typeText(OnBoardingActivityTest.NAME))
+        .perform(pressImeActionButton());
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(OnBoardingViewModel.Stage.FINAL, mViewModel.getStage());

@@ -59,10 +59,6 @@ import java.util.Objects;
     return result;
   }
 
-  @Override public boolean exists(String fileName) {
-    return new File(mContext.getFilesDir() + "/" + fileName).exists();
-  }
-
   @Override public void delete(String fileName) throws IOException {
     File fileOrDirectory = new File(mContext.getFilesDir() + "/" + fileName);
     if (fileOrDirectory.isDirectory()) {

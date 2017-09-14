@@ -52,6 +52,10 @@ public abstract class MediaFragment<Model extends Media> extends
     fragment.setArguments(args);
   }
 
+  public Model getMedia() {
+    return mMedia;
+  }
+
   public boolean hasFinished() {
     return mHasFinished;
   }

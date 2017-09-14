@@ -48,7 +48,8 @@ public class User implements Serializable {
     mDeviceId = deviceId;
   }
 
-  @VisibleForTesting public User(Long id, String firstName, String lastName) {
+  @SuppressWarnings("SameParameterValue") @VisibleForTesting
+  public User(Long id, String firstName, String lastName) {
     mId = id;
     mFirstName = firstName;
     mLastName = lastName;

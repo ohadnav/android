@@ -21,14 +21,14 @@ public class CameraUtilTest extends BaseApplicationTestSuite {
     // Asserts that an exception is not thrown, as the actual image cannot be expected.
     byte[] expected = AssetsReaderUtil.readAsBytes(mActivityTestRule.getActivity(),
         CameraTestUtil.BITMAP_1x1_PATH);
-    byte[] actual = CameraUtil.toByteArray(CameraTestUtil.bitmapBytesToMockedImage(expected, 0));
+    byte[] actual = CameraUtil.toByteArray(CameraTestUtil.bitmapBytesToMockedImage(expected));
     assertArrayEquals(expected, actual);
   }
 
   @Test public void compareEquals() throws Exception {
     Image image = CameraTestUtil.bitmapBytesToMockedImage(
         AssetsReaderUtil.readAsBytes(mActivityTestRule.getActivity(),
-            CameraTestUtil.BITMAP_1x1_PATH), 0);
+            CameraTestUtil.BITMAP_1x1_PATH));
     assertTrue(CameraUtil.compare(image, image));
   }
 
@@ -38,9 +38,9 @@ public class CameraUtilTest extends BaseApplicationTestSuite {
     Bitmap bitmap =
         BitmapFactory.decodeByteArray(source, 0, source.length).copy(Bitmap.Config.ARGB_8888, true);
     bitmap.setPixel(0, 0, bitmap.getPixel(0, 0) + 100000);
-    Image image1 = CameraTestUtil.bitmapBytesToMockedImage(source, 0);
+    Image image1 = CameraTestUtil.bitmapBytesToMockedImage(source);
     Image image2 =
-        CameraTestUtil.bitmapBytesToMockedImage(CameraTestUtil.bitmapToByteArray(bitmap), 0);
+        CameraTestUtil.bitmapBytesToMockedImage(CameraTestUtil.bitmapToByteArray(bitmap));
     assertFalse(CameraUtil.compare(image1, image2));
   }
 

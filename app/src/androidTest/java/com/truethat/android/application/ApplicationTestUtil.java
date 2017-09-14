@@ -23,6 +23,7 @@ import android.widget.EditText;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseApplicationTestSuite;
 import java.util.concurrent.TimeoutException;
+import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -46,21 +47,25 @@ import static org.junit.Assert.assertEquals;
 public class ApplicationTestUtil {
   public static final String APPLICATION_PACKAGE_NAME = "com.truethat.android.debug";
   public static final String INSTALLER_PACKAGE_NAME = "com.android.packageinstaller";
-  private static final String TAG = ApplicationTestUtil.class.getSimpleName();
 
   /**
    * @param activityClass of {@link AppCompatActivity} to wait for to be displayed.
    */
-  public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
+  public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass,
+      Duration duration) {
     if (getCurrentActivity() == null) {
       throw new AssertionError("App has not started. Device locked?");
     }
-    await().untilAsserted(new ThrowingRunnable() {
+    await().atMost(duration).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(activityClass.getSimpleName(),
             getCurrentActivity().getClass().getSimpleName());
       }
     });
+  }
+
+  public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
+    waitForActivity(activityClass, TIMEOUT);
   }
 
   /**
