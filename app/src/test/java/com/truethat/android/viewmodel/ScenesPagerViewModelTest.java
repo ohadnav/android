@@ -75,7 +75,7 @@ import static org.junit.Assert.assertTrue;
   @Test public void displayScene() throws Exception {
     final Scene scene =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            new Photo(IMAGE_URL_1, null));
+            new Photo(null, IMAGE_URL_1));
     mRespondedScenes = Collections.singletonList((Scene) scene);
     mViewModel.fetchScenes();
     await().untilAsserted(new ThrowingRunnable() {
@@ -100,7 +100,7 @@ import static org.junit.Assert.assertTrue;
     });
     assertFalse(mViewModel.mLoadingImageVisibility.get());
     Scene scene = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
-        HOUR_AGO, new Photo(IMAGE_URL_1, null));
+        HOUR_AGO, new Photo(null, IMAGE_URL_1));
     // Explicitly load more scenes.
     mRespondedScenes = Collections.singletonList((Scene) scene);
     mViewModel.next();
@@ -145,10 +145,10 @@ import static org.junit.Assert.assertTrue;
   @Test public void nextScene() throws Exception {
     final Scene scene1 =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            new Photo(IMAGE_URL_1, null));
+            new Photo(null, IMAGE_URL_1));
     Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
-            new Photo(IMAGE_URL_2, null));
+            new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
     mViewModel.fetchScenes();
     // First scene should be displayed.
@@ -166,9 +166,9 @@ import static org.junit.Assert.assertTrue;
   @Test public void multipleTypes() throws Exception {
     final Scene photo =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            new Photo(IMAGE_URL_1, null));
+            new Photo(null, IMAGE_URL_1));
     Scene video = new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
-            new Video(VIDEO_URL, null));
+        new Video(null, VIDEO_URL));
     mRespondedScenes = Arrays.asList(photo, video);
     mViewModel.fetchScenes();
     // First scene should be displayed.
@@ -186,10 +186,10 @@ import static org.junit.Assert.assertTrue;
   @Test public void previousScene() throws Exception {
     final Scene scene1 =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            new Photo(IMAGE_URL_1, null));
+            new Photo(null, IMAGE_URL_1));
     final Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
-            new Photo(IMAGE_URL_2, null));
+            new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
     mViewModel.fetchScenes();
     // First scene should be displayed.
@@ -215,10 +215,10 @@ import static org.junit.Assert.assertTrue;
   @Test public void nextSceneFetchesNewScenes() throws Exception {
     final Scene scene1 =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
-            new Photo(IMAGE_URL_1, null));
+            new Photo(null, IMAGE_URL_1));
     final Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
-            new Photo(IMAGE_URL_2, null));
+            new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Collections.singletonList((Scene) scene1);
     mViewModel.fetchScenes();
     // First scene should be displayed.

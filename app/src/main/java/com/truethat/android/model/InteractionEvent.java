@@ -1,7 +1,6 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
-import com.truethat.android.common.network.NetworkUtil;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,9 +12,9 @@ import java.util.Date;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/InteractionEvent.java</a>
  */
 
-@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent
+@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent extends BaseModel
     implements Serializable {
-  private static final long serialVersionUID = 3577142099634828092L;
+  private static final long serialVersionUID = -3002722340976455252L;
   /**
    * Client UTC timestamp
    */
@@ -73,7 +72,31 @@ import java.util.Date;
     return mReaction;
   }
 
-  @Override public String toString() {
-    return NetworkUtil.GSON.toJson(this);
+  @Override public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (mTimestamp != null ? mTimestamp.hashCode() : 0);
+    result = 31 * result + (mUserId != null ? mUserId.hashCode() : 0);
+    result = 31 * result + (mReaction != null ? mReaction.hashCode() : 0);
+    result = 31 * result + (mEventType != null ? mEventType.hashCode() : 0);
+    result = 31 * result + (mSceneId != null ? mSceneId.hashCode() : 0);
+    result = 31 * result + (mMediaIndex != null ? mMediaIndex.hashCode() : 0);
+    return result;
+  }
+
+  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof InteractionEvent)) return false;
+    if (!super.equals(o)) return false;
+
+    InteractionEvent that = (InteractionEvent) o;
+
+    if (mTimestamp != null ? !mTimestamp.equals(that.mTimestamp) : that.mTimestamp != null) {
+      return false;
+    }
+    if (mUserId != null ? !mUserId.equals(that.mUserId) : that.mUserId != null) return false;
+    if (mReaction != that.mReaction) return false;
+    if (mEventType != that.mEventType) return false;
+    if (mSceneId != null ? !mSceneId.equals(that.mSceneId) : that.mSceneId != null) return false;
+    return mMediaIndex != null ? mMediaIndex.equals(that.mMediaIndex) : that.mMediaIndex == null;
   }
 }

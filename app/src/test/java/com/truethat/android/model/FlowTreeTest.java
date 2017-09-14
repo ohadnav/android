@@ -9,8 +9,8 @@ import static org.junit.Assert.assertNotNull;
  * Proudly created by ohad on 13/09/2017 for TrueThat.
  */
 public class FlowTreeTest {
-  private static final Photo PHOTO_1 = new Photo("1", null);
-  private static final Photo PHOTO_2 = new Photo("2", null);
+  private static final Photo PHOTO_1 = new Photo(1L, "1");
+  private static final Photo PHOTO_2 = new Photo(2L, "2");
 
   @Test public void setRoot() {
     FlowTree tree = new FlowTree();

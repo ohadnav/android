@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -23,12 +22,8 @@ import retrofit2.Call;
  *
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Scene.java</a>
  */
-public class Scene implements Serializable {
-  private static final long serialVersionUID = 7734272873629700816L;
-  /**
-   * ID as stored in our backend.
-   */
-  private Long mId;
+public class Scene extends BaseModel implements Serializable {
+  private static final long serialVersionUID = -8890719190429524778L;
   /**
    * Creator of the scene. By default, the current user is assigned.
    */
@@ -56,9 +51,9 @@ public class Scene implements Serializable {
   private transient FlowTree mFlowTree;
 
   @VisibleForTesting
-  public Scene(long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
+  public Scene(Long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       Media rootMedia) {
-    mId = id;
+    super(id);
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
@@ -68,7 +63,7 @@ public class Scene implements Serializable {
   @VisibleForTesting
   public Scene(Long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
       List<Media> mediaNodes, List<Edge> edges) {
-    mId = id;
+    super(id);
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
@@ -172,22 +167,35 @@ public class Scene implements Serializable {
     return NetworkUtil.createApi(StudioApi.class).saveScene(scenePart, mediaParts);
   }
 
-  @Override public boolean equals(Object o) {
+  @Override public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (mDirector != null ? mDirector.hashCode() : 0);
+    result = 31 * result + (mReactionCounters != null ? mReactionCounters.hashCode() : 0);
+    result = 31 * result + (mCreated != null ? mCreated.hashCode() : 0);
+    result = 31 * result + (mMediaNodes != null ? mMediaNodes.hashCode() : 0);
+    result = 31 * result + (mEdges != null ? mEdges.hashCode() : 0);
+    return result;
+  }
+
+  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Scene)) return false;
+    if (!super.equals(o)) return false;
 
     Scene scene = (Scene) o;
 
-    if (!Objects.equals(mId, scene.mId)) return false;
     if (mDirector != null ? !mDirector.equals(scene.mDirector) : scene.mDirector != null) {
       return false;
     }
-    //noinspection SimplifiableIfStatement
     if (mReactionCounters != null ? !mReactionCounters.equals(scene.mReactionCounters)
         : scene.mReactionCounters != null) {
       return false;
     }
-    return mCreated != null ? mCreated.equals(scene.mCreated) : scene.mCreated == null;
+    if (mCreated != null ? !mCreated.equals(scene.mCreated) : scene.mCreated != null) return false;
+    if (mMediaNodes != null ? !mMediaNodes.equals(scene.mMediaNodes) : scene.mMediaNodes != null) {
+      return false;
+    }
+    return mEdges != null ? mEdges.equals(scene.mEdges) : scene.mEdges == null;
   }
 
   @Override public String toString() {

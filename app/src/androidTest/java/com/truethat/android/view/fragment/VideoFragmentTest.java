@@ -45,9 +45,8 @@ public class VideoFragmentTest extends BaseApplicationTestSuite {
   @Test public void pauseAndResumeWithTouch() throws Exception {
     final Scene scene =
         new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
-            new Video(
-                "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4",
-                null));
+            new Video(null,
+                "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4"));
     setDispatcher(new CountingDispatcher() {
       @Override public MockResponse processRequest(RecordedRequest request) throws Exception {
         String responseBody = GSON.toJson(Collections.singletonList(scene));

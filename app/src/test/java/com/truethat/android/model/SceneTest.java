@@ -10,10 +10,10 @@ import static org.junit.Assert.assertEquals;
  * Proudly created by ohad on 14/09/2017 for TrueThat.
  */
 public class SceneTest {
-  private static final Media PHOTO_0 = new Photo("0", null);
-  private static final Media PHOTO_1 = new Photo("1", null);
-  private static final Media PHOTO_2 = new Photo("2", null);
-  private static final Media PHOTO_3 = new Photo("3", null);
+  private static final Media PHOTO_0 = new Photo(0L, "0");
+  private static final Media PHOTO_1 = new Photo(1L, "1");
+  private static final Media PHOTO_2 = new Photo(2L, "2");
+  private static final Media PHOTO_3 = new Photo(3L, "3");
   private static final Edge EDGE_0 = new Edge(0, 1, Emotion.HAPPY);
   private static final Edge EDGE_1 = new Edge(1, 2, Emotion.SURPRISE);
   private static final Edge EDGE_2 = new Edge(1, 3, Emotion.DISGUST);

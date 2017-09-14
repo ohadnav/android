@@ -18,7 +18,7 @@ public class NetworkUtilTest {
   private static final int NUM = 5;
   private static final Date DATE = new Date(0);
   private static final String UTC_DATE = "\"1970-01-01T00:00:00.000+0000\"";
-  private static final Media photo = new Photo("example.com", null);
+  private static final Media photo = new Photo(1L, "example.com");
 
   @Test public void gsonSerialize_namingStrategy() throws Exception {
     String actual = GSON.toJson(new MyAndroidClass(NUM));

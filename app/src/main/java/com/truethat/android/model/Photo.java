@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.PhotoFragment;
 import java.io.Serializable;
@@ -17,12 +18,15 @@ import okhttp3.RequestBody;
 
 public class Photo extends Media implements Serializable {
   private static final String IMAGE_FILENAME = "photo.jpg";
-  private static final long serialVersionUID = 7108700087565678875L;
+  private static final long serialVersionUID = 768134812689969866L;
   private transient byte[] mBytes;
 
-  public Photo(@Nullable String url, @Nullable byte[] bytes) {
-    super(url);
+  public Photo(@Nullable byte[] bytes) {
     mBytes = bytes;
+  }
+
+  @VisibleForTesting public Photo(@Nullable Long id, String url) {
+    super(id, url);
   }
 
   public byte[] getBytes() {

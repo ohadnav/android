@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.VideoFragment;
 import java.io.File;
@@ -23,9 +24,12 @@ public class Video extends Media implements Serializable {
    */
   private transient String mInternalPath;
 
-  public Video(@Nullable String url, @Nullable String internalPath) {
-    super(url);
+  public Video(@Nullable String internalPath) {
     mInternalPath = internalPath;
+  }
+
+  @VisibleForTesting public Video(@Nullable Long id, String url) {
+    super(id, url);
   }
 
   public String getInternalPath() {

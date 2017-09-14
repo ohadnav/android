@@ -115,14 +115,14 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
 
   @Override public void onPhotoTaken(Image image) {
     Log.d(TAG, "Photo taken.");
-    mNewMedia = new Photo(null, CameraUtil.toByteArray(image));
+    mNewMedia = new Photo(CameraUtil.toByteArray(image));
     onEdit();
   }
 
   @Override public void onVideoRecorded(String videoPath) {
     Log.d(TAG, "Video recorded.");
     mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
-    mNewMedia = new Video(null, videoPath);
+    mNewMedia = new Video(videoPath);
     onEdit();
   }
 

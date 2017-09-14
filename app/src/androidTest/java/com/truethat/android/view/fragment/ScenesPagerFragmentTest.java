@@ -58,10 +58,10 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "ci");
-  private static final Video VIDEO = new Video(
-      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4", null);
+  private static final Video VIDEO = new Video(null,
+      "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4");
   private static final Photo PHOTO =
-      new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null);
+      new Photo(null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> HAPPY_REACTIONS =

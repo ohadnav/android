@@ -35,9 +35,9 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings("serial") public class SceneViewModelTest extends ViewModelTestSuite {
   private static final long SCENE_ID = 1;
-  private static final Media MEDIA_1 = new Photo("1", null);
-  private static final Media MEDIA_2 = new Photo("2", null);
-  private static final Media MEDIA_3 = new Photo("3", null);
+  private static final Media MEDIA_0 = new Photo(0L, "0");
+  private static final Media MEDIA_1 = new Photo(1L, "1");
+  private static final Media MEDIA_2 = new Photo(2L, "2");
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "Nimni");
   private static final TreeMap<Emotion, Long> REACTION_COUNTERS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, 100L);
@@ -71,25 +71,25 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void basicDisplay() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
     initSceneViewModel();
     assertSceneDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
     assertEquals(SceneViewModel.DEFAULT_COUNT_COLOR, mViewModel.mReactionCountColor.get());
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
   }
 
   @Test public void displayZeroReactions() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, MEDIA_0);
     initSceneViewModel();
     assertEquals("", mViewModel.mReactionsCountText.get());
     assertEquals(R.drawable.transparent_1x1, mViewModel.mReactionDrawableResource.get());
   }
 
   @Test public void basicNextMedia() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_1, MEDIA_2),
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
         Collections.singletonList(EDGE_1));
     initSceneViewModel();
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Assert a view event is sent
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -113,10 +113,10 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Should update next media
-    assertEquals(MEDIA_2, mViewModel.getNextMedia());
+    assertEquals(MEDIA_1, mViewModel.getNextMedia());
     mView.finishMedia();
     // Should navigate to next media
-    assertEquals(MEDIA_2, mView.getDisplayedMedia());
+    assertEquals(MEDIA_1, mView.getDisplayedMedia());
     // Should reset next media
     assertNull(mViewModel.getNextMedia());
     // Should stop reaction detection
@@ -139,9 +139,9 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_correctMediaChosen() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow,
-        Arrays.asList(MEDIA_1, MEDIA_2, MEDIA_3), Arrays.asList(EDGE_1, EDGE_1A));
+        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_1, EDGE_1A));
     initSceneViewModel();
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -157,10 +157,10 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void nextMedia_reactionDetectedBeforeFinish() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_1, MEDIA_2),
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
         Collections.singletonList(EDGE_1));
     initSceneViewModel();
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -170,10 +170,10 @@ import static org.junit.Assert.assertTrue;
     // Detect a reaction
     mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
     // Should update next media
-    assertEquals(MEDIA_2, mViewModel.getNextMedia());
+    assertEquals(MEDIA_1, mViewModel.getNextMedia());
     mView.finishMedia();
     // Should navigate to next media
-    assertEquals(MEDIA_2, mView.getDisplayedMedia());
+    assertEquals(MEDIA_1, mView.getDisplayedMedia());
     // Should reset next media
     assertNull(mViewModel.getNextMedia());
     // Should stop reaction detection
@@ -181,10 +181,10 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void nextMedia_finishBeforeReactionDetected() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_1, MEDIA_2),
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
         Collections.singletonList(EDGE_1));
     initSceneViewModel();
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -197,7 +197,7 @@ import static org.junit.Assert.assertTrue;
     // Detect a reaction
     mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
     // Should navigate to next media
-    assertEquals(MEDIA_2, mView.getDisplayedMedia());
+    assertEquals(MEDIA_1, mView.getDisplayedMedia());
     // Should reset next media
     assertNull(mViewModel.getNextMedia());
     // Should stop reaction detection
@@ -206,10 +206,10 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_multipleLevels() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow,
-        Arrays.asList(MEDIA_1, MEDIA_2, MEDIA_3), Arrays.asList(EDGE_1, EDGE_2));
+        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_1, EDGE_2));
     initSceneViewModel();
     mView.finishMedia();
-    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -219,7 +219,7 @@ import static org.junit.Assert.assertTrue;
     // Detect a reaction
     mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
     // Should navigate to next media
-    assertEquals(MEDIA_2, mView.getDisplayedMedia());
+    assertEquals(MEDIA_1, mView.getDisplayedMedia());
     mView.resetMediaFinished();
     mViewModel.onReady();
     // Wait for detection to start
@@ -232,11 +232,11 @@ import static org.junit.Assert.assertTrue;
     mFakeReactionDetectionManager.doDetection(EDGE_2.getReaction());
     mView.finishMedia();
     // Should navigate to next media
-    assertEquals(MEDIA_3, mView.getDisplayedMedia());
+    assertEquals(MEDIA_2, mView.getDisplayedMedia());
   }
 
   @Test public void doView() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
     initSceneViewModel();
     // Assert a view event is sent
     await().untilAsserted(new ThrowingRunnable() {
@@ -255,7 +255,7 @@ import static org.junit.Assert.assertTrue;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, MEDIA_0);
     initSceneViewModel();
     // Wait for view event
     await().untilAsserted(new ThrowingRunnable() {
@@ -298,7 +298,7 @@ import static org.junit.Assert.assertTrue;
     TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
       put(REACTION, 1L);
     }};
-    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, MEDIA_0);
     initSceneViewModel();
     // Not detecting from the start.
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
@@ -315,7 +315,7 @@ import static org.junit.Assert.assertTrue;
       put(REACTION, 1L);
     }};
     mScene =
-        new Scene(SCENE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, MEDIA_1);
+        new Scene(SCENE_ID, mFakeAuthManager.getCurrentUser(), reactionCounters, mNow, MEDIA_0);
     initSceneViewModel();
     mViewModel.onReady();
     // Wait for detection to start
@@ -330,7 +330,7 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void reactionNotDetectedOnHidden() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
     initSceneViewModel();
     mViewModel.onReady();
     // Wait for detection to start
@@ -350,7 +350,7 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void multipleDetections() throws Exception {
-    mScene = new Scene(SCENE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, MEDIA_1);
+    mScene = new Scene(SCENE_ID, DIRECTOR, new TreeMap<Emotion, Long>(), mNow, MEDIA_0);
     initSceneViewModel();
     mViewModel.onReady();
     // Wait for view event and for detection to start

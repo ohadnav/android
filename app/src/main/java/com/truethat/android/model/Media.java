@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.view.fragment.MediaFragment;
 import java.io.Serializable;
@@ -16,11 +17,15 @@ import okhttp3.MultipartBody;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Media.java</a>
  */
 
-public abstract class Media implements Serializable {
-  private static final long serialVersionUID = 6966859003865108004L;
+public abstract class Media extends BaseModel implements Serializable {
+  private static final long serialVersionUID = 2882621624492397474L;
   private String mUrl;
 
-  Media(@Nullable String url) {
+  public Media() {
+  }
+
+  @VisibleForTesting public Media(@Nullable Long id, String url) {
+    super(id);
     mUrl = url;
   }
 
@@ -34,12 +39,15 @@ public abstract class Media implements Serializable {
   public abstract MediaFragment createFragment();
 
   @Override public int hashCode() {
-    return mUrl != null ? mUrl.hashCode() : 0;
+    int result = super.hashCode();
+    result = 31 * result + (mUrl != null ? mUrl.hashCode() : 0);
+    return result;
   }
 
   @Override public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Media)) return false;
+    if (!super.equals(o)) return false;
 
     Media media = (Media) o;
 

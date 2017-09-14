@@ -46,7 +46,7 @@ public class RepertoireActivityTest extends BaseApplicationTestSuite {
     mRespondedScenes = Collections.emptyList();
     mScene = new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
         new Date(),
-        new Photo("http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg", null));
+        new Photo(null, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg"));
   }
 
   @Test public void navigation() throws Exception {
