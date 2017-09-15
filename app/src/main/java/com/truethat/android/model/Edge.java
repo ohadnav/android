@@ -9,25 +9,35 @@ import java.io.Serializable;
  * {@code <0, 1, HAPPY>} means users that had a {@code HAPPY} reaction to the 0-indexed media node
  * will than view 1-indexed node.
  * <p>
- * Note that we regard the {@link Media} node order in {@link Scene#mMediaNodes} as its index.
+ * Note that {@link #mSourceId} and {@link #mTargetId} regard {@link Media#mId}.
  *
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Edge.java</a>
  */
 
 public class Edge extends BaseModel implements Serializable {
-  private static final long serialVersionUID = 556726533574169005L;
-  private Integer mSourceIndex;
-  private Integer mTargetIndex;
+  private static final long serialVersionUID = -2300569022542504631L;
+  /**
+   * Media ID of edge source.
+   */
+  private Long mSourceId;
+  /**
+   * Media ID of edge target.
+   */
+  private Long mTargetId;
+  /**
+   * Type of link between the two nodes. i.e. which reaction should trigger move from source to
+   * target.
+   */
   private Emotion mReaction;
 
-  public Edge(int sourceIndex, int targetIndex, Emotion reaction) {
-    mSourceIndex = sourceIndex;
-    mTargetIndex = targetIndex;
+  public Edge(Long sourceId, Long targetId, Emotion reaction) {
+    mSourceId = sourceId;
+    mTargetId = targetId;
     mReaction = reaction;
   }
 
-  public Edge(int sourceIndex, Emotion reaction) {
-    mSourceIndex = sourceIndex;
+  public Edge(Long sourceId, Emotion reaction) {
+    mSourceId = sourceId;
     mReaction = reaction;
   }
 
@@ -35,14 +45,10 @@ public class Edge extends BaseModel implements Serializable {
     return mReaction;
   }
 
-  public Integer getTargetIndex() {
-    return mTargetIndex;
-  }
-
   @Override public int hashCode() {
     int result = super.hashCode();
-    result = 31 * result + (mSourceIndex != null ? mSourceIndex.hashCode() : 0);
-    result = 31 * result + (mTargetIndex != null ? mTargetIndex.hashCode() : 0);
+    result = 31 * result + (mSourceId != null ? mSourceId.hashCode() : 0);
+    result = 31 * result + (mTargetId != null ? mTargetId.hashCode() : 0);
     result = 31 * result + (mReaction != null ? mReaction.hashCode() : 0);
     return result;
   }
@@ -54,18 +60,20 @@ public class Edge extends BaseModel implements Serializable {
 
     Edge edge = (Edge) o;
 
-    if (mSourceIndex != null ? !mSourceIndex.equals(edge.mSourceIndex)
-        : edge.mSourceIndex != null) {
+    if (mSourceId != null ? !mSourceId.equals(edge.mSourceId) : edge.mSourceId != null) {
       return false;
     }
-    if (mTargetIndex != null ? !mTargetIndex.equals(edge.mTargetIndex)
-        : edge.mTargetIndex != null) {
+    if (mTargetId != null ? !mTargetId.equals(edge.mTargetId) : edge.mTargetId != null) {
       return false;
     }
     return mReaction == edge.mReaction;
   }
 
-  Integer getSourceIndex() {
-    return mSourceIndex;
+  Long getTargetId() {
+    return mTargetId;
+  }
+
+  Long getSourceId() {
+    return mSourceId;
   }
 }

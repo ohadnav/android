@@ -53,11 +53,11 @@ public class Photo extends Media implements Serializable {
     return Arrays.equals(mBytes, photo.mBytes);
   }
 
-  @Override MultipartBody.Part createPart(String partName) {
+  @Override MultipartBody.Part createPart() {
     if (mBytes == null) {
       throw new AssertionError("Image bytes had not been properly initialized.");
     }
-    return MultipartBody.Part.createFormData(partName, IMAGE_FILENAME,
+    return MultipartBody.Part.createFormData(generatePartName(), IMAGE_FILENAME,
         RequestBody.create(MediaType.parse("image/jpg"), mBytes));
   }
 }

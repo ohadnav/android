@@ -3,6 +3,7 @@ package com.truethat.android.model;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
+import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.view.fragment.MediaFragment;
 import java.io.Serializable;
 import okhttp3.MultipartBody;
@@ -61,5 +62,12 @@ public abstract class Media extends BaseModel implements Serializable {
   /**
    * @return a HTTP multipart part with the binary data of this media.
    */
-  abstract MultipartBody.Part createPart(String partName);
+  abstract MultipartBody.Part createPart();
+
+  /**
+   * @return the HTTP multipart name for that media.
+   */
+  String generatePartName() {
+    return StudioApi.MEDIA_PART_PREFIX + mId;
+  }
 }

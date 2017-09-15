@@ -1,9 +1,13 @@
 package com.truethat.android.model;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * Proudly created by ohad on 13/09/2017 for TrueThat.
@@ -11,36 +15,87 @@ import static org.junit.Assert.assertNotNull;
 public class FlowTreeTest {
   private static final Photo PHOTO_1 = new Photo(1L, "1");
   private static final Photo PHOTO_2 = new Photo(2L, "2");
+  private static final Edge EDGE = new Edge(1L, 2L, Emotion.SURPRISE);
+  private FlowTree mTree;
 
-  @Test public void setRoot() {
-    FlowTree tree = new FlowTree();
-    tree.setRoot(PHOTO_1);
-    assertEquals(PHOTO_1, tree.getRoot().getMedia());
-    assertNotNull(tree.getNodes().get(PHOTO_1));
+  @Before public void setUp() throws Exception {
+    mTree = new FlowTree(mock(Scene.class));
+  }
+
+  @Test public void getRoot() {
+    assertNull(mTree.getRoot());
+    mTree.addNode(PHOTO_1);
+    assertEquals(PHOTO_1, mTree.getRoot());
+    mTree.addNode(PHOTO_2);
+    mTree.addEdge(EDGE);
+    assertEquals(PHOTO_1, mTree.getRoot());
   }
 
   @Test public void addNode() {
-    FlowTree tree = new FlowTree();
-    tree.setRoot(PHOTO_1);
-    tree.addNode(PHOTO_1, PHOTO_2, Emotion.FEAR);
-    assertEquals(2, tree.getNodes().size());
-    assertNotNull(tree.getNodes().get(PHOTO_2));
-    assertEquals(PHOTO_2, tree.getNodes().get(PHOTO_1).getChildren().get(Emotion.FEAR).getMedia());
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    assertEquals(2, mTree.getNodes().size());
+    assertEquals(PHOTO_1, mTree.getMedia(PHOTO_1.getId()));
+    assertEquals(PHOTO_2, mTree.getMedia(PHOTO_2.getId()));
+  }
+
+  @Test public void getChild() {
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(EDGE);
+    assertEquals(PHOTO_2, mTree.getChild(PHOTO_1.getId(), EDGE.getReaction()));
   }
 
   @Test public void removeNode() {
-    FlowTree tree = new FlowTree();
-    tree.setRoot(PHOTO_1);
-    tree.addNode(PHOTO_1, PHOTO_2, Emotion.FEAR);
-    tree.remove(PHOTO_2);
-    assertEquals(1, tree.getNodes().size());
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(EDGE);
+    mTree.remove(PHOTO_2.getId());
+    assertEquals(1, mTree.getNodes().size());
   }
 
   @Test public void removeParentNode() {
-    FlowTree tree = new FlowTree();
-    tree.setRoot(PHOTO_1);
-    tree.addNode(PHOTO_1, PHOTO_2, Emotion.FEAR);
-    tree.remove(PHOTO_1);
-    assertEquals(0, tree.getNodes().size());
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(EDGE);
+    mTree.remove(PHOTO_1.getId());
+    assertEquals(0, mTree.getNodes().size());
+    assertNull(mTree.getRoot());
+  }
+
+  @Test public void isTree() {
+    assertTrue(mTree.isTree());
+    mTree.addNode(PHOTO_1);
+    assertTrue(mTree.isTree());
+    mTree.addNode(PHOTO_2);
+    assertFalse(mTree.isTree());
+    mTree.addEdge(EDGE);
+    assertTrue(mTree.isTree());
+  }
+
+  @Test public void getMediaReturnsNull() {
+    assertNull(mTree.getMedia(PHOTO_2.getId()));
+    mTree.addNode(PHOTO_1);
+    assertNull(mTree.getMedia(PHOTO_2.getId()));
+  }
+
+  @Test(expected = IllegalArgumentException.class) public void getChildFails_noChildNode()
+      throws Exception {
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(EDGE);
+    mTree.getChild(PHOTO_1.getId() + PHOTO_2.getId(), Emotion.FEAR);
+  }
+
+  @Test(expected = IllegalArgumentException.class) public void getParentFails() {
+    mTree.addNode(PHOTO_1);
+    mTree.getParent(PHOTO_2.getId());
+  }
+
+  @Test(expected = IllegalArgumentException.class) public void addEdgeFails_noChildNode()
+      throws Exception {
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(new Edge(PHOTO_1.getId(), -PHOTO_2.getId(), Emotion.HAPPY));
+  }
+
+  @Test(expected = IllegalArgumentException.class) public void addEdgeFails_noParentNode()
+      throws Exception {
+    mTree.addNode(PHOTO_1, PHOTO_2);
+    mTree.addEdge(new Edge(-PHOTO_1.getId(), PHOTO_2.getId(), Emotion.HAPPY));
   }
 }

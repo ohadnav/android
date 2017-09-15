@@ -23,6 +23,14 @@ abstract class BaseModel implements Serializable {
     mId = id;
   }
 
+  public Long getId() {
+    return mId;
+  }
+
+  public void setId(Long id) {
+    mId = id;
+  }
+
   @Override public int hashCode() {
     return mId != null ? mId.hashCode() : 0;
   }

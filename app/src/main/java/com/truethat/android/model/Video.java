@@ -57,11 +57,11 @@ public class Video extends Media implements Serializable {
         : video.mInternalPath == null;
   }
 
-  @Override MultipartBody.Part createPart(String partName) {
+  @Override MultipartBody.Part createPart() {
     if (mInternalPath == null) {
       throw new AssertionError("Video internal path had not been properly initialized.");
     }
-    return MultipartBody.Part.createFormData(partName, VIDEO_FILENAME,
+    return MultipartBody.Part.createFormData(generatePartName(), VIDEO_FILENAME,
         RequestBody.create(MediaType.parse("video/mp4"), new File(mInternalPath)));
   }
 }

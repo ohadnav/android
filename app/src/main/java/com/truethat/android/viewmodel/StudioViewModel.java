@@ -12,7 +12,6 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.common.util.CameraUtil;
-import com.truethat.android.model.Edge;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
@@ -45,7 +44,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   private Scene mDirectedScene;
   private Media mCurrentMedia;
   private Media mNewMedia;
-  private Edge mNewEdge;
+  private Emotion mChosenReaction;
   /**
    * Api call to save {@link #mDirectedScene}.
    */
@@ -135,8 +134,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
    */
   public void previousMedia() {
     // Should reach here only if the current media node has a parent.
-    mCurrentMedia =
-        getDirectedScene().getFlowTree().getNodes().get(mCurrentMedia).getParent().getMedia();
+    mCurrentMedia = mDirectedScene.getPreviousMedia(mCurrentMedia);
     onEdit();
   }
 
@@ -145,7 +143,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
       mCurrentMedia = mDirectedScene.getNextMedia(mCurrentMedia, reaction);
       onEdit();
     } else {
-      mNewEdge = new Edge(mDirectedScene.getMediaNodes().indexOf(mCurrentMedia), reaction);
+      mChosenReaction = reaction;
       onCamera();
     }
   }
@@ -171,11 +169,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
    */
   public void disapprove() {
     Log.d(TAG, "Scene disapproved.");
-    Media previous = mCurrentMedia;
-    if (mDirectedScene.getFlowTree().getNodes().get(mCurrentMedia).getParent() != null) {
-      mCurrentMedia =
-          mDirectedScene.getFlowTree().getNodes().get(mCurrentMedia).getParent().getMedia();
-      mDirectedScene.removeMedia(previous);
+    mCurrentMedia = mDirectedScene.removeMedia(mCurrentMedia);
+    if (mCurrentMedia != null) {
       onEdit();
     } else {
       mCurrentMedia = null;
@@ -192,8 +187,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     return mState;
   }
 
-  Edge getNewEdge() {
-    return mNewEdge;
+  Emotion getChosenReaction() {
+    return mChosenReaction;
   }
 
   private void onEdit() {
@@ -208,7 +203,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         return;
       } else if (mCurrentMedia == null) {
         Log.w(TAG, "Editing with a null new and current media.");
-        mCurrentMedia = mDirectedScene.getRootMediaNode();
+        mCurrentMedia = mDirectedScene.getRootMedia();
       }
     } else {
       // Add media to directed scene
@@ -218,10 +213,10 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         mCurrentMedia = mNewMedia;
       } else {
         // Add media to flow tree
-        if (mNewEdge != null) {
-          mDirectedScene.addMedia(mNewMedia, mNewEdge);
+        if (mChosenReaction != null) {
+          mDirectedScene.addMedia(mNewMedia, mCurrentMedia.getId(), mChosenReaction);
           mCurrentMedia = mNewMedia;
-          mNewEdge = null;
+          mChosenReaction = null;
         } else {
           Log.w(TAG, "Editing scene flow without a chosen reaction.");
         }
@@ -232,7 +227,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mCancelButtonVisibility.set(true);
     mSendButtonVisibility.set(true);
     // Expose previous media button if not editing root media.
-    mPreviousMediaVisibility.set(!mCurrentMedia.equals(mDirectedScene.getRootMediaNode()));
+    mPreviousMediaVisibility.set(!mCurrentMedia.equals(mDirectedScene.getRootMedia()));
     // Hides capture button.
     mCaptureButtonVisibility.set(false);
     mSwitchCameraButtonVisibility.set(false);
@@ -260,8 +255,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mCameraPreviewVisibility.set(true);
     getView().restoreCameraPreview();
     // Ensures scene state
-    if (mDirectedScene != null && mNewEdge == null) {
-      mCurrentMedia = getDirectedScene().getRootMediaNode();
+    if (mDirectedScene != null && mChosenReaction == null) {
+      mCurrentMedia = getDirectedScene().getRootMedia();
       onEdit();
     }
   }

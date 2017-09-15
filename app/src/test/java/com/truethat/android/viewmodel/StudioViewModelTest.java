@@ -82,7 +82,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Expect a flow tree with two nodes
     assertEquals(2, mViewModel.getDirectedScene().getMediaNodes().size());
     assertNotNull(mViewModel.getDirectedScene()
-        .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST));
+        .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.DISGUST));
     // Send the scene
     mViewModel.onSent();
     assertSentState();
@@ -104,7 +104,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Go to root media
     mViewModel.previousMedia();
     mViewModel.previousMedia();
-    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+    assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Chose a different follow up reaction
     mViewModel.onReactionChosen(Emotion.FEAR);
     assertCameraState();
@@ -122,14 +122,14 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEquals(5, mViewModel.getDirectedScene().getMediaNodes().size());
     assertNotNull(mViewModel.getDirectedScene()
         .getNextMedia(mViewModel.getDirectedScene()
-                .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST),
+                .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.DISGUST),
             Emotion.HAPPY));
     assertNotNull(mViewModel.getDirectedScene()
         .getNextMedia(mViewModel.getDirectedScene()
-                .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.DISGUST),
+                .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.DISGUST),
             Emotion.SURPRISE));
     assertNotNull(mViewModel.getDirectedScene()
-        .getNextMedia(mViewModel.getDirectedScene().getRootMediaNode(), Emotion.FEAR));
+        .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.FEAR));
   }
 
   @Test public void previousMedia() throws Exception {
@@ -144,7 +144,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.previousMedia();
     // Should edit root media
     assertEditState();
-    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+    assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
   }
 
   @Test public void previousMediaHiddenFromRoot() throws Exception {
@@ -193,7 +193,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     // Go to root media
     mViewModel.previousMedia();
     mViewModel.previousMedia();
-    assertEquals(mViewModel.getDirectedScene().getRootMediaNode(), mViewModel.getCurrentMedia());
+    assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Cancel root media
     mViewModel.disapprove();
     assertCameraState();
@@ -206,7 +206,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEquals(RECORD_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
     mViewModel.onVideoRecorded("bigcoin-gen.dmg");
     assertEquals(CAPTURE_RESOURCE, mViewModel.mCaptureButtonDrawableResource.get());
-    assertTrue(mViewModel.getDirectedScene().getRootMediaNode() instanceof Video);
+    assertTrue(mViewModel.getDirectedScene().getRootMedia() instanceof Video);
   }
 
   @Test public void approvalCancel() throws Exception {
@@ -300,7 +300,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertTrue(mViewModel.mCameraPreviewVisibility.get());
     // Assert that if directed scene is not null then new edge is not null.
     if (mViewModel.getDirectedScene() != null) {
-      assertNotNull(mViewModel.getNewEdge());
+      assertNotNull(mViewModel.getChosenReaction());
     }
   }
 
@@ -323,10 +323,10 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertTrue(mViewModel.mScenePreviewVisibility.get());
     // Camera preview is hidden
     assertFalse(mViewModel.mCameraPreviewVisibility.get());
+    assertNotNull(mView.mDisplayedMedia);
     assertEquals(mViewModel.getCurrentMedia(), mView.mDisplayedMedia);
     // Previous media visible if not editing root media
-    assertEquals(
-        !mViewModel.getDirectedScene().getRootMediaNode().equals(mViewModel.getCurrentMedia()),
+    assertEquals(!mViewModel.getDirectedScene().getRootMedia().equals(mViewModel.getCurrentMedia()),
         mViewModel.mPreviousMediaVisibility.get());
   }
 

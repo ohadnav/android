@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 import okhttp3.MultipartBody;
@@ -49,6 +50,10 @@ public class Scene extends BaseModel implements Serializable {
    * video or a photo and each edge describe which reaction leads from one media item to the next.
    */
   private transient FlowTree mFlowTree;
+  /**
+   * Allocates the next media ID.
+   */
+  private transient long mNextMediaId = 0;
 
   @VisibleForTesting
   public Scene(Long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
@@ -57,7 +62,7 @@ public class Scene extends BaseModel implements Serializable {
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
-    mMediaNodes = Collections.singletonList(rootMedia);
+    mMediaNodes = new LinkedList<>(Collections.singletonList(rootMedia));
   }
 
   @VisibleForTesting
@@ -67,14 +72,15 @@ public class Scene extends BaseModel implements Serializable {
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
-    mMediaNodes = mediaNodes;
+    mMediaNodes = new LinkedList<>(mediaNodes);
     mEdges = edges;
   }
 
   public Scene(Media media) {
     mDirector = AppContainer.getAuthManager().getCurrentUser();
     mCreated = new Date();
-    mMediaNodes = new ArrayList<>();
+    mMediaNodes = new LinkedList<>();
+    if (media.getId() == null) media.setId(mNextMediaId++);
     mMediaNodes.add(media);
   }
 
@@ -87,54 +93,62 @@ public class Scene extends BaseModel implements Serializable {
   }
 
   /**
-   * Adds the new media to {@link #mFlowTree}.
+   * Adds {@code newMedia} to {@link #mFlowTree} and create and edge between it and the node of
+   * {@code parentMediaId} colored with {@code reaction}.
    *
-   * @param newMedia    to add
-   * @param partialEdge to deduce source index and reaction from.
+   * @param newMedia      what the user have just created.
+   * @param parentMediaId the ID of the media that should lead to {@code newMedia} following a
+   *                      {@code reaction}.
+   * @param reaction      that should trigger a transition from the parent media to the new one.
    */
-  public void addMedia(Media newMedia, Edge partialEdge) {
+  public void addMedia(Media newMedia, long parentMediaId, Emotion reaction) {
+    if (newMedia.getId() == null) newMedia.setId(mNextMediaId++);
     mMediaNodes.add(newMedia);
-    Edge newEdge = new Edge(partialEdge.getSourceIndex(), mMediaNodes.indexOf(newMedia),
-        partialEdge.getReaction());
+    Edge newEdge = new Edge(parentMediaId, newMedia.getId(), reaction);
     if (mEdges == null) {
       mEdges = new ArrayList<>();
     }
     mEdges.add(newEdge);
-    addEdgeToTree(newEdge);
+    // Add a new node and edge to the flow tree
+    getFlowTree().addNode(newMedia);
+    getFlowTree().addEdge(newEdge);
   }
 
+  /**
+   * @param current  what the user currently views, or have just created.
+   * @param reaction how he reacted, or what he chose in the studio.
+   *
+   * @return the media that should follow {@code current} following a {@code reaction}, or null if
+   * none such media exists.
+   */
   @Nullable public Media getNextMedia(Media current, Emotion reaction) {
-    if (!getFlowTree().getNodes().containsKey(current)) {
-      throw new IllegalArgumentException("Flow tree has no node with media " + current);
-    }
-    if (!getFlowTree().getNodes().get(current).getChildren().containsKey(reaction)) {
-      return null;
-    }
-    return getFlowTree().getNodes().get(current).getChildren().get(reaction).getMedia();
+    return getFlowTree().getChild(current.getId(), reaction);
   }
 
-  public void removeMedia(Media media) {
-    for (FlowTree.Node node : getFlowTree().getNodes().get(media).getChildren().values()) {
-      removeMedia(node.getMedia());
-    }
-    getFlowTree().remove(media);
-    mMediaNodes.remove(media);
+  /**
+   * @param current what the user currently views, or have just created.
+   */
+  @Nullable public Media getPreviousMedia(Media current) {
+    return getFlowTree().getParent(current.getId());
   }
 
-  public Media getRootMediaNode() {
-    return getFlowTree().getRoot().getMedia();
+  /**
+   * Removes the media and all its descendants from the flow tree.
+   *
+   * @param media to remove.
+   *
+   * @return the parent of the removed media.
+   */
+  @Nullable public Media removeMedia(Media media) {
+    return getFlowTree().remove(media.getId());
+  }
+
+  public Media getRootMedia() {
+    return getFlowTree().getRoot();
   }
 
   public Date getCreated() {
     return mCreated;
-  }
-
-  public Long getId() {
-    return mId;
-  }
-
-  @SuppressWarnings("SameParameterValue") @VisibleForTesting public void setId(Long id) {
-    mId = id;
   }
 
   public User getDirector() {
@@ -157,10 +171,16 @@ public class Scene extends BaseModel implements Serializable {
     return mReactionCounters;
   }
 
+  /**
+   * @return am API call for saving this scene.
+   */
   @SuppressWarnings("unchecked") public Call<Scene> createApiCall() {
+    if (!mFlowTree.isTree()) {
+      throw new IllegalStateException("Flow tree is not a tree, I'm deeply disappointed!");
+    }
     List<MultipartBody.Part> mediaParts = new ArrayList<>();
-    for (int i = 0; i < mMediaNodes.size(); i++) {
-      mediaParts.add(mMediaNodes.get(i).createPart(generatePartName(i)));
+    for (Media media : mMediaNodes) {
+      mediaParts.add(media.createPart());
     }
     MultipartBody.Part scenePart =
         MultipartBody.Part.createFormData(StudioApi.SCENE_PART, NetworkUtil.GSON.toJson(this));
@@ -202,7 +222,11 @@ public class Scene extends BaseModel implements Serializable {
     return this.getClass().getSimpleName() + "{id: " + mId + "}";
   }
 
-  public FlowTree getFlowTree() {
+  void removeMediaInternal(Media media) {
+    mMediaNodes.remove(media);
+  }
+
+  private FlowTree getFlowTree() {
     if (mFlowTree == null) {
       initializeFlowTree();
     }
@@ -222,31 +246,23 @@ public class Scene extends BaseModel implements Serializable {
     mReactionCounters.put(emotion, mReactionCounters.get(emotion) + 1);
   }
 
-  @SuppressWarnings("ResultOfMethodCallIgnored") private void addEdgeToTree(Edge newEdge) {
-    if (mEdges == null) {
-      mEdges = new ArrayList<>();
-    }
-    Media parent = mMediaNodes.get(newEdge.getSourceIndex());
-    Media child = mMediaNodes.get(newEdge.getTargetIndex());
-    if (!getFlowTree().getNodes().containsKey(parent)) {
-      getFlowTree().setRoot(parent);
-    }
-    getFlowTree().addNode(parent, child, newEdge.getReaction());
-  }
-
+  /**
+   * Initializes the flow tree with existing media nodes and edges.
+   */
   @SuppressWarnings("ResultOfMethodCallIgnored") private void initializeFlowTree() {
-    mFlowTree = new FlowTree();
-    if (!mMediaNodes.isEmpty()) {
-      getFlowTree().setRoot(mMediaNodes.get(0));
+    mFlowTree = new FlowTree(this);
+    if (mMediaNodes != null) {
+      for (Media media : mMediaNodes) {
+        mFlowTree.addNode(media);
+      }
     }
     if (mEdges != null) {
       for (Edge edge : mEdges) {
-        addEdgeToTree(edge);
+        mFlowTree.addEdge(edge);
       }
     }
-  }
-
-  private String generatePartName(int mediaIndex) {
-    return StudioApi.MEDIA_PART_PREFIX + mediaIndex;
+    if (!mFlowTree.isTree()) {
+      throw new IllegalStateException("Flow tree is not a tree, I'm deeply disappointed!");
+    }
   }
 }

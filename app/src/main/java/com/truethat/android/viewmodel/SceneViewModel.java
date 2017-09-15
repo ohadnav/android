@@ -136,7 +136,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   @Override public void onStart() {
     super.onStart();
     if (mCurrentMedia == null) {
-      mCurrentMedia = mScene.getRootMediaNode();
+      mCurrentMedia = mScene.getRootMedia();
     }
     display(mCurrentMedia);
     updateInfoLayout();
