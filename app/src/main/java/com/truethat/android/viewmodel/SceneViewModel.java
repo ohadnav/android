@@ -198,8 +198,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
       // Post event of scene reaction.
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mScene.getId(), new Date(), EventType.REACTION, reaction,
-              (long) mScene.getMediaNodes().indexOf(mCurrentMedia));
+              mScene.getId(), new Date(), EventType.REACTION, reaction, mCurrentMedia.getId());
       mPostEventCall = mInteractionApi.postEvent(interactionEvent);
       mPostEventCall.enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
