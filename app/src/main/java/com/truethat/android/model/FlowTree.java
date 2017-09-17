@@ -23,6 +23,9 @@ class FlowTree {
     mOwner = owner;
   }
 
+  /**
+   * @return a root node of the tree.
+   */
   @Nullable public Media getRoot() {
     if (mNodes.isEmpty()) return null;
     Node node = mNodes.entrySet().iterator().next().getValue();
