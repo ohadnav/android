@@ -45,20 +45,23 @@ class FlowTree {
   @Nullable public Media remove(long mediaId) {
     Media parentMedia = null;
     if (mNodes.containsKey(mediaId)) {
-      Node node = mNodes.get(mediaId);
-      if (node.getParent() != null) {
-        parentMedia = node.getParent().getMedia();
-        node.getParent().removeChild(node);
+      Node toRemove = mNodes.get(mediaId);
+      if (toRemove.getParent() != null) {
+        parentMedia = toRemove.getParent().getMedia();
+        toRemove.getParent().removeChild(toRemove);
       }
-      for (Node childNode : node.mChildren.values()) {
+      for (Node childNode : toRemove.mChildren.values()) {
         remove(childNode.getMedia().getId());
       }
-      mListener.deleteMedia(node.getMedia());
+      mListener.deleteMedia(toRemove.getMedia());
       mNodes.remove(mediaId);
     }
     return parentMedia;
   }
 
+  /**
+   * @return whether the tree has at most a single root.
+   */
   boolean isTree() {
     int numRoots = 0;
     for (Node node : mNodes.values()) {
