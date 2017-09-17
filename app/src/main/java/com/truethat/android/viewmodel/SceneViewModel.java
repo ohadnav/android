@@ -28,7 +28,9 @@ import com.truethat.android.model.Scene;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.viewmodel.viewinterface.SceneViewInterface;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,10 +73,10 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
   private Timer mTimer;
   /**
-   * Whether the scene had been displayed to the user. Used to limit the number of {@link
-   * EventType#VIEW} events sent to one.
+   * Whether the media had been displayed to the user. Used to limit the number of {@link
+   * EventType#VIEW} events sent.
    */
-  private boolean isViewed = false;
+  private Map<Media, Boolean> mMediaViewed = new HashMap<>();
   /**
    * A set of the detected reactions to {@link #mCurrentMedia}. Used to limit the number of {@link
    * EventType#REACTION} events sent, to one per {@link Emotion}.
@@ -267,14 +269,13 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mNextMedia = null;
     mDetectedReactions = new HashSet<>();
     mLastReaction = null;
-    isViewed = false;
   }
 
   /**
    * Marks {@link #mScene} as viewed by the user, and informs our backend about it.
    */
   private void doView() {
-    if (!isViewed) {
+    if (!mMediaViewed.containsKey(mCurrentMedia) || !mMediaViewed.get(mCurrentMedia)) {
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
               mScene.getId(), new Date(), EventType.VIEW, null,
@@ -285,7 +286,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
             interactionEvent.toString());
       }
     }
-    isViewed = true;
+    mMediaViewed.put(mCurrentMedia, true);
   }
 
   /**
