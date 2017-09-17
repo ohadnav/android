@@ -246,7 +246,7 @@ import static org.junit.Assert.assertTrue;
     InteractionEvent sentEvent = NetworkUtil.GSON.fromJson(mLastRequest, InteractionEvent.class);
     assertEquals(mScene.getId(), sentEvent.getSceneId());
     assertEquals(mFakeAuthManager.getCurrentUser().getId(), sentEvent.getUserId());
-    assertEquals(0, sentEvent.getMediaIndex().longValue());
+    assertEquals(0, sentEvent.getMediaId().longValue());
     assertEquals(EventType.VIEW, sentEvent.getEventType());
   }
 
@@ -282,7 +282,7 @@ import static org.junit.Assert.assertTrue;
         assertEquals(mScene.getId(), sentEvent.getSceneId());
         assertEquals(REACTION_2, sentEvent.getReaction());
         assertEquals(mFakeAuthManager.getCurrentUser().getId(), sentEvent.getUserId());
-        assertEquals(0, sentEvent.getMediaIndex().longValue());
+        assertEquals(0, sentEvent.getMediaId().longValue());
         assertEquals(EventType.REACTION, sentEvent.getEventType());
       }
     });

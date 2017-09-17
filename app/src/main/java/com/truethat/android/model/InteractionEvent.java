@@ -40,16 +40,16 @@ import java.util.Date;
   /**
    * The {@link Media} index within {@link Scene#mMediaNodes}.
    */
-  private Long mMediaIndex;
+  private Long mMediaId;
 
   public InteractionEvent(Long userId, Long sceneId, Date timestamp, EventType eventType,
-      @Nullable Emotion reaction, Long mediaIndex) {
+      @Nullable Emotion reaction, Long mediaId) {
     mTimestamp = timestamp;
     mUserId = userId;
     mReaction = reaction;
     mEventType = eventType;
     mSceneId = sceneId;
-    mMediaIndex = mediaIndex;
+    mMediaId = mediaId;
   }
 
   public Long getUserId() {
@@ -64,8 +64,8 @@ import java.util.Date;
     return mSceneId;
   }
 
-  public Long getMediaIndex() {
-    return mMediaIndex;
+  public Long getMediaId() {
+    return mMediaId;
   }
 
   public Emotion getReaction() {
@@ -79,7 +79,7 @@ import java.util.Date;
     result = 31 * result + (mReaction != null ? mReaction.hashCode() : 0);
     result = 31 * result + (mEventType != null ? mEventType.hashCode() : 0);
     result = 31 * result + (mSceneId != null ? mSceneId.hashCode() : 0);
-    result = 31 * result + (mMediaIndex != null ? mMediaIndex.hashCode() : 0);
+    result = 31 * result + (mMediaId != null ? mMediaId.hashCode() : 0);
     return result;
   }
 
@@ -97,6 +97,6 @@ import java.util.Date;
     if (mReaction != that.mReaction) return false;
     if (mEventType != that.mEventType) return false;
     if (mSceneId != null ? !mSceneId.equals(that.mSceneId) : that.mSceneId != null) return false;
-    return mMediaIndex != null ? mMediaIndex.equals(that.mMediaIndex) : that.mMediaIndex == null;
+    return mMediaId != null ? mMediaId.equals(that.mMediaId) : that.mMediaId == null;
   }
 }
