@@ -16,7 +16,9 @@ import static org.junit.Assert.assertTrue;
 public class FlowTreeTest {
   private static final Photo PHOTO_1 = new Photo(1L, "1");
   private static final Photo PHOTO_2 = new Photo(2L, "2");
-  private static final Edge EDGE = new Edge(1L, 2L, Emotion.SURPRISE);
+  private static final Photo PHOTO_3 = new Photo(3L, "3");
+  private static final Edge EDGE_1 = new Edge(1L, 2L, Emotion.SURPRISE);
+  private static final Edge EDGE_2 = new Edge(2L, 3L, Emotion.HAPPY);
   private FlowTree mTree;
   private FakeFlowTreeListener mFlowTreeListener;
 
@@ -30,7 +32,7 @@ public class FlowTreeTest {
     mTree.addNode(PHOTO_1);
     assertEquals(PHOTO_1, mTree.getRoot());
     mTree.addNode(PHOTO_2);
-    mTree.addEdge(EDGE);
+    mTree.addEdge(EDGE_1);
     assertEquals(PHOTO_1, mTree.getRoot());
   }
 
@@ -43,26 +45,29 @@ public class FlowTreeTest {
 
   @Test public void getChild() {
     mTree.addNode(PHOTO_1, PHOTO_2);
-    mTree.addEdge(EDGE);
-    assertEquals(PHOTO_2, mTree.getChild(PHOTO_1.getId(), EDGE.getReaction()));
+    mTree.addEdge(EDGE_1);
+    assertEquals(PHOTO_2, mTree.getChild(PHOTO_1.getId(), EDGE_1.getReaction()));
   }
 
   @Test public void removeNode() {
-    mTree.addNode(PHOTO_1, PHOTO_2);
-    mTree.addEdge(EDGE);
+    mTree.addNode(PHOTO_1, PHOTO_2, PHOTO_3);
+    mTree.addEdge(EDGE_1, EDGE_2);
     mTree.remove(PHOTO_2.getId());
     assertEquals(1, mTree.getNodes().size());
-    assertTrue(mFlowTreeListener.mDeleted.contains(PHOTO_2));
+    assertTrue(mFlowTreeListener.mDeletedMedia.contains(PHOTO_2));
+    assertTrue(mFlowTreeListener.mDeletedMedia.contains(PHOTO_3));
+    assertTrue(mFlowTreeListener.mDeletedEdges.contains(EDGE_1));
+    assertTrue(mFlowTreeListener.mDeletedEdges.contains(EDGE_2));
   }
 
-  @Test public void removeParentNode() {
-    mTree.addNode(PHOTO_1, PHOTO_2);
-    mTree.addEdge(EDGE);
+  @Test public void removeRootNode() {
+    mTree.addNode(PHOTO_1, PHOTO_2, PHOTO_3);
+    mTree.addEdge(EDGE_1, EDGE_2);
     mTree.remove(PHOTO_1.getId());
     assertEquals(0, mTree.getNodes().size());
     assertNull(mTree.getRoot());
-    assertTrue(mFlowTreeListener.mDeleted.contains(PHOTO_1));
-    assertTrue(mFlowTreeListener.mDeleted.contains(PHOTO_2));
+    assertTrue(mFlowTreeListener.mDeletedMedia.contains(PHOTO_1));
+    assertTrue(mFlowTreeListener.mDeletedMedia.contains(PHOTO_2));
   }
 
   @Test public void isTree() {
@@ -71,7 +76,7 @@ public class FlowTreeTest {
     assertTrue(mTree.isTree());
     mTree.addNode(PHOTO_2);
     assertFalse(mTree.isTree());
-    mTree.addEdge(EDGE);
+    mTree.addEdge(EDGE_1);
     assertTrue(mTree.isTree());
   }
 
@@ -84,7 +89,7 @@ public class FlowTreeTest {
   @Test(expected = IllegalArgumentException.class) public void getChildFails_noChildNode()
       throws Exception {
     mTree.addNode(PHOTO_1, PHOTO_2);
-    mTree.addEdge(EDGE);
+    mTree.addEdge(EDGE_1);
     mTree.getChild(PHOTO_1.getId() + PHOTO_2.getId(), Emotion.FEAR);
   }
 
@@ -106,10 +111,15 @@ public class FlowTreeTest {
   }
 
   private class FakeFlowTreeListener implements FlowTree.Listener {
-    private List<Media> mDeleted = new ArrayList<>();
+    private List<Media> mDeletedMedia = new ArrayList<>();
+    private List<Edge> mDeletedEdges = new ArrayList<>();
 
     @Override public void deleteMedia(Media media) {
-      mDeleted.add(media);
+      mDeletedMedia.add(media);
+    }
+
+    @Override public void deleteEdge(Edge edge) {
+      mDeletedEdges.add(edge);
     }
   }
 }

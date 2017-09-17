@@ -48,7 +48,7 @@ class FlowTree {
       Node toRemove = mNodes.get(mediaId);
       if (toRemove.getParent() != null) {
         parentMedia = toRemove.getParent().getMedia();
-        toRemove.getParent().removeChild(toRemove);
+        mListener.deleteEdge(toRemove.getParent().removeChild(toRemove));
       }
       for (Node childNode : toRemove.mChildren.values()) {
         remove(childNode.getMedia().getId());
@@ -150,6 +150,13 @@ class FlowTree {
      * @param media to delete
      */
     void deleteMedia(Media media);
+
+    /**
+     * Deletes an edge.
+     *
+     * @param edge to delete.
+     */
+    void deleteEdge(Edge edge);
   }
 
   private static class Node {
@@ -199,13 +206,20 @@ class FlowTree {
       node.setParent(this);
     }
 
-    void removeChild(Node node) {
+    /**
+     * @param node to remove
+     *
+     * @return the edge that had been removed.
+     */
+    Edge removeChild(Node node) {
       for (Map.Entry<Emotion, Node> childEntry : mChildren.entrySet()) {
         if (node.equals(childEntry.getValue())) {
           mChildren.remove(childEntry.getKey());
-          return;
+          return new Edge(mMedia.getId(), childEntry.getValue().getMedia().getId(),
+              childEntry.getKey());
         }
       }
+      return null;
     }
   }
 }

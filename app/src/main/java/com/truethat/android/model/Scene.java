@@ -226,6 +226,10 @@ public class Scene extends BaseModel implements Serializable, FlowTree.Listener 
     mMediaNodes.remove(media);
   }
 
+  @Override public void deleteEdge(Edge edge) {
+    mEdges.remove(edge);
+  }
+
   private FlowTree getFlowTree() {
     if (mFlowTree == null) {
       initializeFlowTree();

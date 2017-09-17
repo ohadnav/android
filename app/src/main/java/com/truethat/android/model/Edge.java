@@ -36,11 +36,6 @@ public class Edge extends BaseModel implements Serializable {
     mReaction = reaction;
   }
 
-  public Edge(Long sourceId, Emotion reaction) {
-    mSourceId = sourceId;
-    mReaction = reaction;
-  }
-
   public Emotion getReaction() {
     return mReaction;
   }
