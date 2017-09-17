@@ -23,7 +23,7 @@ import retrofit2.Call;
  *
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Scene.java</a>
  */
-public class Scene extends BaseModel implements Serializable {
+public class Scene extends BaseModel implements Serializable, FlowTree.Listener {
   private static final long serialVersionUID = -8890719190429524778L;
   /**
    * Creator of the scene. By default, the current user is assigned.
@@ -222,7 +222,7 @@ public class Scene extends BaseModel implements Serializable {
     return this.getClass().getSimpleName() + "{id: " + mId + "}";
   }
 
-  void removeMediaInternal(Media media) {
+  @Override public void deleteMedia(Media media) {
     mMediaNodes.remove(media);
   }
 

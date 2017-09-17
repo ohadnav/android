@@ -13,14 +13,14 @@ class FlowTree {
   /**
    * Owner of this lovely tree.
    */
-  private Scene mOwner;
+  private Listener mListener;
   /**
    * Maps {@link Media#mId} to tree nodes
    */
   private Map<Long, Node> mNodes = new HashMap<>();
 
-  FlowTree(Scene owner) {
-    mOwner = owner;
+  FlowTree(Listener listener) {
+    mListener = listener;
   }
 
   /**
@@ -53,7 +53,7 @@ class FlowTree {
       for (Node childNode : node.mChildren.values()) {
         remove(childNode.getMedia().getId());
       }
-      mOwner.removeMediaInternal(node.getMedia());
+      mListener.deleteMedia(node.getMedia());
       mNodes.remove(mediaId);
     }
     return parentMedia;
@@ -138,6 +138,15 @@ class FlowTree {
       }
       mNodes.get(edge.getSourceId()).addChild(mNodes.get(edge.getTargetId()), edge.getReaction());
     }
+  }
+
+  public interface Listener {
+    /**
+     * Nullify references to the provided media.
+     *
+     * @param media to delete
+     */
+    void deleteMedia(Media media);
   }
 
   private static class Node {
