@@ -104,7 +104,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Should proceed to edit state
     assertEditState();
     // Go back to root media to create an alternative
-    onView(withId(R.id.previousMedia)).perform(click());
+    onView(withId(R.id.parentMedia)).perform(click());
     assertEditState();
     onView(withId(
         mStudioActivityTestRule.getActivity().getEmotionToViewId().get(Emotion.HAPPY))).perform(
@@ -116,7 +116,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     // Should proceed to edit state
     assertEditState();
     // Redo the surprise ending
-    onView(withId(R.id.previousMedia)).perform(click());
+    onView(withId(R.id.parentMedia)).perform(click());
     assertEditState();
     onView(withId(mStudioActivityTestRule.getActivity().getEmotionToViewId().get(Emotion.SURPRISE)))
         .perform(click());
@@ -303,9 +303,9 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     if (mediaFragment.getMedia()
         .equals(mStudioActivityTestRule.getActivity()
             .getViewModel().getDirectedScene().getRootMedia())) {
-      onView(withId(R.id.previousMedia)).check(matches(not(isDisplayed())));
+      onView(withId(R.id.parentMedia)).check(matches(not(isDisplayed())));
     } else {
-      onView(withId(R.id.previousMedia)).check(matches(isDisplayed()));
+      onView(withId(R.id.parentMedia)).check(matches(isDisplayed()));
     }
     // Should display emotions to create interactive scenes from.
     for (Emotion emotion : Emotion.values()) {

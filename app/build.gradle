@@ -35,7 +35,8 @@ android {
   }
   buildTypes {
     debug {
-      buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.0.27:8080/"'
+      buildConfigField "String", "BASE_BACKEND_URL", '"https://truethat-staging.appspot.com/"'
+      //      buildConfigField "String", "BASE_BACKEND_URL", '"http://10.0.0.27:8080/"'
       buildConfigField "String", "EMULATOR_BASE_BACKEND_URL", '"http://10.0.2.2:8080/"'
       buildConfigField "String", "TEST_BASE_BACKEND_URL", '"http://localhost:8070/"'
       buildConfigField "String", "APPSEE_API_KEY", '"8f3b34050a22433ab923fced71a10e50"'

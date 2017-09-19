@@ -43,7 +43,7 @@ public class StudioActivity
   @BindString(R.string.signing_in) String SINGING_IN;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.captureButton) ImageButton mCaptureButton;
-  @BindView(R.id.previousMedia) ImageButton mPreviousButton;
+  @BindView(R.id.parentMedia) ImageButton mPreviousButton;
   @BindView(R.id.flowLayout) ConstraintLayout mFlowLayout;
   private CameraFragment mCameraFragment;
   private Map<Emotion, Integer> mEmotionToViewId = new HashMap<>();
@@ -230,7 +230,7 @@ public class StudioActivity
       constraintSet.applyTo(mFlowLayout);
     }
     mFlowLayout.bringToFront();
-    viewIds[Emotion.values().length] = R.id.previousMedia;
+    viewIds[Emotion.values().length] = R.id.parentMedia;
     // Create a chain of emotions, so that they do not overlap one another.
     ConstraintSet constraintSet = new ConstraintSet();
     constraintSet.clone(mFlowLayout);

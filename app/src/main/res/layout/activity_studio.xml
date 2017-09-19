@@ -59,13 +59,13 @@
           app:layout_constraintTop_toTopOf="parent"
           >
         <ImageButton
-            android:id="@+id/previousMedia"
+            android:id="@+id/parentMedia"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/image_content_description"
-            android:onClick="@{() -> viewModel.previousMedia()}"
+            android:onClick="@{() -> viewModel.displayParentMedia()}"
             android:visibility="@{viewModel.mPreviousMediaVisibility? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
