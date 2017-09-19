@@ -130,9 +130,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   }
 
   /**
-   * Go back to edit the previous media, after which the user can reach the current one.
+   * Goes back to edit the previous media, from which the user can reach the current one.
    */
-  public void previousMedia() {
+  public void displayParentMedia() {
     // Should reach here only if the current media node has a parent.
     mCurrentMedia = mDirectedScene.getPreviousMedia(mCurrentMedia);
     onEdit();
@@ -173,7 +173,6 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     if (mCurrentMedia != null) {
       onEdit();
     } else {
-      mCurrentMedia = null;
       mDirectedScene = null;
       onCamera();
     }

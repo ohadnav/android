@@ -102,8 +102,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onPhotoTaken(createMockedImage());
     assertEditState();
     // Go to root media
-    mViewModel.previousMedia();
-    mViewModel.previousMedia();
+    mViewModel.displayParentMedia();
+    mViewModel.displayParentMedia();
     assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Chose a different follow up reaction
     mViewModel.onReactionChosen(Emotion.FEAR);
@@ -111,7 +111,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onPhotoTaken(createMockedImage());
     assertEditState();
     // Return to root media and chose first reaction
-    mViewModel.previousMedia();
+    mViewModel.displayParentMedia();
     mViewModel.onReactionChosen(Emotion.DISGUST);
     assertEditState();
     // Chose a new reaction
@@ -141,7 +141,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onPhotoTaken(createMockedImage());
     assertEditState();
     // Go to root media
-    mViewModel.previousMedia();
+    mViewModel.displayParentMedia();
     // Should edit root media
     assertEditState();
     assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
@@ -191,8 +191,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEditState();
     assertEquals(3, mViewModel.getDirectedScene().getMediaNodes().size());
     // Go to root media
-    mViewModel.previousMedia();
-    mViewModel.previousMedia();
+    mViewModel.displayParentMedia();
+    mViewModel.displayParentMedia();
     assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Cancel root media
     mViewModel.disapprove();

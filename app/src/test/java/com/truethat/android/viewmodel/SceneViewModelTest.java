@@ -324,7 +324,7 @@ import static org.junit.Assert.assertTrue;
     // Fake a detection.
     mFakeReactionDetectionManager.doDetection(REACTION);
     // Should not have an effect
-    assertTrue(mViewModel.getDetectedReactions().isEmpty());
+    assertTrue(mViewModel.getCurrentDetectedReactions().isEmpty());
     assertEquals(reactionCounters, mViewModel.getScene().getReactionCounters());
   }
 
@@ -345,7 +345,7 @@ import static org.junit.Assert.assertTrue;
     // Do a detection
     mFakeReactionDetectionManager.doDetection(REACTION);
     // Should not register the detection.
-    assertTrue(mViewModel.getDetectedReactions().isEmpty());
+    assertTrue(mViewModel.getCurrentDetectedReactions().isEmpty());
   }
 
   @Test public void multipleDetections() throws Exception {

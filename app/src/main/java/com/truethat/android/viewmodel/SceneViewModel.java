@@ -74,14 +74,14 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   private Timer mTimer;
   /**
    * Whether the media had been displayed to the user. Used to limit the number of {@link
-   * EventType#VIEW} events sent.
+   * EventType#VIEW} events sent to one.
    */
   private Map<Media, Boolean> mMediaViewed = new HashMap<>();
   /**
-   * A set of the detected reactions to {@link #mCurrentMedia}. Used to limit the number of {@link
+   * A set of the detected reactions to each media. Used to limit the number of {@link
    * EventType#REACTION} events sent, to one per {@link Emotion}.
    */
-  private Set<Emotion> mDetectedReactions;
+  private Map<Media, Set<Emotion>> mDetectedReactions = new HashMap<>();
   /**
    * Currently displayed media.
    */
@@ -113,7 +113,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   /**
    * Whether the media resources to display this scene had been downloaded.
    */
-  private boolean mReadyForDisplay = false;
+  private Map<Media, Boolean> mMediaReady = new HashMap<>();
 
   public static void setDetectionDelayMillis(long detectionDelayMillis) {
     DETECTION_DELAY_MILLIS = detectionDelayMillis;
@@ -147,7 +147,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
 
   public void onVisible() {
     if (mTimer == null) mTimer = new Timer(TAG);
-    if (mReadyForDisplay) {
+    if (mMediaReady.containsKey(mCurrentMedia) && mMediaReady.get(mCurrentMedia)) {
       onDisplay();
     }
   }
@@ -176,7 +176,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    */
   public void onReady() {
     Log.d(TAG, "onReady");
-    mReadyForDisplay = true;
+    mMediaReady.put(mCurrentMedia, true);
     if (getView().isReallyVisible()) {
       onDisplay();
     }
@@ -194,7 +194,11 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   public void onReactionDetected(Emotion reaction) {
-    if (!mDetectedReactions.contains(reaction)) {
+    if (!mDetectedReactions.containsKey(mCurrentMedia)) {
+      mDetectedReactions.put(mCurrentMedia, new HashSet<Emotion>());
+    }
+    if (mDetectedReactions.containsKey(mCurrentMedia) && !mDetectedReactions.get(mCurrentMedia)
+        .contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mScene.doReaction(reaction);
       // Post event of scene reaction.
@@ -225,15 +229,15 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
     // Update fragment state.
     mLastReaction = reaction;
-    mDetectedReactions.add(reaction);
+    mDetectedReactions.get(mCurrentMedia).add(reaction);
   }
 
   Media getNextMedia() {
     return mNextMedia;
   }
 
-  Set<Emotion> getDetectedReactions() {
-    return mDetectedReactions;
+  Set<Emotion> getCurrentDetectedReactions() {
+    return mDetectedReactions.get(mCurrentMedia);
   }
 
   /**
@@ -267,7 +271,6 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     // Updates media state.
     mCurrentMedia = media;
     mNextMedia = null;
-    mDetectedReactions = new HashSet<>();
     mLastReaction = null;
   }
 
