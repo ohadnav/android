@@ -150,7 +150,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should not be moving to next stage
     assertInvalidName();
     // Detect the final reaction.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
+    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
@@ -200,7 +200,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE);
+    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
   }
 
   private void assertInvalidName() {

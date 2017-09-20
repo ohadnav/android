@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import okhttp3.ResponseBody;
+import okio.Buffer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -138,16 +139,17 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   @Override public void onStart() {
     super.onStart();
     if (mCurrentMedia == null) {
-      mCurrentMedia = mScene.getRootMedia();
+      display(mScene.getRootMedia());
+    } else {
+      display(mCurrentMedia);
     }
-    display(mCurrentMedia);
     updateInfoLayout();
     updateReactionsLayout(null);
   }
 
   public void onVisible() {
     if (mTimer == null) mTimer = new Timer(TAG);
-    if (mMediaReady.containsKey(mCurrentMedia) && mMediaReady.get(mCurrentMedia)) {
+    if (mMediaReady.get(mCurrentMedia)) {
       onDisplay();
     }
   }
@@ -194,11 +196,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   public void onReactionDetected(Emotion reaction) {
-    if (!mDetectedReactions.containsKey(mCurrentMedia)) {
-      mDetectedReactions.put(mCurrentMedia, new HashSet<Emotion>());
-    }
-    if (mDetectedReactions.containsKey(mCurrentMedia) && !mDetectedReactions.get(mCurrentMedia)
-        .contains(reaction)) {
+    if (!mDetectedReactions.get(mCurrentMedia).contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mScene.doReaction(reaction);
       // Post event of scene reaction.
@@ -212,6 +210,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
             interactionEvent.toString());
       }
     }
+    mDetectedReactions.get(mCurrentMedia).add(reaction);
     // Calculate next media
     if (mNextMedia == null) {
       mNextMedia = mScene.getNextMedia(mCurrentMedia, reaction);
@@ -229,7 +228,6 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
     // Update fragment state.
     mLastReaction = reaction;
-    mDetectedReactions.get(mCurrentMedia).add(reaction);
   }
 
   Media getNextMedia() {
@@ -272,17 +270,25 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mCurrentMedia = media;
     mNextMedia = null;
     mLastReaction = null;
+    if (!mMediaReady.containsKey(mCurrentMedia)) {
+      mMediaReady.put(mCurrentMedia, false);
+    }
+    if (!mMediaViewed.containsKey(mCurrentMedia)) {
+      mMediaViewed.put(mCurrentMedia, false);
+    }
+    if (!mDetectedReactions.containsKey(mCurrentMedia)) {
+      mDetectedReactions.put(mCurrentMedia, new HashSet<Emotion>());
+    }
   }
 
   /**
    * Marks {@link #mScene} as viewed by the user, and informs our backend about it.
    */
   private void doView() {
-    if (!mMediaViewed.containsKey(mCurrentMedia) || !mMediaViewed.get(mCurrentMedia)) {
+    if (!mMediaViewed.get(mCurrentMedia)) {
       InteractionEvent interactionEvent =
           new InteractionEvent(AppContainer.getAuthManager().getCurrentUser().getId(),
-              mScene.getId(), new Date(), EventType.VIEW, null,
-              (long) mScene.getMediaNodes().indexOf(mCurrentMedia));
+              mScene.getId(), new Date(), EventType.VIEW, null, mCurrentMedia.getId());
       mInteractionApi.postEvent(interactionEvent).enqueue(mPostEventCallback);
       if (!BuildConfig.DEBUG) {
         Crashlytics.setString(LoggingKey.LAST_INTERACTION_EVENT.name(),
@@ -344,8 +350,16 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
           if (!BuildConfig.DEBUG) {
             Crashlytics.logException(new Exception("Failed to save interaction event"));
           }
+          Buffer buffer = new Buffer();
+          try {
+            //noinspection ConstantConditions
+            call.request().body().writeTo(buffer);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+          String requestBody = buffer.readUtf8();
           Log.e(TAG, "Failed to post event to "
-              + call.request().url()
+              + call.request().url() + "\nBody: " + requestBody
               + "\nRequest body: "
               + call.request().body()
               + "\nResponse: "

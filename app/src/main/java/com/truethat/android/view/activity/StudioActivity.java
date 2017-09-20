@@ -39,13 +39,13 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 public class StudioActivity
     extends BaseActivity<StudioViewInterface, StudioViewModel, ActivityStudioBinding>
     implements StudioViewInterface {
-  public static final String DIRECTED_SCENE_TAG = "DIRECTED_SCENE_TAG";
   @BindString(R.string.signing_in) String SINGING_IN;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
   @BindView(R.id.captureButton) ImageButton mCaptureButton;
   @BindView(R.id.parentMedia) ImageButton mPreviousButton;
   @BindView(R.id.flowLayout) ConstraintLayout mFlowLayout;
   private CameraFragment mCameraFragment;
+  private MediaFragment mMediaFragment;
   private Map<Emotion, Integer> mEmotionToViewId = new HashMap<>();
 
   public Map<Emotion, Integer> getEmotionToViewId() {
@@ -150,16 +150,14 @@ public class StudioActivity
     createFlowLayout();
   }
 
+  public MediaFragment getMediaFragment() {
+    return mMediaFragment;
+  }
+
   public void leaveStudio() {
     runOnUiThread(new Runnable() {
       @Override public void run() {
-        // Removes display fragment
-        if (getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG) != null) {
-          FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-          fragmentTransaction.remove(
-              getSupportFragmentManager().findFragmentByTag(DIRECTED_SCENE_TAG));
-          fragmentTransaction.commit();
-        }
+        removeMedia();
         // Navigate to theater after publishing.
         startActivity(new Intent(StudioActivity.this, TheaterActivity.class));
       }
@@ -171,11 +169,20 @@ public class StudioActivity
     mCameraFragment.restorePreview();
   }
 
-  @Override public void displayPreview(Media media) {
-    MediaFragment mediaFragment = media.createFragment();
+  @Override public void displayMedia(Media media) {
+    mMediaFragment = media.createFragment();
     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(R.id.mediaContainer, mediaFragment, DIRECTED_SCENE_TAG);
+    fragmentTransaction.replace(R.id.mediaContainer, mMediaFragment);
     fragmentTransaction.commit();
+  }
+
+  @Override public void removeMedia() {
+    if (mMediaFragment != null) {
+      FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.remove(mMediaFragment);
+      fragmentTransaction.commit();
+      mMediaFragment = null;
+    }
   }
 
   @Override protected void onNewIntent(Intent intent) {

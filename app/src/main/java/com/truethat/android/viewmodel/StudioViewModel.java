@@ -80,7 +80,10 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         Crashlytics.logException(t);
       }
       t.printStackTrace();
-      Log.e(TAG, "Saving scene request to " + call.request().url() + " had failed.", t);
+      Log.e(TAG, "Saving scene request to "
+          + call.request().url()
+          + " had failed. Scene: "
+          + mDirectedScene, t);
       onPublishError();
     }
   };
@@ -235,7 +238,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Shows the directed scene preview, and hides the camera preview.
     mScenePreviewVisibility.set(true);
     mCameraPreviewVisibility.set(false);
-    getView().displayPreview(mCurrentMedia);
+    getView().displayMedia(mCurrentMedia);
   }
 
   private void onCamera() {
@@ -253,6 +256,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     mScenePreviewVisibility.set(false);
     mCameraPreviewVisibility.set(true);
     getView().restoreCameraPreview();
+    getView().removeMedia();
     // Ensures scene state
     if (mDirectedScene != null && mChosenReaction == null) {
       mCurrentMedia = getDirectedScene().getRootMedia();

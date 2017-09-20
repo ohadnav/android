@@ -26,5 +26,10 @@ public interface StudioViewInterface extends BaseViewInterface {
    *
    * @param media to preview.
    */
-  void displayPreview(Media media);
+  void displayMedia(Media media);
+
+  /**
+   * Removes media display, to prevent interference with camera use.
+   */
+  void removeMedia();
 }

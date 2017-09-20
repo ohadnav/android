@@ -2,6 +2,7 @@ package com.truethat.android.view.fragment;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -52,7 +53,13 @@ public class PhotoFragment extends MediaFragment<Photo> {
               AppUtil.realDisplaySize(getActivity()));
       Bitmap scaledBitmap =
           Bitmap.createScaledBitmap(originalBitmap, scaledSize.x, scaledSize.y, false);
-      mImageView.setImageBitmap(scaledBitmap);
+      // Flip images that were taken with the camera
+      Matrix flipMatrix = new Matrix();
+      flipMatrix.preScale(-1, 1);
+      Bitmap flipped =
+          Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
+              flipMatrix, false);
+      mImageView.setImageBitmap(flipped);
       mLoadingImage.setVisibility(GONE);
       if (mMediaListener != null) {
         mMediaListener.onReady();

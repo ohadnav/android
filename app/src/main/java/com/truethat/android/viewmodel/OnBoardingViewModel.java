@@ -16,6 +16,8 @@ import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Proudly created by ohad on 31/07/2017 for TrueThat.
@@ -23,7 +25,8 @@ import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 
 public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     implements ReactionDetectionListener {
-  @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
+  @VisibleForTesting public static final List<Emotion> REACTION_FOR_DONE =
+      Arrays.asList(Emotion.HAPPY, Emotion.SURPRISE);
   @VisibleForTesting @ColorRes public static final int ERROR_COLOR = R.color.error;
   @VisibleForTesting @ColorRes public static final int VALID_NAME_COLOR = R.color.success;
   @VisibleForTesting static final int NAME_TEXT_EDITING_INPUT_TYPE =
@@ -71,7 +74,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   }
 
   @Override public void onReactionDetected(Emotion reaction) {
-    if (reaction == REACTION_FOR_DONE && StringUtil.isValidFullName(mNameEditText.get())) {
+    if (REACTION_FOR_DONE.contains(reaction) && StringUtil.isValidFullName(mNameEditText.get())) {
       onRequestSentStage();
     }
   }

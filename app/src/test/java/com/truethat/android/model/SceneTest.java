@@ -3,6 +3,7 @@ package com.truethat.android.model;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.viewmodel.ViewModelTestSuite;
 import java.util.Arrays;
+import java.util.LinkedList;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +46,7 @@ public class SceneTest extends ViewModelTestSuite {
   @Test public void removeMedia() throws Exception {
     Scene scene =
         new Scene(null, null, null, null, Arrays.asList(PHOTO_0, PHOTO_1, PHOTO_2, PHOTO_3),
-            Arrays.asList(EDGE_0, EDGE_1, EDGE_2));
+            new LinkedList<>(Arrays.asList(EDGE_0, EDGE_1, EDGE_2)));
     assertEquals(PHOTO_1, scene.removeMedia(PHOTO_3));
     assertEquals(3, scene.getMediaNodes().size());
     assertNull(scene.removeMedia(PHOTO_0));

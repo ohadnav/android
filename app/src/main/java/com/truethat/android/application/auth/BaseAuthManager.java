@@ -13,6 +13,7 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.BaseActivity;
 import java.io.IOException;
+import okio.Buffer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -184,10 +185,16 @@ public class BaseAuthManager implements AuthManager {
           mListener.onAuthFailed();
         }
       } else {
-        Log.e(TAG, "Failed auth request, input: "
-            + call.request().body()
-            + "\n"
-            + call.request().url()
+        Buffer buffer = new Buffer();
+        try {
+          //noinspection ConstantConditions
+          call.request().body().writeTo(buffer);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        String requestBody = buffer.readUtf8();
+        Log.e(TAG, "Failed auth request to "
+            + call.request().url() + "\nBody: " + requestBody
             + "\nUser: "
             + mUser
             + "\nResponse: "

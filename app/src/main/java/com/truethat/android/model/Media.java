@@ -56,7 +56,7 @@ public abstract class Media extends BaseModel implements Serializable {
   }
 
   @Override public String toString() {
-    return this.getClass().getSimpleName() + " " + hashCode() % 1000;
+    return this.getClass().getSimpleName() + " {id: " + mId + "}";
   }
 
   /**

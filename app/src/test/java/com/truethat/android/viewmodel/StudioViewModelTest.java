@@ -302,6 +302,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     if (mViewModel.getDirectedScene() != null) {
       assertNotNull(mViewModel.getChosenReaction());
     }
+    assertNull(mView.mDisplayedMedia);
   }
 
   private void assertEditState() {
@@ -377,8 +378,12 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       mPreviewRestored = true;
     }
 
-    @Override public void displayPreview(Media media) {
+    @Override public void displayMedia(Media media) {
       mDisplayedMedia = media;
+    }
+
+    @Override public void removeMedia() {
+      mDisplayedMedia = null;
     }
   }
 }

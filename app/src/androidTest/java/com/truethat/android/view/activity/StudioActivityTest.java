@@ -41,13 +41,13 @@ import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
 import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static com.truethat.android.common.network.NetworkUtil.GSON;
-import static com.truethat.android.view.activity.StudioActivity.DIRECTED_SCENE_TAG;
 import static com.truethat.android.viewmodel.StudioViewModel.DirectingState.SENT;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -158,13 +158,6 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     onView(withId(R.id.captureButton)).perform(click());
     // Should proceed to edit state
     assertEditState();
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
-            .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_SCENE_TAG)).isReady());
-      }
-    });
     onView(withId(R.id.imageView)).check(matches(isFullScreen()));
   }
 
@@ -184,13 +177,6 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
         new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
     // Should proceed to edit state
     assertEditState();
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertTrue(((MediaFragment) mStudioActivityTestRule.getActivity()
-            .getSupportFragmentManager()
-            .findFragmentByTag(DIRECTED_SCENE_TAG)).isReady());
-      }
-    });
     onView(withId(R.id.videoSurface)).check(matches(isFullScreen()));
   }
 
@@ -288,9 +274,12 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
     assertEquals(GONE, mStudioActivityTestRule.getActivity().mLoadingImage.getVisibility());
     // Directed scene preview is shown
     onView(withId(R.id.previewContainer)).check(matches(isDisplayed()));
-    final MediaFragment mediaFragment = (MediaFragment) mStudioActivityTestRule.getActivity()
-        .getSupportFragmentManager()
-        .findFragmentByTag(DIRECTED_SCENE_TAG);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertNotNull(mStudioActivityTestRule.getActivity().getMediaFragment());
+      }
+    });
+    final MediaFragment mediaFragment = mStudioActivityTestRule.getActivity().getMediaFragment();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         //noinspection unchecked
