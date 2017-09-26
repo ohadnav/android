@@ -6,13 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
-import butterknife.OnTouch;
 import com.truethat.android.R;
 import com.truethat.android.model.Video;
 import java.io.File;
@@ -147,18 +145,5 @@ public class VideoFragment extends MediaFragment<Video> {
     if (mMediaPlayer != null) {
       mMediaPlayer.stop();
     }
-  }
-
-  @OnTouch(R.id.videoSurface) boolean pauseOrResumeVideo(MotionEvent motionEvent) {
-    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-      Log.d(TAG, "Video video paused.");
-      mMediaPlayer.pause();
-      return true;
-    } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-      Log.d(TAG, "Video video is resumed.. and action!");
-      mMediaPlayer.start();
-      return true;
-    }
-    return false;
   }
 }

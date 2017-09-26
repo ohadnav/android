@@ -16,8 +16,12 @@ import com.affectiva.android.affdex.sdk.detector.FrameDetector;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.model.Emotion;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Proudly created by ohad on 31/07/2017 for TrueThat.
@@ -50,16 +54,23 @@ class DetectionHandler extends Handler {
     mFrameDetector.setDetectAllEmotions(true);
     mFrameDetector.setImageListener(new Detector.ImageListener() {
       @Override public void onImageResults(List<Face> faces, Frame frame, float v) {
-        for (Face face : faces) {
-          if (face.emotions.getSurprise() > DETECTION_THRESHOLD) {
-            reactionDetectionManager.onReactionDetected(Emotion.SURPRISE);
-          } else if (face.emotions.getJoy() > DETECTION_THRESHOLD) {
-            reactionDetectionManager.onReactionDetected(Emotion.HAPPY);
-            // Fear is harder to detect, and so the threshold is lowered
-          } else if (face.emotions.getFear() > DETECTION_THRESHOLD / 2) {
-            reactionDetectionManager.onReactionDetected(Emotion.FEAR);
-          } else if (face.emotions.getDisgust() > DETECTION_THRESHOLD) {
-            reactionDetectionManager.onReactionDetected(Emotion.DISGUST);
+        for (final Face face : faces) {
+          Map<Emotion, Float> emotionToLikelihood = new HashMap<>();
+          emotionToLikelihood.put(Emotion.HAPPY, face.emotions.getJoy());
+          // Fear is harder to detect, and so it is amplified
+          emotionToLikelihood.put(Emotion.FEAR, face.emotions.getFear() * 2);
+          // Disgust is too easy to detect, and so it is decreased
+          emotionToLikelihood.put(Emotion.DISGUST, face.emotions.getDisgust() / 2);
+          emotionToLikelihood.put(Emotion.SURPRISE, face.emotions.getSurprise());
+          Map.Entry<Emotion, Float> mostLikely = Collections.max(emotionToLikelihood.entrySet(),
+              new Comparator<Map.Entry<Emotion, Float>>() {
+                @Override public int compare(Map.Entry<Emotion, Float> emotionFloatEntry,
+                    Map.Entry<Emotion, Float> t1) {
+                  return emotionFloatEntry.getValue().compareTo(t1.getValue());
+                }
+              });
+          if (mostLikely.getValue() > DETECTION_THRESHOLD) {
+            reactionDetectionManager.onReactionDetected(mostLikely.getKey());
           }
         }
       }

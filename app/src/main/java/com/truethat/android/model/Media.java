@@ -55,10 +55,6 @@ public abstract class Media extends BaseModel implements Serializable {
     return mUrl != null ? mUrl.equals(media.mUrl) : media.mUrl == null;
   }
 
-  @Override public String toString() {
-    return this.getClass().getSimpleName() + " {id: " + mId + "}";
-  }
-
   /**
    * @return a HTTP multipart part with the binary data of this media.
    */

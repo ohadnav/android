@@ -72,7 +72,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    */
   @VisibleForTesting @BindString(R.string.anonymous) String DEFAULT_DIRECTOR_NAME;
   public final ObservableField<String> mDirectorName = new ObservableField<>(DEFAULT_DIRECTOR_NAME);
-  private Timer mTimer;
+  private Timer mDetectionTimer;
   /**
    * Whether the media had been displayed to the user. Used to limit the number of {@link
    * EventType#VIEW} events sent to one.
@@ -148,7 +148,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   public void onVisible() {
-    if (mTimer == null) mTimer = new Timer(TAG);
+    if (mDetectionTimer == null) mDetectionTimer = new Timer(TAG);
     if (mMediaReady.get(mCurrentMedia)) {
       onDisplay();
     }
@@ -157,10 +157,10 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   @Override public void onHidden() {
     super.onHidden();
     AppContainer.getReactionDetectionManager().unsubscribe(this);
-    if (mTimer != null) {
-      mTimer.cancel();
-      mTimer.purge();
-      mTimer = null;
+    if (mDetectionTimer != null) {
+      mDetectionTimer.cancel();
+      mDetectionTimer.purge();
+      mDetectionTimer = null;
     }
   }
 
@@ -245,7 +245,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     Log.d(TAG, "onDisplay");
     doView();
     // Delays reaction detection by a bit.
-    mTimer.schedule(new TimerTask() {
+    mDetectionTimer.schedule(new TimerTask() {
       @Override public void run() {
         if (!AppContainer.getAuthManager()
             .getCurrentUser()
@@ -312,8 +312,10 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
         mDirectorNameVisibility.set(false);
       }
     }
-    // Sets time ago
-    mTimeAgoText.set(DateUtil.formatTimeAgo(mScene.getCreated()));
+    if (mScene.getCreated() != null) {
+      // Sets time ago
+      mTimeAgoText.set(DateUtil.formatTimeAgo(mScene.getCreated()));
+    }
   }
 
   /**

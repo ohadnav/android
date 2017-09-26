@@ -18,13 +18,14 @@ public class DateUtil {
   /**
    * Time threshold to consider a time difference as "now".
    */
-  private static final int MAX_SECONDS_TO_CONSIDER_AS_NOW = 40;
+  private static final long CONSIDER_AS_NOW_MILLIS = TimeUnit.MINUTES.toMillis(1);
   /**
    * Suffixes for time differences magnitudes (i.e. minutes, hours etc.)
    */
   private static final NavigableMap<Long, String> suffixes = new TreeMap<>();
 
   static {
+    suffixes.put(TimeUnit.SECONDS.toMillis(1), "s");
     suffixes.put(TimeUnit.MINUTES.toMillis(1), "m");
     suffixes.put(TimeUnit.HOURS.toMillis(1), "h");
     suffixes.put(TimeUnit.DAYS.toMillis(1), "d");
@@ -42,7 +43,7 @@ public class DateUtil {
 
     if (diff < 0) throw new IllegalArgumentException("than parameter must be from the past.");
     // If the diff is small enough, then consider it as "now"
-    if (diff < TimeUnit.SECONDS.toMillis(MAX_SECONDS_TO_CONSIDER_AS_NOW)) return NOW;
+    if (diff < CONSIDER_AS_NOW_MILLIS) return NOW;
     // Find proper time unit.
     Map.Entry<Long, String> floorTimeUnit = suffixes.floorEntry(diff);
     // Milliseconds to divide by the difference.

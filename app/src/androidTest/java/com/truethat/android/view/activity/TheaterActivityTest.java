@@ -8,6 +8,7 @@ import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Photo;
 import com.truethat.android.model.Scene;
+import com.truethat.android.model.Video;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +57,18 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void navigationWhileSceneDisplayed() throws Exception {
+    mRespondedScenes = Collections.singletonList(mScene);
+    mTheaterActivityTestRule.launchActivity(null);
+    assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
+    centerSwipeUp();
+    waitForActivity(StudioActivity.class);
+  }
+
+  @Test public void navigationWhileVideoDisplayed() throws Exception {
+    mScene =
+        new Scene(1L, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(), new Date(),
+            new Video(null,
+                "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4"));
     mRespondedScenes = Collections.singletonList(mScene);
     mTheaterActivityTestRule.launchActivity(null);
     assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
