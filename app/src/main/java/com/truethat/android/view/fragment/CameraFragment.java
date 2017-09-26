@@ -213,6 +213,30 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
+  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -314,30 +338,6 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
-  /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
 
   @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -469,7 +469,9 @@ public class CameraFragment extends
   @Override public void onDestroy() {
     super.onDestroy();
     closeCamera();
-    mBackgroundHandler.stop();
+    if (mBackgroundHandler != null) {
+      mBackgroundHandler.stop();
+    }
   }
 
   @Override public void onDetach() {
@@ -502,7 +504,9 @@ public class CameraFragment extends
   @Override public void onHidden() {
     super.onHidden();
     closeCamera();
-    mBackgroundHandler.stop();
+    if (mBackgroundHandler != null) {
+      mBackgroundHandler.stop();
+    }
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {

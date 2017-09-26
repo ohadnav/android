@@ -56,7 +56,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     waitForActivity(StudioActivity.class);
   }
 
-  @Test public void navigationWhileSceneDisplayed() throws Exception {
+  @Test public void navigationWhilePhotoDisplayed() throws Exception {
     mRespondedScenes = Collections.singletonList(mScene);
     mTheaterActivityTestRule.launchActivity(null);
     assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
