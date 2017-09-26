@@ -8,8 +8,8 @@
     tools:context=".view.fragment.VideoFragment"
     >
 
-  <SurfaceView
-      android:id="@+id/videoSurface"
+  <TextureView
+      android:id="@+id/videoTextureView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       app:layout_constraintBottom_toBottomOf="parent"

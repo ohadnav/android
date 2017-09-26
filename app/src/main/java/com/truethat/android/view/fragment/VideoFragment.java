@@ -1,19 +1,22 @@
 package com.truethat.android.view.fragment;
 
+import android.graphics.SurfaceTexture;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.model.Video;
 import java.io.File;
+import java.util.HashMap;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -23,7 +26,7 @@ import static android.view.View.VISIBLE;
  */
 
 public class VideoFragment extends MediaFragment<Video> {
-  @BindView(R.id.videoSurface) SurfaceView mVideoSurface;
+  @BindView(R.id.videoTextureView) TextureView mVideoTextureView;
   private MediaPlayer mMediaPlayer;
 
   public VideoFragment() {
@@ -48,18 +51,43 @@ public class VideoFragment extends MediaFragment<Video> {
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
-    mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
-      @Override public void surfaceCreated(SurfaceHolder holder) {
-        // Create a URI to read the video from
-        Uri videoUri =
-            mMedia.getInternalPath() != null ? Uri.fromFile(new File(mMedia.getInternalPath()))
-                : Uri.parse(mMedia.getUrl());
-        // Creates the media player instance
-        mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(), videoUri,
-            mVideoSurface.getHolder());
+    mVideoTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+      @Override
+      public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        if (mMedia.getInternalPath() != null) {
+          // Initialize media player from internal file, i.e. from the device's camera.
+          mMediaPlayer = MediaPlayer.create(getActivity().getApplicationContext(),
+              Uri.fromFile(new File(mMedia.getInternalPath())));
+          // Mirror video to give a more natural feel.
+          mVideoTextureView.setScaleX(-1);
+        } else {
+          // Initialize media player and retriever from external URI, i.e. from other users videos.
+          mMediaPlayer =
+              MediaPlayer.create(getActivity().getApplicationContext(), Uri.parse(mMedia.getUrl()));
+          MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+          retriever.setDataSource(mMedia.getUrl(), new HashMap<String, String>());
+          // Sets proper orientation
+          int videoOrientation = Integer.parseInt(
+              retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+          // iPhone videos has the "correct" orientation of 0, and so need to be rotated and scaled
+          // to match the android videos.
+          if (videoOrientation == 0) {
+            mVideoTextureView.setRotation(90F);
+            // 0.01 is added to compensate for missing pixel row
+            mVideoTextureView.setScaleX(0.01F
+                + Integer.parseInt(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH))
+                / Float.parseFloat(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
+            mVideoTextureView.setScaleY(9 / 16F);
+          }
+        }
         if (mMediaPlayer == null) {
           throw new IllegalStateException("Failed to create media player for " + mMedia);
         }
+        // Media player properties
+        mMediaPlayer.setSurface(new Surface(surface));
+        mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
         // A callback that is invoked once the player is ready to start streaming.
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
@@ -106,11 +134,16 @@ public class VideoFragment extends MediaFragment<Video> {
       }
 
       @Override
-      public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+      public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
 
       }
 
-      @Override public void surfaceDestroyed(SurfaceHolder holder) {
+      @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        killMediaPlayer();
+        return false;
+      }
+
+      @Override public void onSurfaceTextureUpdated(SurfaceTexture surface) {
 
       }
     });
@@ -124,10 +157,7 @@ public class VideoFragment extends MediaFragment<Video> {
 
   @Override public void onDestroyView() {
     super.onDestroyView();
-    if (mMediaPlayer != null) {
-      mMediaPlayer.release();
-      mMediaPlayer = null;
-    }
+    killMediaPlayer();
   }
 
   @Override public void onVisible() {
@@ -144,6 +174,13 @@ public class VideoFragment extends MediaFragment<Video> {
     super.onHidden();
     if (mMediaPlayer != null) {
       mMediaPlayer.stop();
+    }
+  }
+
+  private void killMediaPlayer() {
+    if (mMediaPlayer != null) {
+      mMediaPlayer.release();
+      mMediaPlayer = null;
     }
   }
 }

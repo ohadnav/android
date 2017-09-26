@@ -177,7 +177,7 @@ public class StudioActivityTest extends BaseApplicationTestSuite {
         new GeneralClickAction(new RecordTapper(), GeneralLocation.CENTER, Press.FINGER));
     // Should proceed to edit state
     assertEditState();
-    onView(withId(R.id.videoSurface)).check(matches(isFullScreen()));
+    onView(withId(R.id.videoTextureView)).check(matches(isFullScreen()));
   }
 
   @Test public void recordVideoAndResumeDirecting() throws Exception {

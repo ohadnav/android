@@ -428,6 +428,7 @@ public class CameraFragment extends
    * And....cut!
    */
   public void stopRecordVideo() {
+    // TODO(ohad): handle stop failures.
     if (!isRecordingVideo()) {
       Log.v(TAG, "Trying to stop video when not recording");
       return;
@@ -820,7 +821,7 @@ public class CameraFragment extends
       mVideoAbsolutePath = getVideoFilePath();
     }
     mMediaRecorder.setOutputFile(mVideoAbsolutePath);
-    mMediaRecorder.setVideoEncodingBitRate(10000000);
+    mMediaRecorder.setVideoEncodingBitRate(5000000);
     mMediaRecorder.setVideoFrameRate(30);
     mMediaRecorder.setMaxDuration(MAX_VIDEO_MS);
     mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());

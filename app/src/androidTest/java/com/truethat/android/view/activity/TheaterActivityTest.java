@@ -84,7 +84,7 @@ public class TheaterActivityTest extends BaseApplicationTestSuite {
     centerSwipeUp();
     waitForActivity(StudioActivity.class);
     // Navigate back to Theater activity
-    centerSwipeUp();
+    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeDown());
     waitForActivity(TheaterActivity.class);
     assertSceneDisplayed(mScene, mFakeAuthManager.getCurrentUser(), 0);
   }

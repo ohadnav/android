@@ -106,7 +106,7 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
     } else if (scene.getMediaNodes().get(mediaIndex) instanceof Video) {
       // Asserting the video is displayed fullscreen.
-      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoSurface)));
+      assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoTextureView)));
       // Video should be playing
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {

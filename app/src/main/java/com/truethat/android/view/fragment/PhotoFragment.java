@@ -54,11 +54,11 @@ public class PhotoFragment extends MediaFragment<Photo> {
       Bitmap scaledBitmap =
           Bitmap.createScaledBitmap(originalBitmap, scaledSize.x, scaledSize.y, false);
       // Flip images that were taken with the camera
-      Matrix flipMatrix = new Matrix();
-      flipMatrix.preScale(-1, 1);
+      Matrix mirrorMatrix = new Matrix();
+      mirrorMatrix.preScale(-1, 1);
       Bitmap flipped =
           Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
-              flipMatrix, false);
+              mirrorMatrix, false);
       mImageView.setImageBitmap(flipped);
       mLoadingImage.setVisibility(GONE);
       if (mMediaListener != null) {
