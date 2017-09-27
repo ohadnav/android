@@ -214,6 +214,30 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
+  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -315,30 +339,6 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
-  /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
 
   @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -463,24 +463,6 @@ public class CameraFragment extends
     }
   }
 
-  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putSerializable(ARG_FACING, mFacing);
-  }
-
-  @Override public void onDestroy() {
-    super.onDestroy();
-    closeCamera();
-    if (mBackgroundHandler != null) {
-      mBackgroundHandler.stop();
-    }
-  }
-
-  @Override public void onDetach() {
-    super.onDetach();
-    mCameraFragmentListener = null;
-  }
-
   /**
    * When the screen is turned off and turned back on, the SurfaceTexture is already available, and
    * "onSurfaceTextureAvailable" will not be called. In that case, we can open a camera and start
@@ -509,6 +491,24 @@ public class CameraFragment extends
     if (mBackgroundHandler != null) {
       mBackgroundHandler.stop();
     }
+  }
+
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putSerializable(ARG_FACING, mFacing);
+  }
+
+  @Override public void onDestroy() {
+    super.onDestroy();
+    closeCamera();
+    if (mBackgroundHandler != null) {
+      mBackgroundHandler.stop();
+    }
+  }
+
+  @Override public void onDetach() {
+    super.onDetach();
+    mCameraFragmentListener = null;
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -548,6 +548,10 @@ public class CameraFragment extends
    * Restores camera preview after a picture was taken, or after a video was recorded.
    */
   public void restorePreview() {
+    if (cameraNotPrepared() || mCameraPreview == null) {
+      Log.d(TAG, "Could not restore preview because camera or its preview are not ready.");
+      return;
+    }
     Log.d(TAG, "restorePreview");
     getActivity().runOnUiThread(new Runnable() {
       @Override public void run() {

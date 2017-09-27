@@ -166,7 +166,9 @@ public class StudioActivity
 
   public void restoreCameraPreview() {
     //Restores the camera preview.
-    mCameraFragment.restorePreview();
+    if (mCameraFragment != null && !mCameraFragment.cameraNotPrepared()) {
+      mCameraFragment.restorePreview();
+    }
   }
 
   @Override public void displayMedia(Media media) {
