@@ -15,6 +15,10 @@ class TestAuthListener implements AuthListener {
     mAuthResult = AuthResult.FAILED;
   }
 
+  @Override public String getTAG() {
+    return this.getClass().getSimpleName();
+  }
+
   void resetResult() {
     mAuthResult = null;
   }

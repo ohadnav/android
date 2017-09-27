@@ -44,6 +44,10 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       @Override public void onAuthFailed() {
 
       }
+
+      @Override public String getTAG() {
+        return "AnonymousAuthListener";
+      }
     });
     // Initializing view model and its view interface.
     mView = new ViewInterface();

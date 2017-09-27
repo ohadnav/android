@@ -322,5 +322,9 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
 
     @Override public void onVideoRecordStart() {
     }
+
+    @Override public String getTAG() {
+      return this.getClass().getSimpleName();
+    }
   }
 }

@@ -76,7 +76,7 @@ import static org.junit.Assert.assertTrue;
     final Scene scene =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(null, IMAGE_URL_1));
-    mRespondedScenes = Collections.singletonList((Scene) scene);
+    mRespondedScenes = Collections.singletonList(scene);
     mViewModel.fetchScenes();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -102,7 +102,7 @@ import static org.junit.Assert.assertTrue;
     Scene scene = new Scene(ID_1, mFakeAuthManager.getCurrentUser(), new TreeMap<Emotion, Long>(),
         HOUR_AGO, new Photo(null, IMAGE_URL_1));
     // Explicitly load more scenes.
-    mRespondedScenes = Collections.singletonList((Scene) scene);
+    mRespondedScenes = Collections.singletonList(scene);
     mViewModel.next();
     // Loading image should be shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
@@ -149,7 +149,7 @@ import static org.junit.Assert.assertTrue;
     Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
-    mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
+    mRespondedScenes = Arrays.asList(scene1, scene2);
     mViewModel.fetchScenes();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -190,7 +190,7 @@ import static org.junit.Assert.assertTrue;
     final Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
-    mRespondedScenes = Arrays.asList((Scene) scene1, (Scene) scene2);
+    mRespondedScenes = Arrays.asList(scene1, scene2);
     mViewModel.fetchScenes();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -219,7 +219,7 @@ import static org.junit.Assert.assertTrue;
     final Scene scene2 =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
-    mRespondedScenes = Collections.singletonList((Scene) scene1);
+    mRespondedScenes = Collections.singletonList(scene1);
     mViewModel.fetchScenes();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
@@ -228,7 +228,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Updates responded scenes.
-    mRespondedScenes = Collections.singletonList((Scene) scene2);
+    mRespondedScenes = Collections.singletonList(scene2);
     // Triggers navigation to next scene.
     mViewModel.next();
     // Second scene should be displayed.
@@ -237,6 +237,62 @@ import static org.junit.Assert.assertTrue;
         assertEquals(scene2, mViewModel.getDisplayedScene());
       }
     });
+  }
+
+  @Test public void doNotAddDuplicateScenes_onFirstFetch() throws Exception {
+    final Scene scene =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
+            new Photo(null, IMAGE_URL_1));
+    mRespondedScenes = Arrays.asList(scene, scene);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(scene, mViewModel.getDisplayedScene());
+      }
+    });
+    assertEquals(1, mViewModel.mItems.size());
+  }
+
+  @Test public void doNotAddDuplicateScenes() throws Exception {
+    final Scene scene =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
+            new Photo(null, IMAGE_URL_1));
+    mRespondedScenes = Collections.singletonList(scene);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(scene, mViewModel.getDisplayedScene());
+      }
+    });
+    // Updates responded scenes.
+    mRespondedScenes = Collections.singletonList(scene);
+    // Triggers navigation to next scene.
+    mViewModel.next();
+    Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
+    assertEquals(1, mViewModel.mItems.size());
+  }
+
+  @Test public void judgeDuplicatesById() throws Exception {
+    final Scene scene =
+        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
+            new Photo(null, IMAGE_URL_1));
+    mRespondedScenes = Collections.singletonList(scene);
+    mViewModel.fetchScenes();
+    // First scene should be displayed.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(scene, mViewModel.getDisplayedScene());
+      }
+    });
+    scene.getMediaNodes().remove(0);
+    // Updates responded scenes.
+    mRespondedScenes = Collections.singletonList(scene);
+    // Triggers navigation to next scene.
+    mViewModel.next();
+    Thread.sleep(DEFAULT_TIMEOUT.getValueInMS());
+    assertEquals(1, mViewModel.mItems.size());
   }
 
   private class ViewInterface extends ViewModelTestSuite.UnitTestViewInterface

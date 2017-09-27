@@ -11,7 +11,9 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.model.Scene;
 import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -93,11 +95,28 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
           @NonNull Response<List<Scene>> response) {
         mLoadingImageVisibility.set(false);
         if (response.isSuccessful()) {
-          List<Scene> newScenes = response.body();
-          if (newScenes == null) {
+          List<Scene> fetchedScenes = response.body();
+          if (fetchedScenes == null) {
             throw new AssertionError("I just cant believe it! The new scenes are null.");
           }
+          List<Scene> newScenes = new ArrayList<>();
+          for (Scene fetchedScene : fetchedScenes) {
+            boolean isNew = true;
+            for (Scene existingScene : mItems) {
+              if (Objects.equals(existingScene.getId(), fetchedScene.getId())) {
+                isNew = false;
+              }
+            }
+            for (Scene alreadyConsidered : newScenes) {
+              if (Objects.equals(alreadyConsidered.getId(), fetchedScene.getId())) {
+                isNew = false;
+              }
+            }
+            if (isNew) newScenes.add(fetchedScene);
+          }
           if (newScenes.size() > 0) {
+            // Find new scenes, to avoid duplicate scenes
+
             Log.v(TAG, "Loading " + newScenes.size() + " new scenes.");
             // Hides the loading image.
             // Display new scenes.

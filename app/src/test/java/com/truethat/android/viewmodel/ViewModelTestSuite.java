@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 @SuppressWarnings("WeakerAccess") public class ViewModelTestSuite {
+  public static final Duration DEFAULT_TIMEOUT = Duration.ONE_HUNDRED_MILLISECONDS;
   final MockWebServer mMockWebServer = new MockWebServer();
   protected FakeAuthManager mFakeAuthManager;
   protected FakeInternalStorageManager mFakeInternalStorageManager;
@@ -50,7 +51,7 @@ import static org.junit.Assert.assertTrue;
     mNow = new Date();
     // Initialize Awaitility
     Awaitility.reset();
-    Awaitility.setDefaultTimeout(Duration.ONE_HUNDRED_MILLISECONDS);
+    Awaitility.setDefaultTimeout(DEFAULT_TIMEOUT);
     Awaitility.setDefaultPollDelay(new Duration(10, TimeUnit.MILLISECONDS));
     Awaitility.setDefaultPollInterval(new Duration(10, TimeUnit.MILLISECONDS));
     // Starts mock server
@@ -148,6 +149,10 @@ import static org.junit.Assert.assertTrue;
 
     @Override public boolean isReallyVisible() {
       return isVisible;
+    }
+
+    @Override public String getTAG() {
+      return this.getClass().getSimpleName();
     }
   }
 }
