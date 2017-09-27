@@ -131,6 +131,15 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mPostEventCallback = buildPostEventCallback();
   }
 
+  @Override public void onBindView(@NonNull SceneViewInterface view) {
+    super.onBindView(view);
+    // This method is expected to be called once per view model and so string concatenation should
+    // do.
+    if (mScene != null) {
+      TAG += " " + mScene.getId();
+    }
+  }
+
   @Override public void onStop() {
     super.onStop();
     if (mPostEventCall != null) mPostEventCall.cancel();
@@ -191,10 +200,6 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     }
   }
 
-  @Override public String toString() {
-    return TAG + " {" + mScene + "}";
-  }
-
   public void onReactionDetected(Emotion reaction) {
     if (!mDetectedReactions.get(mCurrentMedia).contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
@@ -228,6 +233,10 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
     // Update fragment state.
     mLastReaction = reaction;
+  }
+
+  @Override public boolean isReallyVisible() {
+    return getView().isReallyVisible();
   }
 
   Media getNextMedia() {

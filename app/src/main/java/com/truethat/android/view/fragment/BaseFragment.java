@@ -21,6 +21,7 @@ import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import eu.inloop.viewmodel.ViewModelHelper;
 
 /**
@@ -28,7 +29,7 @@ import eu.inloop.viewmodel.ViewModelHelper;
  */
 
 public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterface, ViewModel extends BaseFragmentViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends Fragment implements BaseFragmentViewInterface {
+    extends Fragment implements BaseFragmentViewInterface, BaseListener {
   /**
    * {@link BaseViewModel} manager of this fragment.
    */
@@ -52,116 +53,11 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   boolean mAutomaticViewBinding = true;
 
-  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
-    if (isResumed()) {
-      if (isVisibleToUser) {
-        onVisible();
-      } else {
-        onHidden();
-      }
-    }
-  }
-
-  @Override public void onAttach(Context context) {
-    TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
-    Log.d(TAG, "ATTACHED");
-    super.onAttach(context);
-  }
-
-  @SuppressWarnings("unchecked") @CallSuper @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    Log.d(TAG, "CREATED");
-    super.onCreate(savedInstanceState);
-    // Initializes view model
-    Class<ViewModel> viewModelClass =
-        (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseFragmentViewModel.class);
-    mViewModelHelper.onCreate(getActivity(), savedInstanceState, viewModelClass, getArguments());
-    mViewModelHelper.performBinding(this);
-  }
-
-  /**
-   * Initializes root view and
-   */
-  @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
-      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    Log.d(TAG, "CREATING VIEW");
-    // Completes data binding.
-    mViewModelHelper.performBinding(this);
-    final ViewDataBinding binding = mViewModelHelper.getBinding();
-    if (binding != null) {
-      mRootView = binding.getRoot();
-    } else {
-      throw new IllegalStateException(
-          "Binding cannot be null. Perform binding before calling getBinding()");
-    }
-    // Sets the view interface.
-    setModelView((ViewInterface) this);
-    if (mAutomaticViewBinding) {
-      // Binds views with butterknife.
-      mViewUnbinder = ButterKnife.bind(this, mRootView);
-    }
-    // Sets up context
-    mViewModelHelper.getViewModel().setContext(this.getActivity());
-    return mRootView;
-  }
-
-  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    Log.d(TAG, "VIEW CREATED");
-    super.onViewCreated(view, savedInstanceState);
-  }
-
-  @CallSuper @Override public void onStart() {
-    Log.d(TAG, "STARTED");
-    super.onStart();
-    mViewModelHelper.onStart();
-  }
-
-  /**
-   * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
-   * and {@link #onHidden()} here as well.
-   */
-  @CallSuper @Override public void onResume() {
-    Log.d(TAG, "RESUMED");
-    super.onResume();
-    if (getUserVisibleHint()) onVisible();
-  }
-
-  @CallSuper @Override public void onPause() {
-    Log.d(TAG, "PAUSED");
-    super.onPause();
-    onHidden();
-  }
-
-  @CallSuper @Override public void onStop() {
-    Log.d(TAG, "STOPPED");
-    super.onStop();
-    mViewModelHelper.onStop();
-  }
-
-  @CallSuper @Override public void onDestroyView() {
-    Log.d(TAG, "VIEW DESTROYED");
-    mViewModelHelper.onDestroyView(this);
-    super.onDestroyView();
-    mViewUnbinder.unbind();
-  }
-
-  @CallSuper @Override public void onDestroy() {
-    Log.d(TAG, "DESTROYED");
-    mViewModelHelper.onDestroy(this);
-    super.onDestroy();
-  }
-
-  @Override public void onDetach() {
-    Log.d(TAG, "DETACHED");
-    super.onDetach();
-  }
-
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
   @SuppressWarnings("WeakerAccess") @CallSuper public void onVisible() {
-    Log.d(TAG, "VISIBLE");
+    Log.d(TAG, "onVisible");
     getViewModel().onVisible();
   }
 
@@ -169,7 +65,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * Should be invoked once this fragment is hidden. Use with caution.
    */
   @SuppressWarnings("WeakerAccess") @CallSuper public void onHidden() {
-    Log.d(TAG, "HIDDEN");
+    Log.d(TAG, "onHidden");
     getViewModel().onHidden();
   }
 
@@ -214,6 +110,128 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void removeViewModel() {
     mViewModelHelper.removeViewModel(getActivity());
+  }
+
+  @Override public String getTAG() {
+    return TAG;
+  }
+
+  @Override public String toString() {
+    return TAG;
+  }
+
+  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
+    super.setUserVisibleHint(isVisibleToUser);
+    if (isResumed()) {
+      if (isVisibleToUser) {
+        onVisible();
+      } else {
+        onHidden();
+      }
+    }
+  }
+
+  @Override public void onAttach(Context context) {
+    TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
+    Log.d(TAG, "onAttach");
+    super.onAttach(context);
+  }
+
+  @SuppressWarnings("unchecked") @CallSuper @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    Log.d(TAG, "onCreate");
+    super.onCreate(savedInstanceState);
+    // Initializes view model
+    Class<ViewModel> viewModelClass =
+        (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseFragmentViewModel.class);
+
+    mViewModelHelper.onCreate(getActivity(), savedInstanceState, viewModelClass, getArguments());
+    mViewModelHelper.performBinding(this);
+  }
+
+  /**
+   * Initializes root view and
+   */
+  @SuppressWarnings("unchecked") @CallSuper @Nullable @Override public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    Log.d(TAG, "onCreateView");
+    // Completes data binding.
+    mViewModelHelper.performBinding(this);
+    final ViewDataBinding binding = mViewModelHelper.getBinding();
+    if (binding != null) {
+      mRootView = binding.getRoot();
+    } else {
+      throw new IllegalStateException(
+          "Binding cannot be null. Perform binding before calling getBinding()");
+    }
+    // Sets the view interface.
+    setModelView((ViewInterface) this);
+    if (mAutomaticViewBinding) {
+      // Binds views with butterknife.
+      mViewUnbinder = ButterKnife.bind(this, mRootView);
+    }
+    // Sets up context
+    mViewModelHelper.getViewModel().setContext(this.getActivity());
+    return mRootView;
+  }
+
+  @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    Log.d(TAG, "onViewCreated");
+    super.onViewCreated(view, savedInstanceState);
+  }
+
+  @CallSuper @Override public void onStart() {
+    Log.d(TAG, "STARTED");
+    super.onStart();
+    mViewModelHelper.onStart();
+  }
+
+  /**
+   * User visibility is set regardless of fragment lifecycle, and so we invoke {@link #onVisible()}
+   * and {@link #onHidden()} here as well.
+   */
+  @CallSuper @Override public void onResume() {
+    Log.d(TAG, "onResume");
+    super.onResume();
+    if (getUserVisibleHint()) onVisible();
+  }
+
+  @Override public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Log.d(TAG, "onSaveInstanceState");
+    if (outState != null) {
+      mViewModelHelper.onSaveInstanceState(outState);
+    }
+  }
+
+  @CallSuper @Override public void onPause() {
+    Log.d(TAG, "onPause");
+    super.onPause();
+    onHidden();
+  }
+
+  @CallSuper @Override public void onStop() {
+    Log.d(TAG, "onStop");
+    super.onStop();
+    mViewModelHelper.onStop();
+  }
+
+  @CallSuper @Override public void onDestroyView() {
+    Log.d(TAG, "onDestroyView");
+    mViewModelHelper.onDestroyView(this);
+    super.onDestroyView();
+    mViewUnbinder.unbind();
+  }
+
+  @CallSuper @Override public void onDestroy() {
+    Log.d(TAG, "onDestroy");
+    mViewModelHelper.onDestroy(this);
+    super.onDestroy();
+  }
+
+  @Override public void onDetach() {
+    Log.d(TAG, "onDetach");
+    super.onDetach();
   }
 
   /**

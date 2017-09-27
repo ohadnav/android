@@ -46,6 +46,7 @@ import com.truethat.android.databinding.FragmentCameraBinding;
 import com.truethat.android.view.custom.FullscreenTextureView;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.io.File;
@@ -213,30 +214,6 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
-  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -338,6 +315,30 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
+  /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
 
   @VisibleForTesting static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -548,14 +549,12 @@ public class CameraFragment extends
    */
   public void restorePreview() {
     Log.d(TAG, "restorePreview");
-    if (mState == CameraState.PICTURE_TAKEN || mState == CameraState.VIDEO_RECORDED) {
-      getActivity().runOnUiThread(new Runnable() {
-        @Override public void run() {
-          createCameraPreviewSession();
-          mState = CameraState.PREVIEW;
-        }
-      });
-    }
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        createCameraPreviewSession();
+        mState = CameraState.PREVIEW;
+      }
+    });
   }
 
   /**
@@ -1103,7 +1102,7 @@ public class CameraFragment extends
     VIDEO_RECORDED
   }
 
-  public interface CameraFragmentListener {
+  public interface CameraFragmentListener extends BaseListener {
     /**
      * Callback for taken pictures.
      *

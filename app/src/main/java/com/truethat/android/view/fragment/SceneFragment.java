@@ -1,6 +1,7 @@
 package com.truethat.android.view.fragment;
 
 import android.animation.Animator;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -47,10 +48,24 @@ public class SceneFragment
     return fragment;
   }
 
+  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
+    super.setUserVisibleHint(isVisibleToUser);
+    if (mMediaFragment != null) {
+      mMediaFragment.setUserVisibleHint(isVisibleToUser);
+    }
+  }
+
+  @Override public void onAttach(Context context) {
+    super.onAttach(context);
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //noinspection unchecked
     mScene = (Scene) getArguments().getSerializable(ARG_SCENE);
+    if (mScene != null) {
+      TAG += " " + mScene.getId();
+    }
     getViewModel().setScene(mScene);
   }
 

@@ -43,6 +43,28 @@ public class PhotoFragment extends MediaFragment<Photo> {
     return photoFragment;
   }
 
+  @Override public void onVisible() {
+    super.onVisible();
+    if (mMediaListener != null && mMediaListener.isReallyVisible()) {
+      if (mTimer == null) mTimer = new Timer(TAG);
+      mTimer.schedule(new TimerTask() {
+        @Override public void run() {
+          mHasFinished = true;
+          mMediaListener.onFinished();
+        }
+      }, FINISHED_TIMEOUT_MILLIS);
+    }
+  }
+
+  @Override public void onHidden() {
+    super.onHidden();
+    if (mTimer != null) {
+      mTimer.cancel();
+      mTimer.purge();
+      mTimer = null;
+    }
+  }
+
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (mMedia.getBytes() != null) {
@@ -86,28 +108,6 @@ public class PhotoFragment extends MediaFragment<Photo> {
               Log.w(TAG, "Failed to download image.");
             }
           });
-    }
-  }
-
-  @Override public void onVisible() {
-    super.onVisible();
-    if (mTimer == null) mTimer = new Timer(TAG);
-    mTimer.schedule(new TimerTask() {
-      @Override public void run() {
-        mHasFinished = true;
-        if (mMediaListener != null) {
-          mMediaListener.onFinished();
-        }
-      }
-    }, FINISHED_TIMEOUT_MILLIS);
-  }
-
-  @Override public void onHidden() {
-    super.onHidden();
-    if (mTimer != null) {
-      mTimer.cancel();
-      mTimer.purge();
-      mTimer = null;
     }
   }
 

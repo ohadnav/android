@@ -79,7 +79,10 @@ public class VideoFragment extends MediaFragment<Video> {
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH))
                 / Float.parseFloat(
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
-            mVideoTextureView.setScaleY(9 / 16F);
+            mVideoTextureView.setScaleY(Integer.parseInt(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) / Float
+                .parseFloat(
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)));
           }
         }
         if (mMediaPlayer == null) {
@@ -92,7 +95,7 @@ public class VideoFragment extends MediaFragment<Video> {
         mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
           @Override public void onPrepared(MediaPlayer mp) {
             mLoadingImage.setVisibility(GONE);
-            if (isVisible()) {
+            if (isVisible() && (mMediaListener == null || mMediaListener.isReallyVisible())) {
               mp.start();
             }
             mIsReady = true;
@@ -164,7 +167,7 @@ public class VideoFragment extends MediaFragment<Video> {
     super.onVisible();
     if (mIsReady) {
       mLoadingImage.setVisibility(GONE);
-      if (mMediaPlayer != null) {
+      if (mMediaPlayer != null && (mMediaListener == null || mMediaListener.isReallyVisible())) {
         mMediaPlayer.start();
       }
     }
@@ -173,12 +176,13 @@ public class VideoFragment extends MediaFragment<Video> {
   @Override public void onHidden() {
     super.onHidden();
     if (mMediaPlayer != null) {
-      mMediaPlayer.stop();
+      mMediaPlayer.pause();
     }
   }
 
   private void killMediaPlayer() {
     if (mMediaPlayer != null) {
+      mMediaPlayer.stop();
       mMediaPlayer.release();
       mMediaPlayer = null;
     }

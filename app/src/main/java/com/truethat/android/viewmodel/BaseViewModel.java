@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.AbstractViewModel;
 
@@ -13,7 +14,7 @@ import eu.inloop.viewmodel.AbstractViewModel;
  */
 
 public class BaseViewModel<ViewInterface extends BaseViewInterface>
-    extends AbstractViewModel<ViewInterface> {
+    extends AbstractViewModel<ViewInterface> implements BaseListener {
   /**
    * Logging tag. Assigned per implementing class in {@link #onCreate(Bundle, Bundle)}.
    */
@@ -45,6 +46,14 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
   @Override public void onStart() {
     Log.d(TAG, "STARTED");
     super.onStart();
+  }
+
+  @Override public String getTAG() {
+    return TAG;
+  }
+
+  @Override public String toString() {
+    return TAG;
   }
 
   Context getContext() {

@@ -24,6 +24,7 @@ import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.external.ProxyViewHelper;
 import com.truethat.android.viewmodel.BaseViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.ViewModelHelper;
 import eu.inloop.viewmodel.base.ViewModelBaseEmptyActivity;
@@ -36,7 +37,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
  */
 
 public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends ViewModelBaseEmptyActivity implements BaseViewInterface, AuthListener {
+    extends ViewModelBaseEmptyActivity implements BaseViewInterface, AuthListener, BaseListener {
   /**
    * {@link BaseViewModel} manager of this activity.
    */
@@ -205,6 +206,14 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @Override public BaseActivity getBaseActivity() {
     return this;
+  }
+
+  @Override public String getTAG() {
+    return TAG;
+  }
+
+  @Override public String toString() {
+    return TAG;
   }
 
   /**

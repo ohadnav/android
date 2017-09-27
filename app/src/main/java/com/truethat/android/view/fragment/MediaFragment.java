@@ -18,6 +18,8 @@ import com.truethat.android.model.Photo;
 import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
+import com.truethat.android.viewmodel.viewinterface.FragmentVisibilityInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 /**
@@ -72,6 +74,9 @@ public abstract class MediaFragment<Model extends Media> extends
     super.onCreate(savedInstanceState);
     //noinspection unchecked
     mMedia = (Model) getArguments().getSerializable(ARG_MEDIA);
+    if (mMedia != null) {
+      TAG += " " + mMedia.getId();
+    }
   }
 
   /**
@@ -88,6 +93,9 @@ public abstract class MediaFragment<Model extends Media> extends
 
   @Override public void onStart() {
     super.onStart();
+    if (mMediaListener != null) {
+      TAG += " " + mMediaListener.getTAG();
+    }
     ((AnimationDrawable) mLoadingImage.getDrawable()).start();
     mLoadingImage.bringToFront();
   }
@@ -106,7 +114,7 @@ public abstract class MediaFragment<Model extends Media> extends
    */
   abstract @LayoutRes int getLayoutResource();
 
-  public interface MediaListener {
+  public interface MediaListener extends BaseListener, FragmentVisibilityInterface {
     /**
      * Called once the media has been downloaded.
      */

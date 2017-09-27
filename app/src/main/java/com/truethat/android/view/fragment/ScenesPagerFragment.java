@@ -21,6 +21,7 @@ import com.truethat.android.model.Scene;
 import com.truethat.android.view.custom.OnSwipeTouchListener;
 import com.truethat.android.view.custom.SceneFragmentAdapter;
 import com.truethat.android.viewmodel.ScenesPagerViewModel;
+import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.List;
@@ -49,6 +50,11 @@ public class ScenesPagerFragment
           + " must implement "
           + ScenePagerListener.class.getSimpleName());
     }
+  }
+
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
   }
 
   @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -121,11 +127,6 @@ public class ScenesPagerFragment
     }
   }
 
-  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
-  }
-
   @VisibleForTesting public SceneFragment getDisplayedScene() {
     return (SceneFragment) mSceneFragmentAdapter.instantiateItem(mPager, mPager.getCurrentItem());
   }
@@ -142,7 +143,7 @@ public class ScenesPagerFragment
     return new ViewModelBindingConfig(R.layout.fragment_scenes_pager, getContext());
   }
 
-  public interface ScenePagerListener {
+  public interface ScenePagerListener extends BaseListener {
     void onSwipeUp();
 
     void onSwipeDown();
