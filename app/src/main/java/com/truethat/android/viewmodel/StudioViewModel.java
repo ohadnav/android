@@ -268,7 +268,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     if (mSaveSceneCall != null) {
       mSaveSceneCall.cancel();
     }
-    if (mState == DirectingState.SENT) {
+    if (mState == DirectingState.SENT && mViewModelState == State.STARTED) {
       onEdit();
     }
   }
