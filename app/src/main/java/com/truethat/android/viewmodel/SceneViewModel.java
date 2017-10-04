@@ -219,11 +219,13 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     // Calculate next media
     if (mNextMedia == null) {
       mNextMedia = mScene.getNextMedia(mCurrentMedia, reaction);
-      Log.d(TAG, "Next media: " + mNextMedia);
     }
-    // Displays next media if it is finished.
-    if (getView().hasMediaFinished() && mNextMedia != null) {
-      display(mNextMedia);
+    if (mNextMedia != null) {
+      Log.d(TAG, "Next media: " + mNextMedia);
+      // Displays next media if it is finished.
+      if (getView().hasMediaFinished()) {
+        display(mNextMedia);
+      }
     }
     // Show UI indication of detected reaction.
     if (mLastReaction != reaction) {

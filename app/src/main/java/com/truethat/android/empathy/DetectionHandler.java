@@ -95,6 +95,7 @@ class DetectionHandler extends Handler {
           if (!BuildConfig.DEBUG) {
             Crashlytics.logException(e);
           }
+          e.printStackTrace();
           Log.d(TAG, "couldn't open camera: " + e.getMessage());
           // TODO(ohad): Let user know via UI
           return;

@@ -133,7 +133,7 @@ import java.util.List;
       if (!BuildConfig.DEBUG) {
         Crashlytics.logException(e);
       }
-      Log.i(TAG, "Unable to start camera preview" + e.getMessage());
+      Log.i(TAG, "Unable to start camera preview  " + e.getMessage());
     }
 
     orientationHelper.enable();
