@@ -160,7 +160,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     // Performs sign up
     String userFullName = mNameEditText.get();
     User newUser = new User(StringUtil.extractFirstName(userFullName),
-        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId());
+        StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId(),
+        AppContainer.getDeviceManager().getPhoneNumber());
     AppContainer.getAuthManager().signUp(getView().getAuthListener(), newUser);
   }
 

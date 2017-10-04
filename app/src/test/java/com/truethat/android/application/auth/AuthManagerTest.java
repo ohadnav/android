@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("WeakerAccess") public class AuthManagerTest {
   static final long USER_ID = 1;
-  static final DeviceManager DEVICE_MANAGER = new FakeDeviceManager("android1");
+  static final DeviceManager DEVICE_MANAGER = new FakeDeviceManager("android1", "+1103874837");
   private static final String FIRST_NAME = "Brad";
   private static final String LAST_NAME = "Pitt";
   final MockWebServer mMockWebServer = new MockWebServer();
@@ -43,7 +43,8 @@ import static org.junit.Assert.assertTrue;
   @Before public void setUp() throws Exception {
     NetworkUtil.setBackendUrl(BuildConfig.TEST_BASE_BACKEND_URL);
     mListener = new TestAuthListener();
-    mUser = new User(FIRST_NAME, LAST_NAME, DEVICE_MANAGER.getDeviceId());
+    mUser = new User(FIRST_NAME, LAST_NAME, DEVICE_MANAGER.getDeviceId(),
+        DEVICE_MANAGER.getPhoneNumber());
     mInternalStorage = new FakeInternalStorageManager();
     // Initialize Awaitility
     Awaitility.reset();

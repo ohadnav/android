@@ -44,7 +44,7 @@ public class FakeAuthManager extends BaseAuthManager {
     } else {
       if (mAllowAuth) {
         if (!user.onBoarded()) {
-          user = new User(FIRST_NAME, LAST_NAME, user.getDeviceId());
+          user = new User(FIRST_NAME, LAST_NAME, user.getDeviceId(), user.getPhoneNumber());
         }
         user.setId(USER_ID);
         try {

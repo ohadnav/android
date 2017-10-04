@@ -74,7 +74,7 @@ import static org.junit.Assert.assertTrue;
 
       }
     });
-    mFakeDeviceManager = new FakeDeviceManager("android-unit-test");
+    mFakeDeviceManager = new FakeDeviceManager("android-unit-test", "+1911");
     AppContainer.setDeviceManager(mFakeDeviceManager);
     mFakeInternalStorageManager = new FakeInternalStorageManager();
     AppContainer.setInternalStorageManager(mFakeInternalStorageManager);
@@ -83,8 +83,7 @@ import static org.junit.Assert.assertTrue;
     mFakeReactionDetectionManager = new FakeReactionDetectionManager();
     AppContainer.setReactionDetectionManager(mFakeReactionDetectionManager);
     // Signs a user up.
-    mFakeAuthManager.signUp(new UnitTestViewInterface(),
-        new User(mFakeDeviceManager.getDeviceId()));
+    mFakeAuthManager.signUp(new UnitTestViewInterface(), new User(mFakeDeviceManager));
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeAuthManager.isAuthOk());

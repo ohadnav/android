@@ -57,7 +57,7 @@ import static org.junit.Assert.assertTrue;
     // Set up mocks
     mFakePermissionsManager = new FakePermissionsManager();
     AppContainer.setPermissionsManager(mFakePermissionsManager);
-    mFakeDeviceManager = new FakeDeviceManager("android-1");
+    mFakeDeviceManager = new FakeDeviceManager("android-1", "+1123456789");
     AppContainer.setDeviceManager(mFakeDeviceManager);
     mFakeInternalStorageManager = new FakeInternalStorageManager();
     AppContainer.setInternalStorageManager(mFakeInternalStorageManager);
@@ -68,8 +68,7 @@ import static org.junit.Assert.assertTrue;
     // Launches activity
     mActivityTestRule.launchActivity(null);
     // Sign up
-    mFakeAuthManager.signUp(mActivityTestRule.getActivity(),
-        new User(mFakeDeviceManager.getDeviceId()));
+    mFakeAuthManager.signUp(mActivityTestRule.getActivity(), new User(mFakeDeviceManager));
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeAuthManager.isAuthOk());

@@ -9,4 +9,9 @@ public interface DeviceManager {
    * @return a pseudo-unique identifier for the device.
    */
   String getDeviceId();
+
+  /**
+   * @return the device's phone number.
+   */
+  String getPhoneNumber();
 }

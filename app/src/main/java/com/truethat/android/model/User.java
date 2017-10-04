@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
 import android.support.annotation.VisibleForTesting;
+import com.truethat.android.application.DeviceManager;
 import java.io.Serializable;
 
 import static com.truethat.android.common.util.StringUtil.toTitleCase;
@@ -24,16 +25,14 @@ public class User extends BaseModel implements Serializable {
   /**
    * Android ID.
    */
-  @SuppressWarnings("unused") private String mDeviceId;
+  private String mDeviceId;
+  /**
+   * Phone number of the user.
+   */
+  private String mPhoneNumber;
 
-  public User(String deviceId) {
-    mDeviceId = deviceId;
-  }
-
-  public User(String firstName, String lastName, String deviceId) {
-    mFirstName = firstName;
-    mLastName = lastName;
-    mDeviceId = deviceId;
+  public User(DeviceManager deviceManager) {
+    updateUser(deviceManager);
   }
 
   @VisibleForTesting public User(Long id, String firstName, String lastName, String deviceId) {
@@ -43,11 +42,30 @@ public class User extends BaseModel implements Serializable {
     mDeviceId = deviceId;
   }
 
+  public User(String firstName, String lastName, String deviceId, String phoneNumber) {
+    mFirstName = firstName;
+    mLastName = lastName;
+    mDeviceId = deviceId;
+    mPhoneNumber = phoneNumber;
+  }
+
   @SuppressWarnings("SameParameterValue") @VisibleForTesting
   public User(Long id, String firstName, String lastName) {
     super(id);
     mFirstName = firstName;
     mLastName = lastName;
+  }
+
+  public String getDeviceId() {
+    return mDeviceId;
+  }
+
+  public void setDeviceId(String deviceId) {
+    mDeviceId = deviceId;
+  }
+
+  public String getPhoneNumber() {
+    return mPhoneNumber;
   }
 
   public String getDisplayName() {
@@ -66,12 +84,13 @@ public class User extends BaseModel implements Serializable {
     return mId != null && onBoarded();
   }
 
-  public String getDeviceId() {
-    return mDeviceId;
-  }
-
-  public void setDeviceId(String deviceId) {
-    mDeviceId = deviceId;
+  public void updateUser(DeviceManager deviceManager) {
+    if (deviceManager.getDeviceId() != null) {
+      mDeviceId = deviceManager.getDeviceId();
+    }
+    if (deviceManager.getPhoneNumber() != null) {
+      mPhoneNumber = deviceManager.getPhoneNumber();
+    }
   }
 
   /**

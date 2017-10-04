@@ -91,9 +91,9 @@ public class BaseAuthManager implements AuthManager {
             + "Trying to sign in based on device id.");
       }
       if (userToSignIn == null) {
-        userToSignIn = new User(mDeviceManager.getDeviceId());
-      } else if (userToSignIn.getDeviceId() == null) {
-        userToSignIn.setDeviceId(mDeviceManager.getDeviceId());
+        userToSignIn = new User(mDeviceManager);
+      } else {
+        userToSignIn.updateUser(mDeviceManager);
       }
       requestAuth(listener, userToSignIn);
     }
