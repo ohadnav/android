@@ -9,7 +9,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import butterknife.BindView;
+import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.truethat.android.R;
@@ -30,6 +32,7 @@ import static android.view.View.GONE;
 public class PhotoFragment extends MediaFragment<Photo> {
   private static final long FINISHED_TIMEOUT_MILLIS = 1000;
   @BindView(R.id.imageView) ImageView mImageView;
+  @BindView(R.id.photoLoadErrorText) TextView mErrorTextView;
   private Timer mTimer;
 
   public PhotoFragment() {
@@ -68,21 +71,28 @@ public class PhotoFragment extends MediaFragment<Photo> {
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     if (mMedia.getBytes() != null) {
-      Bitmap originalBitmap =
-          BitmapFactory.decodeByteArray(mMedia.getBytes(), 0, mMedia.getBytes().length);
-      Point scaledSize =
-          CameraUtil.scaleFit(new Point(originalBitmap.getWidth(), originalBitmap.getHeight()),
-              AppUtil.realDisplaySize(getActivity()));
-      Bitmap scaledBitmap =
-          Bitmap.createScaledBitmap(originalBitmap, scaledSize.x, scaledSize.y, false);
-      // Flip images that were taken with the camera
-      Matrix mirrorMatrix = new Matrix();
-      mirrorMatrix.preScale(-1, 1);
-      Bitmap flipped =
-          Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(),
-              mirrorMatrix, false);
-      mImageView.setImageBitmap(flipped);
-      mLoadingImage.setVisibility(GONE);
+      try {
+        // TODO(ohad): reduce memory usage
+        Bitmap originalBitmap =
+            BitmapFactory.decodeByteArray(mMedia.getBytes(), 0, mMedia.getBytes().length);
+        Point scaledSize =
+            CameraUtil.scaleFit(new Point(originalBitmap.getWidth(), originalBitmap.getHeight()),
+                AppUtil.realDisplaySize(getActivity()));
+        Bitmap scaledBitmap =
+            Bitmap.createScaledBitmap(originalBitmap, scaledSize.x, scaledSize.y, false);
+        // Flip images that were taken with the camera
+        Matrix mirrorMatrix = new Matrix();
+        mirrorMatrix.preScale(-1, 1);
+
+        Bitmap flipped = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(),
+            scaledBitmap.getHeight(), mirrorMatrix, false);
+        mImageView.setImageBitmap(flipped);
+        mLoadingImage.setVisibility(GONE);
+      } catch (OutOfMemoryError error) {
+        Crashlytics.logException(error);
+        mErrorTextView.setVisibility(View.VISIBLE);
+      }
+
       if (mMediaListener != null) {
         mMediaListener.onReady();
       }

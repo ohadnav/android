@@ -238,7 +238,9 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Shows the directed scene preview, and hides the camera preview.
     mScenePreviewVisibility.set(true);
     mCameraPreviewVisibility.set(false);
-    getView().displayMedia(mCurrentMedia);
+    if (getView() != null) {
+      getView().displayMedia(mCurrentMedia);
+    }
   }
 
   private void onCamera() {
@@ -255,8 +257,10 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     // Hides the directed scene preview, and exposes the camera preview.
     mScenePreviewVisibility.set(false);
     mCameraPreviewVisibility.set(true);
-    getView().restoreCameraPreview();
-    getView().removeMedia();
+    if (getView() != null) {
+      getView().restoreCameraPreview();
+      getView().removeMedia();
+    }
     // Ensures scene state
     if (mDirectedScene != null && mChosenReaction == null) {
       mCurrentMedia = getDirectedScene().getRootMedia();
@@ -276,12 +280,16 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   private void onPublished() {
     Log.d(TAG, "Change state: " + DirectingState.PUBLISHED.name());
     mState = DirectingState.PUBLISHED;
-    getView().toast(getContext().getString(R.string.saved_successfully));
-    getView().leaveStudio();
+    if (getView() != null) {
+      getView().toast(getContext().getString(R.string.saved_successfully));
+      getView().leaveStudio();
+    }
   }
 
   private void onPublishError() {
-    getView().toast(getContext().getString(R.string.sent_failed));
+    if (getView() != null) {
+      getView().toast(getContext().getString(R.string.sent_failed));
+    }
     onEdit();
   }
 

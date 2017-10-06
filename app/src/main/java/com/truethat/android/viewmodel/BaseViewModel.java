@@ -31,13 +31,11 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
 
   @Override public void onBindView(@NonNull ViewInterface view) {
     super.onBindView(view);
-    TAG = this.getClass().getSimpleName() + "(" + getView().getClass().getSimpleName() + ")";
+    TAG = this.getClass().getSimpleName();
+    if (getView() != null) {
+      TAG += "(" + getView().getClass().getSimpleName() + ")";
+    }
     Log.d(TAG, "DATA-BOUND");
-  }
-
-  @SuppressWarnings({ "ConstantConditions", "EmptyMethod" }) @NonNull @Override
-  public ViewInterface getView() {
-    return super.getView();
   }
 
   @CallSuper @Override public void onStop() {

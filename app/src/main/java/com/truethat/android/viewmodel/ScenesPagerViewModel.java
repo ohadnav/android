@@ -41,14 +41,18 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
       fetchScenes();
     } else {
       mDisplayedIndex = mDisplayedIndex + 1;
-      getView().displayItem(mDisplayedIndex);
+      if (getView() != null) {
+        getView().displayItem(mDisplayedIndex);
+      }
     }
   }
 
   public void previous() {
     if (mDisplayedIndex != 0) {
       mDisplayedIndex = mDisplayedIndex - 1;
-      getView().displayItem(mDisplayedIndex);
+      if (getView() != null) {
+        getView().displayItem(mDisplayedIndex);
+      }
     }
   }
 
@@ -74,8 +78,10 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
     if (mItems.isEmpty()) {
       mLoadingImageVisibility.set(true);
     }
-    mFetchScenesCall = getView().buildFetchScenesCall();
-    mFetchScenesCall.enqueue(mFetchScenesCallback);
+    if (getView() != null) {
+      mFetchScenesCall = getView().buildFetchScenesCall();
+      mFetchScenesCall.enqueue(mFetchScenesCallback);
+    }
   }
 
   @VisibleForTesting Scene getDisplayedScene() {
@@ -123,7 +129,9 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
             int toDisplayIndex = mItems.size();
             mItems.addAll(newScenes);
             mDisplayedIndex = toDisplayIndex;
-            getView().displayItem(mDisplayedIndex);
+            if (getView() != null) {
+              getView().displayItem(mDisplayedIndex);
+            }
           } else if (mItems.size() == 0) {
             displayNotFound();
           }

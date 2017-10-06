@@ -86,7 +86,9 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
       mWarningText.set(getContext().getString(R.string.name_edit_warning_text));
       mWarningTextVisibility.set(true);
     }
-    getView().hideSoftKeyboard();
+    if (getView() != null) {
+      getView().hideSoftKeyboard();
+    }
     mNameEditCursorVisibility.set(false);
   }
 
@@ -97,9 +99,13 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
       mCompletionTextVisibility.set(false);
       mCompletionSubscriptTextVisibility.set(false);
       AppContainer.getReactionDetectionManager().unsubscribe(this);
-      getView().showSoftKeyboard();
+      if (getView() != null) {
+        getView().showSoftKeyboard();
+      }
     } else {
-      getView().hideSoftKeyboard();
+      if (getView() != null) {
+        getView().hideSoftKeyboard();
+      }
       if (isNameValid()) {
         onFinalStage();
       }
@@ -120,7 +126,9 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   private void onEditStage() {
     mStage = Stage.EDIT;
     mNameEditInputType.set(NAME_TEXT_EDITING_INPUT_TYPE);
-    getView().requestNameEditFocus();
+    if (getView() != null) {
+      getView().requestNameEditFocus();
+    }
   }
 
   /**
@@ -141,7 +149,9 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     // Hide warnings
     mWarningTextVisibility.set(false);
     // Starts detection.
-    AppContainer.getReactionDetectionManager().start(getView().getBaseActivity());
+    if (getView() != null) {
+      AppContainer.getReactionDetectionManager().start(getView().getBaseActivity());
+    }
     // Subscribes to reaction detection.
     AppContainer.getReactionDetectionManager().subscribe(this);
   }
@@ -162,7 +172,9 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     User newUser = new User(StringUtil.extractFirstName(userFullName),
         StringUtil.extractLastName(userFullName), AppContainer.getDeviceManager().getDeviceId(),
         AppContainer.getDeviceManager().getPhoneNumber());
-    AppContainer.getAuthManager().signUp(getView().getAuthListener(), newUser);
+    if (getView() != null) {
+      AppContainer.getAuthManager().signUp(getView().getAuthListener(), newUser);
+    }
   }
 
   /**

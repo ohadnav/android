@@ -20,4 +20,23 @@
       app:layout_constraintTop_toTopOf="parent"
       />
 
+  <TextView
+      android:id="@+id/photoLoadErrorText"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:shadowColor="@color/shadow"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="2"
+      android:text="@string/photo_load_error"
+      android:textColor="@color/error"
+      android:textSize="16sp"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.9"
+      />
 </android.support.constraint.ConstraintLayout>

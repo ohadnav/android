@@ -24,4 +24,5 @@
   <string name="audio_permission_rationale">Will you let us hear that pretty voice of yours?</string>
   <string name="sign_up_failed_warning_text">Not again! We had an error</string>
   <string name="saved_successfully">Saved successfully</string>
+  <string name="photo_load_error">Bummer! couldn\'t load that photo.</string>
 </resources>

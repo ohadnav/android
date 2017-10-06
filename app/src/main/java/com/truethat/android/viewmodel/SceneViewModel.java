@@ -187,9 +187,11 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    */
   public void onReady() {
     Log.d(TAG, "onReady");
-    mMediaReady.put(mCurrentMedia, true);
-    if (getView().isReallyVisible()) {
-      onDisplay();
+    if (mMediaReady != null) {
+      mMediaReady.put(mCurrentMedia, true);
+      if (getView() != null && getView().isReallyVisible()) {
+        onDisplay();
+      }
     }
   }
 
@@ -223,14 +225,16 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     if (mNextMedia != null) {
       Log.d(TAG, "Next media: " + mNextMedia);
       // Displays next media if it is finished.
-      if (getView().hasMediaFinished()) {
+      if (getView() != null && getView().hasMediaFinished()) {
         display(mNextMedia);
       }
     }
     // Show UI indication of detected reaction.
     if (mLastReaction != reaction) {
       updateReactionsLayout(reaction);
-      getView().bounceReactionImage();
+      if (getView() != null) {
+        getView().bounceReactionImage();
+      }
     }
     mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
     // Update fragment state.
@@ -238,7 +242,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   }
 
   @Override public boolean isReallyVisible() {
-    return getView().isReallyVisible();
+    return getView() != null && getView().isReallyVisible();
   }
 
   Media getNextMedia() {
@@ -276,7 +280,9 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   private void display(Media media) {
     // Stops reaction detection temporarily until the new media is displayed.
     AppContainer.getReactionDetectionManager().unsubscribe(this);
-    getView().display(media);
+    if (getView() != null) {
+      getView().display(media);
+    }
     // Updates media state.
     mCurrentMedia = media;
     mNextMedia = null;
