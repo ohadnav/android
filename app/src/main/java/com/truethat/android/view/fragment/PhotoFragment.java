@@ -14,6 +14,7 @@ import butterknife.BindView;
 import com.crashlytics.android.Crashlytics;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.common.util.CameraUtil;
@@ -89,7 +90,9 @@ public class PhotoFragment extends MediaFragment<Photo> {
         mImageView.setImageBitmap(flipped);
         mLoadingImage.setVisibility(GONE);
       } catch (OutOfMemoryError error) {
-        Crashlytics.logException(error);
+        if (!BuildConfig.DEBUG) {
+          Crashlytics.logException(error);
+        }
         mErrorTextView.setVisibility(View.VISIBLE);
       }
 

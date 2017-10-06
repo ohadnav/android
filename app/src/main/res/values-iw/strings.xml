@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">על אמת</string>
+  <string name="app_name">TrueThat</string>
   <string name="ask_permission_button">סבבה, הבנתי</string>
   <string name="capture">שוט</string>
   <string name="camera_permission_rationale">אנחנו צריכים גישה למצלמה כדי לראות את הפנים היפות שלכם. ככה אנחנו רואים מה אתם מרגישים.</string>
