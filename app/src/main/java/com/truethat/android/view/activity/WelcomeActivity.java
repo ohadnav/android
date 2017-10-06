@@ -44,6 +44,12 @@ public class WelcomeActivity extends
    * Auth that is initiated by the user.
    */
   @OnClick(R.id.signInText) public void userInitiatedAuth(View view) {
+    AppContainer.getPermissionsManager().requestIfNeeded(this, Permission.PHONE);
+    if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.PHONE)) {
+      Log.i(TAG, "No phone permission, stopping sign in.");
+      // No phone permission, stop here, to let ask for permission activity gain control.
+      return;
+    }
     AppContainer.getAuthManager().signIn(this);
   }
 
