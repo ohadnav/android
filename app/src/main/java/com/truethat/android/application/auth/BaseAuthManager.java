@@ -177,7 +177,9 @@ public class BaseAuthManager implements AuthManager {
           handleSuccessfulResponse(respondedUser);
           mListener.onAuthOk();
         } catch (IOException | AssertionError e) {
-          Crashlytics.logException(e);
+          if (!BuildConfig.DEBUG) {
+            Crashlytics.logException(e);
+          }
           e.printStackTrace();
           // Auth had failed
           Log.e(TAG, "Authentication request had failed, inconceivable!", e);
@@ -205,6 +207,9 @@ public class BaseAuthManager implements AuthManager {
             + response.headers());
         mCurrentUser = null;
         mListener.onAuthFailed();
+        if (!BuildConfig.DEBUG) {
+          Crashlytics.logException(new Exception("Auth request failed."));
+        }
       }
     }
 

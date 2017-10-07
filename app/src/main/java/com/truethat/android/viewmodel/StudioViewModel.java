@@ -59,7 +59,7 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
         onPublished();
       } else {
         if (!BuildConfig.DEBUG) {
-          Crashlytics.logException(new Exception("Failed to save scene."));
+          Crashlytics.logException(new Exception("Scene saving failed."));
         }
         Log.e(TAG, "Failed to save scene.\n"
             + call.request().url()
