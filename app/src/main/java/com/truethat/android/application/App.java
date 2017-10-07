@@ -2,7 +2,6 @@ package com.truethat.android.application;
 
 import android.app.Application;
 import android.util.Log;
-import com.appsee.Appsee;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.application.auth.BaseAuthManager;
@@ -30,7 +29,6 @@ public class App extends Application {
     super.onCreate();
     if (!BuildConfig.DEBUG) {
       Fabric.with(this, new Crashlytics());
-      Appsee.start(BuildConfig.APPSEE_API_KEY);
     }
   }
 }

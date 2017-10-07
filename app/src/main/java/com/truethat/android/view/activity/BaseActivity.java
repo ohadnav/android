@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.appsee.Appsee;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.R;
@@ -168,6 +169,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     initializeViewModel();
     // Bind views references.
     ButterKnife.bind(this);
+    if (!BuildConfig.DEBUG) {
+      Appsee.start(BuildConfig.APPSEE_API_KEY);
+    }
   }
 
   @CallSuper @Override public void onStop() {
