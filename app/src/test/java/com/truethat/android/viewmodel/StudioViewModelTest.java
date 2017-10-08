@@ -170,7 +170,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertEditState();
     assertEquals(3, mViewModel.getDirectedScene().getMediaNodes().size());
     // Cancel last media
-    mViewModel.disapprove();
+    mViewModel.onCancel();
     assertEditState();
     // Should have one node
     assertEquals(2, mViewModel.getDirectedScene().getMediaNodes().size());
@@ -195,7 +195,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.displayParentMedia();
     assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Cancel root media
-    mViewModel.disapprove();
+    mViewModel.onCancel();
     assertCameraState();
     // Should have a null scene
     assertNull(mViewModel.getDirectedScene());
@@ -213,7 +213,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onPhotoTaken(createMockedImage());
     assertEditState();
     // Cancel the picture taken
-    mViewModel.disapprove();
+    mViewModel.onCancel();
     assertCameraState();
     // Should restore preview
     assertTrue(mView.mPreviewRestored);

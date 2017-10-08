@@ -170,8 +170,8 @@ public class StudioViewModel extends BaseViewModel<StudioViewInterface>
   /**
    * Cancel the current media, so that you will not be judged for eternal embarrassment.
    */
-  public void disapprove() {
-    Log.d(TAG, "Scene disapproved.");
+  public void onCancel() {
+    Log.d(TAG, "onCancel.");
     mCurrentMedia = mDirectedScene.removeMedia(mCurrentMedia);
     if (mCurrentMedia != null) {
       onEdit();

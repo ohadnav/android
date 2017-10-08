@@ -113,12 +113,12 @@
 
     <ImageButton
         android:id="@+id/cancelButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_margin="16dp"
         android:background="@null"
         android:contentDescription="@string/image_content_description"
-        android:onClick="@{() -> viewModel.disapprove()}"
+        android:onClick="@{() -> viewModel.onCancel()}"
         android:scaleType="fitCenter"
         android:visibility="@{viewModel.mCancelButtonVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -127,7 +127,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/cross"
+        app:srcCompat="@android:drawable/ic_menu_delete"
         tools:visibility="visible"
         />
 
