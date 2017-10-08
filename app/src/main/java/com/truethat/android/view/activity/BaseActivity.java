@@ -60,12 +60,23 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
   /**
    * Permission not granted callback.
    *
-   * @param permission the rejected permission.
+   * @param permission that was just rejected.
    */
-  @MainThread public void onRequestPermissionsFailed(Permission permission) {
+  @MainThread public void onPermissionRejected(Permission permission) {
+    Log.w(TAG, "Permission " + permission + " rejected.");
     Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
     askForPermission.putExtra(AskForPermissionActivity.EXTRA_PERMISSION, permission);
     startActivityForResult(askForPermission, permission.getRequestCode());
+  }
+
+  /**
+   * Permission granted callback.
+   *
+   * @param permission that was just granted.
+   */
+  @MainThread public void onPermissionGranted(Permission permission) {
+    Log.d(TAG, "Permission " + permission + " granted.");
+    getViewModel().onPermissionGranted(permission);
   }
 
   /**
@@ -194,8 +205,9 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
     for (int i = 0; i < permissions.length; i++) {
       Permission permission = Permission.fromManifest(permissions[i]);
       if (grantResults[i] != PERMISSION_GRANTED) {
-        Log.w(TAG, permission.name() + " not granted.");
-        onRequestPermissionsFailed(permission);
+        onPermissionRejected(permission);
+      } else if (grantResults[i] == PERMISSION_GRANTED) {
+        onPermissionGranted(permission);
       }
     }
   }

@@ -6,6 +6,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.AbstractViewModel;
@@ -48,6 +49,10 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface>
     Log.d(TAG, "STARTED");
     mViewModelState = State.STARTED;
     super.onStart();
+  }
+
+  @SuppressWarnings("UnusedParameters") public void onPermissionGranted(Permission permission) {
+
   }
 
   @Override public String getTAG() {

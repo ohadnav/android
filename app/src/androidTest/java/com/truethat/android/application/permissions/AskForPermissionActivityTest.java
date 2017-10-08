@@ -29,7 +29,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void onRequestPermissionsFailed() throws Exception {
-    mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
+    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Assert that no camera permission fragment is displayed.
@@ -39,7 +39,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
 
   @Test public void finishIfPermissionIsAlreadyGranted() throws Exception {
     mFakePermissionsManager.grant(PERMISSION);
-    mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
+    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
     waitForActivity(TestActivity.class);
   }
@@ -47,7 +47,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   @Test public void finishAfterPermissionGranted() throws Exception {
     // Invoke request callback, to finish activity.
     mFakePermissionsManager.invokeRequestCallback();
-    mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
+    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Grant permission, to mock the scenario where the user allowed the permission.
@@ -59,7 +59,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void askAgainAndDenyDoesNotFinish() throws Exception {
-    mActivityTestRule.getActivity().onRequestPermissionsFailed(PERMISSION);
+    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Ask for permission again.

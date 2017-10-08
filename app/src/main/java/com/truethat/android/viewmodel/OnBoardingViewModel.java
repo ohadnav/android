@@ -11,6 +11,7 @@ import android.text.InputType;
 import com.google.common.base.Strings;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
@@ -62,15 +63,12 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
 
   @Override public void onStart() {
     super.onStart();
-    switch (mStage) {
-      case EDIT:
-        onEditStage();
-        break;
-      case FINAL:
-      case REQUEST_SENT:
-        onFinalStage();
-        break;
-    }
+    doStage();
+  }
+
+  @Override public void onPermissionGranted(Permission permission) {
+    super.onPermissionGranted(permission);
+    doStage();
   }
 
   @Override public void onReactionDetected(Emotion reaction) {
@@ -121,6 +119,18 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
 
   @VisibleForTesting public Stage getStage() {
     return mStage;
+  }
+
+  private void doStage() {
+    switch (mStage) {
+      case EDIT:
+        onEditStage();
+        break;
+      case FINAL:
+      case REQUEST_SENT:
+        onFinalStage();
+        break;
+    }
   }
 
   private void onEditStage() {
