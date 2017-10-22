@@ -422,7 +422,7 @@ import static org.junit.Assert.assertTrue;
 
   private void initSceneViewModel() throws Exception {
     mView = new ViewInterface();
-    mViewModel = createViewModel(mViewModel.getClass(), (SceneViewInterface) mView);
+    mViewModel = createViewModel(mViewModel.getClass(), (SceneViewInterface) mView, null);
     mViewModel.setScene(mScene);
     AppContainer.getReactionDetectionManager().start(null);
     mViewModel.onStart();

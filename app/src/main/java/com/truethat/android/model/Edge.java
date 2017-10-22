@@ -1,6 +1,7 @@
 package com.truethat.android.model;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Proudly created by ohad on 11/09/2017 for TrueThat.
@@ -14,7 +15,16 @@ import java.io.Serializable;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Edge.java</a>
  */
 
-public class Edge extends BaseModel implements Serializable {
+public class Edge extends BaseModel {
+  public static final Parcelable.Creator<Edge> CREATOR = new Parcelable.Creator<Edge>() {
+    @Override public Edge createFromParcel(Parcel source) {
+      return new Edge(source);
+    }
+
+    @Override public Edge[] newArray(int size) {
+      return new Edge[size];
+    }
+  };
   private static final long serialVersionUID = -2300569022542504631L;
   /**
    * Media ID of edge source.
@@ -36,8 +46,18 @@ public class Edge extends BaseModel implements Serializable {
     mReaction = reaction;
   }
 
-  public Emotion getReaction() {
-    return mReaction;
+  private Edge(Parcel in) {
+    super(in);
+    mSourceId = (Long) in.readValue(Long.class.getClassLoader());
+    mTargetId = (Long) in.readValue(Long.class.getClassLoader());
+    mReaction = (Emotion) in.readValue(Emotion.class.getClassLoader());
+  }
+
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mSourceId);
+    dest.writeValue(mTargetId);
+    dest.writeValue(mReaction);
   }
 
   @Override public int hashCode() {
@@ -62,6 +82,10 @@ public class Edge extends BaseModel implements Serializable {
       return false;
     }
     return mReaction == edge.mReaction;
+  }
+
+  public Emotion getReaction() {
+    return mReaction;
   }
 
   Long getTargetId() {

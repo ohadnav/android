@@ -12,115 +12,115 @@
   </data>
   <android.support.constraint.ConstraintLayout
       android:id="@+id/sceneFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-      tools:context=".view.fragment.SceneFragment"
-    >
-
-  <android.support.constraint.ConstraintLayout
-      android:id="@+id/mediaContainer"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      />
-
-  <android.support.constraint.ConstraintLayout
-      android:id="@+id/reactionsCountLayout"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="16dp"
-      android:layout_marginStart="16dp"
-      android:visibility="@{viewModel.mReactionCountersVisibility ? View.VISIBLE : View.GONE}"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.0"
-      app:layout_constraintStart_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="1.0"
+      tools:context=".view.fragment.SceneFragment"
       >
-    <ImageView
-        android:id="@+id/reactionImage"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:contentDescription="@string/image_content_description"
-        android:src="@{viewModel.mReactionDrawableResource}"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/reactionsCountText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/emoji_happy"
-        />
 
-    <TextView
-        android:id="@+id/reactionsCountText"
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/mediaContainer"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:gravity="center"
-        android:shadowColor="@color/shadow"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="4"
-        android:text="@{viewModel.mReactionsCountText}"
-        android:textColor="@{viewModel.mReactionCountColor}"
-        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/reactionImage"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-  </android.support.constraint.ConstraintLayout>
-
-  <android.support.constraint.ConstraintLayout
-      android:id="@+id/infoLayout"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="16dp"
-      android:layout_marginTop="16dp"
-      android:visibility="@{viewModel.mInfoLayoutVisibility ? View.VISIBLE : View.GONE}"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.0"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0.0"
-      >
-    <TextView
-        android:id="@+id/directorNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="4"
-        android:text="@{viewModel.mDirectorName}"
-        android:textColor="@color/light"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="@{viewModel.mDirectorNameVisibility ? View.VISIBLE : View.GONE}"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/timeAgoText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
-    <TextView
-        android:id="@+id/timeAgoText"
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/reactionsCountLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:gravity="bottom"
-        android:text="@{viewModel.mTimeAgoText}"
-        android:textColor="@color/hint"
+        android:layout_marginBottom="64dp"
+        android:layout_marginStart="16dp"
+        android:visibility="@{viewModel.mReactionCountersVisibility ? View.VISIBLE : View.GONE}"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/directorNameText"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        />
-  </android.support.constraint.ConstraintLayout>
+        app:layout_constraintVertical_bias="1.0"
+        >
+      <ImageView
+          android:id="@+id/reactionImage"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:contentDescription="@string/image_content_description"
+          android:src="@{viewModel.mReactionDrawableResource}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/reactionsCountText"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          tools:src="@drawable/emoji_happy"
+          />
 
-</android.support.constraint.ConstraintLayout>
+      <TextView
+          android:id="@+id/reactionsCountText"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:layout_marginEnd="8dp"
+          android:layout_marginStart="8dp"
+          android:gravity="center"
+          android:shadowColor="@color/shadow"
+          android:shadowDx="1"
+          android:shadowDy="1"
+          android:shadowRadius="4"
+          android:text="@{viewModel.mReactionsCountText}"
+          android:textColor="@{viewModel.mReactionCountColor}"
+          android:textSize="16sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toEndOf="@id/reactionImage"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="@{viewModel.mInfoLayoutVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        >
+      <TextView
+          android:id="@+id/directorNameText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:shadowDx="1"
+          android:shadowDy="1"
+          android:shadowRadius="4"
+          android:text="@{viewModel.mDirectorName}"
+          android:textColor="@color/light"
+          android:textSize="16sp"
+          android:textStyle="bold"
+          android:visibility="@{viewModel.mDirectorNameVisibility ? View.VISIBLE : View.GONE}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/timeAgoText"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+      <TextView
+          android:id="@+id/timeAgoText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="8dp"
+          android:layout_marginStart="8dp"
+          android:gravity="bottom"
+          android:text="@{viewModel.mTimeAgoText}"
+          android:textColor="@color/hint"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toEndOf="@id/directorNameText"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+    </android.support.constraint.ConstraintLayout>
+
+  </android.support.constraint.ConstraintLayout>
 </layout>

@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.truethat.android">
+
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.CAMERA"/>
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.VIBRATE"/>
   <!-- For phone number and device ID -->
   <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
@@ -24,24 +26,13 @@
       tools:ignore="GoogleAppIndexingWarning"
       tools:replace="android:label">
     <activity
-        android:name=".view.activity.TheaterActivity"
+        android:name=".view.activity.MainActivity"
         android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
-    </activity>
-    <activity
-        android:name=".view.activity.StudioActivity"
-        android:launchMode="singleTask">
-      <intent-filter>
-        <action android:name="android.intent.action.ATTACH_DATA"/>
-
-        <data android:mimeType="application/octet-stream"/>
-      </intent-filter>
-    </activity>
-    <activity android:name=".view.activity.TestActivity">
     </activity>
     <activity android:name=".view.activity.AskForPermissionActivity">
       <intent-filter>
@@ -54,11 +45,12 @@
     </activity>
     <activity
         android:name=".view.activity.OnBoardingActivity"
+        android:launchMode="singleTask"
         android:windowSoftInputMode="stateVisible">
     </activity>
-    <activity
-        android:name=".view.activity.RepertoireActivity"
-        android:launchMode="singleTask">
+
+    <!-- Used for testing -->
+    <activity android:name=".view.activity.TestActivity">
     </activity>
 
     <meta-data

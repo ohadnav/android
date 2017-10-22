@@ -20,8 +20,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Size;
 import android.view.View;
 import android.widget.EditText;
-import com.truethat.android.R;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
+import com.truethat.android.view.activity.BaseActivity;
 import java.util.concurrent.TimeoutException;
 import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
@@ -35,7 +35,7 @@ import static android.support.test.espresso.intent.Checks.checkNotNull;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static com.truethat.android.common.BaseApplicationTestSuite.TIMEOUT;
+import static com.truethat.android.common.BaseInstrumentationTestSuite.TIMEOUT;
 import static com.truethat.android.common.util.AppUtil.availableDisplaySize;
 import static com.truethat.android.common.util.AppUtil.realDisplaySize;
 import static org.awaitility.Awaitility.await;
@@ -70,7 +70,7 @@ public class ApplicationTestUtil {
 
   /**
    * Attempts to find the {@link View} described by {@code viewMatcher} for at
-   * most {@link BaseApplicationTestSuite#TIMEOUT}.
+   * most {@link BaseInstrumentationTestSuite#TIMEOUT}.
    *
    * @param viewMatcher for find a specific view.
    */
@@ -117,19 +117,28 @@ public class ApplicationTestUtil {
    * @return current foreground activity.
    */
   public static AppCompatActivity getCurrentActivity() {
-    getInstrumentation().waitForIdleSync();
-    final Activity[] activity = new Activity[1];
-    getInstrumentation().runOnMainSync(new Runnable() {
-      @Override public void run() {
-        java.util.Collection<Activity> activities =
-            ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
-        try {
-          activity[0] = Iterables.getOnlyElement(activities);
-        } catch (Exception ignored) {
+    try {
+      getInstrumentation().waitForIdleSync();
+      final BaseActivity[] activity = new BaseActivity[1];
+      getInstrumentation().runOnMainSync(new Runnable() {
+        @Override public void run() {
+          activity[0] = getCurrentActivityIgnoreThread();
         }
-      }
-    });
-    return (AppCompatActivity) activity[0];
+      });
+      return activity[0];
+    } catch (RuntimeException threadException) {
+      return getCurrentActivityIgnoreThread();
+    }
+  }
+
+  private static BaseActivity getCurrentActivityIgnoreThread() {
+    java.util.Collection<Activity> activities =
+        ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
+    try {
+      return (BaseActivity) Iterables.getOnlyElement(activities);
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 
   /**
@@ -186,15 +195,14 @@ public class ApplicationTestUtil {
   }
 
   public static void centerSwipeUp() {
-    onView(withId(R.id.activityRootView)).perform(
+    onView(withId(android.R.id.content)).perform(
         new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER, GeneralLocation.TOP_CENTER,
             Press.FINGER));
   }
 
   public static boolean isKeyboardVisible() {
     // 0.85 ratio is perhaps enough to determine keypad height.
-    return availableDisplaySize(
-        getCurrentActivity().findViewById(R.id.activityRootView)).getHeight()
+    return availableDisplaySize(getCurrentActivity().findViewById(android.R.id.content)).getHeight()
         < realDisplaySize(getCurrentActivity()).y * 0.85;
   }
 
@@ -202,5 +210,21 @@ public class ApplicationTestUtil {
     return (App) InstrumentationRegistry.getInstrumentation()
         .getTargetContext()
         .getApplicationContext();
+  }
+
+  public static int getAbsoluteLeft(View view) {
+    if (view.getParent() == view.getRootView()) {
+      return view.getLeft();
+    } else {
+      return view.getLeft() + getAbsoluteLeft((View) view.getParent());
+    }
+  }
+
+  public static int getAbsoluteTop(View view) {
+    if (view.getParent() == view.getRootView()) {
+      return view.getTop();
+    } else {
+      return view.getTop() + getAbsoluteTop((View) view.getParent());
+    }
   }
 }

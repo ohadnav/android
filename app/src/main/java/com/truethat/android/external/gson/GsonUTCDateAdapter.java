@@ -1,4 +1,4 @@
-package com.truethat.android.external;
+package com.truethat.android.external.gson;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonDeserializationContext;

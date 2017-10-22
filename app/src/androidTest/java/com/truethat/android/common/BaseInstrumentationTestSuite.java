@@ -12,6 +12,7 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
+import com.truethat.android.view.activity.MainActivity;
 import com.truethat.android.view.activity.TestActivity;
 import okhttp3.mockwebserver.MockWebServer;
 import org.awaitility.Awaitility;
@@ -22,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -30,14 +32,16 @@ import static org.junit.Assert.assertTrue;
  * Base testing suite for instrumentation testing. Initializes mock application modules, and more.
  */
 
-@SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseApplicationTestSuite {
+@SuppressWarnings({ "FieldCanBeLocal", "WeakerAccess" }) public class BaseInstrumentationTestSuite {
   /**
    * Default duration to wait for. When waiting for activities to change for example.
    */
   public static Duration TIMEOUT =
-      ApplicationTestUtil.isDebugging() ? Duration.ONE_MINUTE : Duration.ONE_SECOND;
+      ApplicationTestUtil.isDebugging() ? Duration.ONE_MINUTE : Duration.TWO_SECONDS;
   protected final MockWebServer mMockWebServer = new MockWebServer();
-  @Rule public ActivityTestRule<TestActivity> mActivityTestRule =
+  @Rule public ActivityTestRule<MainActivity> mMainActivityRule =
+      new ActivityTestRule<>(MainActivity.class, true, false);
+  @Rule public ActivityTestRule<TestActivity> mTestActivityRule =
       new ActivityTestRule<>(TestActivity.class, true, false);
   protected FakePermissionsManager mFakePermissionsManager;
   protected FakeAuthManager mFakeAuthManager;
@@ -45,6 +49,7 @@ import static org.junit.Assert.assertTrue;
   protected FakeReactionDetectionManager mFakeReactionDetectionManager;
   protected FakeDeviceManager mFakeDeviceManager;
   protected CountingDispatcher mDispatcher;
+  protected String TAG = this.getClass().getSimpleName();
 
   @Before public void setUp() throws Exception {
     // Initialize Awaitility
@@ -66,9 +71,9 @@ import static org.junit.Assert.assertTrue;
     mFakeReactionDetectionManager = new FakeReactionDetectionManager();
     AppContainer.setReactionDetectionManager(mFakeReactionDetectionManager);
     // Launches activity
-    mActivityTestRule.launchActivity(null);
+    mTestActivityRule.launchActivity(null);
     // Sign up
-    mFakeAuthManager.signUp(mActivityTestRule.getActivity(), new User(mFakeDeviceManager));
+    mFakeAuthManager.signUp(mTestActivityRule.getActivity(), new User(mFakeDeviceManager));
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeAuthManager.isAuthOk());
@@ -84,5 +89,13 @@ import static org.junit.Assert.assertTrue;
   @After public void tearDown() throws Exception {
     // Closes mock server
     mMockWebServer.close();
+  }
+
+  public void waitForMainFragment(final int index) {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(index, mMainActivityRule.getActivity().getMainPager().getCurrentItem());
+      }
+    });
   }
 }

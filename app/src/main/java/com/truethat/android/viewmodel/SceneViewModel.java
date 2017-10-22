@@ -54,6 +54,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    * Emphasized color after a user reaction to a scene.
    */
   @VisibleForTesting @ColorRes static final int POST_REACTION_COUNT_COLOR = R.color.light;
+  private static final String BUNDLE_CURRENT_MEDIA = "currentMedia";
   /**
    * Detection delay in milliseconds, so that reaction detection will be less affected by prior
    * events.
@@ -124,13 +125,6 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     return mCurrentMedia;
   }
 
-  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
-    super.onCreate(arguments, savedInstanceState);
-    // Initializes the API
-    mInteractionApi = NetworkUtil.createApi(InteractionApi.class);
-    mPostEventCallback = buildPostEventCallback();
-  }
-
   @Override public void onBindView(@NonNull SceneViewInterface view) {
     super.onBindView(view);
     // This method is expected to be called once per view model and so string concatenation should
@@ -140,23 +134,38 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     }
   }
 
+  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
+    super.onCreate(arguments, savedInstanceState);
+    // Initializes the API
+    mInteractionApi = NetworkUtil.createApi(InteractionApi.class);
+    mPostEventCallback = buildPostEventCallback();
+    if (savedInstanceState != null) {
+      if (savedInstanceState.get(BUNDLE_CURRENT_MEDIA) != null) {
+        mCurrentMedia = savedInstanceState.getParcelable(BUNDLE_CURRENT_MEDIA);
+      }
+    }
+  }
+
   @Override public void onStop() {
     super.onStop();
     if (mPostEventCall != null) mPostEventCall.cancel();
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    if (mCurrentMedia == null) {
-      display(mScene.getRootMedia());
-    } else {
-      display(mCurrentMedia);
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    if (mCurrentMedia != null) {
+      outState.putParcelable(BUNDLE_CURRENT_MEDIA, mCurrentMedia);
     }
-    updateInfoLayout();
-    updateReactionsLayout(null);
   }
 
   public void onVisible() {
+    super.onVisible();
+    if (mCurrentMedia == null) {
+      mCurrentMedia = mScene.getRootMedia();
+    }
+    display(mCurrentMedia);
+    updateInfoLayout();
+    updateReactionsLayout(null);
     if (mDetectionTimer == null) mDetectionTimer = new Timer(TAG);
     if (mMediaReady.get(mCurrentMedia)) {
       onDisplay();
@@ -189,7 +198,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     Log.d(TAG, "onReady");
     if (mMediaReady != null) {
       mMediaReady.put(mCurrentMedia, true);
-      if (getView() != null && getView().isReallyVisible()) {
+      if (getView() != null && getView().isVisibleAndResumed()) {
         onDisplay();
       }
     }
@@ -239,10 +248,6 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     mReactionCountColor.set(POST_REACTION_COUNT_COLOR);
     // Update fragment state.
     mLastReaction = reaction;
-  }
-
-  @Override public boolean isReallyVisible() {
-    return getView() != null && getView().isReallyVisible();
   }
 
   Media getNextMedia() {

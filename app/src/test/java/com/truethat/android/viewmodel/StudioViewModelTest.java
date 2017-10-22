@@ -7,6 +7,7 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Video;
+import com.truethat.android.view.activity.MainActivity;
 import com.truethat.android.viewmodel.viewinterface.StudioViewInterface;
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
@@ -57,9 +58,9 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     });
     // Creates and starts view model
     mView = new ViewInterface();
-    mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) mView);
+    mViewModel = createViewModel(StudioViewModel.class, (StudioViewInterface) mView, null);
     mViewModel.setContext(mockedContext);
-    mViewModel.onStart();
+    mViewModel.onVisible();
   }
 
   @Test public void directingState() throws Exception {
@@ -265,7 +266,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onSent();
     assertSentState();
     // Pause activity.
-    mViewModel.onStop();
+    mViewModel.onHidden();
     // Should fail
     assertPublishFailed();
   }
@@ -287,7 +288,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       }
     });
     // Capture buttons are displayed.
-    assertTrue(mViewModel.mCaptureButtonVisibility.get());
+    assertTrue(mView.isToolbarVisible());
     assertTrue(mViewModel.mSwitchCameraButtonVisibility.get());
     // Approval buttons are hidden
     assertFalse(mViewModel.mSendButtonVisibility.get());
@@ -313,7 +314,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
       }
     });
     // Capture buttons are hidden.
-    assertFalse(mViewModel.mCaptureButtonVisibility.get());
+    assertFalse(mView.isToolbarVisible());
     assertFalse(mViewModel.mSwitchCameraButtonVisibility.get());
     // Approval buttons are shown
     assertTrue(mViewModel.mSendButtonVisibility.get());
@@ -333,7 +334,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
 
   private void assertSentState() {
     // Capture buttons are hidden.
-    assertFalse(mViewModel.mCaptureButtonVisibility.get());
+    assertFalse(mView.isToolbarVisible());
     assertFalse(mViewModel.mSwitchCameraButtonVisibility.get());
     // Approval buttons are hidden
     assertFalse(mViewModel.mSendButtonVisibility.get());
@@ -355,7 +356,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
         assertEquals(PUBLISHED, mViewModel.getState());
         assertEquals(SAVED_SUCCESSFULLY, mView.getToastText());
         // Should leave studio
-        assertTrue(mView.mLeftStudio);
+        assertEquals(MainActivity.TOOLBAR_THEATER_INDEX, mView.getMainPagerIndex());
       }
     });
   }
@@ -366,13 +367,8 @@ public class StudioViewModelTest extends ViewModelTestSuite {
   }
 
   private class ViewInterface extends UnitTestViewInterface implements StudioViewInterface {
-    private boolean mLeftStudio = false;
     private boolean mPreviewRestored = false;
     private Media mDisplayedMedia;
-
-    @Override public void leaveStudio() {
-      mLeftStudio = true;
-    }
 
     @Override public void restoreCameraPreview() {
       mPreviewRestored = true;

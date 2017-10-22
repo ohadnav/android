@@ -11,7 +11,6 @@
         />
   </data>
   <android.support.constraint.ConstraintLayout
-      android:id="@+id/activityRootView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       tools:context=".view.fragment.ScenesPagerFragment"
@@ -53,17 +52,6 @@
           tools:visibility="visible"
           />
     </android.support.constraint.ConstraintLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/scenesPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:items="@{viewModel.mItems}"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
 
     <ImageView
         android:id="@+id/loadingImage"

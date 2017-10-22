@@ -10,7 +10,7 @@ import android.support.test.uiautomator.Until;
 import android.support.v4.app.ActivityCompat;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.ApplicationTestUtil;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class) @MediumTest @Ignore
 // Test fails since shell commands take time to take effect.
-public class DevicePermissionsManagerTest extends BaseApplicationTestSuite {
+public class DevicePermissionsManagerTest extends BaseInstrumentationTestSuite {
   private static final Permission PERMISSION = Permission.CAMERA;
   private PermissionsManager mPermissionsManager;
   private UiDevice mDevice;
@@ -41,7 +41,7 @@ public class DevicePermissionsManagerTest extends BaseApplicationTestSuite {
     // Resets all permissions
     PermissionsTestUtil.revokeAllPermissions();// Set up real device permission module.
     AppContainer.setPermissionsManager(
-        mPermissionsManager = new DevicePermissionsManager(mActivityTestRule.getActivity()));
+        mPermissionsManager = new DevicePermissionsManager(mTestActivityRule.getActivity()));
   }
 
   @Test public void isPermissionGranted_shouldBeGranted() throws Exception {
@@ -61,7 +61,7 @@ public class DevicePermissionsManagerTest extends BaseApplicationTestSuite {
   @Test public void requestIfNeeded_shouldRequest() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.revokePermission(PERMISSION);
-    mPermissionsManager.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
+    mPermissionsManager.requestIfNeeded(mTestActivityRule.getActivity(), PERMISSION);
     // Assert permission dialogue is prompted
     UiObject2 denyButton = mDevice.wait(PermissionsTestUtil.DENY_SEARCH_CONDITION, 100);
     MatcherAssert.assertThat(denyButton.isEnabled(), Is.is(true));
@@ -72,19 +72,19 @@ public class DevicePermissionsManagerTest extends BaseApplicationTestSuite {
         100);
     // Assert that permissions wasn't granted
     assertNotEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(mActivityTestRule.getActivity(),
+        ActivityCompat.checkSelfPermission(mTestActivityRule.getActivity(),
             PERMISSION.getManifest()));
   }
 
   @Test public void requestIfNeeded_alreadyHadPermission() throws Exception {
     // Revokes permission via shell
     PermissionsTestUtil.grantPermission(PERMISSION);
-    mPermissionsManager.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
+    mPermissionsManager.requestIfNeeded(mTestActivityRule.getActivity(), PERMISSION);
     // Assert permission dialogue is not prompted
     assertFalse(mDevice.hasObject(PermissionsTestUtil.ALLOW_SELECTOR));
     // Assert that permissions was granted
     assertEquals(PackageManager.PERMISSION_GRANTED,
-        ActivityCompat.checkSelfPermission(mActivityTestRule.getActivity(),
+        ActivityCompat.checkSelfPermission(mTestActivityRule.getActivity(),
             PERMISSION.getManifest()));
   }
 }

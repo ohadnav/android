@@ -57,7 +57,8 @@ import static org.junit.Assert.assertTrue;
   @Override public void setUp() throws Exception {
     super.setUp();
     mViewModel =
-        createViewModel(ScenesPagerViewModel.class, (ScenesPagerViewInterface) new ViewInterface());
+        createViewModel(ScenesPagerViewModel.class, (ScenesPagerViewInterface) new ViewInterface(),
+            null);
     mViewModel.onStart();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -305,7 +306,11 @@ import static org.junit.Assert.assertTrue;
       return mApi.fetchScenes(mFakeAuthManager.getCurrentUser());
     }
 
-    @Override public boolean isReallyVisible() {
+    @Override public void vibrate() {
+
+    }
+
+    @Override public boolean isVisibleAndResumed() {
       return true;
     }
   }

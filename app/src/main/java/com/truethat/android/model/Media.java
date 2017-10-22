@@ -1,11 +1,11 @@
 package com.truethat.android.model;
 
+import android.os.Parcel;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
 import com.truethat.android.view.fragment.MediaFragment;
-import java.io.Serializable;
 import okhttp3.MultipartBody;
 
 /**
@@ -18,7 +18,7 @@ import okhttp3.MultipartBody;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Media.java</a>
  */
 
-public abstract class Media extends BaseModel implements Serializable {
+public abstract class Media extends BaseModel {
   private static final long serialVersionUID = 2882621624492397474L;
   private String mUrl;
 
@@ -30,14 +30,15 @@ public abstract class Media extends BaseModel implements Serializable {
     mUrl = url;
   }
 
-  public String getUrl() {
-    return mUrl;
+  Media(Parcel in) {
+    super(in);
+    mUrl = (String) in.readValue(String.class.getClassLoader());
   }
 
-  /**
-   * @return a view displaying this media.
-   */
-  public abstract MediaFragment createFragment();
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mUrl);
+  }
 
   @Override public int hashCode() {
     int result = super.hashCode();
@@ -54,6 +55,15 @@ public abstract class Media extends BaseModel implements Serializable {
 
     return mUrl != null ? mUrl.equals(media.mUrl) : media.mUrl == null;
   }
+
+  public String getUrl() {
+    return mUrl;
+  }
+
+  /**
+   * @return a view displaying this media.
+   */
+  public abstract MediaFragment createFragment();
 
   /**
    * @return a HTTP multipart part with the binary data of this media.

@@ -19,5 +19,5 @@ public interface RepertoireApi {
    *
    * @param user for which to pull the repertoire.
    */
-  @POST(PATH) Call<List<Scene>> fetchRepertoire(@Body User user);
+  @POST(PATH) Call<List<Scene>> fetchScenes(@Body User user);
 }

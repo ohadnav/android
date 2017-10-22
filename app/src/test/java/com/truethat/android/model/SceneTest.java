@@ -3,9 +3,12 @@ package com.truethat.android.model;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.viewmodel.ViewModelTestSuite;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.TreeMap;
 import org.junit.Test;
 
+import static com.truethat.android.common.util.SerializableTestUtil.testSerializability;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -74,5 +77,13 @@ public class SceneTest extends ViewModelTestSuite {
     assertNotEquals(video.getId(), newVideo.getId());
     // new video should follow photo.
     assertEquals(newVideo, scene.getNextMedia(photo, Emotion.HAPPY));
+  }
+
+  @SuppressWarnings("serial") @Test public void testSerializable() throws Exception {
+    TreeMap<Emotion, Long> treeMap = new TreeMap<>();
+    treeMap.put(Emotion.DISGUST, 10L);
+    testSerializability(new Scene(1L, new User(1L, "a", "b", "c"), treeMap, new Date(),
+        Arrays.asList(new Video(1L, "a"), new Photo(2L, "b"), new Video(3L, "c")),
+        Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.FEAR))));
   }
 }

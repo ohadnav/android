@@ -1,11 +1,12 @@
 package com.truethat.android.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.view.fragment.MediaFragment;
 import com.truethat.android.view.fragment.VideoFragment;
 import java.io.File;
-import java.io.Serializable;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -16,7 +17,16 @@ import okhttp3.RequestBody;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Video.java</a>
  */
 
-public class Video extends Media implements Serializable {
+public class Video extends Media {
+  public static final Parcelable.Creator<Video> CREATOR = new Parcelable.Creator<Video>() {
+    @Override public Video createFromParcel(Parcel source) {
+      return new Video(source);
+    }
+
+    @Override public Video[] newArray(int size) {
+      return new Video[size];
+    }
+  };
   private static final String VIDEO_FILENAME = "video.mp4";
   private static final long serialVersionUID = 3860634597513193683L;
   /**
@@ -28,16 +38,18 @@ public class Video extends Media implements Serializable {
     mInternalPath = internalPath;
   }
 
+  private Video(Parcel in) {
+    super(in);
+    mInternalPath = (String) in.readValue(String.class.getClassLoader());
+  }
+
   @VisibleForTesting public Video(@Nullable Long id, String url) {
     super(id, url);
   }
 
-  public String getInternalPath() {
-    return mInternalPath;
-  }
-
-  @Override public MediaFragment createFragment() {
-    return VideoFragment.newInstance(this);
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mInternalPath);
   }
 
   @Override public int hashCode() {
@@ -57,11 +69,19 @@ public class Video extends Media implements Serializable {
         : video.mInternalPath == null;
   }
 
+  @Override public MediaFragment createFragment() {
+    return VideoFragment.newInstance(this);
+  }
+
   @Override MultipartBody.Part createPart() {
     if (mInternalPath == null) {
       throw new AssertionError("Video internal path had not been properly initialized.");
     }
     return MultipartBody.Part.createFormData(generatePartName(), VIDEO_FILENAME,
         RequestBody.create(MediaType.parse("video/mp4"), new File(mInternalPath)));
+  }
+
+  public String getInternalPath() {
+    return mInternalPath;
   }
 }

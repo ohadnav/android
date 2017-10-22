@@ -1,25 +1,28 @@
 package com.truethat.android.view.fragment;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.databinding.FragmentScenesPagerBinding;
 import com.truethat.android.model.Scene;
-import com.truethat.android.view.custom.OnSwipeTouchListener;
+import com.truethat.android.view.custom.ClickableViewPager;
+import com.truethat.android.view.custom.NonSwipableViewPager;
 import com.truethat.android.view.custom.SceneFragmentAdapter;
+import com.truethat.android.view.custom.ZoomOutPageTransformer;
 import com.truethat.android.viewmodel.ScenesPagerViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
@@ -33,121 +36,123 @@ import retrofit2.Call;
 
 public class ScenesPagerFragment
     extends BaseFragment<ScenesPagerViewInterface, ScenesPagerViewModel, FragmentScenesPagerBinding>
-    implements ScenesPagerViewInterface {
-  private static final String ARG_DETECT_REACTIONS = "detectReactions";
-  @BindView(R.id.scenesPager) ViewPager mPager;
+    implements ScenesPagerViewInterface, ClickableViewPager.ClickEventListener {
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
-  private boolean mDetectReactions = false;
+  private NonSwipableViewPager mPager;
   private SceneFragmentAdapter mSceneFragmentAdapter;
-  private ScenePagerListener mListener;
+  private ScenesFetcher mScenesFetcher;
 
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof ScenePagerListener) {
-      mListener = (ScenePagerListener) context;
+  public static ScenesPagerFragment newInstance() {
+    Bundle args = new Bundle();
+    ScenesPagerFragment fragment = new ScenesPagerFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
+
+  @Override public void onClickEvent(MotionEvent e) {
+    if (e.getX() > AppUtil.realDisplaySize(getContext()).x / 2.0) {
+      getViewModel().next();
     } else {
-      throw new RuntimeException(context.getClass().getSimpleName()
-          + " must implement "
-          + ScenePagerListener.class.getSimpleName());
+      getViewModel().previous();
     }
   }
 
-  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putBoolean(ARG_DETECT_REACTIONS, mDetectReactions);
-  }
-
-  @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    // Navigation between scenes and activities.
-    mRootView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
-      @Override public void onSwipeLeft() {
-        getViewModel().next();
-      }
-
-      @Override public void onSwipeDown() {
-        mListener.onSwipeDown();
-      }
-
-      @Override public void onSwipeUp() {
-        mListener.onSwipeUp();
-      }
-    });
-    mPager.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
-      @Override public void onSwipeLeft() {
-        getViewModel().next();
-      }
-
-      @Override public void onSwipeRight() {
-        getViewModel().previous();
-      }
-
-      @Override public void onSwipeDown() {
-        mListener.onSwipeDown();
-      }
-
-      @Override public void onSwipeUp() {
-        mListener.onSwipeUp();
-      }
-    });
-    // Initialize views
-    mSceneFragmentAdapter = new SceneFragmentAdapter(getActivity().getSupportFragmentManager());
-    mPager.setAdapter(mSceneFragmentAdapter);
-    // Initializes view model parameters.
-    getViewModel().setDetectReactions(mDetectReactions);
-    return mRootView;
-  }
-
-  @Override public void onStart() {
-    super.onStart();
-    if (mDetectReactions) {
-      AppContainer.getReactionDetectionManager().start(getBaseActivity());
+  @Override public void maybeChangeVisibilityState() {
+    super.maybeChangeVisibilityState();
+    if (getCurrentFragment() != null) {
+      getCurrentFragment().maybeChangeVisibilityState();
     }
+  }
+
+  @Override public void onVisible() {
+    initializeViewPager();
+    super.onVisible();
+    AppContainer.getReactionDetectionManager().start(getBaseActivity());
     ((AnimationDrawable) mLoadingImage.getDrawable()).start();
     mLoadingImage.bringToFront();
   }
 
-  @Override public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
-    super.onInflate(context, attrs, savedInstanceState);
-    TypedArray styledAttributes =
-        context.obtainStyledAttributes(attrs, R.styleable.ScenesPagerFragment);
-    // Saved state trumps XML.
-    if (savedInstanceState == null || !savedInstanceState.getBoolean(ARG_DETECT_REACTIONS)) {
-      mDetectReactions =
-          styledAttributes.getBoolean(R.styleable.ScenesPagerFragment_detect_reactions, false);
-    }
-    styledAttributes.recycle();
-  }
-
-  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    if (savedInstanceState != null) {
-      mDetectReactions = savedInstanceState.getBoolean(ARG_DETECT_REACTIONS);
+  @Override public void onHidden() {
+    super.onHidden();
+    if (getView() != null) {
+      ((ViewGroup) getView()).removeView(mPager);
+      mPager = null;
     }
   }
 
-  @VisibleForTesting public SceneFragment getDisplayedScene() {
+  @Nullable @VisibleForTesting public SceneFragment getCurrentFragment() {
+    if (mPager == null
+        || mSceneFragmentAdapter == null
+        || mPager.getCurrentItem() < 0
+        || mPager.getCurrentItem() >= mSceneFragmentAdapter.getCount()) {
+      return null;
+    }
     return (SceneFragment) mSceneFragmentAdapter.instantiateItem(mPager, mPager.getCurrentItem());
   }
 
   @Override public void displayItem(int index) {
+    Log.d(TAG, "Displaying scene with index " + index);
+    if (mPager.getAdapter().getCount() <= index || index < 0) {
+      throw new IndexOutOfBoundsException(
+          "Scene index " + index + " is not within scene pager bounds [0, " + mPager.getAdapter()
+              .getCount() + ")");
+    }
     mPager.setCurrentItem(index, true);
   }
 
   @Override public Call<List<Scene>> buildFetchScenesCall() {
-    return mListener.buildFetchScenesCall();
+    return mScenesFetcher.buildFetchScenesCall();
+  }
+
+  @SuppressWarnings("deprecation") @Override public void vibrate() {
+    Vibrator vb = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+    vb.vibrate(10);
+  }
+
+  public void setScenesFetcher(ScenesFetcher scenesFetcher) {
+    mScenesFetcher = scenesFetcher;
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.fragment_scenes_pager, getContext());
   }
 
-  public interface ScenePagerListener extends BaseListener {
-    void onSwipeUp();
+  private void initializeViewPager() {
+    if (mPager == null && getView() != null) {
+      mPager = new NonSwipableViewPager(getContext());
+      mPager.setId(View.generateViewId());
+      ConstraintLayout.LayoutParams layoutParams =
+          new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,
+              ConstraintLayout.LayoutParams.MATCH_PARENT);
+      ((ViewGroup) getView()).addView(mPager, layoutParams);
+      ConstraintSet constraintSet = new ConstraintSet();
+      constraintSet.clone((ConstraintLayout) getView());
+      // Sets an ID for the fragment container view if it has none.
+      if (getView().getId() == View.NO_ID) {
+        getView().setId(View.generateViewId());
+      }
+      // Sets the boundaries of the pager to match its parent.
+      constraintSet.connect(mPager.getId(), ConstraintSet.START, getView().getId(),
+          ConstraintSet.START);
+      constraintSet.connect(mPager.getId(), ConstraintSet.END, getView().getId(),
+          ConstraintSet.END);
+      constraintSet.connect(mPager.getId(), ConstraintSet.TOP, getView().getId(),
+          ConstraintSet.TOP);
+      constraintSet.connect(mPager.getId(), ConstraintSet.BOTTOM, getView().getId(),
+          ConstraintSet.BOTTOM);
+      constraintSet.applyTo((ConstraintLayout) getView());
+      // Initialize the adapter.
+      mSceneFragmentAdapter = new SceneFragmentAdapter(getFragmentManager(), mPager);
+      mPager.setAdapter(mSceneFragmentAdapter);
+      // Visual transformation effects.
+      mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+      mPager.setVisibilityListener(this);
+      // Hooks the view model items to the adapter ones.
+      mSceneFragmentAdapter.setItems(getViewModel().mItems);
+    }
+  }
 
-    void onSwipeDown();
-
+  interface ScenesFetcher extends BaseListener {
     Call<List<Scene>> buildFetchScenesCall();
   }
 }

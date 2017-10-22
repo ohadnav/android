@@ -48,10 +48,10 @@ public class SceneFragment
     return fragment;
   }
 
-  @Override public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
+  @Override public void maybeChangeVisibilityState() {
+    super.maybeChangeVisibilityState();
     if (mMediaFragment != null) {
-      mMediaFragment.setUserVisibleHint(isVisibleToUser);
+      mMediaFragment.maybeChangeVisibilityState();
     }
   }
 
@@ -71,7 +71,10 @@ public class SceneFragment
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    mRootView.findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
+    if (getView() == null) {
+      throw new IllegalStateException("Fragment root view should have already been created.");
+    }
+    getView().findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
   }
 
   @Override public void onStart() {
@@ -82,6 +85,17 @@ public class SceneFragment
   @Override public void onDestroyView() {
     super.onDestroyView();
     mMediaFragment = null;
+  }
+
+  @Override public boolean shouldBeVisible(Object o) {
+    if (o instanceof MediaFragment) {
+      MediaFragment mediaFragment = (MediaFragment) o;
+      if (getViewModel().getCurrentMedia() == null || !getViewModel().getCurrentMedia()
+          .equals(mediaFragment.getMedia())) {
+        return false;
+      }
+    }
+    return super.shouldBeVisible(o);
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
@@ -147,6 +161,7 @@ public class SceneFragment
   @Override public void display(Media media) {
     Log.d(TAG, "Displaying " + media);
     mMediaFragment = media.createFragment();
+    mMediaFragment.setVisibilityListener(this);
     FragmentTransaction fragmentTransaction =
         getActivity().getSupportFragmentManager().beginTransaction();
     fragmentTransaction.replace(mMediaContainerViewId, mMediaFragment);

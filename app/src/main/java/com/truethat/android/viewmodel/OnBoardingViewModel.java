@@ -4,10 +4,12 @@ import android.databinding.Observable;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
+import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.text.InputType;
+import android.util.Log;
 import com.google.common.base.Strings;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
@@ -19,6 +21,8 @@ import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Proudly created by ohad on 31/07/2017 for TrueThat.
@@ -33,6 +37,8 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   @VisibleForTesting static final int NAME_TEXT_EDITING_INPUT_TYPE =
       InputType.TYPE_TEXT_VARIATION_PERSON_NAME;
   @VisibleForTesting static final int NAME_TEXT_DISABLED_INPUT_TYPE = InputType.TYPE_NULL;
+  private static final String BUNDLE_STAGE = "stage";
+  private static final String BUNDLE_NAME = "name";
   public final ObservableField<String> mNameEditText = new ObservableField<>();
   public final ObservableInt mNameEditInputType = new ObservableInt(NAME_TEXT_EDITING_INPUT_TYPE);
   public final ObservableInt mNameTextColor = new ObservableInt(R.color.primary);
@@ -54,16 +60,34 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     });
   }
 
-  @Override public void onStop() {
-    super.onStop();
+  @Override public void onResume() {
+    super.onResume();
+    doStage();
+  }
+
+  @Override public void onPause() {
+    super.onPause();
     AppContainer.getReactionDetectionManager().unsubscribe(this);
     AppContainer.getReactionDetectionManager().stop();
     AppContainer.getAuthManager().cancelRequest();
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    doStage();
+  @Override public void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putSerializable(BUNDLE_STAGE, mStage);
+    outState.putString(BUNDLE_NAME, mNameEditText.get());
+  }
+
+  @Override public void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    if (savedInstanceState != null) {
+      if (savedInstanceState.getSerializable(BUNDLE_STAGE) != null) {
+        mStage = (Stage) savedInstanceState.getSerializable(BUNDLE_STAGE);
+      }
+      if (savedInstanceState.getString(BUNDLE_NAME) != null) {
+        mNameEditText.set(savedInstanceState.getString(BUNDLE_NAME));
+      }
+    }
   }
 
   @Override public void onPermissionGranted(Permission permission) {
@@ -73,7 +97,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
 
   @Override public void onReactionDetected(Emotion reaction) {
     if (REACTION_FOR_DONE.contains(reaction) && StringUtil.isValidFullName(mNameEditText.get())) {
-      onRequestSentStage();
+      onRequestSent();
     }
   }
 
@@ -114,7 +138,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     mWarningText.set(getContext().getString(R.string.sign_up_failed_warning_text));
     mWarningTextVisibility.set(true);
     mLoadingImageVisibility.set(false);
-    onEditStage();
+    onEdit();
   }
 
   @VisibleForTesting public Stage getStage() {
@@ -124,16 +148,18 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   private void doStage() {
     switch (mStage) {
       case EDIT:
-        onEditStage();
+        onEdit();
         break;
       case FINAL:
-      case REQUEST_SENT:
         onFinalStage();
         break;
+      case REQUEST_SENT:
+        onRequestSent();
     }
   }
 
-  private void onEditStage() {
+  private void onEdit() {
+    Log.d(TAG, "onEdit");
     mStage = Stage.EDIT;
     mNameEditInputType.set(NAME_TEXT_EDITING_INPUT_TYPE);
     if (getView() != null) {
@@ -149,9 +175,20 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
    */
   private void onFinalStage() {
     if (!isNameValid()) {
-      onEditStage();
+      onEdit();
     }
+    Log.d(TAG, "onFinalStage");
     mStage = Stage.FINAL;
+    // TODO: use a cleaner way to achieve the same result.
+    // Timer is used because the stage can be launched when the keyboard or focus controls are not available.
+    new Timer().schedule(new TimerTask() {
+      @Override public void run() {
+        if (getView() != null) {
+          getView().clearNameEditFocus();
+          getView().hideSoftKeyboard();
+        }
+      }
+    }, 100);
     mLoadingImageVisibility.set(false);
     mNameEditInputType.set(NAME_TEXT_EDITING_INPUT_TYPE);
     mCompletionTextVisibility.set(true);
@@ -166,10 +203,11 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     AppContainer.getReactionDetectionManager().subscribe(this);
   }
 
-  private void onRequestSentStage() {
+  private void onRequestSent() {
     if (!isNameValid()) {
-      onEditStage();
+      onEdit();
     }
+    Log.d(TAG, "onRequestSent");
     mStage = Stage.REQUEST_SENT;
     // Shows load indicator
     mLoadingImageVisibility.set(true);

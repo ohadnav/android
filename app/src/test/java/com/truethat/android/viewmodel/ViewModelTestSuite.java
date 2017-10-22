@@ -1,6 +1,7 @@
 package com.truethat.android.viewmodel;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import com.truethat.android.BuildConfig;
 import com.truethat.android.application.AppContainer;
@@ -15,8 +16,10 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.empathy.FakeReactionDetectionManager;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.BaseActivity;
+import com.truethat.android.view.activity.MainActivity;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
+import com.truethat.android.viewmodel.viewinterface.ToolbarViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -97,18 +100,21 @@ import static org.junit.Assert.assertTrue;
 
   @SuppressWarnings("unchecked")
   <ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>> ViewModel createViewModel(
-      Class<ViewModel> viewModelTypeClass, ViewInterface viewInterface) throws Exception {
+      Class<ViewModel> viewModelTypeClass, ViewInterface viewInterface,
+      @Nullable Bundle savedInstanceState) throws Exception {
     ViewModel viewModel = viewModelTypeClass.newInstance();
-    viewModel.onCreate(null, null);
+    viewModel.onCreate(null, savedInstanceState);
     viewModel.onBindView(viewInterface);
     return viewModel;
   }
 
   @SuppressWarnings("unused") class UnitTestViewInterface
-      implements AuthListener, BaseFragmentViewInterface {
+      implements AuthListener, BaseFragmentViewInterface, ToolbarViewInterface {
     private String mToastText;
     private AuthResult mAuthResult;
-    private boolean isVisible = true;
+    private boolean mIsVisible = true;
+    private boolean mIsToolbarVisible = true;
+    private int mMainPagerIndex = MainActivity.sLaunchIndex;
 
     public String getToastText() {
       return mToastText;
@@ -130,10 +136,6 @@ import static org.junit.Assert.assertTrue;
       mToastText = text;
     }
 
-    @Override public AuthListener getAuthListener() {
-      return this;
-    }
-
     @Override public BaseActivity getBaseActivity() {
       return null;
     }
@@ -146,12 +148,40 @@ import static org.junit.Assert.assertTrue;
 
     }
 
-    @Override public boolean isReallyVisible() {
-      return isVisible;
+    @Override public boolean isVisibleAndResumed() {
+      return mIsVisible;
     }
 
     @Override public String getTAG() {
       return this.getClass().getSimpleName();
+    }
+
+    @Override public void navigateToTheater() {
+      mMainPagerIndex = MainActivity.TOOLBAR_THEATER_INDEX;
+    }
+
+    @Override public void navigateToStudio() {
+      mMainPagerIndex = MainActivity.TOOLBAR_STUDIO_INDEX;
+    }
+
+    @Override public void navigateToRepertoire() {
+      mMainPagerIndex = MainActivity.TOOLBAR_REPERTOIRE_INDEX;
+    }
+
+    @Override public void hideToolbar() {
+      mIsToolbarVisible = false;
+    }
+
+    @Override public void showToolbar() {
+      mIsToolbarVisible = true;
+    }
+
+    int getMainPagerIndex() {
+      return mMainPagerIndex;
+    }
+
+    boolean isToolbarVisible() {
+      return mIsToolbarVisible;
     }
   }
 }

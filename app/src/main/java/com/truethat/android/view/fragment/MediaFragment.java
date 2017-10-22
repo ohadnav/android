@@ -19,7 +19,6 @@ import com.truethat.android.model.Video;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
-import com.truethat.android.viewmodel.viewinterface.FragmentVisibilityInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 /**
@@ -84,11 +83,14 @@ public abstract class MediaFragment<Model extends Media> extends
    */
   @SuppressWarnings("unchecked") @Nullable @Override public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    inflater.inflate(getLayoutResource(), (ViewGroup) mRootView.findViewById(R.id.mediaLayout));
+    View rootView = super.onCreateView(inflater, container, savedInstanceState);
+    if (rootView == null) {
+      throw new IllegalStateException("Fragment root view should have already been created.");
+    }
+    inflater.inflate(getLayoutResource(), (ViewGroup) rootView.findViewById(R.id.mediaLayout));
     // Binds views with butterknife.
-    mViewUnbinder = ButterKnife.bind(this, mRootView);
-    return mRootView;
+    mViewUnbinder = ButterKnife.bind(this, rootView);
+    return rootView;
   }
 
   @Override public void onStart() {
@@ -114,7 +116,7 @@ public abstract class MediaFragment<Model extends Media> extends
    */
   abstract @LayoutRes int getLayoutResource();
 
-  public interface MediaListener extends BaseListener, FragmentVisibilityInterface {
+  public interface MediaListener extends BaseListener {
     /**
      * Called once the media has been downloaded.
      */

@@ -1,25 +1,29 @@
 package com.truethat.android.view.fragment;
 
-import android.support.test.espresso.action.ViewActions;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.action.GeneralClickAction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Tap;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.truethat.android.R;
+import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.auth.FakeAuthManager;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.common.util.CameraTestUtil;
 import com.truethat.android.common.util.CountingDispatcher;
 import com.truethat.android.common.util.DateUtil;
 import com.truethat.android.common.util.NumberUtil;
 import com.truethat.android.model.Edge;
 import com.truethat.android.model.Emotion;
+import com.truethat.android.model.Media;
 import com.truethat.android.model.Photo;
 import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.model.Video;
-import com.truethat.android.view.activity.TheaterActivity;
+import com.truethat.android.view.activity.MainActivity;
 import com.truethat.android.viewmodel.SceneViewModel;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,9 +38,9 @@ import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -49,12 +53,15 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Proudly created by ohad on 26/06/2017 for TrueThat.
  */
-public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
+@SuppressWarnings("ConstantConditions") public class ScenesPagerFragmentTest
+    extends BaseInstrumentationTestSuite {
   private static final long ID_1 = 1;
   private static final long ID_2 = 2;
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "ci");
@@ -68,30 +75,38 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
       new TreeMap<Emotion, Long>() {{
         put(Emotion.HAPPY, HAPPY_COUNT);
       }};
-  @Rule public ActivityTestRule<TheaterActivity> mTheaterActivityTestRule =
-      new ActivityTestRule<>(TheaterActivity.class, true, false);
   private List<Scene> mRespondedScenes;
 
   @SuppressWarnings("ConstantConditions")
-  public static void assertSceneDisplayed(final Scene scene, User currentUser,
-      final int mediaIndex) {
-    final ScenesPagerFragment pagerFragment =
-        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.scenesPagerFragment);
-    // Wait until the scene is displayed.
-    waitMatcher(withId(R.id.sceneFragment));
-    // Wait until the correct fragment is the current one.
+  public static void assertSceneDisplayed(final Scene scene, final long mediaId) {
+    if (!(getCurrentActivity() instanceof MainActivity)) {
+      throw new IllegalStateException(
+          "Scenes can only be displayed in main activity, current activity is "
+              + getCurrentActivity().getClass().getSimpleName());
+    }
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(scene.getId(), pagerFragment.getDisplayedScene().getScene().getId());
+        assertNotNull(getScenesPagerFragment());
       }
     });
-    final SceneFragment currentFragment = pagerFragment.getDisplayedScene();
+    final ScenesPagerFragment pagerFragment = getScenesPagerFragment();
+    // Wait until scene is displayed
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertNotNull(pagerFragment.getCurrentFragment());
+      }
+    });
+    // Wait until the correct scene fragment is the current one.
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(scene.getId(), pagerFragment.getCurrentFragment().getScene().getId());
+      }
+    });
+    final SceneFragment currentFragment = pagerFragment.getCurrentFragment();
     // Wait for the right media to display
     await().atMost(Duration.FIVE_SECONDS).untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(mediaIndex,
-            scene.getMediaNodes().indexOf(currentFragment.getViewModel().getCurrentMedia()));
+        assertEquals(mediaId, currentFragment.getViewModel().getCurrentMedia().getId().longValue());
       }
     });
     // Wait until the fragment is ready
@@ -100,17 +115,18 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
         assertTrue(currentFragment.getMediaFragment().isReady());
       }
     });
-    if (scene.getMediaNodes().get(mediaIndex) instanceof Photo) {
+    final Media displayedMedia = currentFragment.getViewModel().getCurrentMedia();
+    if (displayedMedia instanceof Photo) {
       // Asserting the image is displayed fullscreen.
       waitMatcher(allOf(withId(R.id.imageView), isDisplayed()));
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.imageView)));
-    } else if (scene.getMediaNodes().get(mediaIndex) instanceof Video) {
+    } else if (displayedMedia instanceof Video) {
       // Asserting the video is displayed fullscreen.
       assertTrue(isFullscreen(currentFragment.getView().findViewById(R.id.videoTextureView)));
       // Video should be playing
       await().untilAsserted(new ThrowingRunnable() {
         @Override public void run() throws Throwable {
-          assertTrue(((VideoFragment) pagerFragment.getDisplayedScene()
+          assertTrue(((VideoFragment) pagerFragment.getCurrentFragment()
               .getMediaFragment()).getMediaPlayer().isPlaying());
         }
       });
@@ -134,7 +150,8 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
     assertEquals(DateUtil.formatTimeAgo(scene.getCreated()),
         ((TextView) currentFragment.getView().findViewById(R.id.timeAgoText)).getText());
     // Should not display director name if the current user is the director.
-    if (!Objects.equals(scene.getDirector().getId(), currentUser.getId())) {
+    if (!Objects.equals(scene.getDirector().getId(),
+        AppContainer.getAuthManager().getCurrentUser().getId())) {
       assertEquals(View.VISIBLE,
           currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
       // Asserting the displayed name is of the scene director
@@ -144,6 +161,17 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
       assertEquals(View.GONE,
           currentFragment.getView().findViewById(R.id.directorNameText).getVisibility());
     }
+  }
+
+  private static ScenesPagerFragment getScenesPagerFragment() {
+    MainActivity mainActivity = (MainActivity) getCurrentActivity();
+    if (mainActivity.getMainPager().getCurrentItem() == MainActivity.TOOLBAR_STUDIO_INDEX) {
+      throw new IllegalStateException("Scenes cannot be displayed in the studio.");
+    }
+    final MainFragment mainFragment = mainActivity.getCurrentMainFragment();
+    return (ScenesPagerFragment) mainFragment.getFragmentManager()
+        .findFragmentById(mainFragment instanceof TheaterFragment ? R.id.theater_scenesPagerLayout
+            : R.id.repertoire_scenesPagerLayout);
   }
 
   @BeforeClass public static void beforeClass() throws Exception {
@@ -162,59 +190,132 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
     });
     // By default the list is empty.
     mRespondedScenes = Collections.emptyList();
+    MainActivity.sLaunchIndex = MainActivity.TOOLBAR_THEATER_INDEX;
+  }
+
+  @Override public void tearDown() throws Exception {
+    super.tearDown();
+    MainActivity.sLaunchIndex = MainActivity.TOOLBAR_STUDIO_INDEX;
   }
 
   @Test public void displayPhoto() throws Exception {
     Scene scene =
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, PHOTO);
     mRespondedScenes = Collections.singletonList(scene);
-    mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(scene, PHOTO.getId());
   }
 
   @Test public void displayVideo() throws Exception {
     Scene video =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
     mRespondedScenes = Collections.singletonList(video);
-    mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser(), 0);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(video, VIDEO.getId());
   }
 
-  @Test public void displayMultipleTypes() throws Exception {
-    Scene photo =
-        new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, PHOTO);
+  @Test public void scenesNavigation() throws Exception {
+    Scene evolving =
+        new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
+            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
     Scene video =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
-    mRespondedScenes = Arrays.asList(photo, video);
-    mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(photo, mFakeAuthManager.getCurrentUser(), 0);
-    // Swipe to next scene
-    onView(withId(R.id.activityRootView)).perform(ViewActions.swipeLeft());
-    assertSceneDisplayed(video, mFakeAuthManager.getCurrentUser(), 0);
+    mRespondedScenes = Arrays.asList(evolving, video);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(evolving, VIDEO.getId());
+    final ScenesPagerFragment scenesPagerFragment = getScenesPagerFragment();
+    // Wait for reaction detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            scenesPagerFragment.getCurrentFragment().getViewModel()));
+      }
+    });
+    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    // Should display the follow up media
+    assertSceneDisplayed(evolving, PHOTO.getId());
+    // Tap for next scene
+    onView(withId(android.R.id.content)).perform(
+        new GeneralClickAction(Tap.SINGLE, GeneralLocation.CENTER_RIGHT, Press.FINGER));
+    assertSceneDisplayed(video, VIDEO.getId());
+    // Tap for previous scene
+    onView(withId(android.R.id.content)).perform(
+        new GeneralClickAction(Tap.SINGLE, GeneralLocation.CENTER_LEFT, Press.FINGER));
+    // Should save the previous scene state.
+    assertSceneDisplayed(evolving, PHOTO.getId());
+  }
+
+  @Test public void scenesStateSaved() throws Exception {
+    Scene evolving =
+        new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
+            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
+    Scene video =
+        new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
+    mRespondedScenes = Arrays.asList(evolving, video);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(evolving, VIDEO.getId());
+    final ScenesPagerFragment scenesPagerFragment = getScenesPagerFragment();
+    // Wait for reaction detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            scenesPagerFragment.getCurrentFragment().getViewModel()));
+      }
+    });
+    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    // Should display the follow up media
+    assertSceneDisplayed(evolving, PHOTO.getId());
+    // Navigate to repertoire, so that theater fragment will be destroyed.
+    // Click on repertoire icon
+    getInstrumentation().runOnMainSync(new Runnable() {
+      @Override public void run() {
+        mMainActivityRule.getActivity().mToolbarRepertoire.performClick();
+      }
+    });
+    waitForMainFragment(MainActivity.TOOLBAR_REPERTOIRE_INDEX);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertNull(mMainActivityRule.getActivity().mTheaterFragment.getView());
+      }
+    });
+    // Go back to theater
+    getInstrumentation().runOnMainSync(new Runnable() {
+      @Override public void run() {
+        mMainActivityRule.getActivity().mToolbarTheater.performClick();
+      }
+    });
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    // Should resume to display the evolving scene in its initial state.
+    assertSceneDisplayed(evolving, VIDEO.getId());
+    // Should save the video scene as well
+    assertEquals(video, getScenesPagerFragment().getViewModel().mItems.get(1));
   }
 
   @Test public void reactionDetection() throws Exception {
     Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, PHOTO);
     mRespondedScenes = Collections.singletonList(scene);
-    mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
-    final ScenesPagerFragment scenesPagerFragment =
-        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.scenesPagerFragment);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(scene, PHOTO.getId());
+    final ScenesPagerFragment scenesPagerFragment = getScenesPagerFragment();
     // Wait for reaction detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeReactionDetectionManager.isSubscribed(
-            scenesPagerFragment.getDisplayedScene().getViewModel()));
+            scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
     mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
     @SuppressWarnings("ConstantConditions") final ImageView reactionImage =
-        scenesPagerFragment.getDisplayedScene().getView().findViewById(R.id.reactionImage);
+        scenesPagerFragment.getCurrentFragment().getView().findViewById(R.id.reactionImage);
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(CameraTestUtil.areDrawablesIdentical(
-            ContextCompat.getDrawable(mActivityTestRule.getActivity(),
+            ContextCompat.getDrawable(mTestActivityRule.getActivity(),
                 Emotion.SURPRISE.getDrawableResource()), reactionImage.getDrawable()));
       }
     });
@@ -222,21 +323,20 @@ public class ScenesPagerFragmentTest extends BaseApplicationTestSuite {
 
   @Test public void evolvingScene() throws Exception {
     Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
-        Collections.singletonList(new Edge(0L, 1L, Emotion.SURPRISE)));
+        Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
     mRespondedScenes = Collections.singletonList(scene);
-    mTheaterActivityTestRule.launchActivity(null);
-    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 0);
-    final ScenesPagerFragment scenesPagerFragment =
-        (ScenesPagerFragment) getCurrentActivity().getSupportFragmentManager()
-            .findFragmentById(R.id.scenesPagerFragment);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(scene, VIDEO.getId());
+    final ScenesPagerFragment scenesPagerFragment = getScenesPagerFragment();
     // Wait for reaction detection to start
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(mFakeReactionDetectionManager.isSubscribed(
-            scenesPagerFragment.getDisplayedScene().getViewModel()));
+            scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
     mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
-    assertSceneDisplayed(scene, mFakeAuthManager.getCurrentUser(), 1);
+    assertSceneDisplayed(scene, PHOTO.getId());
   }
 }

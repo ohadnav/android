@@ -26,7 +26,6 @@ import android.os.HandlerThread;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -69,6 +68,7 @@ import static com.truethat.android.common.util.CameraUtil.chooseVideoSize;
 public class CameraFragment extends
     BaseFragment<BaseFragmentViewInterface, BaseFragmentViewModel<BaseFragmentViewInterface>, FragmentCameraBinding>
     implements BaseViewInterface {
+  public static final String FRAGMENT_TAG = CameraFragment.class.getSimpleName();
   /**
    * Whether selfie camera or back camera should be used, as per {@link CameraUtil.Facing}.
    */
@@ -214,30 +214,6 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
-  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -339,8 +315,32 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
+  /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
 
-  @VisibleForTesting static CameraFragment newInstance() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
+
+  public static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
     Bundle args = new Bundle();
     fragment.setArguments(args);
@@ -451,18 +451,6 @@ public class CameraFragment extends
     mCameraFragmentListener = cameraFragmentListener;
   }
 
-  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-    super.onViewStateRestored(savedInstanceState);
-    if (savedInstanceState != null) {
-      if (savedInstanceState.getSerializable(ARG_FACING) != null) {
-        mFacing = (CameraUtil.Facing) savedInstanceState.getSerializable(ARG_FACING);
-      } else {
-        // Default camera is selfie camera.
-        mFacing = CameraUtil.Facing.FRONT;
-      }
-    }
-  }
-
   /**
    * When the screen is turned off and turned back on, the SurfaceTexture is already available, and
    * "onSurfaceTextureAvailable" will not be called. In that case, we can open a camera and start
@@ -490,6 +478,18 @@ public class CameraFragment extends
     closeCamera();
     if (mBackgroundHandler != null) {
       mBackgroundHandler.stop();
+    }
+  }
+
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    if (savedInstanceState != null) {
+      if (savedInstanceState.getSerializable(ARG_FACING) != null) {
+        mFacing = (CameraUtil.Facing) savedInstanceState.getSerializable(ARG_FACING);
+      } else {
+        // Default camera is selfie camera.
+        mFacing = CameraUtil.Facing.FRONT;
+      }
     }
   }
 

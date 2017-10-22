@@ -1,20 +1,12 @@
 package com.truethat.android.viewmodel.viewinterface;
 
 import com.truethat.android.model.Media;
-import com.truethat.android.model.Scene;
-import com.truethat.android.viewmodel.StudioViewModel;
 
 /**
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-public interface StudioViewInterface extends BaseViewInterface {
-  /**
-   * Triggered as per {@link StudioViewModel.DirectingState#PUBLISHED}. Usually after a {@link
-   * Scene} is saved on our backend.
-   */
-  void leaveStudio();
-
+public interface StudioViewInterface extends BaseFragmentViewInterface, ToolbarViewInterface {
   /**
    * Restores camera preview.
    */

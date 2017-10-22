@@ -8,7 +8,7 @@ import java.util.Date;
 import org.junit.Test;
 
 import static com.truethat.android.common.network.NetworkUtil.GSON;
-import static com.truethat.android.external.RuntimeTypeAdapterFactory.TYPE_FIELD_NAME;
+import static com.truethat.android.external.gson.RuntimeTypeAdapterFactory.TYPE_FIELD_NAME;
 import static org.junit.Assert.assertEquals;
 
 /**

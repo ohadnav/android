@@ -2,7 +2,6 @@ package com.truethat.android.view.activity;
 
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
@@ -15,6 +14,7 @@ import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
 import com.truethat.android.viewmodel.OnBoardingViewModel;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
@@ -22,12 +22,11 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 public class OnBoardingActivity
     extends BaseActivity<OnBoardingViewInterface, OnBoardingViewModel, ActivityOnBoardingBinding>
-    implements OnBoardingViewInterface {
+    implements OnBoardingViewInterface, AuthListener {
   @BindView(R.id.nameEditText) EditText mNameEditText;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
 
   @Override public void onAuthOk() {
-    super.onAuthOk();
     finish();
   }
 
@@ -38,11 +37,6 @@ public class OnBoardingActivity
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.activity_on_boarding, this);
-  }
-
-  @Override public void onCreate(Bundle savedInstanceState) {
-    mSkipAuth = true;
-    super.onCreate(savedInstanceState);
   }
 
   @Override public void onResume() {
@@ -60,6 +54,14 @@ public class OnBoardingActivity
     mNameEditText.requestFocus();
   }
 
+  @Override public void clearNameEditFocus() {
+    runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mNameEditText.clearFocus();
+      }
+    });
+  }
+
   @Override public void hideSoftKeyboard() {
     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(mNameEditText.getWindowToken(), 0);
@@ -69,6 +71,10 @@ public class OnBoardingActivity
     InputMethodManager inputMethodManager =
         (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     inputMethodManager.showSoftInput(mNameEditText, InputMethodManager.SHOW_FORCED);
+  }
+
+  @Override public AuthListener getAuthListener() {
+    return this;
   }
 
   @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {

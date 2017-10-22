@@ -11,24 +11,23 @@
         />
   </data>
   <android.support.constraint.ConstraintLayout
-    android:id="@+id/activityRootView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.activity.TheaterActivity"
-    >
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context="com.truethat.android.view.activity.MainActivity"
+      >
 
-    <fragment
-        android:id="@+id/scenesPagerFragment"
-        android:name="com.truethat.android.view.fragment.ScenesPagerFragment"
+    <com.truethat.android.view.custom.ClickableViewPager
+        android:id="@+id/mainPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:detect_reactions="true"
+        android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_scenes_pager"
         />
 
-</android.support.constraint.ConstraintLayout>
+    <include layout="@layout/toolbar"/>
+
+  </android.support.constraint.ConstraintLayout>
 </layout>

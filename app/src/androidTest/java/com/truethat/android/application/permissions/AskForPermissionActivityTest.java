@@ -1,7 +1,7 @@
 package com.truethat.android.application.permissions;
 
 import com.truethat.android.R;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.view.activity.AskForPermissionActivity;
 import com.truethat.android.view.activity.TestActivity;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import static org.hamcrest.core.AllOf.allOf;
 /**
  * Proudly created by ohad on 13/06/2017 for TrueThat.
  */
-public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
+public class AskForPermissionActivityTest extends BaseInstrumentationTestSuite {
   private static final Permission PERMISSION = Permission.CAMERA;
 
   @Before public void setUp() throws Exception {
@@ -29,7 +29,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void onRequestPermissionsFailed() throws Exception {
-    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
+    mTestActivityRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Assert that no camera permission fragment is displayed.
@@ -39,7 +39,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
 
   @Test public void finishIfPermissionIsAlreadyGranted() throws Exception {
     mFakePermissionsManager.grant(PERMISSION);
-    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
+    mTestActivityRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait for possible navigation out of test activity, and assert the current activity remains test activity.
     waitForActivity(TestActivity.class);
   }
@@ -47,7 +47,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   @Test public void finishAfterPermissionGranted() throws Exception {
     // Invoke request callback, to finish activity.
     mFakePermissionsManager.invokeRequestCallback();
-    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
+    mTestActivityRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Grant permission, to mock the scenario where the user allowed the permission.
@@ -59,7 +59,7 @@ public class AskForPermissionActivityTest extends BaseApplicationTestSuite {
   }
 
   @Test public void askAgainAndDenyDoesNotFinish() throws Exception {
-    mActivityTestRule.getActivity().onPermissionRejected(PERMISSION);
+    mTestActivityRule.getActivity().onPermissionRejected(PERMISSION);
     // Wait until we navigate to ask for permission activity.
     waitForActivity(AskForPermissionActivity.class);
     // Ask for permission again.

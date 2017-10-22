@@ -9,7 +9,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.application.permissions.DevicePermissionsManager;
 import com.truethat.android.application.permissions.Permission;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.common.util.CameraUtil;
 import com.truethat.android.view.activity.TestActivity;
 import java.io.File;
@@ -25,6 +25,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.isDebugging;
 import static com.truethat.android.application.ApplicationTestUtil.isFullScreen;
 import static com.truethat.android.view.fragment.CameraFragment.CameraState.PREVIEW;
+import static com.truethat.android.view.fragment.CameraFragment.FRAGMENT_TAG;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,8 +35,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 23/06/2017 for TrueThat.
  */
-public class CameraFragmentTest extends BaseApplicationTestSuite {
-  private static final String FRAGMENT_TAG = "TestCameraFragment";
+public class CameraFragmentTest extends BaseInstrumentationTestSuite {
   private static final int VIDEO_DURATION_MILLIS = 2000;
   private CameraFragment mCameraFragment;
   private boolean mImageTaken;
@@ -48,24 +48,29 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     if (!isDebugging()) Awaitility.setDefaultTimeout(Duration.FIVE_SECONDS);
     FragmentTransaction fragmentTransaction;
     // Remove existing fragments.
-    if (mActivityTestRule.getActivity().getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)
+    if (mTestActivityRule.getActivity().getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)
         != null) {
       fragmentTransaction =
-          mActivityTestRule.getActivity().getSupportFragmentManager().beginTransaction();
-      fragmentTransaction.remove(mActivityTestRule.getActivity()
+          mTestActivityRule.getActivity().getSupportFragmentManager().beginTransaction();
+      fragmentTransaction.remove(mTestActivityRule.getActivity()
           .getSupportFragmentManager()
           .findFragmentByTag(FRAGMENT_TAG));
       fragmentTransaction.commit();
     }
     // Adds new fragment
     CameraFragment cameraFragment = CameraFragment.newInstance();
+    cameraFragment.setVisibilityListener(new VisibilityListener() {
+      @Override public boolean shouldBeVisible(Object o) {
+        return true;
+      }
+    });
     fragmentTransaction =
-        mActivityTestRule.getActivity().getSupportFragmentManager().beginTransaction();
-    fragmentTransaction.replace(R.id.activityRootView, cameraFragment, FRAGMENT_TAG);
+        mTestActivityRule.getActivity().getSupportFragmentManager().beginTransaction();
+    fragmentTransaction.replace(android.R.id.content, cameraFragment, FRAGMENT_TAG);
     fragmentTransaction.commitAllowingStateLoss();
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {
-        mCameraFragment = (CameraFragment) mActivityTestRule.getActivity()
+        mCameraFragment = (CameraFragment) mTestActivityRule.getActivity()
             .getSupportFragmentManager()
             .findFragmentByTag(FRAGMENT_TAG);
         return mCameraFragment != null;
@@ -127,7 +132,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
 
   @Test public void recordVideoWithFrontCamera() throws Exception {
     AppContainer.setPermissionsManager(
-        new DevicePermissionsManager(mActivityTestRule.getActivity().getApplication()));
+        new DevicePermissionsManager(mTestActivityRule.getActivity().getApplication()));
     AppContainer.getPermissionsManager()
         .requestIfNeeded(mCameraFragment.getActivity(), Permission.RECORD_AUDIO);
     mCameraFragment.startRecordVideo();
@@ -181,10 +186,10 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   @Test public void pictureNotTaken_activityPaused() throws Exception {
     mCameraFragment.takePicture();
     // Navigate to a different activity
-    mActivityTestRule.getActivity()
-        .startActivity(new Intent(mActivityTestRule.getActivity(), TestActivity.class));
+    mTestActivityRule.getActivity()
+        .startActivity(new Intent(mTestActivityRule.getActivity(), TestActivity.class));
     // Wait for an image to be taken
-    Thread.sleep(TIMEOUT.getValueInMS());
+    Thread.sleep(Math.min(TIMEOUT.getValueInMS(), 1000));
     // An image should not have been taken.
     assertFalse(mImageTaken);
   }
@@ -194,7 +199,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     // Close camera
     mCameraFragment.onHidden();
     // Wait for an image to be taken
-    Thread.sleep(TIMEOUT.getValueInMS());
+    Thread.sleep(Math.min(TIMEOUT.getValueInMS(), 1000));
     // An image should not have been taken.
     assertFalse(mImageTaken);
   }
@@ -221,7 +226,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     assertTrue(than.sameAs(now));
   }
 
-  @Test public void cameraPreviewCanBeRestored() throws Exception {
+  @Test @FlakyTest public void cameraPreviewCanBeRestored() throws Exception {
     mCameraFragment.takePicture();
     // An image should have been taken.
     await().until(new Callable<Boolean>() {
@@ -234,7 +239,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
     // Restores preview
     mCameraFragment.restorePreview();
     // Increase probability of preview change.
-    Thread.sleep(TIMEOUT.getValueInMS());
+    Thread.sleep(Math.min(TIMEOUT.getValueInMS(), 1000));
     // New preview should be different
     Bitmap now = mCameraFragment.getCameraPreview().getBitmap();
     assertFalse(than.sameAs(now));
@@ -301,8 +306,7 @@ public class CameraFragmentTest extends BaseApplicationTestSuite {
   }
 
   @Test public void cameraClosedOnPause() throws Exception {
-    mActivityTestRule.getActivity()
-        .startActivity(new Intent(mActivityTestRule.getActivity(), TestActivity.class));
+    mCameraFragment.onHidden();
     // Camera should be closed.
     await().until(new Callable<Boolean>() {
       @Override public Boolean call() throws Exception {

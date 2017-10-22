@@ -1,8 +1,9 @@
 package com.truethat.android.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.application.DeviceManager;
-import java.io.Serializable;
 
 import static com.truethat.android.common.util.StringUtil.toTitleCase;
 
@@ -12,7 +13,16 @@ import static com.truethat.android.common.util.StringUtil.toTitleCase;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/User.java</a>
  */
 
-public class User extends BaseModel implements Serializable {
+public class User extends BaseModel {
+  public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+    @Override public User createFromParcel(Parcel source) {
+      return new User(source);
+    }
+
+    @Override public User[] newArray(int size) {
+      return new User[size];
+    }
+  };
   private static final long serialVersionUID = -985041994101025724L;
   /**
    * First name.
@@ -49,11 +59,51 @@ public class User extends BaseModel implements Serializable {
     mPhoneNumber = phoneNumber;
   }
 
+  private User(Parcel in) {
+    super(in);
+    mFirstName = (String) in.readValue(String.class.getClassLoader());
+    mLastName = (String) in.readValue(String.class.getClassLoader());
+    mDeviceId = (String) in.readValue(String.class.getClassLoader());
+    mPhoneNumber = (String) in.readValue(String.class.getClassLoader());
+  }
+
   @SuppressWarnings("SameParameterValue") @VisibleForTesting
   public User(Long id, String firstName, String lastName) {
     super(id);
     mFirstName = firstName;
     mLastName = lastName;
+  }
+
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mFirstName);
+    dest.writeValue(mLastName);
+    dest.writeValue(mDeviceId);
+    dest.writeValue(mPhoneNumber);
+  }
+
+  @Override public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (mFirstName != null ? mFirstName.hashCode() : 0);
+    result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
+    result = 31 * result + (mDeviceId != null ? mDeviceId.hashCode() : 0);
+    return result;
+  }
+
+  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof User)) return false;
+    if (!super.equals(o)) return false;
+
+    User user = (User) o;
+
+    if (mFirstName != null ? !mFirstName.equals(user.mFirstName) : user.mFirstName != null) {
+      return false;
+    }
+    if (mLastName != null ? !mLastName.equals(user.mLastName) : user.mLastName != null) {
+      return false;
+    }
+    return mDeviceId != null ? mDeviceId.equals(user.mDeviceId) : user.mDeviceId == null;
   }
 
   public String getDeviceId() {
@@ -98,29 +148,5 @@ public class User extends BaseModel implements Serializable {
    */
   public boolean onBoarded() {
     return mFirstName != null && mLastName != null;
-  }
-
-  @Override public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + (mFirstName != null ? mFirstName.hashCode() : 0);
-    result = 31 * result + (mLastName != null ? mLastName.hashCode() : 0);
-    result = 31 * result + (mDeviceId != null ? mDeviceId.hashCode() : 0);
-    return result;
-  }
-
-  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof User)) return false;
-    if (!super.equals(o)) return false;
-
-    User user = (User) o;
-
-    if (mFirstName != null ? !mFirstName.equals(user.mFirstName) : user.mFirstName != null) {
-      return false;
-    }
-    if (mLastName != null ? !mLastName.equals(user.mLastName) : user.mLastName != null) {
-      return false;
-    }
-    return mDeviceId != null ? mDeviceId.equals(user.mDeviceId) : user.mDeviceId == null;
   }
 }

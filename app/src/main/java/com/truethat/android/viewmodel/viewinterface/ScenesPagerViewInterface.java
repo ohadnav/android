@@ -22,4 +22,9 @@ public interface ScenesPagerViewInterface extends BaseFragmentViewInterface {
    * @return {@link Retrofit} api call to fetch scenes from our backend.
    */
   Call<List<Scene>> buildFetchScenesCall();
+
+  /**
+   * Triggers small device vibration on scenes navigation.
+   */
+  void vibrate();
 }

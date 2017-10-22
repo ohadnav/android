@@ -1,6 +1,6 @@
 package com.truethat.android.application.permissions;
 
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.view.activity.AskForPermissionActivity;
 import com.truethat.android.view.activity.TestActivity;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
  * Proudly created by ohad on 25/05/2017 for TrueThat.
  */
 @SuppressWarnings("ConstantConditions") public class FakePermissionsManagerTest
-    extends BaseApplicationTestSuite {
+    extends BaseInstrumentationTestSuite {
   private static final Permission PERMISSION = Permission.CAMERA;
 
   @Test public void constructor() throws Exception {
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
   @Test public void requestCallback_invokedWhenForbidden() throws Exception {
     // Enables invocation of request callback.
     mFakePermissionsManager.forbid(PERMISSION);
-    mFakePermissionsManager.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
+    mFakePermissionsManager.requestIfNeeded(mTestActivityRule.getActivity(), PERMISSION);
     // Should navigate to AskForPermissionActivity
     waitForActivity(AskForPermissionActivity.class);
   }
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertTrue;
     mFakePermissionsManager.invokeRequestCallback();
     // Grants permission
     mFakePermissionsManager.grant(PERMISSION);
-    mFakePermissionsManager.requestIfNeeded(mActivityTestRule.getActivity(), PERMISSION);
+    mFakePermissionsManager.requestIfNeeded(mTestActivityRule.getActivity(), PERMISSION);
     // Should stay in TestActivity
     waitForActivity(TestActivity.class);
   }

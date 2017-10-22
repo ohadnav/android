@@ -1,7 +1,8 @@
 package com.truethat.android.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,8 +13,17 @@ import java.util.Date;
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/InteractionEvent.java</a>
  */
 
-@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent extends BaseModel
-    implements Serializable {
+@SuppressWarnings({ "unused", "FieldCanBeLocal" }) public class InteractionEvent extends BaseModel {
+  public static final Parcelable.Creator<InteractionEvent> CREATOR =
+      new Parcelable.Creator<InteractionEvent>() {
+        @Override public InteractionEvent createFromParcel(Parcel source) {
+          return new InteractionEvent(source);
+        }
+
+        @Override public InteractionEvent[] newArray(int size) {
+          return new InteractionEvent[size];
+        }
+      };
   private static final long serialVersionUID = -3002722340976455252L;
   /**
    * Client UTC timestamp
@@ -44,32 +54,32 @@ import java.util.Date;
 
   public InteractionEvent(Long userId, Long sceneId, Date timestamp, EventType eventType,
       @Nullable Emotion reaction, Long mediaId) {
-    mTimestamp = timestamp;
     mUserId = userId;
-    mReaction = reaction;
-    mEventType = eventType;
     mSceneId = sceneId;
+    mTimestamp = timestamp;
+    mEventType = eventType;
+    mReaction = reaction;
     mMediaId = mediaId;
   }
 
-  public Long getUserId() {
-    return mUserId;
+  private InteractionEvent(Parcel in) {
+    super(in);
+    mUserId = (Long) in.readValue(Long.class.getClassLoader());
+    mSceneId = (Long) in.readValue(Long.class.getClassLoader());
+    mTimestamp = (Date) in.readValue(Date.class.getClassLoader());
+    mEventType = (EventType) in.readValue(EventType.class.getClassLoader());
+    mReaction = (Emotion) in.readValue(Emotion.class.getClassLoader());
+    mMediaId = (Long) in.readValue(Long.class.getClassLoader());
   }
 
-  public EventType getEventType() {
-    return mEventType;
-  }
-
-  public Long getSceneId() {
-    return mSceneId;
-  }
-
-  public Long getMediaId() {
-    return mMediaId;
-  }
-
-  public Emotion getReaction() {
-    return mReaction;
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mUserId);
+    dest.writeValue(mSceneId);
+    dest.writeValue(mTimestamp);
+    dest.writeValue(mEventType);
+    dest.writeValue(mReaction);
+    dest.writeValue(mMediaId);
   }
 
   @Override public int hashCode() {
@@ -98,5 +108,25 @@ import java.util.Date;
     if (mEventType != that.mEventType) return false;
     if (mSceneId != null ? !mSceneId.equals(that.mSceneId) : that.mSceneId != null) return false;
     return mMediaId != null ? mMediaId.equals(that.mMediaId) : that.mMediaId == null;
+  }
+
+  public Long getUserId() {
+    return mUserId;
+  }
+
+  public EventType getEventType() {
+    return mEventType;
+  }
+
+  public Long getSceneId() {
+    return mSceneId;
+  }
+
+  public Long getMediaId() {
+    return mMediaId;
+  }
+
+  public Emotion getReaction() {
+    return mReaction;
   }
 }

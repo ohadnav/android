@@ -49,15 +49,15 @@ public class PhotoFragment extends MediaFragment<Photo> {
 
   @Override public void onVisible() {
     super.onVisible();
-    if (mMediaListener != null && mMediaListener.isReallyVisible()) {
-      if (mTimer == null) mTimer = new Timer(TAG);
-      mTimer.schedule(new TimerTask() {
-        @Override public void run() {
-          mHasFinished = true;
+    if (mTimer == null) mTimer = new Timer(TAG);
+    mTimer.schedule(new TimerTask() {
+      @Override public void run() {
+        mHasFinished = true;
+        if (mMediaListener != null) {
           mMediaListener.onFinished();
         }
-      }, FINISHED_TIMEOUT_MILLIS);
-    }
+      }
+    }, FINISHED_TIMEOUT_MILLIS);
   }
 
   @Override public void onHidden() {

@@ -1,7 +1,10 @@
-package com.truethat.android.external;
+package com.truethat.android.external.viewmodel;
 
 import android.support.annotation.NonNull;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 
 /**
@@ -9,6 +12,21 @@ import java.lang.reflect.Type;
  */
 
 public class ProxyViewHelper {
+
+  private static final ProxyDummyClass sDummyClass = new ProxyDummyClass();
+  private static final Class[] sInterfaces = new Class[1];
+  private static final InvocationHandler sInvocationHandler = new InvocationHandler() {
+    @Override public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return null;
+    }
+  };
+
+  @SuppressWarnings("unchecked") @NonNull public static <T> T init(@NonNull Class<?> in) {
+    sInterfaces[0] = in;
+    return (T) Proxy.newProxyInstance(sDummyClass.getClass().getClassLoader(), sInterfaces,
+        sInvocationHandler);
+  }
+
   /**
    * @param in           a generic type that should extend {@code whichExtends}.
    * @param whichExtends a class we expect the generic type of {@code in} to extend.
@@ -36,5 +54,8 @@ public class ProxyViewHelper {
       }
     }
     return whichExtends;
+  }
+
+  private static final class ProxyDummyClass {
   }
 }

@@ -1,6 +1,8 @@
 package com.truethat.android.viewmodel;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import com.truethat.android.R;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.AuthResult;
@@ -49,9 +51,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
         return "AnonymousAuthListener";
       }
     });
-    // Initializing view model and its view interface.
-    mView = new ViewInterface();
-    initViewModel();
+    initViewModel(null);
   }
 
   @Test public void successfulOnBoarding() throws Exception {
@@ -70,11 +70,11 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel.onNameDone();
     assertFinalStage();
     // Stopping view model should unsubscribe reaction detection
-    mViewModel.onStop();
+    mViewModel.onPause();
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Starting view model should resume to final stage
-    mViewModel.onStart();
+    mViewModel.onResume();
     assertFinalStage();
   }
 
@@ -83,19 +83,19 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       @Override public void onAuthFailed() {
       }
     };
-    initViewModel();
+    initViewModel(null);
     mFakeAuthManager.useNetwork();
     doOnBoarding();
     // Should be in request sent stage
     assertSentStage();
     // Stopping view model, should cancel request
-    mViewModel.onStop();
+    mViewModel.onPause();
     assertTrue(mFakeAuthManager.getAuthCall().isCanceled());
     // Should stop reaction detection
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Starting view model again should resume to final stage.
-    mViewModel.onStart();
-    assertFinalStage();
+    mViewModel.onResume();
+    assertSentStage();
   }
 
   @Test public void failedSignUp() throws Exception {
@@ -103,6 +103,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Set up server to fail.
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        Thread.sleep(ViewModelTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
@@ -174,8 +175,11 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
   }
 
-  private void initViewModel() throws Exception {
-    mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView);
+  private void initViewModel(@Nullable Bundle savedInstanceState) throws Exception {
+    // Initializing view model and its view interface.
+    mView = new ViewInterface();
+    mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView,
+        savedInstanceState);
     // Creating fake context
     Context mockedContext = mock(Context.class);
     when(mockedContext.getString(R.string.name_edit_warning_text)).thenReturn(
@@ -185,6 +189,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel.setContext(mockedContext);
     // Starting view model.
     mViewModel.onStart();
+    mViewModel.onResume();
   }
 
   /**
@@ -267,12 +272,20 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       mIsNameEditFocused = true;
     }
 
+    @Override public void clearNameEditFocus() {
+      mIsNameEditFocused = false;
+    }
+
     @Override public void hideSoftKeyboard() {
       mIsKeyboardVisible = false;
     }
 
     @Override public void showSoftKeyboard() {
       mIsKeyboardVisible = true;
+    }
+
+    @Override public AuthListener getAuthListener() {
+      return this;
     }
 
     @Override public void onAuthOk() {

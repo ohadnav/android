@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <declare-styleable name="ScenesPagerFragment">
-    <attr format="boolean" name="detect_reactions"/>
-  </declare-styleable>
-</resources>

@@ -2,7 +2,7 @@ package com.truethat.android.view.activity;
 
 import android.support.test.rule.ActivityTestRule;
 import com.truethat.android.R;
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import org.awaitility.core.ThrowingRunnable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,14 +20,16 @@ import static org.junit.Assert.assertTrue;
 /**
  * Proudly created by ohad on 16/06/2017 for TrueThat.
  */
-public class WelcomeActivityTest extends BaseApplicationTestSuite {
+public class WelcomeActivityTest extends BaseInstrumentationTestSuite {
   @Rule public ActivityTestRule<WelcomeActivity> mWelcomeActivityTestRule =
       new ActivityTestRule<>(WelcomeActivity.class, true, false);
 
   @Test public void onAuthFailed() throws Exception {
     // Sign out
-    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
-    waitForActivity(WelcomeActivity.class);
+    mFakeAuthManager.signOut(mTestActivityRule.getActivity());
+    // Launch Welcome activity with auth ok.
+    mWelcomeActivityTestRule.launchActivity(null);
+    mWelcomeActivityTestRule.getActivity().onAuthFailed();
     // Error text is visible
     onView(withId(R.id.errorText)).check(matches(not(isDisplayed())));
   }
@@ -36,12 +38,12 @@ public class WelcomeActivityTest extends BaseApplicationTestSuite {
     // Launch Welcome activity with auth ok.
     mWelcomeActivityTestRule.launchActivity(null);
     // Should navigate to theater
-    waitForActivity(TheaterActivity.class);
+    waitForActivity(MainActivity.class);
   }
 
   @Test public void onBoarding() throws Exception {
     // Sign out
-    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    mFakeAuthManager.signOut(mTestActivityRule.getActivity());
     mWelcomeActivityTestRule.launchActivity(null);
     onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
@@ -50,7 +52,7 @@ public class WelcomeActivityTest extends BaseApplicationTestSuite {
 
   @Test public void userInitiatedAuth() throws Exception {
     // Sign out
-    mFakeAuthManager.signOut(mActivityTestRule.getActivity());
+    mFakeAuthManager.signOut(mTestActivityRule.getActivity());
     mWelcomeActivityTestRule.launchActivity(null);
     // Try again by clicking on sign in text
     onView(withId(R.id.signInText)).check(matches(isDisplayed())).perform(click());

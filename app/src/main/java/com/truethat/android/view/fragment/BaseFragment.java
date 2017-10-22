@@ -15,21 +15,22 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.crashlytics.android.Crashlytics;
 import com.truethat.android.BuildConfig;
-import com.truethat.android.application.auth.AuthListener;
-import com.truethat.android.external.ProxyViewHelper;
+import com.truethat.android.external.viewmodel.ProxyViewHelper;
+import com.truethat.android.external.viewmodel.ViewModelHelper;
 import com.truethat.android.view.activity.BaseActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
-import eu.inloop.viewmodel.ViewModelHelper;
 
 /**
  * Proudly created by ohad on 22/06/2017 for TrueThat.
  */
 
 public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterface, ViewModel extends BaseFragmentViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends Fragment implements BaseFragmentViewInterface, BaseListener {
+    extends Fragment
+    implements BaseFragmentViewInterface, BaseListener, View.OnAttachStateChangeListener,
+    VisibilityListener {
   /**
    * {@link BaseViewModel} manager of this fragment.
    */
@@ -40,11 +41,6 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   String TAG = this.getClass().getSimpleName();
   /**
-   * The fragment root view, that is inflated by
-   * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-   */
-  View mRootView;
-  /**
    * Unbinds views, to prevent memory leaks.
    */
   Unbinder mViewUnbinder;
@@ -52,12 +48,35 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    * Whether to let {@link BaseFragment} handle Butterknife's view binding.
    */
   boolean mAutomaticViewBinding = true;
+  /**
+   * Visibility interface for nested fragments. Useful when the base class "isVisible" efforts are
+   * ambiguous.
+   */
+  VisibilityListener mVisibilityListener;
+  VisibilityState mVisibilityState = VisibilityState.HIDDEN;
+
+  public void maybeChangeVisibilityState() {
+    if (!isResumed()) {
+      return;
+    }
+    if (mVisibilityListener == null) {
+      return;
+    }
+    if (probablyVisible() && mVisibilityState != VisibilityState.VISIBLE) {
+      onVisible();
+    } else if (mVisibilityState != VisibilityState.HIDDEN) {
+      if (!isVisible() || !getUserVisibleHint() || !mVisibilityListener.shouldBeVisible(this)) {
+        onHidden();
+      }
+    }
+  }
 
   /**
    * Should be invoked once this fragment is visible. Use with caution.
    */
   @SuppressWarnings("WeakerAccess") @CallSuper public void onVisible() {
     Log.d(TAG, "onVisible");
+    mVisibilityState = VisibilityState.VISIBLE;
     getViewModel().onVisible();
   }
 
@@ -66,26 +85,32 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   @SuppressWarnings("WeakerAccess") @CallSuper public void onHidden() {
     Log.d(TAG, "onHidden");
+    mVisibilityState = VisibilityState.HIDDEN;
     getViewModel().onHidden();
+  }
+
+  public void setVisibilityListener(VisibilityListener visibilityListener) {
+    mVisibilityListener = visibilityListener;
+    maybeChangeVisibilityState();
   }
 
   /**
    * @return whether this fragment is resumed and visible to the user.
    */
-  public boolean isReallyVisible() {
-    return getUserVisibleHint() && isResumed();
+  public boolean isVisibleAndResumed() {
+    return probablyVisible() && isResumed() && mVisibilityState == VisibilityState.VISIBLE;
   }
 
   @Override public void toast(String text) {
     getBaseActivity().toast(text);
   }
 
-  @Override public AuthListener getAuthListener() {
-    return getBaseActivity();
-  }
-
   @Override public BaseActivity getBaseActivity() {
     return (BaseActivity) getActivity();
+  }
+
+  @Override public String getTAG() {
+    return TAG;
   }
 
   @SuppressWarnings({ "unused", "unchecked", "ConstantConditions" }) @NonNull
@@ -109,11 +134,7 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   }
 
   @Override public void removeViewModel() {
-    mViewModelHelper.removeViewModel(getActivity());
-  }
-
-  @Override public String getTAG() {
-    return TAG;
+    mViewModelHelper.removeViewModel(getBaseActivity());
   }
 
   @Override public String toString() {
@@ -122,17 +143,17 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void setUserVisibleHint(boolean isVisibleToUser) {
     super.setUserVisibleHint(isVisibleToUser);
-    if (isResumed()) {
-      if (isVisibleToUser) {
-        onVisible();
-      } else {
-        onHidden();
-      }
-    }
+    maybeChangeVisibilityState();
   }
 
   @Override public void onAttach(Context context) {
-    TAG = this.getClass().getSimpleName() + "(" + getActivity().getClass().getSimpleName() + ")";
+    try {
+      // Tries to specify TAG.
+      if (!TAG.contains("(")) {
+        TAG += "(" + getResources().getResourceEntryName(getId()) + ")";
+      }
+    } catch (Exception ignored) {
+    }
     Log.d(TAG, "onAttach");
     super.onAttach(context);
   }
@@ -145,7 +166,8 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     Class<ViewModel> viewModelClass =
         (Class<ViewModel>) ProxyViewHelper.getGenericType(getClass(), BaseFragmentViewModel.class);
 
-    mViewModelHelper.onCreate(getActivity(), savedInstanceState, viewModelClass, getArguments());
+    mViewModelHelper.onCreate(getBaseActivity(), savedInstanceState, viewModelClass,
+        getArguments());
     mViewModelHelper.performBinding(this);
   }
 
@@ -158,21 +180,24 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     // Completes data binding.
     mViewModelHelper.performBinding(this);
     final ViewDataBinding binding = mViewModelHelper.getBinding();
-    if (binding != null) {
-      mRootView = binding.getRoot();
-    } else {
+    if (binding == null) {
       throw new IllegalStateException(
           "Binding cannot be null. Perform binding before calling getBinding()");
+    }
+    View rootView = binding.getRoot();
+    if (rootView == null) {
+      throw new IllegalStateException("Fragment root view must be initialized.");
     }
     // Sets the view interface.
     setModelView((ViewInterface) this);
     if (mAutomaticViewBinding) {
       // Binds views with butterknife.
-      mViewUnbinder = ButterKnife.bind(this, mRootView);
+      mViewUnbinder = ButterKnife.bind(this, rootView);
     }
     // Sets up context
     mViewModelHelper.getViewModel().setContext(this.getActivity());
-    return mRootView;
+    rootView.addOnAttachStateChangeListener(this);
+    return rootView;
   }
 
   @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -180,8 +205,13 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     super.onViewCreated(view, savedInstanceState);
   }
 
+  @Override public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    getViewModel().onRestoreInstanceState(savedInstanceState);
+  }
+
   @CallSuper @Override public void onStart() {
-    Log.d(TAG, "STARTED");
+    Log.d(TAG, "onStart");
     super.onStart();
     mViewModelHelper.onStart();
   }
@@ -193,21 +223,21 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   @CallSuper @Override public void onResume() {
     Log.d(TAG, "onResume");
     super.onResume();
-    if (getUserVisibleHint()) onVisible();
+    getViewModel().onResume();
+    maybeChangeVisibilityState();
   }
 
   @Override public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
     Log.d(TAG, "onSaveInstanceState");
-    if (outState != null) {
-      mViewModelHelper.onSaveInstanceState(outState);
-    }
+    super.onSaveInstanceState(outState);
+    mViewModelHelper.onSaveInstanceState(outState);
   }
 
   @CallSuper @Override public void onPause() {
+    maybeChangeVisibilityState();
     Log.d(TAG, "onPause");
     super.onPause();
-    onHidden();
+    getViewModel().onPause();
   }
 
   @CallSuper @Override public void onStop() {
@@ -234,6 +264,33 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     super.onDetach();
   }
 
+  @Override public void onViewAttachedToWindow(View v) {
+    Log.d(TAG, "onViewAttachedToWindow");
+    maybeChangeVisibilityState();
+  }
+
+  @Override public void onViewDetachedFromWindow(View v) {
+    Log.d(TAG, "onViewDetachedToWindow");
+    maybeChangeVisibilityState();
+  }
+
+  @Override public boolean shouldBeVisible(Object o) {
+    if (o instanceof Fragment || o instanceof View) {
+      int id = o instanceof Fragment ? ((Fragment) o).getId() : ((View) o).getId();
+      return isVisibleAndResumed() && getView() != null && getView().findViewById(id) != null;
+    }
+    return false;
+  }
+
+  /**
+   * @return trying to asses if the fragment is visible. Considering visibility hint, visibility
+   * interface (useful for fragments nested in pagers), and base class {@link #isVisible()}
+   */
+  private boolean probablyVisible() {
+    return getUserVisibleHint() && mVisibilityListener != null && isVisible() && mVisibilityListener
+        .shouldBeVisible(this);
+  }
+
   /**
    * Call this after your view is ready - usually on the end of {@link
    * Fragment#onViewCreated(View, Bundle)}
@@ -242,5 +299,9 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
    */
   private void setModelView(@NonNull final ViewInterface viewInterface) {
     mViewModelHelper.setView(viewInterface);
+  }
+
+  private enum VisibilityState {
+    VISIBLE, HIDDEN
   }
 }

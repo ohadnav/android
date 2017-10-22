@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.truethat.android.external;
+package com.truethat.android.external.gson;
 
 import android.support.annotation.Nullable;
 import com.google.gson.Gson;

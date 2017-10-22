@@ -40,7 +40,6 @@ public class AskForPermissionActivity extends
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     // Should not authenticate when asking for device permissions.
-    mSkipAuth = true;
     super.onCreate(savedInstanceState);
     mAskPermissionButton = (Button) findViewById(R.id.askPermissionButton);
   }

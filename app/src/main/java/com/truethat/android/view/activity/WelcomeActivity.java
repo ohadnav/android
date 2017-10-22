@@ -1,13 +1,13 @@
 package com.truethat.android.view.activity;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
+import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import com.truethat.android.databinding.ActivityWelcomeBinding;
@@ -16,7 +16,8 @@ import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
 public class WelcomeActivity extends
-    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding> {
+    BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding>
+    implements AuthListener {
   /**
    * Records the user last click target view ID. Otherwise, duplicate clicks are needed when asking
    * for permission.
@@ -32,27 +33,27 @@ public class WelcomeActivity extends
     }
   }
 
-  @Override public void onAuthFailed() {
-    Log.v(TAG, "Auth failed. Something smells bad...");
-    // Display error message to the user.
-    findViewById(R.id.errorText).setVisibility(View.VISIBLE);
-  }
-
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.activity_welcome, this);
   }
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    mSkipAuth = true;
-    super.onCreate(savedInstanceState);
-  }
-
   @Override public void onResume() {
     super.onResume();
-    // If the user is initialized, then finish activity.
+    // If the user is authenticated, then finish activity.
     if (AppContainer.getAuthManager().isAuthOk()) {
-      startActivity(new Intent(this, TheaterActivity.class));
+      startActivity(new Intent(this, MainActivity.class));
     }
+  }
+
+  @Override public void onAuthOk() {
+    // If the user is authenticated, then finish activity.
+    startActivity(new Intent(this, MainActivity.class));
+  }
+
+  @Override public void onAuthFailed() {
+    Log.v(TAG, "Auth failed. Something smells bad...");
+    // Display error message to the user.
+    findViewById(R.id.errorText).setVisibility(View.VISIBLE);
   }
 
   /**

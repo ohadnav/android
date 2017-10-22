@@ -1,5 +1,6 @@
 package com.truethat.android.viewmodel;
 
+import android.util.Log;
 import com.truethat.android.view.fragment.BaseFragment;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
 
@@ -14,6 +15,7 @@ public class BaseFragmentViewModel<ViewInterface extends BaseFragmentViewInterfa
    * visible by the user.
    */
   public void onVisible() {
+    Log.d(TAG, "onVisible");
   }
 
   /**
@@ -21,5 +23,6 @@ public class BaseFragmentViewModel<ViewInterface extends BaseFragmentViewInterfa
    * hidden to the user.
    */
   public void onHidden() {
+    Log.d(TAG, "onHidden");
   }
 }

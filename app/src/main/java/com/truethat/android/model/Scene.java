@@ -1,17 +1,20 @@
 package com.truethat.android.model;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.application.AppContainer;
 import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.common.network.StudioApi;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -23,7 +26,16 @@ import retrofit2.Call;
  *
  * @backend <a>https://github.com/true-that/backend/blob/master/src/main/java/com/truethat/backend/model/Scene.java</a>
  */
-public class Scene extends BaseModel implements Serializable, FlowTree.Listener {
+public class Scene extends BaseModel implements FlowTree.Listener {
+  public static final Parcelable.Creator<Scene> CREATOR = new Parcelable.Creator<Scene>() {
+    @Override public Scene createFromParcel(Parcel source) {
+      return new Scene(source);
+    }
+
+    @Override public Scene[] newArray(int size) {
+      return new Scene[size];
+    }
+  };
   private static final long serialVersionUID = -8890719190429524778L;
   /**
    * Creator of the scene. By default, the current user is assigned.
@@ -66,13 +78,15 @@ public class Scene extends BaseModel implements Serializable, FlowTree.Listener 
   }
 
   @VisibleForTesting
-  public Scene(Long id, User director, TreeMap<Emotion, Long> reactionCounters, Date created,
-      List<Media> mediaNodes, List<Edge> edges) {
+  public Scene(Long id, User director, @Nullable TreeMap<Emotion, Long> reactionCounters,
+      Date created, @Nullable List<Media> mediaNodes, @Nullable List<Edge> edges) {
     super(id);
     mDirector = director;
     mReactionCounters = reactionCounters;
     mCreated = created;
-    mMediaNodes = new LinkedList<>(mediaNodes);
+    if (mediaNodes != null) {
+      mMediaNodes = new LinkedList<>(mediaNodes);
+    }
     mEdges = edges;
   }
 
@@ -84,8 +98,55 @@ public class Scene extends BaseModel implements Serializable, FlowTree.Listener 
     mMediaNodes.add(media);
   }
 
-  // A default constructor is provided for serialization and de-serialization.
-  @SuppressWarnings("unused") Scene() {
+  @SuppressWarnings("unchecked") private Scene(Parcel in) {
+    super(in);
+    mDirector = (User) in.readValue(User.class.getClassLoader());
+    reactionCountersFromBundle(in.readBundle(Bundle.class.getClassLoader()));
+    mCreated = (Date) in.readValue(Date.class.getClassLoader());
+    mMediaNodes = new LinkedList<>();
+    in.readList(mMediaNodes, Media.class.getClassLoader());
+    mEdges = new LinkedList<>();
+    in.readList(mEdges, Edge.class.getClassLoader());
+  }
+
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    super.writeToParcel(dest, flags);
+    dest.writeValue(mDirector);
+    dest.writeBundle(reactionCountersToBundle());
+    dest.writeValue(mCreated);
+    dest.writeList(mMediaNodes);
+    dest.writeList(mEdges);
+  }
+
+  @Override public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (mDirector != null ? mDirector.hashCode() : 0);
+    result = 31 * result + (mReactionCounters != null ? mReactionCounters.hashCode() : 0);
+    result = 31 * result + (mCreated != null ? mCreated.hashCode() : 0);
+    result = 31 * result + (mMediaNodes != null ? mMediaNodes.hashCode() : 0);
+    result = 31 * result + (mEdges != null ? mEdges.hashCode() : 0);
+    return result;
+  }
+
+  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Scene)) return false;
+    if (!super.equals(o)) return false;
+
+    Scene scene = (Scene) o;
+
+    if (mDirector != null ? !mDirector.equals(scene.mDirector) : scene.mDirector != null) {
+      return false;
+    }
+    if (mReactionCounters != null ? !mReactionCounters.equals(scene.mReactionCounters)
+        : scene.mReactionCounters != null) {
+      return false;
+    }
+    if (mCreated != null ? !mCreated.equals(scene.mCreated) : scene.mCreated != null) return false;
+    if (mMediaNodes != null ? !mMediaNodes.equals(scene.mMediaNodes) : scene.mMediaNodes != null) {
+      return false;
+    }
+    return mEdges != null ? mEdges.equals(scene.mEdges) : scene.mEdges == null;
   }
 
   public List<Media> getMediaNodes() {
@@ -187,41 +248,6 @@ public class Scene extends BaseModel implements Serializable, FlowTree.Listener 
     return NetworkUtil.createApi(StudioApi.class).saveScene(scenePart, mediaParts);
   }
 
-  @Override public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + (mDirector != null ? mDirector.hashCode() : 0);
-    result = 31 * result + (mReactionCounters != null ? mReactionCounters.hashCode() : 0);
-    result = 31 * result + (mCreated != null ? mCreated.hashCode() : 0);
-    result = 31 * result + (mMediaNodes != null ? mMediaNodes.hashCode() : 0);
-    result = 31 * result + (mEdges != null ? mEdges.hashCode() : 0);
-    return result;
-  }
-
-  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Scene)) return false;
-    if (!super.equals(o)) return false;
-
-    Scene scene = (Scene) o;
-
-    if (mDirector != null ? !mDirector.equals(scene.mDirector) : scene.mDirector != null) {
-      return false;
-    }
-    if (mReactionCounters != null ? !mReactionCounters.equals(scene.mReactionCounters)
-        : scene.mReactionCounters != null) {
-      return false;
-    }
-    if (mCreated != null ? !mCreated.equals(scene.mCreated) : scene.mCreated != null) return false;
-    if (mMediaNodes != null ? !mMediaNodes.equals(scene.mMediaNodes) : scene.mMediaNodes != null) {
-      return false;
-    }
-    return mEdges != null ? mEdges.equals(scene.mEdges) : scene.mEdges == null;
-  }
-
-  @Override public String toString() {
-    return this.getClass().getSimpleName() + "{id: " + mId + "}";
-  }
-
   @Override public void deleteMedia(Media media) {
     mMediaNodes.remove(media);
   }
@@ -267,6 +293,26 @@ public class Scene extends BaseModel implements Serializable, FlowTree.Listener 
     }
     if (!mFlowTree.isTree()) {
       throw new IllegalStateException("Flow tree is not a tree, I'm deeply disappointed!");
+    }
+  }
+
+  private Bundle reactionCountersToBundle() {
+    Bundle bundle = null;
+    if (mReactionCounters != null) {
+      bundle = new Bundle();
+      for (Map.Entry<Emotion, Long> entry : mReactionCounters.entrySet()) {
+        bundle.putLong(entry.getKey().name(), entry.getValue());
+      }
+    }
+    return bundle;
+  }
+
+  private void reactionCountersFromBundle(@Nullable Bundle bundle) {
+    if (bundle != null) {
+      mReactionCounters = new TreeMap<>();
+      for (String emotion : bundle.keySet()) {
+        mReactionCounters.put(Emotion.valueOf(emotion), bundle.getLong(emotion));
+      }
     }
   }
 }

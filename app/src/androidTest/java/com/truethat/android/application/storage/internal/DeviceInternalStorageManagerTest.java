@@ -1,6 +1,6 @@
 package com.truethat.android.application.storage.internal;
 
-import com.truethat.android.common.BaseApplicationTestSuite;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import java.io.File;
 import java.util.Date;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * Proudly created by ohad on 26/05/2017 for TrueThat.
  */
-public class DeviceInternalStorageManagerTest extends BaseApplicationTestSuite {
+public class DeviceInternalStorageManagerTest extends BaseInstrumentationTestSuite {
   private static final String FILE_NAME =
       "DefaultInternalStorageTest_" + new Date().getTime() + ".txt";
   private static final String ROOT_DIR =
@@ -29,7 +29,7 @@ public class DeviceInternalStorageManagerTest extends BaseApplicationTestSuite {
     assertEquals(expected, actual);
     // Deletes file
     mInternalStorage.delete(FILE_NAME);
-    assertFalse(new File(mActivityTestRule.getActivity().getFilesDir() + "/" + FILE_NAME).exists());
+    assertFalse(new File(mTestActivityRule.getActivity().getFilesDir() + "/" + FILE_NAME).exists());
   }
 
   @Test public void writeReadAndDelete_nestedFile() throws Exception {
@@ -42,9 +42,9 @@ public class DeviceInternalStorageManagerTest extends BaseApplicationTestSuite {
     // Deletes file
     mInternalStorage.delete(NESTED_FILE);
     assertFalse(
-        new File(mActivityTestRule.getActivity().getFilesDir() + "/" + NESTED_FILE).exists());
+        new File(mTestActivityRule.getActivity().getFilesDir() + "/" + NESTED_FILE).exists());
     // Delete root dir.
     mInternalStorage.delete(ROOT_DIR);
-    assertFalse(new File(mActivityTestRule.getActivity().getFilesDir() + "/" + ROOT_DIR).exists());
+    assertFalse(new File(mTestActivityRule.getActivity().getFilesDir() + "/" + ROOT_DIR).exists());
   }
 }
