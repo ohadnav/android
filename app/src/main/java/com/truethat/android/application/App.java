@@ -22,8 +22,10 @@ public class App extends Application implements Application.ActivityLifecycleCal
   private Activity mResumedActivity;
 
   @Override public void onCreate() {
-    Log.d(TAG,
-        "************************ !!!!! LAUNCHED !!!!! ************************************************ !!!!! LAUNCHED !!!!! ************************");
+    for (int i = 0; i < 10; i++) {
+      Log.d(TAG,
+          "************************ !!!!! LAUNCHED !!!!! ************************************************ !!!!! LAUNCHED !!!!! ************************");
+    }
     AppContainer.setDeviceManager(new HardwareDeviceManager(this));
     AppContainer.setPermissionsManager(new DevicePermissionsManager(this));
     AppContainer.setInternalStorageManager(new DeviceInternalStorageManager(this));

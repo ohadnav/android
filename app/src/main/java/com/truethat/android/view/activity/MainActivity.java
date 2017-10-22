@@ -163,6 +163,7 @@ public class MainActivity
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    defaultToolbarStyle();
     ViewModelStatePagerAdapter pagerAdapter =
         new ViewModelStatePagerAdapter(getSupportFragmentManager()) {
           @Override public Fragment getItem(int position) {
