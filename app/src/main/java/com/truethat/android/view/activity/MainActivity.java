@@ -230,6 +230,14 @@ public class MainActivity
     sToolbarLateralTranslationX = AppUtil.realDisplaySize(this).x / 10f;
   }
 
+  @Override public boolean shouldBeVisible(Object o) {
+    if (!super.shouldBeVisible(o)) {
+      return false;
+    }
+    // View pager should not be visible until user is authenticated.
+    return o != mMainPager || AppContainer.getAuthManager().isAuthOk();
+  }
+
   @Override public void onResume() {
     super.onResume();
     AppContainer.getAuthManager().auth(this);
