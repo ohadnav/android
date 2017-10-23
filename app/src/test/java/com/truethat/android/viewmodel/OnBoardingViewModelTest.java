@@ -78,6 +78,24 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     assertFinalStage();
   }
 
+  @Test public void finalStage_nonPrevalentEmotion() throws Exception {
+    // Type user name.
+    mViewModel.mNameEditText.set(NAME);
+    // Hit done
+    mViewModel.onNameDone();
+    assertFinalStage();
+    // Wait until detection had started.
+    await().until(new Callable<Boolean>() {
+      @Override public Boolean call() throws Exception {
+        return mFakeReactionDetectionManager.isDetecting();
+      }
+    });
+    // Detect smile.
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, false);
+    // Wait until Auth OK.
+    assertTrue(mFakeAuthManager.isAuthOk());
+  }
+
   @Test public void requestSentStage() throws Exception {
     mView = new ViewInterface() {
       @Override public void onAuthFailed() {
@@ -155,7 +173,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should not be moving to next stage
     assertInvalidName();
     // Detect the final reaction.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
@@ -209,7 +227,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
   }
 
   private void assertInvalidName() {

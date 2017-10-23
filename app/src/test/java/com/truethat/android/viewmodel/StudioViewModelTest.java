@@ -107,7 +107,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.displayParentMedia();
     assertEquals(mViewModel.getDirectedScene().getRootMedia(), mViewModel.getCurrentMedia());
     // Chose a different follow up reaction
-    mViewModel.onReactionChosen(Emotion.FEAR);
+    mViewModel.onReactionChosen(Emotion.OMG);
     assertCameraState();
     mViewModel.onPhotoTaken(createMockedImage());
     assertEditState();
@@ -116,7 +116,7 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     mViewModel.onReactionChosen(Emotion.DISGUST);
     assertEditState();
     // Chose a new reaction
-    mViewModel.onReactionChosen(Emotion.SURPRISE);
+    mViewModel.onReactionChosen(Emotion.OMG);
     assertCameraState();
     mViewModel.onPhotoTaken(createMockedImage());
     // Verify flow tree
@@ -128,9 +128,9 @@ public class StudioViewModelTest extends ViewModelTestSuite {
     assertNotNull(mViewModel.getDirectedScene()
         .getNextMedia(mViewModel.getDirectedScene()
                 .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.DISGUST),
-            Emotion.SURPRISE));
+            Emotion.OMG));
     assertNotNull(mViewModel.getDirectedScene()
-        .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.FEAR));
+        .getNextMedia(mViewModel.getDirectedScene().getRootMedia(), Emotion.OMG));
   }
 
   @Test public void previousMedia() throws Exception {

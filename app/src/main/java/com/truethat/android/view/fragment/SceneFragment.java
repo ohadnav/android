@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +27,10 @@ public class SceneFragment
     extends BaseFragment<SceneViewInterface, SceneViewModel, FragmentSceneBinding>
     implements SceneViewInterface {
   private static final String ARG_SCENE = "scene";
+  private static final float REACTION_BOUNCE_SCALE = 0.8f;
+  private static final float DEFAULT_REACTION_SCALE = 0.5f;
   @BindView(R.id.reactionImage) ImageView mReactionImage;
+  @BindView(R.id.reactionsCountLayout) ConstraintLayout mReactionsLayout;
   private Scene mScene;
   private MediaFragment mMediaFragment;
   private Integer mMediaContainerViewId = View.generateViewId();
@@ -113,9 +117,7 @@ public class SceneFragment
   @Override public void bounceReactionImage() {
     getActivity().runOnUiThread(new Runnable() {
       @Override public void run() {
-        mReactionImage.animate()
-            .scaleX(1.0f)
-            .scaleY(1.0f)
+        mReactionImage.animate().scaleX(REACTION_BOUNCE_SCALE).scaleY(REACTION_BOUNCE_SCALE)
             .setListener(new Animator.AnimatorListener() {
               @Override public void onAnimationStart(Animator animation) {
 
@@ -123,8 +125,8 @@ public class SceneFragment
 
               @Override public void onAnimationEnd(Animator animation) {
                 mReactionImage.animate()
-                    .scaleX(.5f)
-                    .scaleY(.5f)
+                    .scaleX(DEFAULT_REACTION_SCALE)
+                    .scaleY(DEFAULT_REACTION_SCALE)
                     .setListener(new Animator.AnimatorListener() {
                       @Override public void onAnimationStart(Animator animation) {
 
@@ -173,8 +175,16 @@ public class SceneFragment
     return mMediaFragment != null && mMediaFragment.hasFinished();
   }
 
+  @Override public void fadeReactions() {
+    mReactionsLayout.animate().alpha(0.2f).setDuration(100).start();
+  }
+
+  @Override public void exposeReactions() {
+    mReactionsLayout.animate().alpha(1f).setDuration(100).start();
+  }
+
   private void defaultReactionScale() {
-    mReactionImage.setScaleX(0.5f);
-    mReactionImage.setScaleY(0.5f);
+    mReactionImage.setScaleX(DEFAULT_REACTION_SCALE);
+    mReactionImage.setScaleY(DEFAULT_REACTION_SCALE);
   }
 }

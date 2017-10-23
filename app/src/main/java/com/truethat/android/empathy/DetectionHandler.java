@@ -55,26 +55,38 @@ class DetectionHandler extends Handler {
     mFrameDetector.setImageListener(new Detector.ImageListener() {
       @Override public void onImageResults(List<Face> faces, Frame frame, float v) {
         for (final Face face : faces) {
-          Map<Emotion, Float> emotionToLikelihood = new HashMap<>();
-          emotionToLikelihood.put(Emotion.HAPPY, face.emotions.getJoy());
+          Map<AffectivaEmotion, Float> emotionToLikelihood = new HashMap<>();
+          emotionToLikelihood.put(AffectivaEmotion.JOY, face.emotions.getJoy());
+          emotionToLikelihood.put(AffectivaEmotion.OMG, face.emotions.getSurprise());
+          emotionToLikelihood.put(AffectivaEmotion.ANGER, face.emotions.getAnger());
           // Fear is harder to detect, and so it is amplified
-          emotionToLikelihood.put(Emotion.FEAR, face.emotions.getFear() * 2);
-          // Disgust is too easy to detect, and so it is decreased
-          emotionToLikelihood.put(Emotion.DISGUST, face.emotions.getDisgust() / 2);
-          emotionToLikelihood.put(Emotion.SURPRISE, face.emotions.getSurprise());
-          Map.Entry<Emotion, Float> mostLikely = Collections.max(emotionToLikelihood.entrySet(),
-              new Comparator<Map.Entry<Emotion, Float>>() {
-                @Override public int compare(Map.Entry<Emotion, Float> emotionFloatEntry,
-                    Map.Entry<Emotion, Float> t1) {
-                  return emotionFloatEntry.getValue().compareTo(t1.getValue());
-                }
-              });
+          emotionToLikelihood.put(AffectivaEmotion.FEAR, face.emotions.getFear() * 2);
+          // Negative emotions are too easy to detect, and so they are decreased
+          emotionToLikelihood.put(AffectivaEmotion.DISGUST, face.emotions.getDisgust() / 2);
+          emotionToLikelihood.put(AffectivaEmotion.SADNESS, face.emotions.getSadness() / 2);
+          Map.Entry<AffectivaEmotion, Float> mostLikely =
+              Collections.max(emotionToLikelihood.entrySet(),
+                  new Comparator<Map.Entry<AffectivaEmotion, Float>>() {
+                    @Override
+                    public int compare(Map.Entry<AffectivaEmotion, Float> emotionFloatEntry,
+                        Map.Entry<AffectivaEmotion, Float> t1) {
+                      return emotionFloatEntry.getValue().compareTo(t1.getValue());
+                    }
+                  });
           if (mostLikely.getValue() > DETECTION_THRESHOLD) {
-            reactionDetectionManager.onReactionDetected(mostLikely.getKey());
+            reactionDetectionManager.onReactionDetected(mostLikely.getKey().mEmotion, true);
+          }
+          for (Map.Entry<AffectivaEmotion, Float> emotionLikelihoodEntry : emotionToLikelihood.entrySet()) {
+            if (emotionLikelihoodEntry.getKey() != mostLikely.getKey()
+                && emotionLikelihoodEntry.getValue() > DETECTION_THRESHOLD) {
+              reactionDetectionManager.onReactionDetected(emotionLikelihoodEntry.getKey().mEmotion,
+                  false);
+            }
           }
         }
       }
     });
+    mFrameDetector.setFaceListener(reactionDetectionManager);
   }
 
   /**
@@ -128,6 +140,17 @@ class DetectionHandler extends Handler {
    */
   void sendStopMessage() {
     sendMessage(obtainMessage(STOP));
+  }
+
+  private enum AffectivaEmotion {
+    JOY(Emotion.HAPPY), FEAR(Emotion.OMG), DISGUST(Emotion.DISGUST), OMG(Emotion.OMG), ANGER(
+        Emotion.DISGUST), SADNESS(Emotion.DISGUST);
+
+    private Emotion mEmotion;
+
+    AffectivaEmotion(Emotion emotion) {
+      mEmotion = emotion;
+    }
   }
 
   /**

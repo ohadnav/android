@@ -219,7 +219,7 @@ import static org.junit.Assert.assertTrue;
   @Test public void scenesNavigation() throws Exception {
     Scene evolving =
         new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
-            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
+            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.OMG)));
     Scene video =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
     mRespondedScenes = Arrays.asList(evolving, video);
@@ -234,7 +234,7 @@ import static org.junit.Assert.assertTrue;
             scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
-    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    mFakeReactionDetectionManager.onReactionDetected(Emotion.OMG, true);
     // Should display the follow up media
     assertSceneDisplayed(evolving, PHOTO.getId());
     // Tap for next scene
@@ -251,7 +251,7 @@ import static org.junit.Assert.assertTrue;
   @Test public void scenesStateSaved() throws Exception {
     Scene evolving =
         new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
-            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
+            Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.OMG)));
     Scene video =
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO, VIDEO);
     mRespondedScenes = Arrays.asList(evolving, video);
@@ -266,7 +266,7 @@ import static org.junit.Assert.assertTrue;
             scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
-    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    mFakeReactionDetectionManager.onReactionDetected(Emotion.OMG, true);
     // Should display the follow up media
     assertSceneDisplayed(evolving, PHOTO.getId());
     // Navigate to repertoire, so that theater fragment will be destroyed.
@@ -309,21 +309,21 @@ import static org.junit.Assert.assertTrue;
             scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
-    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    mFakeReactionDetectionManager.onReactionDetected(Emotion.OMG, true);
     @SuppressWarnings("ConstantConditions") final ImageView reactionImage =
         scenesPagerFragment.getCurrentFragment().getView().findViewById(R.id.reactionImage);
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertTrue(CameraTestUtil.areDrawablesIdentical(
             ContextCompat.getDrawable(mTestActivityRule.getActivity(),
-                Emotion.SURPRISE.getDrawableResource()), reactionImage.getDrawable()));
+                Emotion.OMG.getDrawableResource()), reactionImage.getDrawable()));
       }
     });
   }
 
   @Test public void evolvingScene() throws Exception {
     Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, Arrays.asList(VIDEO, PHOTO),
-        Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.SURPRISE)));
+        Collections.singletonList(new Edge(VIDEO.getId(), PHOTO.getId(), Emotion.OMG)));
     mRespondedScenes = Collections.singletonList(scene);
     mMainActivityRule.launchActivity(null);
     waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
@@ -336,7 +336,7 @@ import static org.junit.Assert.assertTrue;
             scenesPagerFragment.getCurrentFragment().getViewModel()));
       }
     });
-    mFakeReactionDetectionManager.doDetection(Emotion.SURPRISE);
+    mFakeReactionDetectionManager.onReactionDetected(Emotion.OMG, true);
     assertSceneDisplayed(scene, PHOTO.getId());
   }
 }

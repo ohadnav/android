@@ -23,4 +23,14 @@ public interface SceneViewInterface extends BaseFragmentViewInterface {
    * @return whether the currently displayed media has finished.
    */
   boolean hasMediaFinished();
+
+  /**
+   * Fades reactions layout when the user's face are lost.
+   */
+  void fadeReactions();
+
+  /**
+   * Removes transparency from reactions layout as the user's face are detected.
+   */
+  void exposeReactions();
 }

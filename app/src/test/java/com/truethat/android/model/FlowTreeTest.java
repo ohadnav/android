@@ -17,7 +17,7 @@ public class FlowTreeTest {
   private static final Photo PHOTO_1 = new Photo(1L, "1");
   private static final Photo PHOTO_2 = new Photo(2L, "2");
   private static final Photo PHOTO_3 = new Photo(3L, "3");
-  private static final Edge EDGE_1 = new Edge(1L, 2L, Emotion.SURPRISE);
+  private static final Edge EDGE_1 = new Edge(1L, 2L, Emotion.OMG);
   private static final Edge EDGE_2 = new Edge(2L, 3L, Emotion.HAPPY);
   private FlowTree mTree;
   private FakeFlowTreeListener mFlowTreeListener;
@@ -90,7 +90,7 @@ public class FlowTreeTest {
       throws Exception {
     mTree.addNode(PHOTO_1, PHOTO_2);
     mTree.addEdge(EDGE_1);
-    mTree.getChild(PHOTO_1.getId() + PHOTO_2.getId(), Emotion.FEAR);
+    mTree.getChild(PHOTO_1.getId() + PHOTO_2.getId(), Emotion.OMG);
   }
 
   @Test(expected = IllegalArgumentException.class) public void getParentFails() {

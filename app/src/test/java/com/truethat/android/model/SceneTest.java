@@ -23,7 +23,7 @@ public class SceneTest extends ViewModelTestSuite {
   private static final Media PHOTO_2 = new Photo(2L, "2");
   private static final Media PHOTO_3 = new Photo(3L, "3");
   private static final Edge EDGE_0 = new Edge(0L, 1L, Emotion.HAPPY);
-  private static final Edge EDGE_1 = new Edge(1L, 2L, Emotion.SURPRISE);
+  private static final Edge EDGE_1 = new Edge(1L, 2L, Emotion.OMG);
   private static final Edge EDGE_2 = new Edge(1L, 3L, Emotion.DISGUST);
 
   @Test public void createScene() throws Exception {
@@ -32,7 +32,7 @@ public class SceneTest extends ViewModelTestSuite {
             Arrays.asList(EDGE_0, EDGE_1, EDGE_2));
     assertEquals(PHOTO_0, scene.getRootMedia());
     assertEquals(PHOTO_1, scene.getNextMedia(PHOTO_0, Emotion.HAPPY));
-    assertEquals(PHOTO_2, scene.getNextMedia(PHOTO_1, Emotion.SURPRISE));
+    assertEquals(PHOTO_2, scene.getNextMedia(PHOTO_1, Emotion.OMG));
     assertEquals(PHOTO_3, scene.getNextMedia(PHOTO_1, Emotion.DISGUST));
   }
 
@@ -42,7 +42,7 @@ public class SceneTest extends ViewModelTestSuite {
             Arrays.asList(EDGE_0, EDGE_1, EDGE_2))), Scene.class);
     assertEquals(PHOTO_0, scene.getRootMedia());
     assertEquals(PHOTO_1, scene.getNextMedia(PHOTO_0, Emotion.HAPPY));
-    assertEquals(PHOTO_2, scene.getNextMedia(PHOTO_1, Emotion.SURPRISE));
+    assertEquals(PHOTO_2, scene.getNextMedia(PHOTO_1, Emotion.OMG));
     assertEquals(PHOTO_3, scene.getNextMedia(PHOTO_1, Emotion.DISGUST));
   }
 
@@ -84,6 +84,6 @@ public class SceneTest extends ViewModelTestSuite {
     treeMap.put(Emotion.DISGUST, 10L);
     testSerializability(new Scene(1L, new User(1L, "a", "b", "c"), treeMap, new Date(),
         Arrays.asList(new Video(1L, "a"), new Photo(2L, "b"), new Video(3L, "c")),
-        Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.FEAR))));
+        Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.OMG))));
   }
 }

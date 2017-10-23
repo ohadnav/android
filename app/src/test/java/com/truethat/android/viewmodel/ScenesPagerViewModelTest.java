@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
   }};
   private static final TreeMap<Emotion, Long> EMOTIONAL_REACTIONS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, HAPPY_COUNT);
-    put(Emotion.FEAR, FEAR_COUNT);
+    put(Emotion.OMG, FEAR_COUNT);
   }};
   private ScenesPagerViewModel mViewModel;
   private TheaterApi mApi;

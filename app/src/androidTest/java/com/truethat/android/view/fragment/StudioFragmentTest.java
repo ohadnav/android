@@ -155,7 +155,7 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
     // Should proceed to edit state
     assertEditState();
     // Chose a reaction
-    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.SURPRISE))).perform(click());
+    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.OMG))).perform(click());
     // Should proceed to camera state.
     assertCameraState();
     // Record a video
@@ -179,11 +179,11 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
     // Redo the surprise ending
     onView(withId(R.id.parentMedia)).perform(click());
     assertEditState();
-    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.SURPRISE))).perform(click());
+    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.OMG))).perform(click());
     assertEditState();
     onView(withId(R.id.cancelButton)).perform(click());
     assertEditState();
-    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.SURPRISE))).perform(click());
+    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.OMG))).perform(click());
     // Should proceed to camera state.
     assertCameraState();
     // Record a video
@@ -279,7 +279,7 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
     });
     assertEditState();
     // Chose a reaction
-    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.SURPRISE))).perform(click());
+    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.OMG))).perform(click());
     // Should proceed to camera state.
     assertCameraState();
     // Record a video
@@ -312,7 +312,7 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
     });
     assertEditState();
     // Chose a reaction
-    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.SURPRISE))).perform(click());
+    onView(withId(mStudioFragment.getEmotionToViewId().get(Emotion.OMG))).perform(click());
     // Should proceed to camera state.
     assertCameraState();
     Scene directedScene =
@@ -331,7 +331,7 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
         ((StudioFragment) mMainActivityRule.getActivity().getCurrentMainFragment()).getViewModel()
             .getDirectedScene());
     // Should save the chosen reaction
-    assertEquals(Emotion.SURPRISE,
+    assertEquals(Emotion.OMG,
         ((StudioFragment) mMainActivityRule.getActivity().getCurrentMainFragment()).getViewModel()
             .getChosenReaction());
   }

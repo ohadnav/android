@@ -10,8 +10,7 @@ import com.truethat.android.R;
  */
 
 public enum Emotion {
-  HAPPY(R.drawable.emoji_happy), FEAR(R.drawable.emoji_fear), SURPRISE(
-      R.drawable.emoji_surprise), DISGUST(R.drawable.emoji_disgust);
+  HAPPY(R.drawable.emoji_happy), OMG(R.drawable.emoji_omg), DISGUST(R.drawable.emoji_disgust);
 
   private int mDrawableResource;
 

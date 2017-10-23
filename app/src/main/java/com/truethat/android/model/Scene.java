@@ -187,6 +187,17 @@ public class Scene extends BaseModel implements FlowTree.Listener {
   }
 
   /**
+   * @param current from which the next media should be triggered.
+   *
+   * @return whether {@code current} has more than a single next media options in {@link
+   * #mFlowTree}.
+   */
+  public boolean hasMultipleNextMediaOptions(Media current) {
+    FlowTree.Node mediaNode = mFlowTree.getNodes().get(current.getId());
+    return mediaNode != null && mediaNode.getChildren().size() > 1;
+  }
+
+  /**
    * @param current what the user currently views, or have just created.
    */
   @Nullable public Media getPreviousMedia(Media current) {

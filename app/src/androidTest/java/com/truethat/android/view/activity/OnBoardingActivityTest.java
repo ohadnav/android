@@ -97,7 +97,7 @@ public class OnBoardingActivityTest extends BaseInstrumentationTestSuite {
     // Cursor should be hidden after hitting ime button.
     assertFalse(editText.isCursorVisible());
     // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
     // Set up server response
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -209,7 +209,7 @@ public class OnBoardingActivityTest extends BaseInstrumentationTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
     // Should have sent a request to the backend.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -262,7 +262,7 @@ public class OnBoardingActivityTest extends BaseInstrumentationTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.doDetection(OnBoardingViewModel.REACTION_FOR_DONE.get(0));
+    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(OnBoardingViewModel.Stage.REQUEST_SENT, mViewModel.getStage());

@@ -19,8 +19,6 @@ import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,8 +28,7 @@ import java.util.TimerTask;
 
 public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     implements ReactionDetectionListener {
-  @VisibleForTesting public static final List<Emotion> REACTION_FOR_DONE =
-      Arrays.asList(Emotion.HAPPY, Emotion.SURPRISE);
+  @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   @VisibleForTesting @ColorRes public static final int ERROR_COLOR = R.color.error;
   @VisibleForTesting @ColorRes public static final int VALID_NAME_COLOR = R.color.success;
   @VisibleForTesting static final int NAME_TEXT_EDITING_INPUT_TYPE =
@@ -95,10 +92,18 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     doStage();
   }
 
-  @Override public void onReactionDetected(Emotion reaction) {
-    if (REACTION_FOR_DONE.contains(reaction) && StringUtil.isValidFullName(mNameEditText.get())) {
+  @Override public void onReactionDetected(Emotion reaction, boolean mostLikely) {
+    if (REACTION_FOR_DONE.equals(reaction) && StringUtil.isValidFullName(mNameEditText.get())) {
       onRequestSent();
     }
+  }
+
+  @Override public void onFaceDetectionStarted() {
+
+  }
+
+  @Override public void onFaceDetectionStopped() {
+
   }
 
   public void onNameDone() {

@@ -159,12 +159,12 @@ class FlowTree {
     void deleteEdge(Edge edge);
   }
 
-  private static class Node {
+  static class Node {
     private Media mMedia;
     private Node mParent;
     private Map<Emotion, Node> mChildren = new HashMap<>();
 
-    Node(Media media) {
+    private Node(Media media) {
       mMedia = media;
     }
 

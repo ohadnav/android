@@ -27,6 +27,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -41,13 +42,13 @@ import static org.junit.Assert.assertTrue;
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "Nimni");
   private static final TreeMap<Emotion, Long> REACTION_COUNTERS = new TreeMap<Emotion, Long>() {{
     put(Emotion.HAPPY, 100L);
-    put(Emotion.FEAR, 20000L);
+    put(Emotion.OMG, 20000L);
   }};
   private static final Emotion REACTION = Emotion.HAPPY;
-  private static final Emotion REACTION_2 = Emotion.FEAR;
-  private static final Edge EDGE_1 = new Edge(0L, 1L, REACTION);
-  private static final Edge EDGE_1A = new Edge(0L, 2L, REACTION_2);
-  private static final Edge EDGE_2 = new Edge(1L, 2L, REACTION_2);
+  private static final Emotion REACTION_2 = Emotion.OMG;
+  private static final Edge EDGE_0_TO_1 = new Edge(MEDIA_0.getId(), MEDIA_1.getId(), REACTION);
+  private static final Edge EDGE_0_TO_2 = new Edge(MEDIA_0.getId(), MEDIA_2.getId(), REACTION_2);
+  private static final Edge EDGE_1_TO_2 = new Edge(MEDIA_1.getId(), MEDIA_2.getId(), REACTION_2);
   private SceneViewModel mViewModel = new SceneViewModel();
   private ViewInterface mView;
   private Scene mScene;
@@ -76,6 +77,69 @@ import static org.junit.Assert.assertTrue;
     assertSceneDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
     assertEquals(SceneViewModel.DEFAULT_COUNT_COLOR, mViewModel.mReactionCountColor.get());
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
+    // By default, reactions layout should be faded
+    assertNull(mView.reactionsLayoutExposed);
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    assertNull(mView.reactionsLayoutExposed);
+  }
+
+  @Test public void faceDetectionOnGoing_beforeDisplay() throws Exception {
+    mFakeReactionDetectionManager.onFaceDetectionStarted();
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
+    initSceneViewModel();
+    assertSceneDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Reactions layout should be exposed
+    assertNotNull(mView.reactionsLayoutExposed);
+    assertTrue(mView.reactionsLayoutExposed);
+  }
+
+  @Test public void faceDetectionOnGoing_whileDisplay() throws Exception {
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
+    initSceneViewModel();
+    assertSceneDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Reactions layout should be faded
+    assertNull(mView.reactionsLayoutExposed);
+    // Detect a face.
+    mFakeReactionDetectionManager.onFaceDetectionStarted();
+    // Reactions layout should be exposed
+    assertTrue(mView.reactionsLayoutExposed);
+  }
+
+  @Test public void faceDetectionStopped_whileDisplay() throws Exception {
+    mFakeReactionDetectionManager.onFaceDetectionStarted();
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, MEDIA_0);
+    initSceneViewModel();
+    assertSceneDisplayed(mViewModel, mScene, AppContainer.getAuthManager().getCurrentUser());
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Reactions layout should be exposed
+    assertNotNull(mView.reactionsLayoutExposed);
+    assertTrue(mView.reactionsLayoutExposed);
+    // Face detection stopped.
+    mFakeReactionDetectionManager.onFaceDetectionStopped();
+    // Reactions layout should be now faded
+    assertFalse(mView.reactionsLayoutExposed);
   }
 
   @Test public void displayZeroReactions() throws Exception {
@@ -87,7 +151,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void basicNextMedia() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
-        Collections.singletonList(EDGE_1));
+        Collections.singletonList(EDGE_0_TO_1));
     initSceneViewModel();
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Assert a view event is sent
@@ -104,7 +168,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Detect a reaction
-    mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), true);
     // Wait for reaction event
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -139,7 +203,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_correctMediaChosen() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow,
-        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_1, EDGE_1A));
+        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_0_TO_1, EDGE_0_TO_2));
     initSceneViewModel();
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
@@ -149,7 +213,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Triggers navigation to next media
-    mFakeReactionDetectionManager.doDetection(EDGE_1A.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_2.getReaction(), true);
     mView.finishMedia();
     // Should navigate to edge 1a target index
     assertEquals(MEDIA_2, mView.getDisplayedMedia());
@@ -157,7 +221,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_reactionDetectedBeforeFinish() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
-        Collections.singletonList(EDGE_1));
+        Collections.singletonList(EDGE_0_TO_1));
     initSceneViewModel();
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
@@ -167,7 +231,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Detect a reaction
-    mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), true);
     // Should update next media
     assertEquals(MEDIA_1, mViewModel.getNextMedia());
     mView.finishMedia();
@@ -181,7 +245,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_finishBeforeReactionDetected() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
-        Collections.singletonList(EDGE_1));
+        Collections.singletonList(EDGE_0_TO_1));
     initSceneViewModel();
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
     // Wait for detection to start
@@ -194,7 +258,7 @@ import static org.junit.Assert.assertTrue;
     // Should not have next media yet
     assertNull(mViewModel.getNextMedia());
     // Detect a reaction
-    mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), true);
     // Should navigate to next media
     assertEquals(MEDIA_1, mView.getDisplayedMedia());
     // Should reset next media
@@ -205,7 +269,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void nextMedia_multipleLevels() throws Exception {
     mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow,
-        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_1, EDGE_2));
+        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_0_TO_1, EDGE_1_TO_2));
     initSceneViewModel();
     mView.finishMedia();
     assertEquals(MEDIA_0, mView.getDisplayedMedia());
@@ -216,7 +280,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Detect a reaction
-    mFakeReactionDetectionManager.doDetection(EDGE_1.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), true);
     // Should navigate to next media
     assertEquals(MEDIA_1, mView.getDisplayedMedia());
     mView.resetMediaFinished();
@@ -228,7 +292,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Detect a reaction and finish media
-    mFakeReactionDetectionManager.doDetection(EDGE_2.getReaction());
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_1_TO_2.getReaction(), true);
     mView.finishMedia();
     // Should navigate to next media
     assertEquals(MEDIA_2, mView.getDisplayedMedia());
@@ -272,7 +336,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Detect a reaction
-    mFakeReactionDetectionManager.doDetection(REACTION_2);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION_2, true);
     // Wait for reaction event
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -291,6 +355,71 @@ import static org.junit.Assert.assertTrue;
     assertEquals("2", mViewModel.mReactionsCountText.get());
     assertEquals(SceneViewModel.POST_REACTION_COUNT_COLOR, mViewModel.mReactionCountColor.get());
     assertTrue(mView.wasReactionImageAnimated());
+  }
+
+  @Test public void reactionDetection_reactionIgnoredWithMultipleNextMediaOptions()
+      throws Exception {
+    TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
+      put(REACTION, 1L);
+    }};
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow,
+        Arrays.asList(MEDIA_0, MEDIA_1, MEDIA_2), Arrays.asList(EDGE_0_TO_1, EDGE_1_TO_2));
+    initSceneViewModel();
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Detect a non prevalent reaction
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_2.getReaction(), false);
+    // Wait for reaction to be detected.
+    Thread.sleep(ViewModelTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+    // Should not detect a reaction
+    assertEquals("1", mViewModel.mReactionsCountText.get());
+  }
+
+  @Test public void reactionDetection_reactionIgnoredWithoutNextMediaOptions() throws Exception {
+    TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
+      put(REACTION, 1L);
+    }};
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, MEDIA_0);
+    initSceneViewModel();
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Detect a non prevalent reaction
+    mFakeReactionDetectionManager.onReactionDetected(REACTION_2, false);
+    // Wait for reaction to be detected.
+    Thread.sleep(ViewModelTestSuite.DEFAULT_TIMEOUT.getValueInMS() / 2);
+    // Should not detect a reaction
+    assertEquals("1", mViewModel.mReactionsCountText.get());
+  }
+
+  @Test public void reactionDetection_reactionDetectedWithSingleNextMediaOption() throws Exception {
+    TreeMap<Emotion, Long> reactionCounters = new TreeMap<Emotion, Long>() {{
+      put(REACTION, 1L);
+    }};
+    mScene = new Scene(SCENE_ID, DIRECTOR, reactionCounters, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
+        Collections.singletonList(EDGE_0_TO_1));
+    initSceneViewModel();
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Detect a non prevalent reaction
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), false);
+    // Should detect a reaction
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals("2", mViewModel.mReactionsCountText.get());
+      }
+    });
   }
 
   @Test public void reactionNotDetectedImmediately() throws Exception {
@@ -322,7 +451,7 @@ import static org.junit.Assert.assertTrue;
     // Should not be subscribed to reaction detection.
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Fake a detection.
-    mFakeReactionDetectionManager.doDetection(REACTION);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION, true);
     // Should not have an effect
     assertTrue(mViewModel.getCurrentDetectedReactions().isEmpty());
     assertEquals(reactionCounters, mViewModel.getScene().getReactionCounters());
@@ -343,7 +472,7 @@ import static org.junit.Assert.assertTrue;
     // Should not be subscribed to reaction detection.
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Do a detection
-    mFakeReactionDetectionManager.doDetection(REACTION);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION, true);
     // Should not register the detection.
     assertTrue(mViewModel.getCurrentDetectedReactions().isEmpty());
   }
@@ -362,7 +491,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Do a detection
-    mFakeReactionDetectionManager.doDetection(REACTION);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION, true);
     // Display reaction emoji
     assertEquals(REACTION.getDrawableResource(), mViewModel.mReactionDrawableResource.get());
     // Should have been animated
@@ -371,7 +500,7 @@ import static org.junit.Assert.assertTrue;
     // Should be reflected in scene reaction counters
     assertEquals(1, mViewModel.getScene().getReactionCounters().get(REACTION).longValue());
     // Repeat first reaction
-    mFakeReactionDetectionManager.doDetection(REACTION);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION, true);
     // Should not change data model
     assertEquals(1, mViewModel.getScene().getReactionCounters().get(REACTION).longValue());
     // Should not be animated again
@@ -386,7 +515,7 @@ import static org.junit.Assert.assertTrue;
     });
 
     // Do another detection
-    mFakeReactionDetectionManager.doDetection(REACTION_2);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION_2, true);
     // Display reaction2 emoji
     assertEquals(REACTION_2.getDrawableResource(), mViewModel.mReactionDrawableResource.get());
     // Update reactions counter
@@ -407,7 +536,7 @@ import static org.junit.Assert.assertTrue;
 
     int requestCount = mMockWebServer.getRequestCount();
     // Repeat first reaction
-    mFakeReactionDetectionManager.doDetection(REACTION);
+    mFakeReactionDetectionManager.onReactionDetected(REACTION, true);
     // Should not change data model
     assertEquals(1, mViewModel.getScene().getReactionCounters().get(REACTION).longValue());
     // Display reaction emoji
@@ -434,6 +563,7 @@ import static org.junit.Assert.assertTrue;
     private boolean mImageAnimated = false;
     private Media mDisplayedMedia;
     private boolean mHasFinished;
+    private Boolean reactionsLayoutExposed;
 
     @Override public void bounceReactionImage() {
       mImageAnimated = true;
@@ -445,6 +575,14 @@ import static org.junit.Assert.assertTrue;
 
     @Override public boolean hasMediaFinished() {
       return mHasFinished;
+    }
+
+    @Override public void fadeReactions() {
+      reactionsLayoutExposed = false;
+    }
+
+    @Override public void exposeReactions() {
+      reactionsLayoutExposed = true;
     }
 
     void resetMediaFinished() {

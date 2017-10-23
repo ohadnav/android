@@ -1,6 +1,5 @@
 package com.truethat.android.empathy;
 
-import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import com.truethat.android.model.Emotion;
@@ -12,13 +11,16 @@ import java.util.Set;
  * Proudly created by ohad on 31/07/2017 for TrueThat.
  */
 
-public class BaseReactionDetectionManager implements ReactionDetectionManager {
+public class BaseReactionDetectionManager
+    implements ReactionDetectionManager, ReactionDetectionListener {
   Set<ReactionDetectionListener> mReactionDetectionListeners = new HashSet<>();
   /**
    * For logging.
    */
   String TAG = this.getClass().getSimpleName();
   private State mState = State.IDLE;
+
+  private boolean mFaceDetectionOngoing = false;
 
   @Override public void start(@Nullable BaseActivity baseActivity) {
     Log.d(TAG, "Starting detection.");
@@ -33,6 +35,9 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
           + reactionDetectionListener.hashCode()
           + ")");
       mReactionDetectionListeners.add(reactionDetectionListener);
+      if (mFaceDetectionOngoing) {
+        reactionDetectionListener.onFaceDetectionStarted();
+      }
     } else {
       Log.e(TAG, "Trying to subscribe to an idle manager.");
     }
@@ -70,9 +75,29 @@ public class BaseReactionDetectionManager implements ReactionDetectionManager {
     return mState == State.DETECTING;
   }
 
-  @CallSuper void onReactionDetected(Emotion reaction) {
+  @Override public void onReactionDetected(Emotion reaction, boolean mostLikely) {
     for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
-      reactionDetectionListener.onReactionDetected(reaction);
+      reactionDetectionListener.onReactionDetected(reaction, mostLikely);
+    }
+  }
+
+  @Override public String getTAG() {
+    return TAG;
+  }
+
+  @Override public void onFaceDetectionStarted() {
+    Log.d(TAG, "onFaceDetectionStarted");
+    mFaceDetectionOngoing = true;
+    for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
+      reactionDetectionListener.onFaceDetectionStarted();
+    }
+  }
+
+  @Override public void onFaceDetectionStopped() {
+    Log.d(TAG, "onFaceDetectionStopped");
+    mFaceDetectionOngoing = false;
+    for (ReactionDetectionListener reactionDetectionListener : mReactionDetectionListeners) {
+      reactionDetectionListener.onFaceDetectionStopped();
     }
   }
 

@@ -8,14 +8,23 @@ import com.truethat.android.model.Emotion;
  */
 
 public class FakeReactionDetectionManager extends BaseReactionDetectionManager {
+
   /**
    * Mocks a reaction detection.
-   *
-   * @param reaction of the detected emotion.
    */
-  public void doDetection(Emotion reaction) {
-    Log.d(TAG, "Faking detection of " + reaction.name() + ".");
-    onReactionDetected(reaction);
+  @Override public void onReactionDetected(Emotion reaction, boolean mostLikely) {
+    Log.d(TAG, "FAKE onReactionDetected(" + reaction.name() + ", " + mostLikely + ")");
+    super.onReactionDetected(reaction, mostLikely);
+  }
+
+  @Override public void onFaceDetectionStarted() {
+    Log.d(TAG, "FAKE onFaceDetectionStarted");
+    super.onFaceDetectionStarted();
+  }
+
+  @Override public void onFaceDetectionStopped() {
+    Log.d(TAG, "FAKE onFaceDetectionStopped");
+    super.onFaceDetectionStopped();
   }
 
   /**

@@ -211,7 +211,30 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     }
   }
 
-  public void onReactionDetected(Emotion reaction) {
+  @Override public void onFaceDetectionStarted() {
+    if (getView() != null) {
+      getView().exposeReactions();
+    }
+  }
+
+  @Override public void onFaceDetectionStopped() {
+    if (getView() != null) {
+      getView().fadeReactions();
+    }
+  }
+
+  /**
+   * Reactions are ignored when the following conditions are satisfied:
+   * <ul>
+   * <li>There are multiple next media options or the reaction could not lead to a next media.</li>
+   * <li>The reaction was not the most likely one.</li>
+   * </ul>
+   */
+  public void onReactionDetected(Emotion reaction, boolean mostLikely) {
+    if (!mostLikely && (mScene.getNextMedia(mCurrentMedia, reaction) == null
+        || mScene.hasMultipleNextMediaOptions(mCurrentMedia))) {
+      return;
+    }
     if (!mDetectedReactions.get(mCurrentMedia).contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mScene.doReaction(reaction);
@@ -382,8 +405,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
             e.printStackTrace();
           }
           String requestBody = buffer.readUtf8();
-          Log.e(TAG, "Failed to post event to "
-              + call.request().url() + "\nBody: " + requestBody
+          Log.e(TAG, "Failed to post event to " + call.request().url() + "\nBody: " + requestBody
               + "\nRequest body: "
               + call.request().body()
               + "\nResponse: "

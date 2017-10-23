@@ -17,12 +17,12 @@ public class SceneInstrumentationTest {
     treeMap.put(Emotion.DISGUST, 10L);
     testParcelability(new Scene(1L, new User(1L, "a", "b", "c"), treeMap, new Date(),
             Arrays.asList(new Video(1L, "a"), new Photo(2L, "b"), new Video(3L, "c")),
-            Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.FEAR))),
+            Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.OMG))),
         Scene.CREATOR);
     // null reaction counters
     testParcelability(new Scene(1L, new User(1L, "a", "b", "c"), null, new Date(),
             Arrays.asList(new Video(1L, "a"), new Photo(2L, "b"), new Video(3L, "c")),
-            Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.FEAR))),
+            Arrays.asList(new Edge(1L, 2L, Emotion.DISGUST), new Edge(1L, 3L, Emotion.OMG))),
         Scene.CREATOR);
   }
 }
