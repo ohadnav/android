@@ -1,14 +1,14 @@
 <resources>
 
-  <!-- Base application theme. -->
+  <!-- Application theme. -->
   <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-    <!-- Customize your theme here. -->
+    <!-- Primary colors -->
     <item name="colorPrimary">@color/primary</item>
     <item name="colorPrimaryDark">@color/secondary</item>
     <item name="colorAccent">@color/light</item>
     <!-- Hides status bar -->
     <item name="android:windowTranslucentStatus">true</item>
-    <!-- Hides bottom action bar -->
+    <!-- Hides bottom action bar (i.e. navigation bar) -->
     <item name="android:windowFullscreen">true</item>
   </style>
 

@@ -23,7 +23,7 @@ public class App extends Application implements Application.ActivityLifecycleCal
 
   @Override public void onCreate() {
     for (int i = 0; i < 10; i++) {
-      Log.d(TAG,
+      Log.e(TAG,
           "************************ !!!!! LAUNCHED !!!!! ************************************************ !!!!! LAUNCHED !!!!! ************************");
     }
     AppContainer.setDeviceManager(new HardwareDeviceManager(this));

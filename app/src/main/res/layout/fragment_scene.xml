@@ -54,7 +54,7 @@
           tools:src="@drawable/emoji_happy"
           />
 
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/reactionsCountText"
           android:layout_width="wrap_content"
           android:layout_height="match_parent"
@@ -89,7 +89,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         >
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/directorNameText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -106,7 +106,7 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent"
           />
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/timeAgoText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

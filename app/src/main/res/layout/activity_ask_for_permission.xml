@@ -16,7 +16,7 @@
     tools:context="com.truethat.android.view.activity.AskForPermissionActivity"
     >
 
-    <TextView
+    <com.truethat.android.view.custom.StyledTextView
         android:id="@+id/rationaleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent"
       />
 
-  <Button
+    <com.truethat.android.view.custom.StyledButton
       android:id="@+id/askPermissionButton"
       android:name="ask_permission_button"
       android:layout_width="wrap_content"

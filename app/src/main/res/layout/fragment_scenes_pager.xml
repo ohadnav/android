@@ -38,7 +38,7 @@
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toTopOf="parent"
           />
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/notFoundText"
           android:layout_width="200dp"
           android:layout_height="wrap_content"

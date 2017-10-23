@@ -18,7 +18,7 @@
       tools:context=".view.activity.OnBoardingActivity"
       >
 
-    <TextView
+    <com.truethat.android.view.custom.StyledTextView
         android:id="@+id/newAccountText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/newAccountText"
         >
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/nameText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
           app:layout_constraintTop_toTopOf="parent"
           />
 
-      <EditText
+      <com.truethat.android.view.custom.StyledEditText
           android:id="@+id/nameEditText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
           app:layout_constraintTop_toBottomOf="@id/nameText"
           />
 
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/warningText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loadingImage"
         >
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/finalStageText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -133,7 +133,7 @@
           app:layout_constraintTop_toTopOf="parent"
           />
 
-      <TextView
+      <com.truethat.android.view.custom.StyledTextView
           android:id="@+id/finalStageSubscriptText"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

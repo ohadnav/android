@@ -16,7 +16,7 @@
       tools:context=".view.activity.TestActivity"
       >
 
-    <TextView
+    <com.truethat.android.view.custom.StyledTextView
         android:id="@+id/testText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

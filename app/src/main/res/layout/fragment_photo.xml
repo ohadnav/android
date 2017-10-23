@@ -20,7 +20,7 @@
       app:layout_constraintTop_toTopOf="parent"
       />
 
-  <TextView
+  <com.truethat.android.view.custom.StyledTextView
       android:id="@+id/photoLoadErrorText"
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
