@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.OnBoardingSignUpStageViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:clickable="true"
+      android:focusableInTouchMode="true"
+      tools:context=".view.fragment.OnBoardingSignUpStageFragment"
+      >
+
+    <com.truethat.android.view.custom.StyledTextView
+        android:id="@+id/newAccountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/nameEditText"
+        android:text="@string/create_your_account"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/nameLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/nameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/loadingImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/newAccountText"
+        >
+      <com.truethat.android.view.custom.StyledTextView
+          android:id="@+id/nameText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:labelFor="@+id/nameEditText"
+          android:text="@string/whats_your_name"
+          android:textAlignment="center"
+          android:textColor="@color/primary"
+          android:textSize="20sp"
+          app:layout_constraintBottom_toTopOf="@+id/nameEditText"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+
+      <com.truethat.android.view.custom.StyledEditText
+          android:id="@+id/nameEditText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="@{viewModel.mNameEditBackgroundTintColor}"
+          android:cursorVisible="@{viewModel.mNameEditCursorVisibility}"
+          android:ems="10"
+          android:hint="@string/john_doe"
+          android:imeOptions="actionDone"
+          android:inputType="@{viewModel.mNameEditInputType}"
+          android:textColor="@{viewModel.mNameTextColor}"
+          android:textColorHint="@color/hint"
+          android:textCursorDrawable="@drawable/cursor_primary"
+          app:layout_constraintBottom_toTopOf="@+id/warningText"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/nameText"
+          />
+
+      <com.truethat.android.view.custom.StyledTextView
+          android:id="@+id/warningText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="5dp"
+          android:text="@{viewModel.mWarningText}"
+          android:textAlignment="center"
+          android:textColor="@color/error"
+          android:textSize="15sp"
+          android:visibility="@{viewModel.mWarningTextVisibility ? View.VISIBLE : View.INVISIBLE}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/nameEditText"
+          />
+    </android.support.constraint.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/loadingImage"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:contentDescription="@string/image_content_description"
+        android:scaleType="centerInside"
+        android:visibility="@{viewModel.mLoadingImageVisibility ? View.VISIBLE : View.INVISIBLE}"
+        app:layout_constraintBottom_toTopOf="@+id/finalStageLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameLayout"
+        app:srcCompat="@drawable/anim_loading"
+        />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/finalStageLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loadingImage"
+        >
+      <com.truethat.android.view.custom.StyledTextView
+          android:id="@+id/finalStageText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:paddingEnd="50dp"
+          android:paddingStart="50dp"
+          android:text="@string/smile_to_continue"
+          android:textAlignment="center"
+          android:textColor="@color/primary"
+          android:textSize="30sp"
+          android:visibility="@{viewModel.mCompletionTextVisibility ? View.VISIBLE : View.INVISIBLE}"
+          app:layout_constraintBottom_toTopOf="@+id/finalStageSubscriptText"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+
+      <com.truethat.android.view.custom.StyledTextView
+          android:id="@+id/finalStageSubscriptText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/real_life_smile"
+          android:textAlignment="center"
+          android:textColor="@color/primary"
+          android:textSize="20sp"
+          android:visibility="@{viewModel.mCompletionSubscriptTextVisibility ? View.VISIBLE : View.INVISIBLE}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/finalStageText"
+          />
+    </android.support.constraint.ConstraintLayout>
+
+  </android.support.constraint.ConstraintLayout>
+</layout>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+  <data>
+    <import type="android.view.View"/>
+    <variable
+        name="viewModel"
+        type="com.truethat.android.viewmodel.BaseFragmentViewModel"
+        />
+  </data>
+  <android.support.constraint.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context=".view.fragment.OnBoardingHiStageFragment"
+      >
+
+    <com.truethat.android.view.custom.StyledTextView
+        android:id="@+id/onBoarding_hi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/on_boarding_hi"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_cameraText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread"
+        />
+
+    <com.truethat.android.view.custom.StyledTextView
+        android:id="@+id/onBoarding_cameraText"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:text="@string/on_boarding_ask_for_camera"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_askButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/onBoarding_hi"
+        />
+
+    <com.truethat.android.view.custom.StyledButton
+        android:id="@+id/onBoarding_askButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ask_permission_button"
+        android:textAlignment="center"
+        android:textColor="@color/light"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/onBoarding_cameraText"
+        app:paddingEnd="8dp"
+        app:paddingStart="8dp"
+        />
+
+  </android.support.constraint.ConstraintLayout>
+</layout>

@@ -3,7 +3,6 @@ package com.truethat.android.view.fragment;
 import android.content.Context;
 import android.databinding.ViewDataBinding;
 import android.support.annotation.CallSuper;
-import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.view.activity.MainActivity;
 import com.truethat.android.viewmodel.BaseFragmentViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseFragmentViewInterface;
@@ -14,8 +13,7 @@ import com.truethat.android.viewmodel.viewinterface.ToolbarViewInterface;
  */
 
 public abstract class MainFragment<ViewInterface extends BaseFragmentViewInterface, ViewModel extends BaseFragmentViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends BaseFragment<ViewInterface, ViewModel, DataBinding>
-    implements ToolbarViewInterface, AuthListener {
+    extends BaseFragment<ViewInterface, ViewModel, DataBinding> implements ToolbarViewInterface {
 
   @CallSuper @Override public void onAttach(Context context) {
     super.onAttach(context);
@@ -42,14 +40,6 @@ public abstract class MainFragment<ViewInterface extends BaseFragmentViewInterfa
 
   @Override public void showToolbar() {
     getMainActivity().showToolbar();
-  }
-
-  @Override public void onAuthOk() {
-    // Dummy implementation.
-  }
-
-  @Override public void onAuthFailed() {
-    // Dummy implementation.
   }
 
   private MainActivity getMainActivity() {

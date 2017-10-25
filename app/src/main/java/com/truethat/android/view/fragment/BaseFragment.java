@@ -55,18 +55,27 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
   VisibilityListener mVisibilityListener;
   VisibilityState mVisibilityState = VisibilityState.HIDDEN;
 
+  public VisibilityListener getVisibilityListener() {
+    return mVisibilityListener;
+  }
+
+  public void setVisibilityListener(VisibilityListener visibilityListener) {
+    mVisibilityListener = visibilityListener;
+    maybeChangeVisibilityState();
+  }
+
   public void maybeChangeVisibilityState() {
     if (!isResumed()) {
-      return;
-    }
-    if (mVisibilityListener == null) {
-      return;
-    }
-    if (probablyVisible() && mVisibilityState != VisibilityState.VISIBLE) {
-      onVisible();
-    } else if (mVisibilityState != VisibilityState.HIDDEN) {
-      if (!isVisible() || !getUserVisibleHint() || !mVisibilityListener.shouldBeVisible(this)) {
+      if (mVisibilityState == VisibilityState.VISIBLE) {
         onHidden();
+      }
+    } else if (mVisibilityListener != null) {
+      if (probablyVisible() && mVisibilityState != VisibilityState.VISIBLE) {
+        onVisible();
+      } else if (mVisibilityState != VisibilityState.HIDDEN) {
+        if (!isVisible() || !getUserVisibleHint() || !mVisibilityListener.shouldBeVisible(this)) {
+          onHidden();
+        }
       }
     }
   }
@@ -87,11 +96,6 @@ public abstract class BaseFragment<ViewInterface extends BaseFragmentViewInterfa
     Log.d(TAG, "onHidden");
     mVisibilityState = VisibilityState.HIDDEN;
     getViewModel().onHidden();
-  }
-
-  public void setVisibilityListener(VisibilityListener visibilityListener) {
-    mVisibilityListener = visibilityListener;
-    maybeChangeVisibilityState();
   }
 
   /**

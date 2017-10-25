@@ -7,7 +7,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.auth.AuthResult;
 import com.truethat.android.common.util.StringUtil;
-import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import com.truethat.android.viewmodel.viewinterface.OnBoardingSignUpStageViewInterface;
 import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.Dispatcher;
@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 /**
  * Proudly created by ohad on 31/07/2017 for TrueThat.
  */
-public class OnBoardingViewModelTest extends ViewModelTestSuite {
+public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
   private static final String NAME = "Matt Damon";
-  
-  private OnBoardingViewModel mViewModel;
-  private OnBoardingViewModelTest.ViewInterface mView;
+
+  private OnBoardingSignUpStageViewModel mViewModel;
+  private OnBoardingSignUpStageViewModelTest.ViewInterface mView;
   private boolean mFinishedOnBoarding;
 
   @Before public void setUp() throws Exception {
@@ -70,11 +70,11 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     mViewModel.onNameDone();
     assertFinalStage();
     // Stopping view model should unsubscribe reaction detection
-    mViewModel.onPause();
+    mViewModel.onHidden();
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Starting view model should resume to final stage
-    mViewModel.onResume();
+    mViewModel.onVisible();
     assertFinalStage();
   }
 
@@ -91,7 +91,8 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, false);
+    mFakeReactionDetectionManager.onReactionDetected(
+        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, false);
     // Wait until Auth OK.
     assertTrue(mFakeAuthManager.isAuthOk());
   }
@@ -107,12 +108,12 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should be in request sent stage
     assertSentStage();
     // Stopping view model, should cancel request
-    mViewModel.onPause();
+    mViewModel.onHidden();
     assertTrue(mFakeAuthManager.getAuthCall().isCanceled());
     // Should stop reaction detection
     assertFalse(mFakeReactionDetectionManager.isDetecting());
     // Starting view model again should resume to final stage.
-    mViewModel.onResume();
+    mViewModel.onVisible();
     assertSentStage();
   }
 
@@ -146,9 +147,9 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
 
   @Test public void editStage() throws Exception {
     // Should be in edit stage
-    assertEquals(OnBoardingViewModel.Stage.EDIT, mViewModel.getStage());
+    assertEquals(OnBoardingSignUpStageViewModel.Stage.EDIT, mViewModel.getStage());
     // Input type should be person name
-    assertEquals(OnBoardingViewModel.NAME_TEXT_EDITING_INPUT_TYPE,
+    assertEquals(OnBoardingSignUpStageViewModel.NAME_TEXT_EDITING_INPUT_TYPE,
         mViewModel.mNameEditInputType.get());
     // EditText should have focus
     assertTrue(mView.isNameEditFocused());
@@ -173,7 +174,8 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should not be moving to next stage
     assertInvalidName();
     // Detect the final reaction.
-    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
+    mFakeReactionDetectionManager.onReactionDetected(
+        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, true);
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
@@ -196,7 +198,8 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   private void initViewModel(@Nullable Bundle savedInstanceState) throws Exception {
     // Initializing view model and its view interface.
     mView = new ViewInterface();
-    mViewModel = createViewModel(OnBoardingViewModel.class, (OnBoardingViewInterface) mView,
+    mViewModel = createViewModel(OnBoardingSignUpStageViewModel.class,
+        (OnBoardingSignUpStageViewInterface) mView,
         savedInstanceState);
     // Creating fake context
     Context mockedContext = mock(Context.class);
@@ -208,6 +211,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Starting view model.
     mViewModel.onStart();
     mViewModel.onResume();
+    mViewModel.onVisible();
   }
 
   /**
@@ -216,7 +220,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
    */
   private void doOnBoarding() {
     // Type name
-    mViewModel.mNameEditText.set(OnBoardingViewModelTest.NAME);
+    mViewModel.mNameEditText.set(OnBoardingSignUpStageViewModelTest.NAME);
     // Hit done
     mViewModel.onNameDone();
     assertFinalStage();
@@ -227,11 +231,13 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
       }
     });
     // Detect smile.
-    mFakeReactionDetectionManager.onReactionDetected(OnBoardingViewModel.REACTION_FOR_DONE, true);
+    mFakeReactionDetectionManager.onReactionDetected(
+        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, true);
   }
 
   private void assertInvalidName() {
-    assertEquals(OnBoardingViewModel.ERROR_COLOR, mViewModel.mNameEditBackgroundTintColor.get());
+    assertEquals(OnBoardingSignUpStageViewModel.ERROR_COLOR,
+        mViewModel.mNameEditBackgroundTintColor.get());
     // Let detection start
     try {
       Thread.sleep(10);
@@ -246,13 +252,14 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   private void assertValidName() {
-    assertEquals(OnBoardingViewModel.VALID_NAME_COLOR, mViewModel.mNameEditBackgroundTintColor.get());
+    assertEquals(OnBoardingSignUpStageViewModel.VALID_NAME_COLOR,
+        mViewModel.mNameEditBackgroundTintColor.get());
   }
 
   private void assertFinalStage() {
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(OnBoardingViewModel.Stage.FINAL, mViewModel.getStage());
+        assertEquals(OnBoardingSignUpStageViewModel.Stage.FINAL, mViewModel.getStage());
       }
     });
     // Completion text is hidden
@@ -270,7 +277,7 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
   }
 
   private void assertSentStage() {
-    assertEquals(OnBoardingViewModel.Stage.REQUEST_SENT, mViewModel.getStage());
+    assertEquals(OnBoardingSignUpStageViewModel.Stage.REQUEST_SENT, mViewModel.getStage());
     // Should be sending an auth call.
     assertFalse(mFakeAuthManager.getAuthCall().isCanceled());
     // Loading should be visible
@@ -278,11 +285,12 @@ public class OnBoardingViewModelTest extends ViewModelTestSuite {
     // Should unsubscribe view model from reaction detection
     assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Input type should be disabled
-    assertEquals(OnBoardingViewModel.NAME_TEXT_DISABLED_INPUT_TYPE,
+    assertEquals(OnBoardingSignUpStageViewModel.NAME_TEXT_DISABLED_INPUT_TYPE,
         mViewModel.mNameEditInputType.get());
   }
 
-  private class ViewInterface extends UnitTestViewInterface implements OnBoardingViewInterface {
+  private class ViewInterface extends UnitTestViewInterface
+      implements OnBoardingSignUpStageViewInterface {
     private boolean mIsKeyboardVisible = false;
     private boolean mIsNameEditFocused = false;
 

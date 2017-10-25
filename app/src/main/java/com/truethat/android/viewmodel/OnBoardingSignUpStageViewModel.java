@@ -7,18 +7,18 @@ import android.databinding.ObservableInt;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.text.InputType;
 import android.util.Log;
 import com.google.common.base.Strings;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.empathy.ReactionDetectionListener;
 import com.truethat.android.model.Emotion;
 import com.truethat.android.model.User;
-import com.truethat.android.viewmodel.viewinterface.OnBoardingViewInterface;
+import com.truethat.android.viewmodel.viewinterface.OnBoardingSignUpStageViewInterface;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,7 +26,8 @@ import java.util.TimerTask;
  * Proudly created by ohad on 31/07/2017 for TrueThat.
  */
 
-public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
+public class OnBoardingSignUpStageViewModel
+    extends BaseFragmentViewModel<OnBoardingSignUpStageViewInterface>
     implements ReactionDetectionListener {
   @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   @VisibleForTesting @ColorRes public static final int ERROR_COLOR = R.color.error;
@@ -48,7 +49,7 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
   public final ObservableBoolean mCompletionSubscriptTextVisibility = new ObservableBoolean(false);
   private Stage mStage = Stage.EDIT;
 
-  @Override public void onBindView(@NonNull OnBoardingViewInterface view) {
+  @Override public void onBindView(@NonNull OnBoardingSignUpStageViewInterface view) {
     super.onBindView(view);
     mNameEditText.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
       @Override public void onPropertyChanged(Observable sender, int propertyId) {
@@ -57,16 +58,16 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     });
   }
 
-  @Override public void onResume() {
-    super.onResume();
-    doStage();
-  }
-
-  @Override public void onPause() {
-    super.onPause();
-    AppContainer.getReactionDetectionManager().unsubscribe(this);
-    AppContainer.getReactionDetectionManager().stop();
-    AppContainer.getAuthManager().cancelRequest();
+  @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
+    super.onCreate(arguments, savedInstanceState);
+    if (savedInstanceState != null) {
+      if (savedInstanceState.get(BUNDLE_STAGE) != null) {
+        mStage = (Stage) savedInstanceState.getSerializable(BUNDLE_STAGE);
+      }
+      if (savedInstanceState.get(BUNDLE_NAME) != null) {
+        mNameEditText.set(savedInstanceState.getString(BUNDLE_NAME));
+      }
+    }
   }
 
   @Override public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -75,21 +76,16 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     outState.putString(BUNDLE_NAME, mNameEditText.get());
   }
 
-  @Override public void onRestoreInstanceState(Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-    if (savedInstanceState != null) {
-      if (savedInstanceState.getSerializable(BUNDLE_STAGE) != null) {
-        mStage = (Stage) savedInstanceState.getSerializable(BUNDLE_STAGE);
-      }
-      if (savedInstanceState.getString(BUNDLE_NAME) != null) {
-        mNameEditText.set(savedInstanceState.getString(BUNDLE_NAME));
-      }
-    }
+  @Override public void onVisible() {
+    super.onVisible();
+    doStage();
   }
 
-  @Override public void onPermissionGranted(Permission permission) {
-    super.onPermissionGranted(permission);
-    doStage();
+  @Override public void onHidden() {
+    super.onHidden();
+    AppContainer.getReactionDetectionManager().unsubscribe(this);
+    AppContainer.getReactionDetectionManager().stop();
+    AppContainer.getAuthManager().cancelRequest();
   }
 
   @Override public void onReactionDetected(Emotion reaction, boolean mostLikely) {
@@ -214,6 +210,11 @@ public class OnBoardingViewModel extends BaseViewModel<OnBoardingViewInterface>
     }
     Log.d(TAG, "onRequestSent");
     mStage = Stage.REQUEST_SENT;
+    // Hides soft keyboard and removes focus.
+    if (getView() != null) {
+      getView().clearNameEditFocus();
+      getView().hideSoftKeyboard();
+    }
     // Shows load indicator
     mLoadingImageVisibility.set(true);
     // Disable input

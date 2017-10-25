@@ -2,8 +2,12 @@ package com.truethat.android.common.util;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.AttributeSet;
+import android.view.View;
+import com.truethat.android.R;
 import java.util.Objects;
 
 /**
@@ -28,5 +32,25 @@ public class StyleUtil {
     String assetName = FONT_NAME + assetSuffix;
     Typeface typeface = Typeface.createFromAsset(context.getAssets(), assetName);
     return Typeface.create(typeface, bold ? Typeface.BOLD : Typeface.NORMAL);
+  }
+
+  /**
+   * Sets rounded corners and a gradient background.
+   *
+   * @param view to apply.
+   */
+  public static void setRoundedCorners(View view) {
+    GradientDrawable gradientDrawable =
+        new GradientDrawable(GradientDrawable.Orientation.BL_TR, new int[] {
+            ResourcesCompat.getColor(view.getResources(), R.color.primary,
+                view.getContext().getTheme()),
+            ResourcesCompat.getColor(view.getResources(), R.color.primary,
+                view.getContext().getTheme()),
+            ResourcesCompat.getColor(view.getResources(), R.color.secondary,
+                view.getContext().getTheme())
+        });
+    gradientDrawable.setCornerRadius(Math.min(view.getHeight(), view.getWidth()) / 2f);
+
+    view.setBackground(gradientDrawable);
   }
 }

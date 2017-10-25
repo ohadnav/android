@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.external.viewmodel.ProxyViewHelper;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
@@ -126,10 +125,6 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface> implements B
 
   @CallSuper public void onDestroy() {
     Log.d(TAG, "onDestroy");
-  }
-
-  @SuppressWarnings("UnusedParameters") public void onPermissionGranted(Permission permission) {
-
   }
 
   @Override public String getTAG() {

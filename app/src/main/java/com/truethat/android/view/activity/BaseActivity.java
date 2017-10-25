@@ -21,6 +21,7 @@ import com.truethat.android.BuildConfig;
 import com.truethat.android.application.App;
 import com.truethat.android.application.LoggingKey;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.application.permissions.PermissionListener;
 import com.truethat.android.external.viewmodel.ProxyViewHelper;
 import com.truethat.android.external.viewmodel.ViewModelHelper;
 import com.truethat.android.external.viewmodel.ViewModelProvider;
@@ -29,6 +30,8 @@ import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
+import java.util.HashSet;
+import java.util.Set;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -37,7 +40,8 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
  */
 
 public abstract class BaseActivity<ViewInterface extends BaseViewInterface, ViewModel extends BaseViewModel<ViewInterface>, DataBinding extends ViewDataBinding>
-    extends AppCompatActivity implements BaseViewInterface, BaseListener, VisibilityListener {
+    extends AppCompatActivity
+    implements BaseViewInterface, BaseListener, VisibilityListener, PermissionListener {
   /**
    * {@link BaseViewModel} manager of this activity.
    */
@@ -48,21 +52,18 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    */
   String TAG = this.getClass().getSimpleName();
   @Nullable private ViewModelProvider mViewModelProvider;
+  private Set<PermissionListener> mPermissionListeners = new HashSet<>();
+
+  public void addPermissionListener(PermissionListener permissionListener) {
+    mPermissionListeners.add(permissionListener);
+  }
+
+  public void removePermissionListener(PermissionListener permissionListener) {
+    mPermissionListeners.remove(permissionListener);
+  }
 
   @Nullable public ViewModelProvider getViewModelProvider() {
     return mViewModelProvider;
-  }
-
-  /**
-   * Permission not granted callback.
-   *
-   * @param permission that was just rejected.
-   */
-  @MainThread public void onPermissionRejected(Permission permission) {
-    Log.w(TAG, "Permission " + permission + " rejected.");
-    Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
-    askForPermission.putExtra(AskForPermissionActivity.EXTRA_PERMISSION, permission);
-    startActivityForResult(askForPermission, permission.getRequestCode());
   }
 
   /**
@@ -72,7 +73,21 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
    */
   @MainThread public void onPermissionGranted(Permission permission) {
     Log.d(TAG, "Permission " + permission + " granted.");
-    getViewModel().onPermissionGranted(permission);
+    for (PermissionListener permissionListener : mPermissionListeners) {
+      permissionListener.onPermissionGranted(permission);
+    }
+  }
+
+  /**
+   * Permission not granted callback.
+   *
+   * @param permission that was just rejected.
+   */
+  @MainThread public void onPermissionRejected(Permission permission) {
+    Log.w(TAG, "Permission " + permission + " rejected.");
+    for (PermissionListener permissionListener : mPermissionListeners) {
+      permissionListener.onPermissionRejected(permission);
+    }
   }
 
   @CallSuper @Override public void onCreate(@Nullable Bundle savedInstanceState,
@@ -211,6 +226,18 @@ public abstract class BaseActivity<ViewInterface extends BaseViewInterface, View
 
   @Override public String toString() {
     return TAG;
+  }
+
+  /**
+   * Starts an ask for permission activity, where the user must enable the permission or he cannot
+   * continue use the app.
+   *
+   * @param permission to grant.
+   */
+  public void startAskForPermissionActivity(Permission permission) {
+    Intent askForPermission = new Intent(this, AskForPermissionActivity.class);
+    askForPermission.putExtra(AskForPermissionActivity.EXTRA_PERMISSION, permission);
+    startActivityForResult(askForPermission, permission.getRequestCode());
   }
 
   @Override protected void onPause() {

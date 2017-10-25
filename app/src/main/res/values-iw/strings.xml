@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">TrueThat</string>
-  <string name="ask_permission_button">סבבה, הבנתי</string>
+  <string name="ask_permission_button">סבבה!</string>
   <string name="capture">שוט</string>
-  <string name="camera_permission_rationale">אנחנו צריכים גישה למצלמה כדי לראות את הפנים היפות שלכם. ככה אנחנו רואים מה אתם מרגישים.</string>
+  <string name="camera_permission_rationale">אנחנו צריכים לפתוח את המצלמה כדי שנראה מה אתם מרגישים, וכדי שתוכלו לשלוח תמונות מגניבות לחברים שלכם.</string>
   <string name="phone_permission_rationale">אנחנו משתמשים במספר טלפון לזיהוי.</string>
   <string name="something_went_wrong">אנחנו כל כך כל כך מצטערים, משהו לא סבבה קורה פה</string>
   <string name="sign_in">כבר יש לי חשבון</string>
@@ -25,4 +25,6 @@
   <string name="sign_up_failed_warning_text">פאדיחה.. משהו לא עובד לנו</string>
   <string name="saved_successfully">נשמר בהצלחה</string>
   <string name="photo_load_error">השם ישמור! לא הצלחנו לטעון את התמונה.</string>
+  <string name="on_boarding_hi">שלום לנו!</string>
+  <string name="on_boarding_ask_for_camera">אנחנו צריכים לפתוח את המצלמה כדי לראות את הפנים היפות שלך.</string>
 </resources>

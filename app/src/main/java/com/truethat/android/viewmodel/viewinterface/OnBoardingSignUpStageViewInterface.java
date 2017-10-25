@@ -6,7 +6,7 @@ import com.truethat.android.application.auth.AuthListener;
  * Proudly created by ohad on 31/07/2017 for TrueThat.
  */
 
-public interface OnBoardingViewInterface extends BaseViewInterface {
+public interface OnBoardingSignUpStageViewInterface extends BaseFragmentViewInterface {
   /**
    * Focuses on the name edit field.
    */

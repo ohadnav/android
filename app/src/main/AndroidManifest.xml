@@ -28,7 +28,8 @@
       tools:replace="android:label">
     <activity
         android:name=".view.activity.SplashActivity"
-        android:theme="@style/SplashTheme">
+        android:theme="@style/SplashTheme"
+        android:windowSoftInputMode="stateHidden">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
 
@@ -37,7 +38,8 @@
     </activity>
     <activity
         android:name=".view.activity.MainActivity"
-        android:launchMode="singleTask">
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="stateHidden">
     </activity>
     <activity android:name=".view.activity.AskForPermissionActivity">
       <intent-filter>
@@ -51,11 +53,13 @@
     <activity
         android:name=".view.activity.OnBoardingActivity"
         android:launchMode="singleTask"
-        android:windowSoftInputMode="stateVisible">
+        android:windowSoftInputMode="stateUnchanged">
     </activity>
 
     <!-- Used for testing -->
-    <activity android:name=".view.activity.TestActivity">
+    <activity
+        android:name=".view.activity.TestActivity"
+        android:windowSoftInputMode="stateHidden">
     </activity>
 
     <meta-data

@@ -24,4 +24,9 @@ public class StyledButton extends AppCompatButton {
     super(context, attrs, defStyle);
     setTypeface(StyleUtil.getCustomFont(context, attrs));
   }
+
+  @Override protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    StyleUtil.setRoundedCorners(this);
+  }
 }
