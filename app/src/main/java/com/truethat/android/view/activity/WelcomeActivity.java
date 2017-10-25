@@ -42,12 +42,14 @@ public class WelcomeActivity extends
     // If the user is authenticated, then finish activity.
     if (AppContainer.getAuthManager().isAuthOk()) {
       startActivity(new Intent(this, MainActivity.class));
+      finish();
     }
   }
 
   @Override public void onAuthOk() {
     // If the user is authenticated, then finish activity.
     startActivity(new Intent(this, MainActivity.class));
+    finish();
   }
 
   @Override public void onAuthFailed() {
