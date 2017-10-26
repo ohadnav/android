@@ -56,7 +56,10 @@ android {
       versionNameSuffix "-beta"
     }
   }
-  sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/fonts'] } }
+  sourceSets {
+    main { assets.srcDirs = ['src/main/assets', 'src/main/assets/fonts'] }
+    debug { res.srcDirs = ['src/debug/res', 'src/debug/res/raw'] }
+  }
 }
 
 dependencies {

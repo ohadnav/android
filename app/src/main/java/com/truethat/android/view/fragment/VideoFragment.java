@@ -1,7 +1,6 @@
 package com.truethat.android.view.fragment;
 
 import android.graphics.SurfaceTexture;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import com.truethat.android.R;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.model.Video;
 import java.io.File;
-import java.util.HashMap;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -57,12 +55,13 @@ public class VideoFragment extends MediaFragment<Video>
           Uri.fromFile(new File(mMedia.getInternalPath())));
       // Mirror video to give a more natural feel.
       mVideoTextureView.setScaleX(-1);
-    } else {
+    } else if (mMedia.getUrl() != null) {
       // Initialize media player and retriever from external URI, i.e. from other users videos.
       mMediaPlayer =
           MediaPlayer.create(getActivity().getApplicationContext(), Uri.parse(mMedia.getUrl()));
-      MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-      retriever.setDataSource(mMedia.getUrl(), new HashMap<String, String>());
+    } else if (mMedia.getRawResourceId() != null) {
+      mMediaPlayer =
+          MediaPlayer.create(getActivity().getApplicationContext(), mMedia.getRawResourceId());
     }
     if (mMediaPlayer == null) {
       throw new IllegalStateException("Failed to create media player for " + mMedia);

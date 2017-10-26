@@ -2,6 +2,7 @@ package com.truethat.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.truethat.android.view.fragment.MediaFragment;
@@ -33,40 +34,56 @@ public class Video extends Media {
    * Internal path to video file on local storage.
    */
   private transient String mInternalPath;
+  private transient @IdRes Integer mRawResourceId;
 
   public Video(@Nullable String internalPath) {
     mInternalPath = internalPath;
   }
 
+  public Video(int rawResourceId) {
+    mRawResourceId = rawResourceId;
+  }
+
   private Video(Parcel in) {
     super(in);
     mInternalPath = (String) in.readValue(String.class.getClassLoader());
+    mRawResourceId = (Integer) in.readValue(Integer.class.getClassLoader());
   }
 
   @VisibleForTesting public Video(@Nullable Long id, String url) {
     super(id, url);
   }
 
+  public Integer getRawResourceId() {
+    return mRawResourceId;
+  }
+
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeValue(mInternalPath);
+    dest.writeValue(mRawResourceId);
   }
 
   @Override public int hashCode() {
     int result = super.hashCode();
     result = 31 * result + (mInternalPath != null ? mInternalPath.hashCode() : 0);
+    result = 31 * result + (mRawResourceId != null ? mRawResourceId.hashCode() : 0);
     return result;
   }
 
-  @Override public boolean equals(Object o) {
+  @SuppressWarnings("SimplifiableIfStatement") @Override public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof Video)) return false;
     if (!super.equals(o)) return false;
 
     Video video = (Video) o;
 
-    return mInternalPath != null ? mInternalPath.equals(video.mInternalPath)
-        : video.mInternalPath == null;
+    if (mInternalPath != null ? !mInternalPath.equals(video.mInternalPath)
+        : video.mInternalPath != null) {
+      return false;
+    }
+    return mRawResourceId != null ? mRawResourceId.equals(video.mRawResourceId)
+        : video.mRawResourceId == null;
   }
 
   @Override public MediaFragment createFragment() {

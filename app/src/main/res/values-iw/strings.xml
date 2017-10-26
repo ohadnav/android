@@ -8,7 +8,7 @@
   <string name="something_went_wrong">אנחנו כל כך כל כך מצטערים, משהו לא סבבה קורה פה</string>
   <string name="sign_in">כבר יש לי חשבון</string>
   <string name="test_text">בדיקה</string>
-  <string name="welcome_text">תצטרף אל</string>
+  <string name="welcome_text">ברוך הבא</string>
   <string name="whats_your_name">שמך בישראל?</string>
   <string name="john_doe">ג׳סטין ביבר</string>
   <string name="hey">שלום</string>
@@ -27,4 +27,7 @@
   <string name="photo_load_error">השם ישמור! לא הצלחנו לטעון את התמונה.</string>
   <string name="on_boarding_hi">שלום לנו!</string>
   <string name="on_boarding_ask_for_camera">אנחנו צריכים לפתוח את המצלמה כדי לראות את הפנים היפות שלך.</string>
+  <string name="welcome_dialog_button">סבבי</string>
+  <string name="welcome_dialog_message">לא זיהינו את הטלפון הזה. מוזמן ליצור חשבון ולהצטרף לטרפת!</string>
+  <string name="welcome_dialog_title">באסוש</string>
 </resources>

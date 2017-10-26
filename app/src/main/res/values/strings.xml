@@ -27,4 +27,7 @@
   <string name="photo_load_error">Bummer! couldn\'t load that photo.</string>
   <string name="on_boarding_hi">Hey you!</string>
   <string name="on_boarding_ask_for_camera">We need to open the camera to see these pretty face of yours.</string>
+  <string name="welcome_dialog_title">Bummer</string>
+  <string name="welcome_dialog_message">We couldn\'t recognize this phone. Invited to join us!</string>
+  <string name="welcome_dialog_button">Alrighty!</string>
 </resources>

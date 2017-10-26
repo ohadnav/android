@@ -1,9 +1,17 @@
 package com.truethat.android.view.activity;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import butterknife.BindView;
 import butterknife.OnClick;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
@@ -11,6 +19,9 @@ import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import com.truethat.android.databinding.ActivityWelcomeBinding;
+import com.truethat.android.model.Video;
+import com.truethat.android.view.custom.StyledTextView;
+import com.truethat.android.view.fragment.VideoFragment;
 import com.truethat.android.viewmodel.BaseViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -18,23 +29,44 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 public class WelcomeActivity extends
     BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityWelcomeBinding>
     implements AuthListener {
+  @BindView(R.id.welcome_signIn) StyledTextView mSignIn;
+  @BindView(R.id.welcome_title) StyledTextView mTitle;
   /**
    * Records the user last click target view ID. Otherwise, duplicate clicks are needed when asking
    * for permission.
    */
   private int mLastClick = 0;
+  private VideoFragment mVideoFragment;
+  private Dialog mDialog;
 
   @Override public void onPermissionGranted(Permission permission) {
     super.onPermissionGranted(permission);
-    if (mLastClick == R.id.signInText) {
+    if (mLastClick == R.id.welcome_signIn) {
       userInitiatedAuth();
-    } else if (mLastClick == R.id.joinLayout) {
+    } else if (mLastClick == R.id.welcome_join) {
       onBoarding();
     }
   }
 
   @Nullable @Override public ViewModelBindingConfig getViewModelBindingConfig() {
     return new ViewModelBindingConfig(R.layout.activity_welcome, this);
+  }
+
+  @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mVideoFragment = VideoFragment.newInstance(new Video(R.raw.welcome));
+    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+    fragmentTransaction.replace(R.id.welcome_videoLayout, mVideoFragment);
+    mVideoFragment.setVisibilityListener(this);
+    fragmentTransaction.commit();
+  }
+
+  @Override protected void onPause() {
+    super.onPause();
+    if (mDialog != null) {
+      mDialog.dismiss();
+      mDialog = null;
+    }
   }
 
   @Override public void onResume() {
@@ -44,25 +76,32 @@ public class WelcomeActivity extends
       startActivity(new Intent(this, MainActivity.class));
       finish();
     }
+    // Send video to back
+    mSignIn.bringToFront();
+    mTitle.bringToFront();
   }
 
   @Override public void onAuthOk() {
+    // Hides loading image
+    mVideoFragment.getLoadingImage().setVisibility(View.GONE);
     // If the user is authenticated, then finish activity.
     startActivity(new Intent(this, MainActivity.class));
     finish();
   }
 
   @Override public void onAuthFailed() {
-    Log.v(TAG, "Auth failed. Something smells bad...");
+    Log.v(TAG, "Auth failed. Failed sign in?");
+    // Hides loading image
+    mVideoFragment.getLoadingImage().setVisibility(View.GONE);
     // Display error message to the user.
-    findViewById(R.id.errorText).setVisibility(View.VISIBLE);
+    showDialog();
   }
 
   /**
    * Auth that is initiated by the user.
    */
-  @OnClick(R.id.signInText) public void userInitiatedAuth() {
-    mLastClick = R.id.signInText;
+  @OnClick(R.id.welcome_signIn) public void userInitiatedAuth() {
+    mLastClick = R.id.welcome_signIn;
     AppContainer.getPermissionsManager().requestIfNeeded(this, Permission.PHONE);
     if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.PHONE)) {
       Log.i(TAG, "No phone permission, stopping sign in.");
@@ -72,13 +111,15 @@ public class WelcomeActivity extends
     // Reset last click.
     mLastClick = 0;
     AppContainer.getAuthManager().signIn(this);
+    // Shows loading image
+    mVideoFragment.getLoadingImage().setVisibility(View.VISIBLE);
   }
 
   /**
    * Called to initiate user on boarding, i.e. a new account creation.
    */
-  @OnClick(R.id.joinLayout) public void onBoarding() {
-    mLastClick = R.id.joinLayout;
+  @OnClick(R.id.welcome_join) public void onBoarding() {
+    mLastClick = R.id.welcome_join;
     Log.v(TAG, "New user, yay!");
     AppContainer.getPermissionsManager().requestIfNeeded(this, Permission.PHONE);
     if (!AppContainer.getPermissionsManager().isPermissionGranted(Permission.PHONE)) {
@@ -92,6 +133,33 @@ public class WelcomeActivity extends
       @Override public void run() {
         startActivityForResult(new Intent(WelcomeActivity.this, OnBoardingActivity.class),
             RequestCodes.ON_BOARDING);
+      }
+    });
+  }
+
+  private void showDialog() {
+    if (mDialog != null) {
+      mDialog.dismiss();
+    }
+    runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mDialog = new Dialog(WelcomeActivity.this, android.R.style.Theme_Dialog);
+        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mDialog.setContentView(R.layout.welcome_sign_in_failed_dialog);
+        mDialog.setCanceledOnTouchOutside(true);
+        mDialog.findViewById(R.id.welcomeDialog_button)
+            .setOnClickListener(new View.OnClickListener() {
+              @Override public void onClick(View v) {
+                mDialog.dismiss();
+                mDialog = null;
+              }
+            });
+        if (mDialog.getWindow() != null) {
+          mDialog.getWindow()
+              .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+          mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        mDialog.show();
       }
     });
   }

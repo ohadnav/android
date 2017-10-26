@@ -13,8 +13,9 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
+import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -30,14 +31,14 @@ public class WelcomeActivityTest extends BaseInstrumentationTestSuite {
     // Launch Welcome activity with auth ok.
     mWelcomeActivityTestRule.launchActivity(null);
     mWelcomeActivityTestRule.getActivity().onAuthFailed();
-    // Error text is visible
-    onView(withId(R.id.errorText)).check(matches(not(isDisplayed())));
+    // Dialog is visible
+    waitMatcher(allOf(withId(R.id.welcomeDialog_button), isDisplayed()));
   }
 
   @Test public void alreadyAuthOk() throws Exception {
     // Launch Welcome activity with auth ok.
     mWelcomeActivityTestRule.launchActivity(null);
-    // Should navigate to theater
+    // Should navigate to main activity
     waitForActivity(MainActivity.class);
   }
 
@@ -45,7 +46,7 @@ public class WelcomeActivityTest extends BaseInstrumentationTestSuite {
     // Sign out
     mFakeAuthManager.signOut(mTestActivityRule.getActivity());
     mWelcomeActivityTestRule.launchActivity(null);
-    onView(withId(R.id.joinLayout)).check(matches(isDisplayed())).perform(click());
+    onView(withId(R.id.welcome_join)).check(matches(isDisplayed())).perform(click());
     // Should navigate to on boarding
     waitForActivity(OnBoardingActivity.class);
   }
@@ -55,7 +56,7 @@ public class WelcomeActivityTest extends BaseInstrumentationTestSuite {
     mFakeAuthManager.signOut(mTestActivityRule.getActivity());
     mWelcomeActivityTestRule.launchActivity(null);
     // Try again by clicking on sign in text
-    onView(withId(R.id.signInText)).check(matches(isDisplayed())).perform(click());
+    onView(withId(R.id.welcome_signIn)).check(matches(isDisplayed())).perform(click());
     // Should be signed in.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

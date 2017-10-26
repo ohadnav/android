@@ -53,6 +53,10 @@ public abstract class MediaFragment<Model extends Media> extends
     fragment.setArguments(args);
   }
 
+  public ImageView getLoadingImage() {
+    return mLoadingImage;
+  }
+
   public Model getMedia() {
     return mMedia;
   }

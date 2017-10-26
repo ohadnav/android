@@ -10,86 +10,72 @@
         type="com.truethat.android.viewmodel.BaseViewModel"
         />
   </data>
-
   <android.support.constraint.ConstraintLayout
-
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       tools:context=".view.activity.WelcomeActivity"
       >
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/joinLayout"
+    <com.truethat.android.view.custom.StyledTextView
+        android:id="@+id/welcome_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/signInText"
+        android:layout_marginBottom="54dp"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textColor="@color/primary"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        >
-      <com.truethat.android.view.custom.StyledTextView
-          android:id="@+id/joinText"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/welcome_text"
-          android:textAlignment="center"
-          android:textColor="@color/primary"
-          android:textSize="40sp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toStartOf="@+id/logoImage"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent"
-          />
-      <ImageView
-          android:id="@+id/logoImage"
-          android:layout_width="60dp"
-          android:layout_height="60dp"
-          android:layout_marginStart="10dp"
-          android:contentDescription="@string/image_content_description"
-          android:scaleType="centerCrop"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toEndOf="@id/joinText"
-          app:layout_constraintTop_toTopOf="parent"
-          app:srcCompat="@mipmap/ic_launcher"
-          />
-    </android.support.constraint.ConstraintLayout>
+        app:layout_constraintVertical_bias="0.1"
+        />
 
-    <com.truethat.android.view.custom.StyledTextView
-        android:id="@+id/signInText"
+    <com.truethat.android.view.custom.StyledButton
+        android:id="@+id/welcome_join"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:paddingEnd="50dp"
-        android:paddingStart="50dp"
-        android:text="@string/sign_in"
+        android:layout_marginBottom="16dp"
+        android:paddingEnd="36dp"
+        android:paddingStart="36dp"
+        android:text="@string/welcome_text"
         android:textAlignment="center"
-        android:textColor="@color/primary"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/light"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/welcome_signIn"
+        app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/joinLayout"
-        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintVertical_chainStyle="packed"
         />
 
     <com.truethat.android.view.custom.StyledTextView
-        android:id="@+id/errorText"
+        android:id="@+id/welcome_signIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingEnd="50dp"
-        android:paddingStart="50dp"
-        android:text="@string/something_went_wrong"
+        android:clickable="true"
+        android:text="@string/sign_in"
         android:textAlignment="center"
-        android:textColor="@color/error"
-        android:textSize="12sp"
-        android:visibility="gone"
+        android:textColor="@color/light"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/signInText"
-        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintTop_toBottomOf="@id/welcome_join"
+        />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/welcome_videoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         />
 
   </android.support.constraint.ConstraintLayout>
