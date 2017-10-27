@@ -9,7 +9,7 @@
   <string name="sign_in">כבר יש לי חשבון</string>
   <string name="test_text">בדיקה</string>
   <string name="welcome_text">ברוך הבא</string>
-  <string name="whats_your_name">שמך בישראל?</string>
+  <string name="name">שמך בישראל</string>
   <string name="john_doe">ג׳סטין ביבר</string>
   <string name="anonymous">פלוני</string>
   <string name="smile_to_continue">תסתכל עלי ותחייך</string>
@@ -32,4 +32,8 @@
   <string name="say_cheese">תחייכו</string>
   <string name="lost_face">לא מוצאים את הפני מלאך שלך</string>
   <string name="show_me">תראו לי</string>
+  <string name="sign_up">להרשמה</string>
+  <string name="on_boarding_sign_up_dialog_title">אל תשאל</string>
+  <string name="on_boarding_sign_up_dialog_message">ההרשמה נכשלה. בבקשה תמסו שוב עוד מעט</string>
+  <string name="on_boarding_sign_up_dialog_button">סבבה</string>
 </resources>

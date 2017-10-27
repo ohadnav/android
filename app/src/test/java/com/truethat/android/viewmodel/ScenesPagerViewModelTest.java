@@ -60,6 +60,7 @@ import static org.junit.Assert.assertTrue;
         createViewModel(ScenesPagerViewModel.class, (ScenesPagerViewInterface) new ViewInterface(),
             null);
     mViewModel.onStart();
+    mViewModel.onResume();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
         String responseBody = NetworkUtil.GSON.toJson(mRespondedScenes);
@@ -78,7 +79,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(null, IMAGE_URL_1));
     mRespondedScenes = Collections.singletonList(scene);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(scene, mViewModel.getDisplayedScene());
@@ -90,7 +91,7 @@ import static org.junit.Assert.assertTrue;
   }
 
   @Test public void noScenesFound() throws Exception {
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // Loading image should be shown
     assertTrue(mViewModel.mLoadingImageVisibility.get());
     // Non found should layout should be displayed instead of loading eventually.
@@ -119,7 +120,7 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void noScenesFound_failedRequest() throws Exception {
     mMockWebServer.close();
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -134,7 +135,7 @@ import static org.junit.Assert.assertTrue;
         return new MockResponse().setResponseCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
       }
     });
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // Not found text should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -151,7 +152,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Arrays.asList(scene1, scene2);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -171,7 +172,7 @@ import static org.junit.Assert.assertTrue;
     Scene video = new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
         new Video(null, VIDEO_URL));
     mRespondedScenes = Arrays.asList(photo, video);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -192,7 +193,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Arrays.asList(scene1, scene2);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -221,7 +222,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_2, mFakeAuthManager.getCurrentUser(), EMOTIONAL_REACTIONS, YESTERDAY,
             new Photo(null, IMAGE_URL_2));
     mRespondedScenes = Collections.singletonList(scene1);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -245,7 +246,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(null, IMAGE_URL_1));
     mRespondedScenes = Arrays.asList(scene, scene);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -260,7 +261,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(null, IMAGE_URL_1));
     mRespondedScenes = Collections.singletonList(scene);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -280,7 +281,7 @@ import static org.junit.Assert.assertTrue;
         new Scene(ID_1, mFakeAuthManager.getCurrentUser(), HAPPY_REACTIONS, HOUR_AGO,
             new Photo(null, IMAGE_URL_1));
     mRespondedScenes = Collections.singletonList(scene);
-    mViewModel.fetchScenes();
+    mViewModel.onVisible();
     // First scene should be displayed.
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

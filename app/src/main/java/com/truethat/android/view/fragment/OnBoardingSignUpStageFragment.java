@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import butterknife.BindView;
+import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import butterknife.OnFocusChange;
 import butterknife.OnTextChanged;
@@ -17,6 +18,7 @@ import com.truethat.android.R;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.databinding.FragmentOnBoardingSignUpBinding;
 import com.truethat.android.view.activity.OnBoardingActivity;
+import com.truethat.android.view.custom.BaseDialog;
 import com.truethat.android.viewmodel.OnBoardingSignUpStageViewModel;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingSignUpStageViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
@@ -29,7 +31,8 @@ public class OnBoardingSignUpStageFragment extends
     OnBoardingStageFragment<OnBoardingSignUpStageViewInterface, OnBoardingSignUpStageViewModel, FragmentOnBoardingSignUpBinding>
     implements OnBoardingSignUpStageViewInterface, AuthListener {
   @BindView(R.id.nameEditText) EditText mNameEditText;
-  @BindView(R.id.loadingImage) ImageView mLoadingImage;
+  @BindView(R.id.onBoarding_signUp_loadingImage) ImageView mLoadingImage;
+  private BaseDialog mFailedSignUpDialog;
 
   public static OnBoardingSignUpStageFragment newInstance() {
     Bundle args = new Bundle();
@@ -57,6 +60,10 @@ public class OnBoardingSignUpStageFragment extends
     super.onHidden();
     if (mNameEditText != null) {
       hideSoftKeyboard();
+    }
+    if (mFailedSignUpDialog != null) {
+      mFailedSignUpDialog.dismiss();
+      mFailedSignUpDialog = null;
     }
   }
 
@@ -94,7 +101,20 @@ public class OnBoardingSignUpStageFragment extends
     return this;
   }
 
-  @OnTextChanged(R.id.nameEditText) void onTextChange(CharSequence typedName) {
+  @Override public void showFailedSignUpDialog() {
+    if (mFailedSignUpDialog != null) {
+      mFailedSignUpDialog.dismiss();
+    }
+    mFailedSignUpDialog = new BaseDialog(getContext(), R.string.on_boarding_sign_up_dialog_title,
+        R.string.on_boarding_sign_up_dialog_message, R.string.on_boarding_sign_up_dialog_button);
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mFailedSignUpDialog.show();
+      }
+    });
+  }
+
+  @OnTextChanged(R.id.nameEditText) void onNameChange(CharSequence typedName) {
     getViewModel().mNameEditText.set(typedName.toString());
   }
 
@@ -108,5 +128,9 @@ public class OnBoardingSignUpStageFragment extends
 
   @OnFocusChange(R.id.nameEditText) void onNameFocusChange(boolean hasFocus) {
     getViewModel().onNameFocusChange(hasFocus);
+  }
+
+  @OnClick(R.id.onBoarding_signUpButton) void doSignUp() {
+    getViewModel().doSignUp();
   }
 }

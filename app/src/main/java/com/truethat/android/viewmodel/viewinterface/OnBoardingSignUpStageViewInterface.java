@@ -31,4 +31,9 @@ public interface OnBoardingSignUpStageViewInterface extends BaseFragmentViewInte
    * @return the auth listener of the activity associated with this view model.
    */
   AuthListener getAuthListener();
+
+  /**
+   * Shows a failed sign up error message dialog.
+   */
+  void showFailedSignUpDialog();
 }

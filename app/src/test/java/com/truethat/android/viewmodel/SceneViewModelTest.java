@@ -85,7 +85,7 @@ import static org.junit.Assert.assertTrue;
         assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
       }
     });
-    assertNull(mView.reactionsLayoutExposed);
+    assertFalse(mView.reactionsLayoutExposed);
   }
 
   @Test public void faceDetectionOnGoing_beforeDisplay() throws Exception {
@@ -115,7 +115,7 @@ import static org.junit.Assert.assertTrue;
       }
     });
     // Reactions layout should be faded
-    assertNull(mView.reactionsLayoutExposed);
+    assertFalse(mView.reactionsLayoutExposed);
     // Detect a face.
     mFakeReactionDetectionManager.onFaceDetectionStarted();
     // Reactions layout should be exposed

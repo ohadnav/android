@@ -2,15 +2,11 @@ package com.truethat.android.view.activity;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import butterknife.BindView;
 import butterknife.OnClick;
 import com.truethat.android.R;
@@ -20,6 +16,7 @@ import com.truethat.android.application.permissions.Permission;
 import com.truethat.android.common.util.RequestCodes;
 import com.truethat.android.databinding.ActivityWelcomeBinding;
 import com.truethat.android.model.Video;
+import com.truethat.android.view.custom.BaseDialog;
 import com.truethat.android.view.custom.StyledTextView;
 import com.truethat.android.view.fragment.VideoFragment;
 import com.truethat.android.viewmodel.BaseViewModel;
@@ -143,22 +140,8 @@ public class WelcomeActivity extends
     }
     runOnUiThread(new Runnable() {
       @Override public void run() {
-        mDialog = new Dialog(WelcomeActivity.this, android.R.style.Theme_Dialog);
-        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        mDialog.setContentView(R.layout.welcome_sign_in_failed_dialog);
-        mDialog.setCanceledOnTouchOutside(true);
-        mDialog.findViewById(R.id.welcomeDialog_button)
-            .setOnClickListener(new View.OnClickListener() {
-              @Override public void onClick(View v) {
-                mDialog.dismiss();
-                mDialog = null;
-              }
-            });
-        if (mDialog.getWindow() != null) {
-          mDialog.getWindow()
-              .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-          mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
+        mDialog = new BaseDialog(WelcomeActivity.this, R.string.welcome_dialog_title,
+            R.string.welcome_dialog_message, R.string.welcome_dialog_button);
         mDialog.show();
       }
     });

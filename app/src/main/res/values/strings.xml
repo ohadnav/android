@@ -11,7 +11,7 @@
   <string name="sign_in">Already one of us?</string>
   <string name="signing_in">Singing in…</string>
   <string name="welcome_text">Join</string>
-  <string name="whats_your_name">What\'s your name?</string>
+  <string name="name">Full name</string>
   <string name="john_doe">John Doe</string>
   <string name="smile_to_continue">Look at me and smile</string>
   <string name="real_life_smile">as in real life smile</string>
@@ -29,7 +29,11 @@
   <string name="welcome_dialog_title">Bummer</string>
   <string name="welcome_dialog_message">We couldn\'t recognize this phone. Invited to join us!</string>
   <string name="welcome_dialog_button">Alrighty!</string>
+  <string name="on_boarding_sign_up_dialog_title">Pffff!</string>
+  <string name="on_boarding_sign_up_dialog_message">Sign up failed. Please try again in a minute.</string>
+  <string name="on_boarding_sign_up_dialog_button">okay</string>
   <string name="say_cheese">Say cheeeeeeeese!</string>
   <string name="lost_face">We can\'t find your divine face</string>
   <string name="show_me">show me</string>
+  <string name="sign_up">Sign up</string>
 </resources>

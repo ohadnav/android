@@ -20,8 +20,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Size;
 import android.view.View;
 import android.widget.EditText;
+import com.truethat.android.R;
 import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.view.activity.BaseActivity;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import org.awaitility.Duration;
 import org.awaitility.core.ThrowingRunnable;
@@ -31,6 +33,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Checks.checkNotNull;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
@@ -66,6 +69,30 @@ public class ApplicationTestUtil {
 
   public static void waitForActivity(final Class<? extends AppCompatActivity> activityClass) {
     waitForActivity(activityClass, TIMEOUT);
+  }
+
+  public static void waitForBaseDialog() {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        onView(withId(R.id.dialog_button)).check(matches(isDisplayed()));
+      }
+    });
+  }
+
+  public static void waitForDialogHidden() {
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        double random = Math.random();
+        try {
+          onView(withId(R.id.dialog_button)).check(matches(isDisplayed()));
+          throw new Exception("" + random);
+        } catch (Exception e) {
+          if (Objects.equals(e.getMessage(), "" + random)) {
+            throw new Exception("dialog is not hidden");
+          }
+        }
+      }
+    });
   }
 
   /**

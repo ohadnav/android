@@ -30,7 +30,7 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
   private static final String BUNDLE_DISPLAYED_INDEX = "displayedIndex";
   public final ObservableBoolean mNonFoundLayoutVisibility = new ObservableBoolean();
   public final ObservableBoolean mLoadingImageVisibility = new ObservableBoolean();
-  public ObservableList<Scene> mItems = new ObservableArrayList<>();
+  public final ObservableList<Scene> mItems = new ObservableArrayList<>();
   private Call<List<Scene>> mFetchScenesCall;
   private Integer mDisplayedIndex;
   /**
@@ -158,10 +158,6 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
     }
   }
 
-  @Override public void onRestoreInstanceState(Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-  }
-
   @Override public void onVisible() {
     super.onVisible();
     fetchScenes();
@@ -178,10 +174,17 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
     AppContainer.getReactionDetectionManager().stop();
   }
 
+  @VisibleForTesting Scene getDisplayedScene() {
+    if (mDisplayedIndex == null || mDisplayedIndex < 0 || mDisplayedIndex >= mItems.size()) {
+      return null;
+    }
+    return mItems.get(mDisplayedIndex);
+  }
+
   /**
    * Fetching {@link Scene} from our backend.
    */
-  void fetchScenes() {
+  private void fetchScenes() {
     Log.d(TAG, "Fetching scenes...");
     mNonFoundLayoutVisibility.set(false);
     if (mItems.isEmpty()) {
@@ -191,13 +194,6 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
       mFetchScenesCall = getView().buildFetchScenesCall();
       mFetchScenesCall.enqueue(mFetchScenesCallback);
     }
-  }
-
-  @VisibleForTesting Scene getDisplayedScene() {
-    if (mDisplayedIndex < 0 || mDisplayedIndex >= mItems.size()) {
-      return null;
-    }
-    return mItems.get(mDisplayedIndex);
   }
 
   private void displayNotFound() {

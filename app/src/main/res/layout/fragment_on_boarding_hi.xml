@@ -59,8 +59,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/onBoarding_hiMessage"
-        app:paddingEnd="8dp"
-        app:paddingStart="8dp"
         />
 
   </android.support.constraint.ConstraintLayout>

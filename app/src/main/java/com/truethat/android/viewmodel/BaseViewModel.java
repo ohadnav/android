@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
-import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -70,25 +69,6 @@ public class BaseViewModel<ViewInterface extends BaseViewInterface> implements B
 
   @Nullable public ViewInterface getView() {
     return mView;
-  }
-
-  /**
-   * Alternative to {@link #getView()}. This method will never return a null view - not even in case
-   * the current Fragment or
-   * Activity is already destroyed or between orientation change. It will return a dummy
-   * implementation in that case.
-   *
-   * @return the View instance which implements {@link ViewInterface}. It's never null.
-   */
-  @CheckResult @NonNull public ViewInterface getViewOptional() {
-    if (mView != null) {
-      return mView;
-    } else {
-      if (mClassType == null) {
-        throw new IllegalStateException("Your view must implement IView");
-      }
-      return ProxyViewHelper.init(mClassType);
-    }
   }
 
   @CallSuper public void onStop() {

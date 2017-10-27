@@ -4,22 +4,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:background="@drawable/welcome_dialog_bg"
+    android:background="@drawable/dialog_bg"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     >
   <com.truethat.android.view.custom.StyledTextView
-      android:id="@+id/welcomeDialog_title"
+      android:id="@+id/dialog_title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="16dp"
-      android:text="@string/welcome_dialog_title"
       android:textAlignment="center"
       android:textColor="@color/primary"
       android:textSize="24sp"
-      app:layout_constraintBottom_toTopOf="@+id/welcomeDialog_message"
+      app:layout_constraintBottom_toTopOf="@+id/dialog_message"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
@@ -27,32 +26,30 @@
       />
 
   <com.truethat.android.view.custom.StyledTextView
-      android:id="@+id/welcomeDialog_message"
+      android:id="@+id/dialog_message"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="8dp"
-      android:text="@string/welcome_dialog_message"
       android:textAlignment="center"
       android:textColor="@color/secondary"
       android:textSize="16sp"
-      app:layout_constraintBottom_toTopOf="@+id/welcomeDialog_button"
+      app:layout_constraintBottom_toTopOf="@+id/dialog_button"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/welcomeDialog_title"
+      app:layout_constraintTop_toBottomOf="@id/dialog_title"
       />
 
   <com.truethat.android.view.custom.StyledButton
-      android:id="@+id/welcomeDialog_button"
+      android:id="@+id/dialog_button"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/welcome_dialog_button"
       android:textAlignment="center"
       android:textColor="@color/light"
       android:textSize="14sp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/welcomeDialog_message"
+      app:layout_constraintTop_toBottomOf="@id/dialog_message"
       />
 
 </android.support.constraint.ConstraintLayout>

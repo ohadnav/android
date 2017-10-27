@@ -24,7 +24,7 @@ public class OnBoardingActivityTest extends BaseOnBoardingTest {
         .startActivity(new Intent(mTestActivityRule.getActivity(), OnBoardingActivity.class));
     getCurrentActivity().startActivity(
         new Intent(mTestActivityRule.getActivity(), OnBoardingActivity.class));
-    // Should navigate back to Test activity.
-    waitForActivity(TestActivity.class);
+    // Should navigate to Main activity.
+    waitForActivity(MainActivity.class);
   }
 }

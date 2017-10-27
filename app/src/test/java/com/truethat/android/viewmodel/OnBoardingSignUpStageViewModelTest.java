@@ -9,7 +9,6 @@ import com.truethat.android.application.auth.AuthResult;
 import com.truethat.android.common.util.StringUtil;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingSignUpStageViewInterface;
 import java.net.HttpURLConnection;
-import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -63,40 +62,6 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     assertTrue(mFinishedOnBoarding);
   }
 
-  @Test public void finalStage() throws Exception {
-    // Type user name.
-    mViewModel.mNameEditText.set(NAME);
-    // Hit done
-    mViewModel.onNameDone();
-    assertFinalStage();
-    // Stopping view model should unsubscribe reaction detection
-    mViewModel.onHidden();
-    assertFalse(mFakeReactionDetectionManager.isDetecting());
-    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
-    // Starting view model should resume to final stage
-    mViewModel.onVisible();
-    assertFinalStage();
-  }
-
-  @Test public void finalStage_nonPrevalentEmotion() throws Exception {
-    // Type user name.
-    mViewModel.mNameEditText.set(NAME);
-    // Hit done
-    mViewModel.onNameDone();
-    assertFinalStage();
-    // Wait until detection had started.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mFakeReactionDetectionManager.isDetecting();
-      }
-    });
-    // Detect smile.
-    mFakeReactionDetectionManager.onReactionDetected(
-        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, false);
-    // Wait until Auth OK.
-    assertTrue(mFakeAuthManager.isAuthOk());
-  }
-
   @Test public void requestSentStage() throws Exception {
     mView = new ViewInterface() {
       @Override public void onAuthFailed() {
@@ -137,10 +102,8 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     });
     // Hide loading indicator
     assertFalse(mViewModel.mLoadingImageVisibility.get());
-    // Show warning
-    assertTrue(mViewModel.mWarningTextVisibility.get());
-    // and change text
-    assertEquals("sign_up_failed_warning_text", mViewModel.mWarningText.get());
+    // Show dialog
+    assertTrue(mView.mDialogShown);
     // Should not complete on boarding
     assertFalse(mFinishedOnBoarding);
   }
@@ -173,9 +136,8 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     mViewModel.onNameDone();
     // Should not be moving to next stage
     assertInvalidName();
-    // Detect the final reaction.
-    mFakeReactionDetectionManager.onReactionDetected(
-        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, true);
+    // Click sign up
+    mViewModel.doSignUp();
     // Should not be moving to next stage
     assertInvalidName();
     // Cursor and keyboard should be hidden.
@@ -183,14 +145,12 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
     // Warning text visible.
     assertTrue(mViewModel.mWarningTextVisibility.get());
-    // and with correct text
-    assertEquals("name_edit_warning_text", mViewModel.mWarningText.get());
     // Type last name
     mViewModel.mNameEditText.set(NAME);
     assertValidName();
     // Hid done
     mViewModel.onNameDone();
-    assertFinalStage();
+    assertNameDone();
     // Cursor should be hidden after hitting ime button.
     assertFalse(mViewModel.mNameEditCursorVisibility.get());
   }
@@ -223,57 +183,23 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     mViewModel.mNameEditText.set(OnBoardingSignUpStageViewModelTest.NAME);
     // Hit done
     mViewModel.onNameDone();
-    assertFinalStage();
-    // Wait until detection had started.
-    await().until(new Callable<Boolean>() {
-      @Override public Boolean call() throws Exception {
-        return mFakeReactionDetectionManager.isDetecting();
-      }
-    });
-    // Detect smile.
-    mFakeReactionDetectionManager.onReactionDetected(
-        OnBoardingSignUpStageViewModel.REACTION_FOR_DONE, true);
   }
 
   private void assertInvalidName() {
     assertEquals(OnBoardingSignUpStageViewModel.ERROR_COLOR,
         mViewModel.mNameEditBackgroundTintColor.get());
-    // Let detection start
-    try {
-      Thread.sleep(10);
-    } catch (Exception e) {
-      assertTrue(false);
-    }
-    // Should not be subscribed for reaction detected.
-    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
-    // Completion text is hidden
-    assertFalse(mViewModel.mCompletionTextVisibility.get());
-    assertFalse(mViewModel.mCompletionSubscriptTextVisibility.get());
   }
 
   private void assertValidName() {
-    assertEquals(OnBoardingSignUpStageViewModel.VALID_NAME_COLOR,
+    assertEquals(OnBoardingSignUpStageViewModel.VALID_COLOR,
         mViewModel.mNameEditBackgroundTintColor.get());
   }
 
-  private void assertFinalStage() {
-    await().untilAsserted(new ThrowingRunnable() {
-      @Override public void run() throws Throwable {
-        assertEquals(OnBoardingSignUpStageViewModel.Stage.FINAL, mViewModel.getStage());
-      }
-    });
-    // Completion text is hidden
-    assertTrue(mViewModel.mCompletionTextVisibility.get());
-    assertTrue(mViewModel.mCompletionSubscriptTextVisibility.get());
+  private void assertNameDone() {
     // Warning text should be hidden.
     assertFalse(mViewModel.mWarningTextVisibility.get());
-    // Assert detection is ongoing.
-    assertTrue(mFakeReactionDetectionManager.isDetecting());
-    assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Keyboard should be hidden.
     assertFalse(mView.isKeyboardVisible());
-    // Detection should start
-    assertTrue(mFakeReactionDetectionManager.isDetecting());
   }
 
   private void assertSentStage() {
@@ -282,10 +208,8 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
     assertFalse(mFakeAuthManager.getAuthCall().isCanceled());
     // Loading should be visible
     assertTrue(mViewModel.mLoadingImageVisibility.get());
-    // Should unsubscribe view model from reaction detection
-    assertFalse(mFakeReactionDetectionManager.isSubscribed(mViewModel));
     // Input type should be disabled
-    assertEquals(OnBoardingSignUpStageViewModel.NAME_TEXT_DISABLED_INPUT_TYPE,
+    assertEquals(OnBoardingSignUpStageViewModel.DISABLED_INPUT_TYPE,
         mViewModel.mNameEditInputType.get());
   }
 
@@ -293,6 +217,7 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
       implements OnBoardingSignUpStageViewInterface {
     private boolean mIsKeyboardVisible = false;
     private boolean mIsNameEditFocused = false;
+    private boolean mDialogShown = false;
 
     @Override public void requestNameEditFocus() {
       mIsNameEditFocused = true;
@@ -312,6 +237,10 @@ public class OnBoardingSignUpStageViewModelTest extends ViewModelTestSuite {
 
     @Override public AuthListener getAuthListener() {
       return this;
+    }
+
+    @Override public void showFailedSignUpDialog() {
+      mDialogShown = true;
     }
 
     @Override public void onAuthOk() {

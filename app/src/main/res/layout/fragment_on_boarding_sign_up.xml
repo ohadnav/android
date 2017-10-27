@@ -31,13 +31,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread"
         />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/nameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/loadingImage"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_signUp_loadingImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/newAccountText"
@@ -47,7 +48,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:labelFor="@+id/nameEditText"
-          android:text="@string/whats_your_name"
+          android:text="@string/name"
           android:textAlignment="center"
           android:textColor="@color/primary"
           android:textSize="20sp"
@@ -81,7 +82,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="5dp"
-          android:text="@{viewModel.mWarningText}"
+          android:text="@string/name_edit_warning_text"
           android:textAlignment="center"
           android:textColor="@color/error"
           android:textSize="15sp"
@@ -94,60 +95,34 @@
     </android.support.constraint.ConstraintLayout>
 
     <ImageView
-        android:id="@+id/loadingImage"
+        android:id="@+id/onBoarding_signUp_loadingImage"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:contentDescription="@string/image_content_description"
         android:scaleType="centerInside"
         android:visibility="@{viewModel.mLoadingImageVisibility ? View.VISIBLE : View.INVISIBLE}"
-        app:layout_constraintBottom_toTopOf="@+id/finalStageLayout"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_signUpButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/nameLayout"
         app:srcCompat="@drawable/anim_loading"
         />
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/finalStageLayout"
+    <com.truethat.android.view.custom.StyledButton
+        android:id="@+id/onBoarding_signUpButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingEnd="24dp"
+        android:paddingStart="24dp"
+        android:text="@string/sign_up"
+        android:textAlignment="center"
+        android:textColor="@color/light"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loadingImage"
-        >
-      <com.truethat.android.view.custom.StyledTextView
-          android:id="@+id/finalStageText"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:paddingEnd="50dp"
-          android:paddingStart="50dp"
-          android:text="@string/smile_to_continue"
-          android:textAlignment="center"
-          android:textColor="@color/primary"
-          android:textSize="30sp"
-          android:visibility="@{viewModel.mCompletionTextVisibility ? View.VISIBLE : View.INVISIBLE}"
-          app:layout_constraintBottom_toTopOf="@+id/finalStageSubscriptText"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent"
-          />
-
-      <com.truethat.android.view.custom.StyledTextView
-          android:id="@+id/finalStageSubscriptText"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/real_life_smile"
-          android:textAlignment="center"
-          android:textColor="@color/primary"
-          android:textSize="20sp"
-          android:visibility="@{viewModel.mCompletionSubscriptTextVisibility ? View.VISIBLE : View.INVISIBLE}"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/finalStageText"
-          />
-    </android.support.constraint.ConstraintLayout>
+        app:layout_constraintTop_toBottomOf="@id/onBoarding_signUp_loadingImage"
+        />
 
   </android.support.constraint.ConstraintLayout>
 </layout>

@@ -13,9 +13,9 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static com.truethat.android.application.ApplicationTestUtil.waitForActivity;
-import static com.truethat.android.application.ApplicationTestUtil.waitMatcher;
+import static com.truethat.android.application.ApplicationTestUtil.waitForBaseDialog;
+import static com.truethat.android.application.ApplicationTestUtil.waitForDialogHidden;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -32,7 +32,11 @@ public class WelcomeActivityTest extends BaseInstrumentationTestSuite {
     mWelcomeActivityTestRule.launchActivity(null);
     mWelcomeActivityTestRule.getActivity().onAuthFailed();
     // Dialog is visible
-    waitMatcher(allOf(withId(R.id.welcomeDialog_button), isDisplayed()));
+    waitForBaseDialog();
+    // Click on its button
+    onView(withId(R.id.dialog_button)).check(matches(isDisplayed())).perform(click());
+    // Dialog should disappear
+    waitForDialogHidden();
   }
 
   @Test public void alreadyAuthOk() throws Exception {
