@@ -3,6 +3,7 @@ package com.truethat.android.view.activity;
 import android.content.Intent;
 import com.truethat.android.R;
 import com.truethat.android.common.BaseInstrumentationTestSuite;
+import com.truethat.android.viewmodel.OnBoardingCheeseStageViewModel;
 import com.truethat.android.viewmodel.OnBoardingSignUpStageViewModel;
 import java.util.concurrent.Callable;
 import org.awaitility.core.ThrowingRunnable;
@@ -33,13 +34,29 @@ public class BaseOnBoardingTest extends BaseInstrumentationTestSuite {
   protected static final String NAME = "Matt Damon";
   protected OnBoardingSignUpStageViewModel mSignUpStageViewModel;
   protected OnBoardingActivity mActivity;
+  private long mOriginalDetectionDelay = OnBoardingCheeseStageViewModel.sDetectionDelay;
+  private long mOriginalFaceLostTimeout = OnBoardingCheeseStageViewModel.sFaceLostTimeout;
 
   @Override public void setUp() throws Exception {
     super.setUp();
     mFakePermissionsManager.invokeRequestCallback();
+    // Shorten delays
+    OnBoardingCheeseStageViewModel.sDetectionDelay = 10;
+    OnBoardingCheeseStageViewModel.sFaceLostTimeout = 10;
+  }
+
+  @Override public void tearDown() throws Exception {
+    super.tearDown();
+    // Restores original delays.
+    OnBoardingCheeseStageViewModel.sDetectionDelay = mOriginalDetectionDelay;
+    OnBoardingCheeseStageViewModel.sFaceLostTimeout = mOriginalFaceLostTimeout;
   }
 
   protected void manualSetUp() {
+    doSignOut();
+  }
+
+  protected void doSignOut() {
     mFakeAuthManager.signOut(mTestActivityRule.getActivity());
     getCurrentActivity().startActivity(
         new Intent(mTestActivityRule.getActivity(), OnBoardingActivity.class));
@@ -53,13 +70,36 @@ public class BaseOnBoardingTest extends BaseInstrumentationTestSuite {
   protected void doOnBoarding() {
     // Should navigate to On-Boarding
     waitForActivity(OnBoardingActivity.class);
+    // Should be on first stage
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(OnBoardingActivity.HI_STAGE_INDEX, mActivity.getStageIndex());
+      }
+    });
     // Grant camera permission
     getInstrumentation().runOnMainSync(new Runnable() {
       @Override public void run() {
         //noinspection ConstantConditions
-        mActivity.mHiStageFragment.getView().findViewById(R.id.onBoarding_askButton).performClick();
+        mActivity.mHiStageFragment.getView().findViewById(R.id.onBoarding_hiButton).performClick();
       }
     });
+    //
+    // Wait for cheese stage
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(OnBoardingActivity.CHEESE_STAGE_INDEX, mActivity.getStageIndex());
+      }
+    });
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            mActivity.mCheeseStageFragment.getViewModel()));
+      }
+    });
+    // Proceed to sign up stage
+    mFakeReactionDetectionManager.onReactionDetected(
+        OnBoardingCheeseStageViewModel.REACTION_FOR_DONE, true);
     // Wait for sign up stage
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
@@ -68,8 +108,12 @@ public class BaseOnBoardingTest extends BaseInstrumentationTestSuite {
     });
     mSignUpStageViewModel = mActivity.mSignUpStageFragment.getViewModel();
     // Type user name and hit done.
-    onView(withId(R.id.nameEditText)).perform(typeText(BaseOnBoardingTest.NAME))
-        .perform(pressImeActionButton());
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        onView(withId(R.id.nameEditText)).perform(typeText(BaseOnBoardingTest.NAME))
+            .perform(pressImeActionButton());
+      }
+    });
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
         assertEquals(OnBoardingSignUpStageViewModel.Stage.FINAL, mSignUpStageViewModel.getStage());

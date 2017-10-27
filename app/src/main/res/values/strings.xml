@@ -5,7 +5,7 @@
   <string name="ask_permission_button">got it!</string>
   <string name="image_content_description" translatable="false">photo</string>
   <string name="camera_permission_rationale" tools:ignore="Typos">We need to open the camera. That\'s how we see what you\'re feeling, and that\'s how you send cool pics to your friends.</string>
-  <string name="phone_permission_rationale">We use your phone number for identification.</string>
+  <string name="phone_permission_rationale">We need phone info to recognize next time, and keep your account safe.</string>
   <string name="test_text">TEST</string>
   <string name="something_went_wrong" tools:ignore="Typos">OMG, something went wrong.</string>
   <string name="sign_in">Already one of us?</string>
@@ -14,7 +14,6 @@
   <string name="whats_your_name">What\'s your name?</string>
   <string name="john_doe">John Doe</string>
   <string name="smile_to_continue">Look at me and smile</string>
-  <string name="hey">hey</string>
   <string name="real_life_smile">as in real life smile</string>
   <string name="create_your_account">Create your account</string>
   <string name="not_found_scenes">It\'s quiet here. Create you own scene.</string>
@@ -25,9 +24,12 @@
   <string name="sign_up_failed_warning_text">Not again! We had an error</string>
   <string name="saved_successfully">Saved successfully</string>
   <string name="photo_load_error">Bummer! couldn\'t load that photo.</string>
-  <string name="on_boarding_hi">Hey you!</string>
-  <string name="on_boarding_ask_for_camera">We need to open the camera to see these pretty face of yours.</string>
+  <string name="on_boarding_hi_title">Hey you!</string>
+  <string name="on_boarding_hi_message">TrueThat is a social network that sees how you feel.</string>
   <string name="welcome_dialog_title">Bummer</string>
   <string name="welcome_dialog_message">We couldn\'t recognize this phone. Invited to join us!</string>
   <string name="welcome_dialog_button">Alrighty!</string>
+  <string name="say_cheese">Say cheeeeeeeese!</string>
+  <string name="lost_face">We can\'t find your divine face</string>
+  <string name="show_me">show me</string>
 </resources>

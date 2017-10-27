@@ -16,8 +16,8 @@ import butterknife.OnTextChanged;
 import com.truethat.android.R;
 import com.truethat.android.application.auth.AuthListener;
 import com.truethat.android.databinding.FragmentOnBoardingSignUpBinding;
+import com.truethat.android.view.activity.OnBoardingActivity;
 import com.truethat.android.viewmodel.OnBoardingSignUpStageViewModel;
-import com.truethat.android.viewmodel.viewinterface.OnBoardingListener;
 import com.truethat.android.viewmodel.viewinterface.OnBoardingSignUpStageViewInterface;
 import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
 
@@ -26,11 +26,10 @@ import eu.inloop.viewmodel.binding.ViewModelBindingConfig;
  */
 
 public class OnBoardingSignUpStageFragment extends
-    BaseFragment<OnBoardingSignUpStageViewInterface, OnBoardingSignUpStageViewModel, FragmentOnBoardingSignUpBinding>
+    OnBoardingStageFragment<OnBoardingSignUpStageViewInterface, OnBoardingSignUpStageViewModel, FragmentOnBoardingSignUpBinding>
     implements OnBoardingSignUpStageViewInterface, AuthListener {
   @BindView(R.id.nameEditText) EditText mNameEditText;
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
-  private OnBoardingListener mOnBoardingListener;
 
   public static OnBoardingSignUpStageFragment newInstance() {
     Bundle args = new Bundle();
@@ -40,7 +39,7 @@ public class OnBoardingSignUpStageFragment extends
   }
 
   @Override public void onAuthOk() {
-    mOnBoardingListener.nextStage();
+    mOnBoardingListener.onComplete(OnBoardingActivity.SIGN_UP_STAGE_INDEX);
   }
 
   @Override public void onAuthFailed() {
@@ -58,16 +57,6 @@ public class OnBoardingSignUpStageFragment extends
     super.onHidden();
     if (mNameEditText != null) {
       hideSoftKeyboard();
-    }
-  }
-
-  @Override public void onAttach(Context context) {
-    super.onAttach(context);
-    if (context instanceof OnBoardingListener) {
-      mOnBoardingListener = (OnBoardingListener) context;
-    } else {
-      throw new IllegalStateException(
-          "Fragments' context must implement " + OnBoardingListener.class.getSimpleName());
     }
   }
 

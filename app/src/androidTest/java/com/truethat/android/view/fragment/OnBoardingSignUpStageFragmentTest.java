@@ -7,6 +7,7 @@ import com.truethat.android.common.network.NetworkUtil;
 import com.truethat.android.model.User;
 import com.truethat.android.view.activity.BaseOnBoardingTest;
 import com.truethat.android.view.activity.OnBoardingActivity;
+import com.truethat.android.viewmodel.OnBoardingCheeseStageViewModel;
 import com.truethat.android.viewmodel.OnBoardingSignUpStageViewModel;
 import java.net.HttpURLConnection;
 import java.util.concurrent.Callable;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class OnBoardingSignUpStageFragmentTest extends BaseOnBoardingTest {
 
-  @Test public void onBoardingFlow() throws Exception {
+  @Test public void typing() throws Exception {
     manualSetUp();
     mFakeAuthManager.useNetwork();
     final EditText editText = (EditText) getCurrentActivity().findViewById(R.id.nameEditText);
@@ -115,7 +116,7 @@ public class OnBoardingSignUpStageFragmentTest extends BaseOnBoardingTest {
   }
 
   @Test public void failedRequest() throws Exception {
-    manualSetUp();
+    doSignOut();
     mFakeAuthManager.useNetwork();
     mMockWebServer.setDispatcher(new Dispatcher() {
       @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -235,13 +236,29 @@ public class OnBoardingSignUpStageFragmentTest extends BaseOnBoardingTest {
 
   @Override protected void manualSetUp() {
     super.manualSetUp();
-    // Grant camera permission
+    // Proceed to cheese stage
     getInstrumentation().runOnMainSync(new Runnable() {
       @Override public void run() {
         //noinspection ConstantConditions
-        mActivity.mHiStageFragment.getView().findViewById(R.id.onBoarding_askButton).performClick();
+        mActivity.mHiStageFragment.getView().findViewById(R.id.onBoarding_hiButton).performClick();
       }
     });
+    // Wait for cheese stage
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(OnBoardingActivity.CHEESE_STAGE_INDEX, mActivity.getStageIndex());
+      }
+    });
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            mActivity.mCheeseStageFragment.getViewModel()));
+      }
+    });
+    // Proceed to sign up stage
+    mFakeReactionDetectionManager.onReactionDetected(
+        OnBoardingCheeseStageViewModel.REACTION_FOR_DONE, true);
     // Wait for sign up stage
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {

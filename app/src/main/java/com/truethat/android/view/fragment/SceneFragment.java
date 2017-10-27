@@ -1,6 +1,5 @@
 package com.truethat.android.view.fragment;
 
-import android.animation.Animator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
+import com.truethat.android.common.util.StyleUtil;
 import com.truethat.android.databinding.FragmentSceneBinding;
 import com.truethat.android.model.Media;
 import com.truethat.android.model.Scene;
@@ -81,11 +81,6 @@ public class SceneFragment
     getView().findViewById(R.id.mediaContainer).setId(mMediaContainerViewId);
   }
 
-  @Override public void onStart() {
-    super.onStart();
-    defaultReactionScale();
-  }
-
   @Override public void onDestroyView() {
     super.onDestroyView();
     mMediaFragment = null;
@@ -117,45 +112,7 @@ public class SceneFragment
   @Override public void bounceReactionImage() {
     getActivity().runOnUiThread(new Runnable() {
       @Override public void run() {
-        mReactionImage.animate().scaleX(REACTION_BOUNCE_SCALE).scaleY(REACTION_BOUNCE_SCALE)
-            .setListener(new Animator.AnimatorListener() {
-              @Override public void onAnimationStart(Animator animation) {
-
-              }
-
-              @Override public void onAnimationEnd(Animator animation) {
-                mReactionImage.animate()
-                    .scaleX(DEFAULT_REACTION_SCALE)
-                    .scaleY(DEFAULT_REACTION_SCALE)
-                    .setListener(new Animator.AnimatorListener() {
-                      @Override public void onAnimationStart(Animator animation) {
-
-                      }
-
-                      @Override public void onAnimationEnd(Animator animation) {
-
-                      }
-
-                      @Override public void onAnimationCancel(Animator animation) {
-                        defaultReactionScale();
-                      }
-
-                      @Override public void onAnimationRepeat(Animator animation) {
-
-                      }
-                    })
-                    .start();
-              }
-
-              @Override public void onAnimationCancel(Animator animation) {
-                defaultReactionScale();
-              }
-
-              @Override public void onAnimationRepeat(Animator animation) {
-
-              }
-            })
-            .start();
+        StyleUtil.bounceIn(mReactionImage, null);
       }
     });
   }
@@ -181,10 +138,5 @@ public class SceneFragment
 
   @Override public void exposeReactions() {
     mReactionsLayout.animate().alpha(1f).setDuration(100).start();
-  }
-
-  private void defaultReactionScale() {
-    mReactionImage.setScaleX(DEFAULT_REACTION_SCALE);
-    mReactionImage.setScaleY(DEFAULT_REACTION_SCALE);
   }
 }

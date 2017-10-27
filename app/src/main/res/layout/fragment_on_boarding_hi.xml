@@ -17,14 +17,14 @@
       >
 
     <com.truethat.android.view.custom.StyledTextView
-        android:id="@+id/onBoarding_hi"
+        android:id="@+id/onBoarding_hiTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/on_boarding_hi"
+        android:text="@string/on_boarding_hi_title"
         android:textAlignment="center"
         android:textColor="@color/primary"
         android:textSize="48sp"
-        app:layout_constraintBottom_toTopOf="@+id/onBoarding_cameraText"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_hiMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -32,31 +32,33 @@
         />
 
     <com.truethat.android.view.custom.StyledTextView
-        android:id="@+id/onBoarding_cameraText"
+        android:id="@+id/onBoarding_hiMessage"
         android:layout_width="260dp"
         android:layout_height="wrap_content"
-        android:text="@string/on_boarding_ask_for_camera"
+        android:text="@string/on_boarding_hi_message"
         android:textAlignment="center"
         android:textColor="@color/primary"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/onBoarding_askButton"
+        app:layout_constraintBottom_toTopOf="@+id/onBoarding_hiButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/onBoarding_hi"
+        app:layout_constraintTop_toBottomOf="@id/onBoarding_hiTitle"
         />
 
     <com.truethat.android.view.custom.StyledButton
-        android:id="@+id/onBoarding_askButton"
+        android:id="@+id/onBoarding_hiButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/ask_permission_button"
+        android:paddingEnd="24dp"
+        android:paddingStart="24dp"
+        android:text="@string/show_me"
         android:textAlignment="center"
         android:textColor="@color/light"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/onBoarding_cameraText"
+        app:layout_constraintTop_toBottomOf="@id/onBoarding_hiMessage"
         app:paddingEnd="8dp"
         app:paddingStart="8dp"
         />

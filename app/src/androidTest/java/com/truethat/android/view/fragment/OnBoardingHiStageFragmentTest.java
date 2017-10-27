@@ -2,6 +2,7 @@ package com.truethat.android.view.fragment;
 
 import com.truethat.android.R;
 import com.truethat.android.application.permissions.Permission;
+import com.truethat.android.common.BaseInstrumentationTestSuite;
 import com.truethat.android.view.activity.BaseOnBoardingTest;
 import com.truethat.android.view.activity.OnBoardingActivity;
 import org.awaitility.core.ThrowingRunnable;
@@ -18,25 +19,30 @@ import static org.junit.Assert.assertEquals;
  */
 public class OnBoardingHiStageFragmentTest extends BaseOnBoardingTest {
 
-  @Test public void cameraPermissionGranted() {
+  @Test public void cameraPermissionGranted() throws Exception {
     manualSetUp();
     // Grant camera permission
-    onView(withId(R.id.onBoarding_askButton)).perform(click());
-    // Wait for sign up stage
+    onView(withId(R.id.onBoarding_hiButton)).perform(click());
+    // Wait for next stage
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(OnBoardingActivity.SIGN_UP_STAGE_INDEX, mActivity.getStageIndex());
+        assertEquals(OnBoardingActivity.HI_STAGE_INDEX + 1, mActivity.getStageIndex());
       }
     });
   }
 
-  @Test public void cameraPermissionAlreadyGranted() {
+  @Test public void cameraPermissionAlreadyGranted() throws Exception {
     mFakePermissionsManager.grant(Permission.CAMERA);
     manualSetUp();
-    // Wait for sign up stage
+    // Should still wait for click
+    Thread.sleep(Math.min(BaseInstrumentationTestSuite.TIMEOUT.getValueInMS() / 2, 500));
+    assertEquals(OnBoardingActivity.HI_STAGE_INDEX, mActivity.getStageIndex());
+    // Click for next stage
+    onView(withId(R.id.onBoarding_hiButton)).perform(click());
+    // Wait for next stage
     await().untilAsserted(new ThrowingRunnable() {
       @Override public void run() throws Throwable {
-        assertEquals(OnBoardingActivity.SIGN_UP_STAGE_INDEX, mActivity.getStageIndex());
+        assertEquals(OnBoardingActivity.HI_STAGE_INDEX + 1, mActivity.getStageIndex());
       }
     });
   }

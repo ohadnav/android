@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ViewGroup;
 import butterknife.BindView;
 import com.truethat.android.R;
@@ -13,6 +14,7 @@ import com.truethat.android.application.AppContainer;
 import com.truethat.android.databinding.ActivityOnBoardingBinding;
 import com.truethat.android.view.custom.NonSwipableViewPager;
 import com.truethat.android.view.fragment.BaseFragment;
+import com.truethat.android.view.fragment.OnBoardingCheeseStageFragment;
 import com.truethat.android.view.fragment.OnBoardingHiStageFragment;
 import com.truethat.android.view.fragment.OnBoardingSignUpStageFragment;
 import com.truethat.android.viewmodel.BaseViewModel;
@@ -25,11 +27,13 @@ public class OnBoardingActivity extends
     BaseActivity<BaseViewInterface, BaseViewModel<BaseViewInterface>, ActivityOnBoardingBinding>
     implements OnBoardingListener {
   @VisibleForTesting public static final int HI_STAGE_INDEX = 0;
-  @VisibleForTesting public static final int SIGN_UP_STAGE_INDEX = 1;
+  @VisibleForTesting public static final int CHEESE_STAGE_INDEX = 1;
+  @VisibleForTesting public static final int SIGN_UP_STAGE_INDEX = 2;
   private static final String BUNDLE_STAGE_INDEX = "stageIndex";
   private static final int FIRST_STAGE_INDEX = HI_STAGE_INDEX;
-  private static final int STAGE_COUNT = 2;
+  private static final int STAGE_COUNT = 3;
   @VisibleForTesting public OnBoardingHiStageFragment mHiStageFragment;
+  @VisibleForTesting public OnBoardingCheeseStageFragment mCheeseStageFragment;
   @VisibleForTesting public OnBoardingSignUpStageFragment mSignUpStageFragment;
   @BindView(R.id.onBoarding_mainPager) NonSwipableViewPager mMainPager;
   private int mStageIndex = FIRST_STAGE_INDEX;
@@ -54,6 +58,12 @@ public class OnBoardingActivity extends
                   mHiStageFragment.setVisibilityListener(mMainPager);
                 }
                 return mHiStageFragment;
+              case CHEESE_STAGE_INDEX:
+                if (mCheeseStageFragment == null) {
+                  mCheeseStageFragment = OnBoardingCheeseStageFragment.newInstance();
+                  mCheeseStageFragment.setVisibilityListener(mMainPager);
+                }
+                return mCheeseStageFragment;
               case SIGN_UP_STAGE_INDEX:
                 if (mSignUpStageFragment == null) {
                   mSignUpStageFragment = OnBoardingSignUpStageFragment.newInstance();
@@ -70,6 +80,9 @@ public class OnBoardingActivity extends
             switch (position) {
               case HI_STAGE_INDEX:
                 mHiStageFragment = (OnBoardingHiStageFragment) fragment;
+                break;
+              case CHEESE_STAGE_INDEX:
+                mCheeseStageFragment = (OnBoardingCheeseStageFragment) fragment;
                 break;
               case SIGN_UP_STAGE_INDEX:
                 mSignUpStageFragment = (OnBoardingSignUpStageFragment) fragment;
@@ -91,14 +104,18 @@ public class OnBoardingActivity extends
 
   @Override public void onStop() {
     super.onStop();
-    // Destroy all items, so that they are properly restored upon resume
-    if (mHiStageFragment != null) {
-      mMainPager.getAdapter().destroyItem(mMainPager, HI_STAGE_INDEX, mHiStageFragment);
-      mHiStageFragment = null;
-    }
+    // Destroy all items in reverse order, so that they are properly restored upon resume
     if (mSignUpStageFragment != null) {
       mMainPager.getAdapter().destroyItem(mMainPager, SIGN_UP_STAGE_INDEX, mSignUpStageFragment);
       mSignUpStageFragment = null;
+    }
+    if (mCheeseStageFragment != null) {
+      mMainPager.getAdapter().destroyItem(mMainPager, CHEESE_STAGE_INDEX, mCheeseStageFragment);
+      mHiStageFragment = null;
+    }
+    if (mHiStageFragment != null) {
+      mMainPager.getAdapter().destroyItem(mMainPager, HI_STAGE_INDEX, mHiStageFragment);
+      mHiStageFragment = null;
     }
   }
 
@@ -111,7 +128,7 @@ public class OnBoardingActivity extends
     super.onResume();
     // Maybe we are here by mistake.
     if (AppContainer.getAuthManager().isAuthOk()) {
-      finish();
+      onBoardingComplete();
     } else {
       mMainPager.setCurrentItem(mStageIndex);
     }
@@ -121,14 +138,26 @@ public class OnBoardingActivity extends
     return mStageIndex;
   }
 
-  public void nextStage() {
+  @Override public synchronized void onComplete(int stageIndex) {
+    Log.d(TAG, "onComplete, completed " + mStageIndex);
+    if (mStageIndex != stageIndex) {
+      Log.w(TAG, "onComplete, " + mStageIndex + " already completed.");
+      return;
+    }
     if (mStageIndex < STAGE_COUNT - 1) {
       mStageIndex++;
-      mMainPager.setCurrentItem(mStageIndex);
+      runOnUiThread(new Runnable() {
+        @Override public void run() {
+          mMainPager.setCurrentItem(mStageIndex);
+        }
+      });
     } else {
-      // On boarding is complete
-      startActivity(new Intent(this, MainActivity.class));
-      finish();
+      onBoardingComplete();
     }
+  }
+
+  private void onBoardingComplete() {
+    startActivity(new Intent(this, MainActivity.class));
+    finish();
   }
 }

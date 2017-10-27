@@ -37,6 +37,8 @@ public class BaseReactionDetectionManager
       mReactionDetectionListeners.add(reactionDetectionListener);
       if (mFaceDetectionOngoing) {
         reactionDetectionListener.onFaceDetectionStarted();
+      } else {
+        reactionDetectionListener.onFaceDetectionStopped();
       }
     } else {
       Log.e(TAG, "Trying to subscribe to an idle manager.");

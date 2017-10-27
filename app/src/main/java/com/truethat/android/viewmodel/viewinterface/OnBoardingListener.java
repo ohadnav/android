@@ -7,6 +7,7 @@ package com.truethat.android.viewmodel.viewinterface;
 public interface OnBoardingListener extends BaseListener {
   /**
    * Moves the user to the next on boarding stage.
+   * @param stageIndex of the completed stage.
    */
-  void nextStage();
+  void onComplete(int stageIndex);
 }

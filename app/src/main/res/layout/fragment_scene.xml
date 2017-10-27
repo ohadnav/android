@@ -47,6 +47,8 @@
           android:layout_width="60dp"
           android:layout_height="60dp"
           android:contentDescription="@string/image_content_description"
+          android:scaleX="0.5"
+          android:scaleY="0.5"
           android:src="@{viewModel.mReactionDrawableResource}"
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toStartOf="@+id/reactionsCountText"
