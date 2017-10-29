@@ -1,5 +1,6 @@
 package com.truethat.android.view.fragment;
 
+import android.support.constraint.ConstraintLayout;
 import android.support.test.espresso.action.GeneralClickAction;
 import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.Press;
@@ -67,8 +68,8 @@ import static org.junit.Assert.assertTrue;
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "ci");
   private static final Video VIDEO = new Video(0L,
       "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4");
-  private static final Photo PHOTO =
-      new Photo(1L, "http://i.huffpost.com/gen/1226293/thumbs/o-OBAMA-LAUGHING-570.jpg");
+  private static final Photo PHOTO = new Photo(1L,
+      "http://www.coca-colacompany.com/content/dam/journey/us/en/private/2015/04/shareacoke6-604-337-f5bf4c88.rendition.598.336.jpg");
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> HAPPY_REACTIONS =
@@ -317,6 +318,30 @@ import static org.junit.Assert.assertTrue;
         assertTrue(CameraTestUtil.areDrawablesIdentical(
             ContextCompat.getDrawable(mTestActivityRule.getActivity(),
                 Emotion.OMG.getDrawableResource()), reactionImage.getDrawable()));
+      }
+    });
+  }
+
+  @Test public void faceDetection() throws Exception {
+    Scene scene = new Scene(ID_1, DIRECTOR, HAPPY_REACTIONS, HOUR_AGO, PHOTO);
+    mRespondedScenes = Collections.singletonList(scene);
+    mMainActivityRule.launchActivity(null);
+    waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    assertSceneDisplayed(scene, PHOTO.getId());
+    final ScenesPagerFragment scenesPagerFragment = getScenesPagerFragment();
+    // Wait for reaction detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(
+            scenesPagerFragment.getCurrentFragment().getViewModel()));
+      }
+    });
+    mFakeReactionDetectionManager.onFaceDetectionStarted();
+    @SuppressWarnings("ConstantConditions") final ConstraintLayout reactionsLayout =
+        scenesPagerFragment.getCurrentFragment().getView().findViewById(R.id.reactionsCountLayout);
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertEquals(1, reactionsLayout.getAlpha(), 0.01);
       }
     });
   }

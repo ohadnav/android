@@ -27,8 +27,6 @@ public class SceneFragment
     extends BaseFragment<SceneViewInterface, SceneViewModel, FragmentSceneBinding>
     implements SceneViewInterface {
   private static final String ARG_SCENE = "scene";
-  private static final float REACTION_BOUNCE_SCALE = 0.8f;
-  private static final float DEFAULT_REACTION_SCALE = 0.5f;
   @BindView(R.id.reactionImage) ImageView mReactionImage;
   @BindView(R.id.reactionsCountLayout) ConstraintLayout mReactionsLayout;
   private Scene mScene;
@@ -133,10 +131,18 @@ public class SceneFragment
   }
 
   @Override public void fadeReactions() {
-    mReactionsLayout.animate().alpha(0.2f).setDuration(100).start();
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mReactionsLayout.animate().alpha(0.4f).setDuration(100).start();
+      }
+    });
   }
 
   @Override public void exposeReactions() {
-    mReactionsLayout.animate().alpha(1f).setDuration(100).start();
+    getActivity().runOnUiThread(new Runnable() {
+      @Override public void run() {
+        mReactionsLayout.animate().alpha(1f).setDuration(100).start();
+      }
+    });
   }
 }
