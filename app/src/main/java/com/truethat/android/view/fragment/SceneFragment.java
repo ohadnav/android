@@ -133,7 +133,7 @@ public class SceneFragment
   @Override public void fadeReactions() {
     getActivity().runOnUiThread(new Runnable() {
       @Override public void run() {
-        mReactionsLayout.animate().alpha(0.4f).setDuration(100).start();
+        mReactionsLayout.animate().alpha(0.6f).setDuration(100).start();
       }
     });
   }

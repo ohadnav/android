@@ -12,7 +12,7 @@
   <string name="signing_in">Singing in…</string>
   <string name="welcome_text">Join</string>
   <string name="name">Full name</string>
-  <string name="john_doe">John Doe</string>
+  <string name="john_doe" translatable="false">Justin Bieber</string>
   <string name="smile_to_continue">Look at me and smile</string>
   <string name="real_life_smile">as in real life smile</string>
   <string name="create_your_account">Create your account</string>

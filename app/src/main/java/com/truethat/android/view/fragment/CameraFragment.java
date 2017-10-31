@@ -214,6 +214,30 @@ public class CameraFragment extends
    */
   private List<Integer> mAutofocusAvailableModes;
   /**
+   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
+   * {@link TextureView}.
+   */
+  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
+      new TextureView.SurfaceTextureListener() {
+
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+          openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+          configureTransform(width, height);
+        }
+
+        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
+          return true;
+        }
+
+        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
+        }
+      };
+  /**
    * A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
    */
   private CameraCaptureSession.CaptureCallback mCaptureCallback =
@@ -315,30 +339,6 @@ public class CameraFragment extends
       Log.e(TAG, "Camera error " + error);
     }
   };
-  /**
-   * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
-   * {@link TextureView}.
-   */
-  private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-      new TextureView.SurfaceTextureListener() {
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
-          openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-          configureTransform(width, height);
-        }
-
-        @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture texture) {
-          return true;
-        }
-
-        @Override public void onSurfaceTextureUpdated(SurfaceTexture texture) {
-        }
-      };
 
   public static CameraFragment newInstance() {
     CameraFragment fragment = new CameraFragment();
@@ -911,7 +911,7 @@ public class CameraFragment extends
               Log.e(TAG, "Configuration failed.");
             }
           }, null);
-    } catch (CameraAccessException e) {
+    } catch (Exception e) {
       if (!BuildConfig.DEBUG) {
         Crashlytics.logException(e);
       }

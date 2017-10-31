@@ -79,6 +79,7 @@ public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
         onPublished();
       } else {
         if (!BuildConfig.DEBUG) {
+          // TODO: add response data to Crashlytics
           Crashlytics.logException(new Exception("Scene saving failed."));
         }
         Log.e(TAG, "Failed to save scene.\n"
@@ -354,6 +355,7 @@ public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
   }
 
   private void onPublishError() {
+    // TODO: use a dialog
     if (getView() != null) {
       getView().toast(getContext().getString(R.string.sent_failed));
     }

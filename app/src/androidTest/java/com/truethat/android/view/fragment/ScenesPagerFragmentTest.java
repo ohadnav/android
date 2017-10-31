@@ -69,12 +69,12 @@ import static org.junit.Assert.assertTrue;
   private static final Video VIDEO = new Video(0L,
       "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4");
   private static final Photo PHOTO = new Photo(1L,
-      "http://www.coca-colacompany.com/content/dam/journey/us/en/private/2015/04/shareacoke6-604-337-f5bf4c88.rendition.598.336.jpg");
+      "https://drive.google.com/file/d/0B4xnu-ma8esCQVM2NC0tS0JxZkU/view?usp=sharing");
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> HAPPY_REACTIONS =
       new TreeMap<Emotion, Long>() {{
-        put(Emotion.HAPPY, HAPPY_COUNT);
+        put(Emotion.HAPPY, 1L);
       }};
   private List<Scene> mRespondedScenes;
 
@@ -205,6 +205,7 @@ import static org.junit.Assert.assertTrue;
     mRespondedScenes = Collections.singletonList(scene);
     mMainActivityRule.launchActivity(null);
     waitForMainFragment(MainActivity.TOOLBAR_THEATER_INDEX);
+    mFakeReactionDetectionManager.onFaceDetectionStarted();
     assertSceneDisplayed(scene, PHOTO.getId());
   }
 

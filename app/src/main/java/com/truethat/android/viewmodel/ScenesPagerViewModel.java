@@ -118,7 +118,7 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
   }
 
   public void previous() {
-    if (mDisplayedIndex != 0) {
+    if (mDisplayedIndex != null && mDisplayedIndex != 0) {
       mDisplayedIndex = mDisplayedIndex - 1;
       if (getView() != null) {
         getView().vibrate();
