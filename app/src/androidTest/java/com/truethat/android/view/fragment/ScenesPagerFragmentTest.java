@@ -68,13 +68,12 @@ import static org.junit.Assert.assertTrue;
   private static final User DIRECTOR = new User(FakeAuthManager.USER_ID + 1, "Avi", "ci");
   private static final Video VIDEO = new Video(0L,
       "https://storage.googleapis.com/truethat-test-studio/testing/Ohad_wink_compressed.mp4");
-  private static final Photo PHOTO = new Photo(1L,
-      "https://drive.google.com/file/d/0B4xnu-ma8esCQVM2NC0tS0JxZkU/view?usp=sharing");
+  private static final Photo PHOTO = new Photo(1L, "https://i.imgur.com/j8Gu7Aw.jpg");
   private static final Date HOUR_AGO = new Date(new Date().getTime() - TimeUnit.HOURS.toMillis(1));
   private static final long HAPPY_COUNT = 3000;
   @SuppressWarnings("serial") private static final TreeMap<Emotion, Long> HAPPY_REACTIONS =
       new TreeMap<Emotion, Long>() {{
-        put(Emotion.HAPPY, 1L);
+        put(Emotion.HAPPY, HAPPY_COUNT);
       }};
   private List<Scene> mRespondedScenes;
 
