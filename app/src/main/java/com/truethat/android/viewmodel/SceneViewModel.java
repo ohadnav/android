@@ -67,6 +67,7 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
   public final ObservableBoolean mDirectorNameVisibility = new ObservableBoolean(true);
   public final ObservableBoolean mInfoLayoutVisibility = new ObservableBoolean(true);
   public final ObservableBoolean mReactionCountersVisibility = new ObservableBoolean(true);
+  public final ObservableBoolean mResetButtonVisibility = new ObservableBoolean(false);
   public final ObservableField<String> mTimeAgoText = new ObservableField<>();
   /**
    * Default for reaction counter's image view.
@@ -208,7 +209,19 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
     Log.d(TAG, "Media finished");
     if (mNextMedia != null) {
       display(mNextMedia);
+    } else if (mScene.getMediaNodes().size() > 1) {
+      // The entire scene is finished
+      mResetButtonVisibility.set(true);
     }
+  }
+
+  /**
+   * Resets the scene media
+   */
+  public void reset() {
+    mCurrentMedia = mScene.getRootMedia();
+    display(mCurrentMedia);
+    mResetButtonVisibility.set(false);
   }
 
   @Override public void onFaceDetectionStarted() {

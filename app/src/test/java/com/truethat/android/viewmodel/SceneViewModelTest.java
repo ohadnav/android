@@ -86,6 +86,9 @@ import static org.junit.Assert.assertTrue;
       }
     });
     assertFalse(mView.reactionsLayoutExposed);
+    // Reset button should not be exposed
+    mView.finishMedia();
+    assertFalse(mViewModel.mResetButtonVisibility.get());
   }
 
   @Test public void faceDetectionOnGoing_beforeDisplay() throws Exception {
@@ -179,6 +182,8 @@ import static org.junit.Assert.assertTrue;
     // Should update next media
     assertEquals(MEDIA_1, mViewModel.getNextMedia());
     mView.finishMedia();
+    // Reset button should not be exposed yet
+    assertFalse(mViewModel.mResetButtonVisibility.get());
     // Should navigate to next media
     assertEquals(MEDIA_1, mView.getDisplayedMedia());
     // Should reset next media
@@ -199,6 +204,36 @@ import static org.junit.Assert.assertTrue;
         assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
       }
     });
+    // Reset button should be exposed
+    mView.finishMedia();
+    assertTrue(mViewModel.mResetButtonVisibility.get());
+  }
+
+  @Test public void resetMedia() throws Exception {
+    mScene = new Scene(SCENE_ID, DIRECTOR, REACTION_COUNTERS, mNow, Arrays.asList(MEDIA_0, MEDIA_1),
+        Collections.singletonList(EDGE_0_TO_1));
+    initSceneViewModel();
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
+    // Wait for detection to start
+    await().untilAsserted(new ThrowingRunnable() {
+      @Override public void run() throws Throwable {
+        assertTrue(mFakeReactionDetectionManager.isSubscribed(mViewModel));
+      }
+    });
+    // Detect a reaction
+    mFakeReactionDetectionManager.onReactionDetected(EDGE_0_TO_1.getReaction(), true);
+    // Should update next media
+    assertEquals(MEDIA_1, mViewModel.getNextMedia());
+    mView.finishMedia();
+    // Should navigate to next media
+    assertEquals(MEDIA_1, mView.getDisplayedMedia());
+    // Reset button should be exposed
+    mView.finishMedia();
+    assertTrue(mViewModel.mResetButtonVisibility.get());
+    // Reset media
+    mViewModel.reset();
+    // Should resume to root media
+    assertEquals(MEDIA_0, mView.getDisplayedMedia());
   }
 
   @Test public void nextMedia_correctMediaChosen() throws Exception {

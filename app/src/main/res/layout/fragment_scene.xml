@@ -26,6 +26,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
+    <ImageButton
+        android:id="@+id/resetScene"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="16dp"
+        android:alpha="0.8"
+        android:background="@null"
+        android:contentDescription="@string/image_content_description"
+        android:onClick="@{() -> viewModel.reset()}"
+        android:scaleType="fitCenter"
+        android:visibility="@{viewModel.mResetButtonVisibility ? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/reset"
+        />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/reactionsCountLayout"
