@@ -17,7 +17,7 @@ public class OnBoardingCheeseStageViewModel
     implements ReactionDetectionListener {
   @VisibleForTesting public static final Emotion REACTION_FOR_DONE = Emotion.HAPPY;
   @VisibleForTesting public static long sDetectionDelay = 500;
-  @VisibleForTesting public static long sFaceLostTimeout = 500;
+  @VisibleForTesting public static long sFaceLostTimeout = 2000;
   private Timer mLostFaceTimer;
   private Timer mDetectionTimer;
 

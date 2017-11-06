@@ -105,7 +105,7 @@ public class StudioFragmentTest extends BaseInstrumentationTestSuite {
       onView(withId(R.id.parentMedia)).check(matches(isDisplayed()));
     }
     // Should display emotions to create interactive scenes from.
-    for (Emotion emotion : Emotion.values()) {
+    for (Emotion emotion : Emotion.SUPPORTED_VALUES) {
       onView(withId(studioFragment.getEmotionToViewId().get(emotion))).check(
           matches(isDisplayed()));
     }

@@ -1,6 +1,7 @@
 package com.truethat.android.view.fragment;
 
 import android.graphics.SurfaceTexture;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import com.truethat.android.R;
 import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.model.Video;
 import java.io.File;
+import java.util.HashMap;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -59,6 +61,23 @@ public class VideoFragment extends MediaFragment<Video>
       // Initialize media player and retriever from external URI, i.e. from other users videos.
       mMediaPlayer =
           MediaPlayer.create(getActivity().getApplicationContext(), Uri.parse(mMedia.getUrl()));
+      MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+      retriever.setDataSource(mMedia.getUrl(), new HashMap<String, String>());
+      // Sets proper orientation
+      int videoOrientation = Integer.parseInt(
+          retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+      // iPhone videos has the "correct" orientation of 0, and so need to be rotated and scaled
+      // to match the android videos.
+      if (videoOrientation == 0) {
+        mVideoTextureView.setRotation(90F);
+        // 0.01 is added to compensate for missing pixel row
+        mVideoTextureView.setScaleX(0.01F
+            + Integer.parseInt(
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH))
+            / Float.parseFloat(
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)));
+        mVideoTextureView.setScaleY(9 / 16F);
+      }
     } else if (mMedia.getRawResourceId() != null) {
       mMediaPlayer =
           MediaPlayer.create(getActivity().getApplicationContext(), mMedia.getRawResourceId());

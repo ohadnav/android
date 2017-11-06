@@ -221,8 +221,8 @@ public class StudioFragment
 
   private void createFlowLayout() {
     // Create array of view IDs of emoji image buttons and previous media button
-    int[] viewIds = new int[Emotion.values().length + 1];
-    for (final Emotion emotion : Emotion.values()) {
+    int[] viewIds = new int[Emotion.SUPPORTED_VALUES.length + 1];
+    for (final Emotion emotion : Emotion.SUPPORTED_VALUES) {
       // Generates a unique ID for each reaction.
       int viewId = View.generateViewId();
       ImageButton imageButton = new ImageButton(getContext());
@@ -253,7 +253,7 @@ public class StudioFragment
       constraintSet.applyTo(mFlowLayout);
     }
     mFlowLayout.bringToFront();
-    viewIds[Emotion.values().length] = R.id.parentMedia;
+    viewIds[Emotion.SUPPORTED_VALUES.length] = R.id.parentMedia;
     // Create a chain of emotions, so that they do not overlap one another.
     ConstraintSet constraintSet = new ConstraintSet();
     constraintSet.clone(mFlowLayout);

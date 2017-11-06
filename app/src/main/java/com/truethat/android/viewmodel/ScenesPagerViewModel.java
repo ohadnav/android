@@ -73,8 +73,6 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
           if (getView() != null) {
             getView().displayItem(mDisplayedIndex);
           }
-        } else if (mItems.size() == 0) {
-          displayNotFound();
         }
       } else {
         if (!BuildConfig.DEBUG) {
@@ -90,17 +88,22 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
             + response.message()
             + "\n"
             + response.headers());
+      }
+      if (mItems.size() == 0) {
         displayNotFound();
       }
     }
 
     @Override public void onFailure(@NonNull Call<List<Scene>> call, @NonNull Throwable t) {
+      mLoadingImageVisibility.set(false);
       if (!BuildConfig.DEBUG) {
         Crashlytics.logException(t);
       }
       t.printStackTrace();
       Log.e(TAG, "Fetch scenes request to " + call.request().url() + " had failed.", t);
-      displayNotFound();
+      if (mItems.size() == 0) {
+        displayNotFound();
+      }
     }
   };
 
