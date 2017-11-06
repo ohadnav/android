@@ -6,23 +6,19 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import butterknife.BindView;
 import com.truethat.android.R;
 import com.truethat.android.application.AppContainer;
-import com.truethat.android.common.util.AppUtil;
 import com.truethat.android.databinding.FragmentScenesPagerBinding;
 import com.truethat.android.model.Scene;
-import com.truethat.android.view.custom.ClickableViewPager;
-import com.truethat.android.view.custom.NonSwipableViewPager;
 import com.truethat.android.view.custom.SceneFragmentAdapter;
-import com.truethat.android.view.custom.ZoomOutPageTransformer;
+import com.truethat.android.view.custom.VerticalViewPager;
 import com.truethat.android.viewmodel.ScenesPagerViewModel;
 import com.truethat.android.viewmodel.viewinterface.BaseListener;
 import com.truethat.android.viewmodel.viewinterface.ScenesPagerViewInterface;
@@ -36,9 +32,11 @@ import retrofit2.Call;
 
 public class ScenesPagerFragment
     extends BaseFragment<ScenesPagerViewInterface, ScenesPagerViewModel, FragmentScenesPagerBinding>
-    implements ScenesPagerViewInterface, ClickableViewPager.ClickEventListener {
+    //implements ScenesPagerViewInterface, ClickableViewPager.ClickEventListener {
+    implements ScenesPagerViewInterface {
   @BindView(R.id.loadingImage) ImageView mLoadingImage;
-  private NonSwipableViewPager mPager;
+  @BindView(R.id.scenesPager) VerticalViewPager mPager;
+  //private NonSwipableViewPager mPager;
   private SceneFragmentAdapter mSceneFragmentAdapter;
   private ScenesFetcher mScenesFetcher;
 
@@ -49,13 +47,13 @@ public class ScenesPagerFragment
     return fragment;
   }
 
-  @Override public void onClickEvent(MotionEvent e) {
-    if (e.getX() > AppUtil.realDisplaySize(getContext()).x / 2.0) {
-      getViewModel().next();
-    } else {
-      getViewModel().previous();
-    }
-  }
+  //@Override public void onClickEvent(MotionEvent e) {
+  //  if (e.getX() > AppUtil.realDisplaySize(getContext()).x / 2.0) {
+  //    getViewModel().next();
+  //  } else {
+  //    getViewModel().previous();
+  //  }
+  //}
 
   @Override public void maybeChangeVisibilityState() {
     super.maybeChangeVisibilityState();
@@ -65,7 +63,6 @@ public class ScenesPagerFragment
   }
 
   @Override public void onVisible() {
-    initializeViewPager();
     super.onVisible();
     AppContainer.getReactionDetectionManager().start(getBaseActivity());
     ((AnimationDrawable) mLoadingImage.getDrawable()).start();
@@ -80,6 +77,13 @@ public class ScenesPagerFragment
     }
   }
 
+  @Nullable @Override public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    View view = super.onCreateView(inflater, container, savedInstanceState);
+    initializeViewPager();
+    return view;
+  }
+
   @Nullable @VisibleForTesting public SceneFragment getCurrentFragment() {
     if (mPager == null
         || mSceneFragmentAdapter == null
@@ -91,6 +95,10 @@ public class ScenesPagerFragment
   }
 
   @Override public void displayItem(int index) {
+    if (mPager == null || mSceneFragmentAdapter == null) {
+      Log.e(TAG, "Adapter not initialized!");
+      return;
+    }
     Log.d(TAG, "Displaying scene with index " + index);
     if (mPager.getAdapter().getCount() <= index || index < 0) {
       throw new IndexOutOfBoundsException(
@@ -118,41 +126,58 @@ public class ScenesPagerFragment
   }
 
   private void initializeViewPager() {
-    if (mPager == null && getView() != null) {
-      mPager = new NonSwipableViewPager(getContext());
-      mPager.setId(View.generateViewId());
-      ConstraintLayout.LayoutParams layoutParams =
-          new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,
-              ConstraintLayout.LayoutParams.MATCH_PARENT);
-      ((ViewGroup) getView()).addView(mPager, layoutParams);
-      ConstraintSet constraintSet = new ConstraintSet();
-      constraintSet.clone((ConstraintLayout) getView());
-      // Sets an ID for the fragment container view if it has none.
-      if (getView().getId() == View.NO_ID) {
-        getView().setId(View.generateViewId());
+    //if (mPager == null && getView() != null) {
+    //  mPager = new NonSwipableViewPager(getContext());
+    //  mPager.setId(View.generateViewId());
+    //  ConstraintLayout.LayoutParams layoutParams =
+    //      new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,
+    //          ConstraintLayout.LayoutParams.MATCH_PARENT);
+    //  ((ViewGroup) getView()).addView(mPager, layoutParams);
+    //  ConstraintSet constraintSet = new ConstraintSet();
+    //  constraintSet.clone((ConstraintLayout) getView());
+    //  // Sets an ID for the fragment container view if it has none.
+    //  if (getView().getId() == View.NO_ID) {
+    //    getView().setId(View.generateViewId());
+    //  }
+    //  // Sets the boundaries of the pager to match its parent.
+    //  constraintSet.connect(mPager.getId(), ConstraintSet.START, getView().getId(),
+    //      ConstraintSet.START);
+    //  constraintSet.connect(mPager.getId(), ConstraintSet.END, getView().getId(),
+    //      ConstraintSet.END);
+    //  constraintSet.connect(mPager.getId(), ConstraintSet.TOP, getView().getId(),
+    //      ConstraintSet.TOP);
+    //  constraintSet.connect(mPager.getId(), ConstraintSet.BOTTOM, getView().getId(),
+    //      ConstraintSet.BOTTOM);
+    //  constraintSet.applyTo((ConstraintLayout) getView());
+    //  // Initialize the adapter.
+    //  mSceneFragmentAdapter = new SceneFragmentAdapter(getFragmentManager(), mPager);
+    //  mPager.setAdapter(mSceneFragmentAdapter);
+    //  // Visual transformation effects.
+    //  mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+    //  mPager.setVisibilityListener(this);
+    //  // Hooks the view model items to the adapter ones.
+    //  mSceneFragmentAdapter.setItems(getViewModel().mItems);
+    //}
+    mSceneFragmentAdapter = new SceneFragmentAdapter(getFragmentManager(), mPager);
+    mPager.setAdapter(mSceneFragmentAdapter);
+    mPager.setVisibilityListener(this);
+    mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+      @Override
+      public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
       }
-      // Sets the boundaries of the pager to match its parent.
-      constraintSet.connect(mPager.getId(), ConstraintSet.START, getView().getId(),
-          ConstraintSet.START);
-      constraintSet.connect(mPager.getId(), ConstraintSet.END, getView().getId(),
-          ConstraintSet.END);
-      constraintSet.connect(mPager.getId(), ConstraintSet.TOP, getView().getId(),
-          ConstraintSet.TOP);
-      constraintSet.connect(mPager.getId(), ConstraintSet.BOTTOM, getView().getId(),
-          ConstraintSet.BOTTOM);
-      constraintSet.applyTo((ConstraintLayout) getView());
-      // Initialize the adapter.
-      mSceneFragmentAdapter = new SceneFragmentAdapter(getFragmentManager(), mPager);
-      mPager.setAdapter(mSceneFragmentAdapter);
-      // Visual transformation effects.
-      mPager.setPageTransformer(true, new ZoomOutPageTransformer());
-      mPager.setVisibilityListener(this);
-      // Hooks the view model items to the adapter ones.
-      mSceneFragmentAdapter.setItems(getViewModel().mItems);
-    }
+
+      @Override public void onPageSelected(int position) {
+        getViewModel().setDisplayedIndex(position);
+      }
+
+      @Override public void onPageScrollStateChanged(int state) {
+
+      }
+    });
   }
 
-  interface ScenesFetcher extends BaseListener {
+  public interface ScenesFetcher extends BaseListener {
     Call<List<Scene>> buildFetchScenesCall();
   }
 }

@@ -29,7 +29,7 @@ import retrofit2.Response;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
+public class StudioViewModel extends BaseViewModel<StudioViewInterface>
     implements CameraFragment.CameraFragmentListener {
   @DrawableRes static final int RECORD_RESOURCE = R.drawable.record;
   @DrawableRes static final int CAPTURE_RESOURCE = R.drawable.capture;
@@ -130,6 +130,29 @@ public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
     }
   }
 
+  @Override public void onResume() {
+    super.onResume();
+    switch (mState) {
+      case EDIT:
+        onEdit();
+        break;
+      case SENT:
+        cancelSent();
+        break;
+      case PUBLISHED:
+      case CAMERA:
+      default:
+        onCamera();
+    }
+    // Set default capture button
+    mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
+  }
+
+  @Override public void onPause() {
+    super.onPause();
+    cancelSent();
+  }
+
   @Override public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     if (mDirectedScene != null) {
@@ -153,28 +176,28 @@ public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
     return mCurrentMedia;
   }
 
-  @Override public void onVisible() {
-    super.onVisible();
-    switch (mState) {
-      case EDIT:
-        onEdit();
-        break;
-      case SENT:
-        cancelSent();
-        break;
-      case PUBLISHED:
-      case CAMERA:
-      default:
-        onCamera();
-    }
-    // Set default capture button
-    mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
-  }
-
-  @Override public void onHidden() {
-    super.onHidden();
-    cancelSent();
-  }
+  //@Override public void onVisible() {
+  //  super.onVisible();
+  //  switch (mState) {
+  //    case EDIT:
+  //      onEdit();
+  //      break;
+  //    case SENT:
+  //      cancelSent();
+  //      break;
+  //    case PUBLISHED:
+  //    case CAMERA:
+  //    default:
+  //      onCamera();
+  //  }
+  //  // Set default capture button
+  //  mCaptureButtonDrawableResource.set(CAPTURE_RESOURCE);
+  //}
+  //
+  //@Override public void onHidden() {
+  //  super.onHidden();
+  //  cancelSent();
+  //}
 
   @Override public void onPhotoTaken(Image image) {
     Log.d(TAG, "Photo taken.");
@@ -348,10 +371,15 @@ public class StudioViewModel extends BaseFragmentViewModel<StudioViewInterface>
   private void onPublished() {
     Log.d(TAG, "Change state: " + DirectingState.PUBLISHED.name());
     mState = DirectingState.PUBLISHED;
+    mDirectedScene = null;
+    mCurrentMedia = null;
+    mNewMedia = null;
     if (getView() != null) {
+      //getView().restoreCameraPreview();
       getView().toast(getContext().getString(R.string.saved_successfully));
-      getView().navigateToTheater();
+      //getView().navigateToTheater();
     }
+    onCamera();
   }
 
   private void onPublishError() {

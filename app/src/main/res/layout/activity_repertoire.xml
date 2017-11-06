@@ -10,23 +10,28 @@
         />
   </data>
   <android.support.constraint.ConstraintLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      tools:context="com.truethat.android.view.activity.MainActivity"
-      >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+      tools:context="com.truethat.android.view.activity.RepertoireActivity"
+    >
 
-    <!--<com.truethat.android.view.custom.ClickableViewPager-->
-    <!--android:id="@+id/mainPager"-->
+    <fragment
+        android:id="@+id/scenesPager"
+        android:name="com.truethat.android.view.fragment.ScenesPagerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <!--<android.support.constraint.ConstraintLayout-->
+    <!--android:id="@+id/repertoire_scenesPagerLayout"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="match_parent"-->
-    <!--android:overScrollMode="never"-->
     <!--app:layout_constraintBottom_toBottomOf="parent"-->
     <!--app:layout_constraintEnd_toEndOf="parent"-->
     <!--app:layout_constraintStart_toStartOf="parent"-->
     <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--tools:layout="@layout/fragment_scenes_pager"-->
     <!--/>-->
-
     <include layout="@layout/toolbar"/>
-
-  </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>
 </layout>

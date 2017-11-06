@@ -2,8 +2,10 @@ package com.truethat.android.view.custom;
 
 import android.content.res.ColorStateList;
 import android.databinding.BindingAdapter;
+import android.databinding.ObservableList;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.ViewPager;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
@@ -29,6 +31,15 @@ public class DataBindingAdapters {
   @BindingAdapter("android:inputType") public static void setInputType(EditText view,
       int inputType) {
     view.setInputType(inputType);
+  }
+
+  // --------------------------- ViewPager ------------------------------
+  @SuppressWarnings("unchecked") @BindingAdapter("items") public static void attachItems(
+      ViewPager viewPager, ObservableList items) {
+    if (viewPager.getAdapter() != null
+        && viewPager.getAdapter() instanceof FragmentObservableListAdapter) {
+      ((FragmentObservableListAdapter) viewPager.getAdapter()).setItems(items);
+    }
   }
 
   // --------------------------- Colors ----------------------------------

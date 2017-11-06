@@ -16,6 +16,17 @@
       tools:context=".view.fragment.ScenesPagerFragment"
       >
 
+    <com.truethat.android.view.custom.VerticalViewPager
+        android:id="@+id/scenesPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:items="@{viewModel.mItems}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/nonFoundLayout"
         android:layout_width="match_parent"

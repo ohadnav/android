@@ -6,7 +6,8 @@ import com.truethat.android.model.Media;
  * Proudly created by ohad on 20/07/2017 for TrueThat.
  */
 
-public interface StudioViewInterface extends BaseFragmentViewInterface, ToolbarViewInterface {
+//public interface StudioViewInterface extends BaseFragmentViewInterface, ToolbarViewInterface {
+public interface StudioViewInterface extends BaseViewInterface, ToolbarViewInterface {
   /**
    * Restores camera preview.
    */

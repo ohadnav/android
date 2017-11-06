@@ -1,8 +1,8 @@
 package com.truethat.android.viewmodel.viewinterface;
 
-import com.truethat.android.view.fragment.RepertoireFragment;
-import com.truethat.android.view.fragment.StudioFragment;
-import com.truethat.android.view.fragment.TheaterFragment;
+import com.truethat.android.view.activity.RepertoireActivity;
+import com.truethat.android.view.activity.StudioActivity;
+import com.truethat.android.view.activity.TheaterActivity;
 
 /**
  * Proudly created by ohad on 10/10/2017 for TrueThat.
@@ -10,17 +10,17 @@ import com.truethat.android.view.fragment.TheaterFragment;
 
 public interface ToolbarViewInterface {
   /**
-   * Navigates to {@link TheaterFragment}.
+   * Navigates to {@link TheaterActivity}.
    */
   void navigateToTheater();
 
   /**
-   * Navigates to {@link StudioFragment}.
+   * Navigates to {@link StudioActivity}.
    */
   void navigateToStudio();
 
   /**
-   * Navigates to {@link RepertoireFragment}.
+   * Navigates to {@link RepertoireActivity}.
    */
   void navigateToRepertoire();
 

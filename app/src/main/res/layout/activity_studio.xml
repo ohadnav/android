@@ -13,18 +13,24 @@
   <android.support.constraint.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      tools:context=".view.fragment.StudioFragment"
+      tools:context=".view.activity.StudioActivity"
       >
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/cameraFragmentLayout"
+    <!--<android.support.constraint.ConstraintLayout-->
+    <!--android:id="@+id/cameraFragmentLayout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toTopOf="parent"-->
+    <!--tools:layout="@layout/fragment_camera"-->
+    <!--/>-->
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.truethat.android.view.fragment.CameraFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout="@layout/fragment_camera"
         />
 
     <android.support.constraint.ConstraintLayout
@@ -144,5 +150,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/anim_loading"
         />
+
+    <include layout="@layout/toolbar"/>
   </android.support.constraint.ConstraintLayout>
 </layout>

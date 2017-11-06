@@ -244,10 +244,13 @@ public class SceneViewModel extends BaseFragmentViewModel<SceneViewInterface>
    * </ul>
    */
   public void onReactionDetected(Emotion reaction, boolean mostLikely) {
-    if (!mostLikely && (mScene.getNextMedia(mCurrentMedia, reaction) == null
-        || mScene.hasMultipleNextMediaOptions(mCurrentMedia))) {
+    if (reaction != Emotion.HAPPY) {
       return;
     }
+    //if (!mostLikely && (mScene.getNextMedia(mCurrentMedia, reaction) == null
+    //    || mScene.hasMultipleNextMediaOptions(mCurrentMedia))) {
+    //  return;
+    //}
     if (!mDetectedReactions.get(mCurrentMedia).contains(reaction)) {
       Log.v(TAG, "Reaction detected: " + reaction.name());
       mScene.doReaction(reaction);

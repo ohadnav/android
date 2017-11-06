@@ -2,7 +2,6 @@ package com.truethat.android.application.auth;
 
 import com.truethat.android.application.DeviceManager;
 import com.truethat.android.model.User;
-import com.truethat.android.view.activity.BaseActivity;
 
 /**
  * Proudly created by ohad on 29/05/2017 for TrueThat.
@@ -34,7 +33,7 @@ public interface AuthManager {
 
   /**
    * Signs a new {@link User} up, and registers that user on our petite backend. Upon successful
-   * registration the {@link BaseActivity#onAuthOk()} callback is invoked.
+   * registration the {@link AuthListener#onAuthOk()} callback is invoked.
    *
    * @param listener to apply auth callbacks.
    * @param newUser  to sign up.

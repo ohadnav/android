@@ -8,7 +8,7 @@
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
   <!-- For phone number and device ID -->
-  <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+  <!--<uses-permission android:name="android.permission.READ_PHONE_STATE"/>-->
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -37,7 +37,17 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".view.activity.MainActivity"
+        android:name=".view.activity.StudioActivity"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="stateHidden">
+    </activity>
+    <activity
+        android:name=".view.activity.RepertoireActivity"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="stateHidden">
+    </activity>
+    <activity
+        android:name=".view.activity.TheaterActivity"
         android:launchMode="singleTask"
         android:windowSoftInputMode="stateHidden">
     </activity>

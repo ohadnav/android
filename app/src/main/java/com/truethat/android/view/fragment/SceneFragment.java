@@ -1,6 +1,7 @@
 package com.truethat.android.view.fragment;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -32,6 +33,7 @@ public class SceneFragment
   private Scene mScene;
   private MediaFragment mMediaFragment;
   private Integer mMediaContainerViewId = View.generateViewId();
+  private MediaPlayer mReactSoundPlayer;
 
   public SceneFragment() {
     // Required empty public constructor
@@ -82,6 +84,10 @@ public class SceneFragment
   @Override public void onDestroyView() {
     super.onDestroyView();
     mMediaFragment = null;
+    if (mReactSoundPlayer != null) {
+      mReactSoundPlayer.release();
+      mReactSoundPlayer = null;
+    }
   }
 
   @Override public boolean shouldBeVisible(Object o) {
@@ -111,6 +117,12 @@ public class SceneFragment
     getActivity().runOnUiThread(new Runnable() {
       @Override public void run() {
         StyleUtil.bounceIn(mReactionImage, null);
+        if (mReactSoundPlayer != null) {
+          mReactSoundPlayer.release();
+        }
+        mReactSoundPlayer = MediaPlayer.create(getContext(), R.raw.react);
+        mReactSoundPlayer.start();
+        mReactSoundPlayer.setLooping(false);
       }
     });
   }

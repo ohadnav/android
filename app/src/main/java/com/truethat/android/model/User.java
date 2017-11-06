@@ -147,6 +147,7 @@ public class User extends BaseModel {
    * @return whether the user had been through on boarding.
    */
   public boolean onBoarded() {
-    return mFirstName != null && mLastName != null;
+    //return mFirstName != null && mLastName != null;
+    return true;
   }
 }

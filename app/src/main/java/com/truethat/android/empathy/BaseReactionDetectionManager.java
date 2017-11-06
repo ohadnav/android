@@ -58,16 +58,17 @@ public class BaseReactionDetectionManager
   }
 
   @Override public void stop() {
-    if (mReactionDetectionListeners.isEmpty()) {
+    mReactionDetectionListeners = new HashSet<>();
+    //if (mReactionDetectionListeners.isEmpty()) {
       Log.d(TAG, "Stopping detection.");
       mState = State.IDLE;
-    } else {
-      Log.d(TAG, "Not stopping: "
-          + mReactionDetectionListeners.size()
-          + " listeners left (such as "
-          + mReactionDetectionListeners.iterator().next().getClass().getSimpleName()
-          + ")");
-    }
+    //} else {
+    //  Log.d(TAG, "Not stopping: "
+    //      + mReactionDetectionListeners.size()
+    //      + " listeners left (such as "
+    //      + mReactionDetectionListeners.iterator().next().getClass().getSimpleName()
+    //      + ")");
+    //}
   }
 
   /**

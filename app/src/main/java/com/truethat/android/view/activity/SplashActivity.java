@@ -20,7 +20,7 @@ public class SplashActivity extends AppCompatActivity implements AuthListener {
   @Override public void onAuthOk() {
     Log.d(TAG, "onAuthOk");
     // Start main activity
-    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+    startActivity(new Intent(SplashActivity.this, StudioActivity.class));
     // close splash activity
     finish();
   }
@@ -39,6 +39,7 @@ public class SplashActivity extends AppCompatActivity implements AuthListener {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    AppContainer.getAuthManager().auth(this);
+    //AppContainer.getAuthManager().auth(this);
+    AppContainer.getAuthManager().signIn(this);
   }
 }

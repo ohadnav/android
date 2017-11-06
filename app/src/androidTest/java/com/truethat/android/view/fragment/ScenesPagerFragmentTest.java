@@ -25,6 +25,7 @@ import com.truethat.android.model.Scene;
 import com.truethat.android.model.User;
 import com.truethat.android.model.Video;
 import com.truethat.android.view.activity.MainActivity;
+import com.truethat.android.view.activity.TheaterActivity;
 import com.truethat.android.viewmodel.SceneViewModel;
 import java.util.Arrays;
 import java.util.Collections;
@@ -170,7 +171,7 @@ import static org.junit.Assert.assertTrue;
     }
     final MainFragment mainFragment = mainActivity.getCurrentMainFragment();
     return (ScenesPagerFragment) mainFragment.getFragmentManager()
-        .findFragmentById(mainFragment instanceof TheaterFragment ? R.id.theater_scenesPagerLayout
+        .findFragmentById(mainFragment instanceof TheaterActivity ? R.id.theater_scenesPagerLayout
             : R.id.repertoire_scenesPagerLayout);
   }
 

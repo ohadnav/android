@@ -1,5 +1,6 @@
 package com.truethat.android.common.network;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
@@ -81,13 +82,20 @@ public class NetworkUtil {
    */
   private static OkHttpClient CLIENT = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
     @Override public Response intercept(@NonNull Chain chain) throws IOException {
-      Request request = chain.request();
-      Log.d(TAG, "Sending " + request.method() + " request to " + request.url());
+      Request originalRequest = chain.request();
+      Log.d(TAG, "Sending " + originalRequest.method() + " request to " + originalRequest.url());
       if (!BuildConfig.DEBUG) {
-        Crashlytics.setString(LoggingKey.LAST_NETWORK_REQUEST.name(), request.url().toString());
+        Crashlytics.setString(LoggingKey.LAST_NETWORK_REQUEST.name(),
+            originalRequest.url().toString());
       }
-      Request newRequest = request.newBuilder()
-          .addHeader(HeadersContract.VERSION_NAME.getName(), BuildConfig.VERSION_NAME)
+      Request newRequest = originalRequest.newBuilder()
+          .header("User-Agent", BuildConfig.APPLICATION_ID
+              + "/"
+              + BuildConfig.VERSION_NAME
+              + " Android/"
+              + Build.VERSION.RELEASE
+              + " Retrofit/"
+              + Retrofit.class.getPackage().getName())
           .build();
       return chain.proceed(newRequest);
     }

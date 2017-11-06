@@ -107,28 +107,32 @@ public class ScenesPagerViewModel extends BaseFragmentViewModel<ScenesPagerViewI
     }
   };
 
-  public void next() {
-    // Fetch more scenes if we have none, or if we're at the last item.
-    if (mItems.size() == 0 || mDisplayedIndex == mItems.size() - 1) {
-      fetchScenes();
-    } else {
-      mDisplayedIndex = mDisplayedIndex + 1;
-      if (getView() != null) {
-        getView().vibrate();
-        getView().displayItem(mDisplayedIndex);
-      }
-    }
+  public void setDisplayedIndex(Integer displayedIndex) {
+    mDisplayedIndex = displayedIndex;
   }
 
-  public void previous() {
-    if (mDisplayedIndex != null && mDisplayedIndex != 0) {
-      mDisplayedIndex = mDisplayedIndex - 1;
-      if (getView() != null) {
-        getView().vibrate();
-        getView().displayItem(mDisplayedIndex);
-      }
-    }
-  }
+  //public void next() {
+  //  // Fetch more scenes if we have none, or if we're at the last item.
+  //  if (mItems.size() == 0 || mDisplayedIndex == mItems.size() - 1) {
+  //    fetchScenes();
+  //  } else {
+  //    mDisplayedIndex = mDisplayedIndex + 1;
+  //    if (getView() != null) {
+  //      getView().vibrate();
+  //      getView().displayItem(mDisplayedIndex);
+  //    }
+  //  }
+  //}
+
+  //public void previous() {
+  //  if (mDisplayedIndex != null && mDisplayedIndex != 0) {
+  //    mDisplayedIndex = mDisplayedIndex - 1;
+  //    if (getView() != null) {
+  //      getView().vibrate();
+  //      getView().displayItem(mDisplayedIndex);
+  //    }
+  //  }
+  //}
 
   @Override public void onCreate(@Nullable Bundle arguments, @Nullable Bundle savedInstanceState) {
     super.onCreate(arguments, savedInstanceState);
